@@ -14,6 +14,21 @@
     "signIn": "Sign In",
     "signUp": "Sign Up"
   },
+  "auth": {
+    "signIn": {
+      "title": "Login",
+      "subtitle": "Access your ProKids space",
+      "demoBanner": "Feature in demonstration. Authentication will be activated in the complete version.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Log in (Demo)",
+      "noAccount": "Don't have an account yet?",
+      "signUp": "Sign up",
+      "error": "Invalid email or password"
+    }
+  },
   "footer": {
     "description": "Building amazing experiences with Next.js and Supabase.",
     "links": "Links",

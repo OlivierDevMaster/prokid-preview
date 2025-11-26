@@ -11,6 +11,21 @@
     "signIn": "Connexion",
     "signUp": "Inscription"
   },
+  "auth": {
+    "signIn": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace ProKids",
+      "demoBanner": "Fonctionnalité en démonstration. L'authentification sera activée dans la version complète.",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "votre@email.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire",
+      "error": "Email ou mot de passe invalide"
+    }
+  },
   "footer": {
     "description": "Création d'expériences exceptionnelles avec Next.js et Supabase.",
     "links": "Liens",
