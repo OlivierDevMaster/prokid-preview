@@ -1,0 +1,25 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "hello": "Bonjour"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "about": "À propos",
+    "contact": "Contact",
+    "dashboard": "Tableau de bord",
+    "signIn": "Connexion",
+    "signUp": "Inscription"
+  },
+  "footer": {
+    "description": "Création d'expériences exceptionnelles avec Next.js et Supabase.",
+    "links": "Liens",
+    "legal": "Légal",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "contact": "Contact",
+    "contactDescription": "Contactez-nous",
+    "copyright": "© 2024 MyApp. Tous droits réservés.",
+    "language": "Langue"
+  }
+}
