@@ -20,6 +20,45 @@
     "contact": "Contact",
     "contactDescription": "Contactez-nous",
     "copyright": "© 2024 MyApp. Tous droits réservés.",
-    "language": "Langue"
+    "language": "Langue",
+    "home": "Accueil",
+    "about": "À propos"
+  },
+  "admin": {
+    "tagline": "Relier le bon projet au bon repreneur, c'est notre métier.",
+    "affaires": "Affaires",
+    "acheteurs": "Acheteurs",
+    "correspondances": "Correspondances",
+    "admin": "Admin",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "dashboard": {
+      "title": "Tableau de Bord",
+      "subtitle": "Aperçu de vos données.",
+      "users": "Utilisateurs",
+      "totalAcheteurs": "Acheteurs Totaux",
+      "correspondancesPotentielles": "Correspondances Potentielles"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "subtitle": "Gérez tous les utilisateurs de votre application.",
+      "tableTitle": "Liste des utilisateurs",
+      "noUsers": "Aucun utilisateur trouvé.",
+      "name": "Nom",
+      "email": "Email",
+      "emailVerified": "Email vérifié",
+      "lastSignIn": "Dernière connexion",
+      "createdAt": "Date de création",
+      "noName": "Sans nom",
+      "verified": "Vérifié",
+      "notVerified": "Non vérifié",
+      "never": "Jamais",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat."
+    }
   }
 }

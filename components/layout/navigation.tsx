@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function Navigation() {
   const t = useTranslations("navigation");
+  const title = useTranslations("title");
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,15 +22,13 @@ export function Navigation() {
     { href: "/contact", label: t("contact") },
   ];
 
-  console.info({ session });
-
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold">MyApp</span>
+              <span className="text-xl font-bold">{title("project")}</span>
             </Link>
             
             <div className="hidden md:flex md:items-center md:gap-6">

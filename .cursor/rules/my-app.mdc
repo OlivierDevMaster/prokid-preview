@@ -1,0 +1,323 @@
+---
+alwaysApply: true
+---
+
+# Cursor Rules for My-App Project
+
+## Project Structure
+
+### Directory Organization
+```
+my-app/
+├── app/                          # App Router (Next.js 15)
+│   ├── [locale]/                 # Routes localisées
+│   ├── api/                      # API Routes
+│   └── layout.tsx                # Root layout
+│
+├── components/                   # Composants React
+│   ├── ui/                       # Composants UI (shadcn/ui)
+│   ├── layout/                   # Composants de layout
+│   ├── auth/                     # Composants d'authentification
+│   └── admin/                    # Composants admin
+│
+├── services/                     # Services métier
+│   ├── admin/
+│   │   └── users/
+│   │       ├── user.service.ts
+│   │       ├── user.queries.ts
+│   │       └── user.types.ts
+│   └── auth/
+│
+├── lib/                          # Utilitaires et configurations
+│   ├── supabase/                 # Configuration Supabase
+│   ├── api/                      # Clients API externes
+│   └── utils.ts
+│
+├── hooks/                        # Custom React hooks
+│   └── use-auth.ts
+│
+├── i18n/                         # Configuration i18n
+│   ├── routing.ts
+│   └── request.ts
+│
+├── messages/                     # Fichiers de traduction
+│   ├── en.json
+│   └── fr.json
+│
+└── types/                        # Types TypeScript
+    └── next-auth.d.ts
+```
+
+## Naming Conventions
+
+### Components
+- **Component names**: PascalCase
+- Example: `UserTable`, `AdminSidebar`, `Navigation`
+
+### Hooks
+- **Hook names**: camelCase, always prefixed with "use"
+- Pattern: `use` + Verb + Noun (e.g., `useGetUsers`, `useAuth`, `useFetchData`)
+- Example: `useGetUsers`, `useAuth`, `useFetchData`, `useUpdateUser`
+
+### Variables
+- **Variable names**: camelCase, explicit and descriptive
+- Example: `userList`, `isLoading`, `emailAddress`, `currentUserId`
+
+### Constants
+- **Constant names**: UPPER_SNAKE_CASE
+- Example: `STATUS_COLORS`, `MAX_ITEMS_PER_PAGE`, `API_BASE_URL`
+
+### Functions
+- **Function names**: camelCase, verb-based
+- Example: `getUserById`, `fetchUsers`, `handleSubmit`, `validateEmail`
+
+### Types/Interfaces
+- **Type names**: PascalCase
+- Example: `User`, `UserProfile`, `ApiResponse`, `CreateUserInput`
+
+## Code Style
+
+### Indentation
+- Always use **spaces** (not tabs)
+- **Indentation**: 2 spaces
+- Example:
+```typescript
+function example() {
+  if (condition) {
+    return value;
+  }
+}
+```
+
+### File Formatting
+- Always add a **blank line at the bottom** of every file
+- Example:
+```typescript
+export function Component() {
+  return <div>Content</div>;
+}
+
+```
+
+### Imports
+- Group imports in this order:
+  1. External libraries (React, Next.js, etc.)
+  2. Internal libraries (@/lib, @/components, etc.)
+  3. Relative imports
+  4. Types
+- Example:
+```typescript
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { UserService } from "@/services/admin/users/user.service";
+
+import type { User } from "./user.types";
+```
+
+## Component Structure
+
+### Server Components (Default)
+- Use Server Components by default
+- Fetch data directly in the component
+- Example:
+```typescript
+import { UserService } from "@/services/admin/users/user.service";
+
+export default async function UsersPage() {
+  const users = await UserService.getAllUsers();
+  return <div>{/* ... */}</div>;
+}
+```
+
+### Client Components
+- Use "use client" directive when needed
+- For interactivity, hooks, or browser APIs
+- Example:
+```typescript
+"use client";
+
+import { useState } from "react";
+
+export function InteractiveComponent() {
+  const [state, setState] = useState();
+  return <div>{/* ... */}</div>;
+}
+```
+
+## Services Pattern
+
+### Service Structure
+- Create services in `services/[feature]/[entity]/`
+- Separate concerns: service, queries, types
+- Example:
+```typescript
+// services/admin/users/user.service.ts
+export class UserService {
+  static async getAllUsers(): Promise<User[]> {
+    // Implementation
+  }
+  
+  static async getUserById(id: string): Promise<User | null> {
+    // Implementation
+  }
+}
+```
+
+### Error Handling
+- Always handle errors gracefully
+- Return null or empty array on error
+- Log errors for debugging
+- Example:
+```typescript
+try {
+  const data = await fetchData();
+  return data;
+} catch (error) {
+  console.error("Error:", error);
+  return [];
+}
+```
+
+## Data Fetching
+
+### Server Components
+- Fetch data directly in Server Components
+- Use services for data access
+- Example:
+```typescript
+export default async function Page() {
+  const data = await DataService.getData();
+  return <div>{/* Render data */}</div>;
+}
+```
+
+### Client Components
+- Use hooks for data fetching in Client Components
+- Example:
+```typescript
+"use client";
+
+export function useGetUsers() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Fetch data
+  }, []);
+  
+  return { users, loading };
+}
+```
+
+## Internationalization (i18n)
+
+### Translations
+- Use `getTranslations` in Server Components
+- Use `useTranslations` in Client Components
+- Organize translations by feature
+- Example:
+```typescript
+// Server Component
+const t = await getTranslations("admin.users");
+
+// Client Component
+const t = useTranslations("admin.users");
+```
+
+## TypeScript
+
+### Type Safety
+- Always define types for props, functions, and data
+- Use interfaces for objects
+- Use type aliases for unions/primitives
+- Example:
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+}
+
+type Status = "active" | "inactive" | "pending";
+```
+
+### Type Imports
+- Use `import type` for type-only imports
+- Example:
+```typescript
+import type { User } from "@/services/admin/users/user.types";
+```
+
+## Best Practices
+
+### Separation of Concerns
+- Keep components focused on presentation
+- Move business logic to services
+- Use hooks for reusable logic
+
+### Reusability
+- Create reusable components in `components/ui/`
+- Create feature-specific components in `components/[feature]/`
+- Extract common logic to hooks
+
+### Performance
+- Use Server Components by default
+- Use Client Components only when necessary
+- Implement proper loading states
+- Use Suspense for async data
+
+### Accessibility
+- Use semantic HTML
+- Add proper ARIA labels
+- Ensure keyboard navigation
+- Test with screen readers
+
+### Security
+- Never expose sensitive data in Client Components
+- Validate user input
+- Use environment variables for secrets
+- Implement proper authentication checks
+
+## File Organization Rules
+
+1. **One component per file** (except related small components)
+2. **Co-locate related files** (component + types + styles)
+3. **Group by feature**, not by type
+4. **Keep files focused** - single responsibility
+
+## Example File Structure
+
+```typescript
+// components/admin/users-table.tsx
+"use client";
+
+import { useState } from "react";
+import { useReactTable } from "@tanstack/react-table";
+
+import { Table } from "@/components/ui/table";
+import type { User } from "@/services/admin/users/user.types";
+
+const PAGE_SIZE = 10;
+
+interface UsersTableProps {
+  data: User[];
+}
+
+export function UsersTable({ data }: UsersTableProps) {
+  const [sorting, setSorting] = useState([]);
+  // Implementation
+}
+
+```
+
+## Additional Notes
+
+- Always use TypeScript strict mode
+- Prefer async/await over promises
+- Use const for values that don't change
+- Use let only when reassignment is needed
+- Prefer arrow functions for callbacks
+- Use template literals for string interpolation
+- Always handle loading and error states

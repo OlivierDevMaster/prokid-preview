@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/routing";
 import { useEffect } from "react";
+import { AdminSidebar } from "@/components/admin/sidebar";
 
 export default function ProtectedLayout({
   children,
@@ -31,12 +32,11 @@ export default function ProtectedLayout({
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          {children}
-        </div>
-      </div>
-    </main>
+    <div className="min-h-screen flex bg-gray-50">
+      <AdminSidebar />
+      <main className="flex-1 overflow-auto">
+        <div className="p-8">{children}</div>
+      </main>
+    </div>
   );
 }

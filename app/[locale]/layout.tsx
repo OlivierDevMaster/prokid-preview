@@ -5,8 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { AuthSessionProvider } from '@/components/providers/session-provider';
-import { Navigation } from '@/components/layout/navigation';
-import { Footer } from '@/components/layout/footer';
+import ConditionalWrapper from '../../components/layout/conditional-wrapper';
 import { Geist } from "next/font/google";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -51,11 +50,7 @@ export default async function LocaleLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <div className="flex min-h-screen flex-col">
-                <Navigation />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
+              <ConditionalWrapper>{children}</ConditionalWrapper>
             </ThemeProvider>
           </NextIntlClientProvider>
         </AuthSessionProvider>

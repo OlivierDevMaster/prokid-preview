@@ -1,4 +1,7 @@
 {
+  "title": {
+    "project": "prokid"
+  },
   "common": {
     "welcome": "Welcome",
     "hello": "Hello"
@@ -20,6 +23,45 @@
     "contact": "Contact",
     "contactDescription": "Get in touch with us",
     "copyright": "© 2024 MyApp. All rights reserved.",
-    "language": "Language"
+    "language": "Language",
+    "home": "home",
+    "about": "About"
+  },
+  "admin": {
+    "tagline": "Connecting the right project to the right buyer, that's our job.",
+    "affaires": "Business",
+    "acheteurs": "Buyers",
+    "correspondances": "Matches",
+    "admin": "Admin",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "dashboard": {
+      "title": "Dashboard",
+      "users": "Users",
+      "subtitle": "Overview of your data.",
+      "totalAcheteurs": "Total Buyers",
+      "correspondancesPotentielles": "Potential Matches"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage all users in your application.",
+      "tableTitle": "Users List",
+      "noUsers": "No users found.",
+      "name": "Name",
+      "email": "Email",
+      "emailVerified": "Email Verified",
+      "lastSignIn": "Last Sign In",
+      "createdAt": "Created At",
+      "noName": "No name",
+      "verified": "Verified",
+      "notVerified": "Not Verified",
+      "never": "Never",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of",
+      "noResults": "No results."
+    }
   }
 }
