@@ -24,6 +24,24 @@
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
       "error": "Email ou mot de passe invalide"
+    },
+    "signUp": {
+      "welcome": "Bienvenue sur",
+      "question": "Vous êtes une structure ou un professionnel?",
+      "professional": {
+        "title": "Je suis un professionnel",
+        "roles": "RSAI, Référent-e Technique, EJE, Psychomotricien-ne, Diététicien-ne, Formateur-rice...",
+        "benefit": "Rejoignez ProKid pour être visible et contacté par les structures.",
+        "button": "Créer mon compte pro"
+      },
+      "structure": {
+        "title": "Je suis une structure",
+        "types": "Crèches, micro-crèches, MAM, EAJE...",
+        "benefit": "Trouvez rapidement des professionnels qualifiés pour vos remplacements et vos suivis.",
+        "button": "Créer mon compte structure"
+      },
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Connectez-vous ici"
     }
   },
   "footer": {

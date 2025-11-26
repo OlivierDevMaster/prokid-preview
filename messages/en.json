@@ -27,6 +27,24 @@
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
       "error": "Invalid email or password"
+    },
+    "signUp": {
+      "welcome": "Welcome to",
+      "question": "Are you a structure or a professional?",
+      "professional": {
+        "title": "I am a professional",
+        "roles": "RSAI, Technical Referent, EJE, Psychomotor therapist, Dietitian, Trainer...",
+        "benefit": "Join ProKid to be visible and contacted by structures.",
+        "button": "Create my pro account"
+      },
+      "structure": {
+        "title": "I am a structure",
+        "types": "Daycare centers, micro-daycare centers, MAM, EAJE...",
+        "benefit": "Quickly find qualified professionals for your replacements and follow-ups.",
+        "button": "Create my structure account"
+      },
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in here"
     }
   },
   "footer": {
