@@ -1,120 +1,105 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Link } from "@/i18n/routing";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { User, Building2 } from "lucide-react";
 
 export function SignUpForm({
-  className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations("auth.signUp");
   const router = useRouter();
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
+  const handleProfessionalSignUp = () => {
+    router.push("/auth/sign-up/professional");
+  };
 
-    if (password !== repeatPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
-        },
-      });
-      if (error) throw error;
-      router.push("/auth/sign-up-success");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleStructureSignUp = () => {
+    router.push("/auth/sign-up/structure");
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignUp}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+    <div
+      className="flex flex-col items-center justify-center p-6"
+      {...props}
+    >
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800">
+            {t("welcome")}{" "}
+            <span className="text-blue-400">
+              PRO
+            </span>
+            <span className="text-green-400">Kid</span> 👋
+          </h1>
+          <p className="text-lg text-gray-700">{t("question")}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="p-8 flex flex-col items-center text-center space-y-6">
+              <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <User className="h-8 w-8 text-gray-700" />
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                  👨‍🎓 {t("professional.title")}
+                </h2>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {t("professional.roles")}
+                </p>
+                <p className="text-sm text-gray-600 mt-4">
+                  {t("professional.benefit")}
+                </p>
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
-                </div>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                />
-              </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+              <Button
+                onClick={handleProfessionalSignUp}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                {t("professional.button")}
               </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Login
-              </Link>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="p-8 flex flex-col items-center text-center space-y-6">
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                <Building2 className="h-8 w-8 text-gray-700" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                  🏠 {t("structure.title")}
+                </h2>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {t("structure.types")}
+                </p>
+                <p className="text-sm text-gray-600 mt-4">
+                  {t("structure.benefit")}
+                </p>
+              </div>
+              <Button
+                onClick={handleStructureSignUp}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                {t("structure.button")}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center text-gray-700">
+          {t("hasAccount")}{" "}
+          <Link
+            href="/auth/login"
+            className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
+          >
+            {t("loginLink")}
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

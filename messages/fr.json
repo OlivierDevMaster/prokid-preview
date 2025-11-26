@@ -11,6 +11,39 @@
     "signIn": "Connexion",
     "signUp": "Inscription"
   },
+  "auth": {
+    "signIn": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace ProKids",
+      "demoBanner": "Fonctionnalité en démonstration. L'authentification sera activée dans la version complète.",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "votre@email.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire",
+      "error": "Email ou mot de passe invalide"
+    },
+    "signUp": {
+      "welcome": "Bienvenue sur",
+      "question": "Vous êtes une structure ou un professionnel?",
+      "professional": {
+        "title": "Je suis un professionnel",
+        "roles": "RSAI, Référent-e Technique, EJE, Psychomotricien-ne, Diététicien-ne, Formateur-rice...",
+        "benefit": "Rejoignez ProKid pour être visible et contacté par les structures.",
+        "button": "Créer mon compte pro"
+      },
+      "structure": {
+        "title": "Je suis une structure",
+        "types": "Crèches, micro-crèches, MAM, EAJE...",
+        "benefit": "Trouvez rapidement des professionnels qualifiés pour vos remplacements et vos suivis.",
+        "button": "Créer mon compte structure"
+      },
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Connectez-vous ici"
+    }
+  },
   "footer": {
     "tagline": "la plateforme des pros de la petite enfance",
     "description": "ProKid aide les structures de la petite enfance à trouver des professionnels qualifiés non médicaux.",

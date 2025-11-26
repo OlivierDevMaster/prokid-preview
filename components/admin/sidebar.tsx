@@ -2,8 +2,9 @@
 
 import { usePathname } from "@/i18n/routing";
 import { Link } from "@/i18n/routing";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -23,6 +24,12 @@ export function AdminSidebar() {
   const title = useTranslations("title");
   const pathname = usePathname();
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/auth/signin");
+  };
 
   const navItems = [
     {
@@ -101,9 +108,7 @@ export function AdminSidebar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>{t("profile")}</DropdownMenuItem>
-            <DropdownMenuItem>{t("settings")}</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem className="text-red-600" onClick={handleSignOut}>
               {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>

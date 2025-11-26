@@ -11,12 +11,13 @@ export default function ConditionalWrapper({
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.includes("/admin");
+  const isAuthRoute = pathname?.includes("/auth");
 
   return (
     <div className="flex min-h-screen flex-col">
-      {!isAdminRoute && <Navigation />}
+      {!isAdminRoute && !isAuthRoute && <Navigation />}
       <main className="flex-1">{children}</main>
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && !isAuthRoute && <Footer />}
     </div>
   );
 }

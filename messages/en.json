@@ -14,6 +14,39 @@
     "signIn": "Sign In",
     "signUp": "Sign Up"
   },
+  "auth": {
+    "signIn": {
+      "title": "Login",
+      "subtitle": "Access your ProKids space",
+      "demoBanner": "Feature in demonstration. Authentication will be activated in the complete version.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Log in (Demo)",
+      "noAccount": "Don't have an account yet?",
+      "signUp": "Sign up",
+      "error": "Invalid email or password"
+    },
+    "signUp": {
+      "welcome": "Welcome to",
+      "question": "Are you a structure or a professional?",
+      "professional": {
+        "title": "I am a professional",
+        "roles": "RSAI, Technical Referent, EJE, Psychomotor therapist, Dietitian, Trainer...",
+        "benefit": "Join ProKid to be visible and contacted by structures.",
+        "button": "Create my pro account"
+      },
+      "structure": {
+        "title": "I am a structure",
+        "types": "Daycare centers, micro-daycare centers, MAM, EAJE...",
+        "benefit": "Quickly find qualified professionals for your replacements and follow-ups.",
+        "button": "Create my structure account"
+      },
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in here"
+    }
+  },
   "footer": {
     "tagline": "the platform for early childhood professionals",
     "description": "ProKid helps early childhood structures find qualified non-medical professionals.",
