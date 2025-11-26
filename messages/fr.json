@@ -1,4 +1,7 @@
 {
+  "title": {
+    "project": "PROkid"
+  },
   "common": {
     "welcome": "Bienvenue",
     "hello": "Bonjour"
@@ -71,6 +74,39 @@
     "emailPlaceholder": "Votre adresse e-mail",
     "subscribe": "S'abonner",
     "copyright": "© ProKid 2025 — Tous droits réservés"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "items": {
+      "whoCanUse": {
+        "question": "Qui peut utiliser ProKid ?",
+        "answer": "ProKid est destiné aux structures (EAJE, crèches, micro-crèches, MAM) et aux professionnels non médicaux (RSAI, Référente technique, Psychomotricien-ne, EJE, AP, Diététicien-ne). Les familles arriveront plus tard."
+      },
+      "professionalTypes": {
+        "question": "Quels types de professionnels puis-je trouver ?",
+        "answer": "Actuellement : RSAI, Référente technique, Psychomotricien·ne, EJE, AP, Diététicien·ne."
+      },
+      "publicStructures": {
+        "question": "Les structures apparaissent-elles publiquement ?",
+        "answer": "Non. Seuls les profils des professionnels sont visibles. Les profils structures restent privés."
+      },
+      "freeTrial": {
+        "question": "Comment fonctionne l'essai gratuit ?",
+        "answer": "3 mois gratuits, puis 9,99 €/mois, sans engagement, annulable à tout moment."
+      },
+      "automaticAppointments": {
+        "question": "Les rendez-vous sont-ils automatiques ?",
+        "answer": "Non. La structure envoie une demande, le pro accepte/refuse. Une fois acceptée, le RDV est confirmé."
+      },
+      "payments": {
+        "question": "Les paiements passent-ils par ProKid ?",
+        "answer": "Dans le MVP, l'abonnement pro passe par Stripe. Les paiements de prestations arriveront plus tard."
+      },
+      "availability": {
+        "question": "ProKid est-il disponible partout en France ?",
+        "answer": "Oui. La recherche utilise ville/CP + rayon pour trouver des pros proches."
+      }
+    }
   },
   "admin": {
     "tagline": "Relier le bon projet au bon repreneur, c'est notre métier.",
