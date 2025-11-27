@@ -75,6 +75,44 @@
     "subscribe": "Subscribe",
     "copyright": "© ProKid 2025 — All rights reserved"
   },
+  "professional": {
+    "title": "Find your professional",
+    "subtitle": "Discover qualified professionals near your structure",
+    "search": {
+      "placeholder": "Search by name, role or skill...",
+      "locationPlaceholder": "City or postal code",
+      "role": "Role",
+      "availability": "Avail.",
+      "activeFilters": "Active filters:"
+    },
+    "results": {
+      "found": "professionals found",
+      "foundOne": "professional found"
+    },
+    "card": {
+      "viewProfile": "View profile",
+      "hourlyRate": "/h",
+      "reviews": "reviews",
+      "upTo": "Up to",
+      "km": "km"
+    },
+    "roles": {
+      "all": "All roles",
+      "rsai": "RSAI",
+      "technicalReferent": "Technical Referent",
+      "eje": "EJE",
+      "psychomotor": "Psychomotor therapist",
+      "ap": "AP",
+      "dietitian": "Dietitian"
+    },
+    "availability": {
+      "all": "All availabilities",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "fullDay": "Full day",
+      "weekend": "Weekend"
+    }
+  },
   "admin": {
     "tagline": "Connecting the right project to the right buyer, that's our job.",
     "affaires": "Business",

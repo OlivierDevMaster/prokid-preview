@@ -72,6 +72,44 @@
     "subscribe": "S'abonner",
     "copyright": "© ProKid 2025 — Tous droits réservés"
   },
+  "professional": {
+    "title": "Trouvez votre professionnel",
+    "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
+    "search": {
+      "placeholder": "Rechercher par nom, rôle ou compétence...",
+      "locationPlaceholder": "Ville ou code postal",
+      "role": "Rôle",
+      "availability": "Dispon.",
+      "activeFilters": "Filtres actifs :"
+    },
+    "results": {
+      "found": "professionnels trouvés",
+      "foundOne": "professionnel trouvé"
+    },
+    "card": {
+      "viewProfile": "Voir le profil",
+      "hourlyRate": "/h",
+      "reviews": "avis",
+      "upTo": "Jusqu'à",
+      "km": "km"
+    },
+    "roles": {
+      "all": "Tous les rôles",
+      "rsai": "RSAI",
+      "technicalReferent": "Référente Technique",
+      "eje": "EJE",
+      "psychomotor": "Psychomotricien",
+      "ap": "AP",
+      "dietitian": "Diététicien"
+    },
+    "availability": {
+      "all": "Toutes les disponibilités",
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "fullDay": "Journée complète",
+      "weekend": "Week-end"
+    }
+  },
   "admin": {
     "tagline": "Relier le bon projet au bon repreneur, c'est notre métier.",
     "affaires": "Affaires",
