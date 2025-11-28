@@ -1,9 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: { userType: string } }) {
   try {
     const { firstName, lastName, email, password } = await request.json();
+    const { userType } = await params;
+
+    // Validation du type d'utilisateur
+    if (!userType || !["professional", "structure"].includes(userType)) {
+      return NextResponse.json(
+        { error: "Invalid user type. Must be 'professional' or 'structure'" },
+        { status: 400 }
+      );
+    }
 
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
@@ -31,7 +40,7 @@ export async function POST(request: Request) {
           full_name: fullName,
           first_name: firstName,
           last_name: lastName,
-          user_type: "professional",
+          user_type: userType,
         },
       },
     });
@@ -64,7 +73,7 @@ export async function POST(request: Request) {
         email: email,
         first_name: firstName,
         last_name: lastName,
-        user_type: "professional",
+        user_type: userType,
         user: userId,
       });
 
@@ -106,5 +115,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-

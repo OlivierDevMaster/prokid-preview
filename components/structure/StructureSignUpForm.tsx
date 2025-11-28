@@ -12,11 +12,11 @@ import { useMutation } from "@tanstack/react-query";
 import { signUp } from "@/services/auth/auth.service";
 import { toast } from "sonner";
 
-export function ProfessionalSignUpForm({
+export function StructureSignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const t = useTranslations("auth.signUp.professionalForm");
+  const t = useTranslations("auth.signUp.structureForm");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ export function ProfessionalSignUpForm({
   const router = useRouter();
   const mutation = useMutation({
     mutationFn: ({ body }: { body: { firstName: string; lastName: string; email: string; password: string } }) =>
-      signUp({ userType: "professional", body }),
+      signUp({ userType: "structure", body }),
   });
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -176,7 +176,7 @@ export function ProfessionalSignUpForm({
                 href="/auth/login"
                 className="text-blue-500 hover:text-blue-600 transition-colors font-medium"
               >
-                Déjà un compte ? Connectez-vous
+                {t("hasAccount")}
               </Link>
             </div>
           </form>

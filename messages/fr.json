@@ -9,7 +9,9 @@
     "contact": "Contact",
     "dashboard": "Tableau de bord",
     "signIn": "Connexion",
-    "signUp": "Inscription"
+    "signUp": "Inscription",
+    "professionals": "Trouver un professionnel",
+    "howItWorks": "Comment ça marche"
   },
   "auth": {
     "signIn": {
@@ -60,7 +62,29 @@
         "error": "Une erreur est survenue lors de la création du compte",
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
-        "emailAlreadyExists": "Cet email est déjà utilisé"
+        "emailAlreadyExists": "Cet email est déjà utilisé",
+        "hasAccount": "Déjà un compte ? Connectez-vous"
+      },
+      "structureForm": {
+        "title": "Créer mon compte structure",
+        "subtitle": "Remplissez les informations ci-dessous pour créer votre compte",
+        "firstNameLabel": "Prénom",
+        "firstNamePlaceholder": "Votre prénom",
+        "lastNameLabel": "Nom",
+        "lastNamePlaceholder": "Votre nom",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "votre@email.com",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Minimum 8 caractères",
+        "confirmPasswordLabel": "Confirmer le mot de passe",
+        "confirmPasswordPlaceholder": "Retapez votre mot de passe",
+        "submitButton": "Créer mon compte",
+        "success": "Compte créé avec succès !",
+        "error": "Une erreur est survenue lors de la création du compte",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "emailAlreadyExists": "Cet email est déjà utilisé",
+        "hasAccount": "Déjà un compte ? Connectez-vous"
       }
     }
   },
