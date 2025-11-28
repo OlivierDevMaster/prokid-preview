@@ -7,6 +7,8 @@ import { routing } from '@/i18n/routing';
 import { AuthSessionProvider } from '@/components/providers/session-provider';
 import ConditionalWrapper from '../../components/layout/conditional-wrapper';
 import { Geist } from "next/font/google";
+import QueryProvider from "../../components/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -44,14 +46,17 @@ export default async function LocaleLayout({
       <body className={`${geistSans.variable} ${geistSans.className} antialiased`}>
         <AuthSessionProvider>
           <NextIntlClientProvider messages={messages}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <ConditionalWrapper>{children}</ConditionalWrapper>
-            </ThemeProvider>
+            <QueryProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <ConditionalWrapper>{children}</ConditionalWrapper>
+                <Toaster />
+              </ThemeProvider>
+            </QueryProvider >
           </NextIntlClientProvider>
         </AuthSessionProvider>
       </body>

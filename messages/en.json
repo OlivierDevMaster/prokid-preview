@@ -44,7 +44,27 @@
         "button": "Create my structure account"
       },
       "hasAccount": "Already have an account?",
-      "loginLink": "Log in here"
+      "loginLink": "Log in here",
+      "professionalForm": {
+        "title": "Create my professional account",
+        "subtitle": "Fill in the information below to create your account",
+        "firstNameLabel": "First name",
+        "firstNamePlaceholder": "Your first name",
+        "lastNameLabel": "Last name",
+        "lastNamePlaceholder": "Your last name",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "your@email.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Minimum 8 characters",
+        "confirmPasswordLabel": "Confirm password",
+        "confirmPasswordPlaceholder": "Re-enter your password",
+        "submitButton": "Create my account",
+        "success": "Account created successfully!",
+        "error": "An error occurred while creating the account",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "emailAlreadyExists": "This email is already in use"
+      }
     }
   },
   "footer": {
