@@ -219,6 +219,7 @@ export default function ProfessionalPage() {
           {filteredProfessionals.map((professional) => (
             <ProfessionalCard
               key={professional.id}
+              id={professional.id}
               name={professional.name}
               role={professional.role}
               location={professional.location}

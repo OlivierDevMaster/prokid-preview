@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Star, Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 interface ProfessionalCardProps {
+  id: string | number;
   name: string;
   role: string;
   location: string;
@@ -21,6 +23,7 @@ interface ProfessionalCardProps {
 }
 
 export function ProfessionalCard({
+  id,
   name,
   role,
   location,
@@ -104,10 +107,12 @@ export function ProfessionalCard({
                 <p className="text-lg font-bold text-gray-800 mb-4">
                   {hourlyRate}€{t("hourlyRate")}
                 </p>
-                <Button size="sm" className="w-full">
-                  <Eye className="h-4 w-4 mr-2" />
-                  {t("viewProfile")}
-                </Button>
+                <Link href={`/professional/${id}`}>
+                  <Button size="sm" className="w-full">
+                    <Eye className="h-4 w-4 mr-2" />
+                    {t("viewProfile")}
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
