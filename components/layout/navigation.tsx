@@ -17,9 +17,8 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { href: "/", label: t("home") },
-    { href: "/about", label: t("about") },
-    { href: "/contact", label: t("contact") },
+    { href: "/professional", label: t("professionals") },
+    { href: "/how-it-works", label: t("howItWorks") },
   ];
 
   return (
@@ -30,23 +29,23 @@ export function Navigation() {
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-xl font-bold">{title("project")}</span>
             </Link>
-            
-            <div className="hidden md:flex md:items-center md:gap-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    pathname === item.href
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
+          </div>
+
+          <div className="hidden md:flex md:items-center md:gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  pathname === item.href
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
           <div className="flex items-center gap-4">
@@ -57,9 +56,6 @@ export function Navigation() {
                 <span className="text-sm text-muted-foreground">
                   {session.user?.email}
                 </span>
-                <Button asChild variant="outline" size="sm">
-                  <Link href="/admin">{t("dashboard")}</Link>
-                </Button>
               </div>
             ) : (
               <div className="hidden md:flex md:items-center md:gap-2">
