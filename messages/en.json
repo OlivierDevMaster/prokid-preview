@@ -119,6 +119,39 @@
     "subscribe": "Subscribe",
     "copyright": "© ProKid 2025 — All rights reserved"
   },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": {
+      "whoCanUse": {
+        "question": "Who can use ProKid?",
+        "answer": "ProKid is intended for structures (EAJE, nurseries, micro-nurseries, MAM) and non-medical professionals (RSAI, Technical Referent, Psychomotor therapist, EJE, AP, Dietitian). Families will arrive later."
+      },
+      "professionalTypes": {
+        "question": "What types of professionals can I find?",
+        "answer": "You can find different types of non-medical early childhood professionals, including RSAI (Responsible for Individual Reception Section), Technical Referents, EJE (Early Childhood Educators), Psychomotor therapists, Childcare Assistants (AP), Dietitians, and many other qualified professionals."
+      },
+      "publicStructures": {
+        "question": "Do structures appear publicly?",
+        "answer": "Structures can choose their level of visibility. They can appear publicly in the directory or remain private according to their privacy preferences."
+      },
+      "freeTrial": {
+        "question": "How does the free trial work?",
+        "answer": "The free trial lasts 3 months and gives you access to all platform features. No credit card is required to get started. You can cancel at any time during the trial period."
+      },
+      "automaticAppointments": {
+        "question": "Are appointments automatic?",
+        "answer": "No, appointments are not automatic. Structures and professionals can contact each other directly through the platform to organize their appointments according to their mutual availability."
+      },
+      "payments": {
+        "question": "Do payments go through ProKid?",
+        "answer": "No, ProKid does not handle payments directly. Financial transactions are made directly between structures and professionals according to the terms they agree upon together."
+      },
+      "availability": {
+        "question": "Is ProKid available everywhere in France?",
+        "answer": "Yes, ProKid is available throughout France. The platform allows early childhood structures and professionals to connect anywhere in France."
+      }
+    }
+  },
   "professional": {
     "title": "Find your professional",
     "subtitle": "Discover qualified professionals near your structure",
