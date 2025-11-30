@@ -12,7 +12,9 @@
     "contact": "Contact",
     "dashboard": "Tableau de bord",
     "signIn": "Connexion",
-    "signUp": "Inscription"
+    "signUp": "Inscription",
+    "professionals": "Trouver un professionnel",
+    "howItWorks": "Comment ça marche"
   },
   "auth": {
     "signIn": {
@@ -44,7 +46,49 @@
         "button": "Créer mon compte structure"
       },
       "hasAccount": "Vous avez déjà un compte ?",
-      "loginLink": "Connectez-vous ici"
+      "loginLink": "Connectez-vous ici",
+      "professionalForm": {
+        "title": "Créer mon compte professionnel",
+        "subtitle": "Remplissez les informations ci-dessous pour créer votre compte",
+        "firstNameLabel": "Prénom",
+        "firstNamePlaceholder": "Votre prénom",
+        "lastNameLabel": "Nom",
+        "lastNamePlaceholder": "Votre nom",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "votre@email.com",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Minimum 8 caractères",
+        "confirmPasswordLabel": "Confirmer le mot de passe",
+        "confirmPasswordPlaceholder": "Retapez votre mot de passe",
+        "submitButton": "Créer mon compte",
+        "success": "Compte créé avec succès !",
+        "error": "Une erreur est survenue lors de la création du compte",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "emailAlreadyExists": "Cet email est déjà utilisé",
+        "hasAccount": "Déjà un compte ? Connectez-vous"
+      },
+      "structureForm": {
+        "title": "Créer mon compte structure",
+        "subtitle": "Remplissez les informations ci-dessous pour créer votre compte",
+        "firstNameLabel": "Prénom",
+        "firstNamePlaceholder": "Votre prénom",
+        "lastNameLabel": "Nom",
+        "lastNamePlaceholder": "Votre nom",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "votre@email.com",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Minimum 8 caractères",
+        "confirmPasswordLabel": "Confirmer le mot de passe",
+        "confirmPasswordPlaceholder": "Retapez votre mot de passe",
+        "submitButton": "Créer mon compte",
+        "success": "Compte créé avec succès !",
+        "error": "Une erreur est survenue lors de la création du compte",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "emailAlreadyExists": "Cet email est déjà utilisé",
+        "hasAccount": "Déjà un compte ? Connectez-vous"
+      }
     }
   },
   "footer": {
@@ -106,6 +150,79 @@
         "question": "ProKid est-il disponible partout en France ?",
         "answer": "Oui. La recherche utilise ville/CP + rayon pour trouver des pros proches."
       }
+    }
+  },
+  "professional": {
+    "title": "Trouvez votre professionnel",
+    "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
+    "search": {
+      "placeholder": "Rechercher par nom, rôle ou compétence...",
+      "locationPlaceholder": "Ville ou code postal",
+      "role": "Rôle",
+      "availability": "Dispon.",
+      "activeFilters": "Filtres actifs :"
+    },
+    "results": {
+      "found": "professionnels trouvés",
+      "foundOne": "professionnel trouvé"
+    },
+    "card": {
+      "viewProfile": "Voir le profil",
+      "hourlyRate": "/h",
+      "reviews": "avis",
+      "upTo": "Jusqu'à",
+      "km": "km"
+    },
+    "profile": {
+      "notFound": "Professionnel non trouvé",
+      "backToList": "Retour à la liste",
+      "reviews": "avis",
+      "upTo": "Jusqu'à",
+      "km": "km",
+      "about": "À propos",
+      "experience": "d'expérience",
+      "certifications": "Certifications",
+      "skills": "Compétences",
+      "hourlyRate": "par heure",
+      "contact": "Contacter",
+      "call": "Appeler",
+      "email": "Email",
+      "phone": "Téléphone",
+      "verified": "Profil vérifié",
+      "available": "Disponible",
+      "specialties": "Spécialités",
+      "sector": "Secteur",
+      "certifiedProfessional": "Professionnel agréé",
+      "hour": "heure",
+      "day": "jour",
+      "sendMessage": "Envoyer un message",
+      "addFavorite": "Ajouter aux favoris",
+      "calendar": {
+        "title": "Disponibilités",
+        "weekOf": "Semaine du",
+        "freeSlots": "créneaux libres",
+        "previousWeek": "Semaine précédente",
+        "thisWeek": "Cette semaine",
+        "nextWeek": "Semaine suivante",
+        "howToBook": "Comment réserver ?",
+        "bookingInstructions": "Cliquez sur un créneau disponible pour sélectionner le motif de consultation et confirmer votre rendez-vous. Vous pouvez aussi envoyer un message pour une demande personnalisée."
+      }
+    },
+    "roles": {
+      "all": "Tous les rôles",
+      "rsai": "RSAI",
+      "technicalReferent": "Référente Technique",
+      "eje": "EJE",
+      "psychomotor": "Psychomotricien",
+      "ap": "AP",
+      "dietitian": "Diététicien"
+    },
+    "availability": {
+      "all": "Toutes les disponibilités",
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "fullDay": "Journée complète",
+      "weekend": "Week-end"
     }
   },
   "admin": {

@@ -12,7 +12,9 @@
     "contact": "Contact",
     "dashboard": "Dashboard",
     "signIn": "Sign In",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "professionals": "Find a professional",
+    "howItWorks": "How it works"
   },
   "auth": {
     "signIn": {
@@ -44,7 +46,49 @@
         "button": "Create my structure account"
       },
       "hasAccount": "Already have an account?",
-      "loginLink": "Log in here"
+      "loginLink": "Log in here",
+      "professionalForm": {
+        "title": "Create my professional account",
+        "subtitle": "Fill in the information below to create your account",
+        "firstNameLabel": "First name",
+        "firstNamePlaceholder": "Your first name",
+        "lastNameLabel": "Last name",
+        "lastNamePlaceholder": "Your last name",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "your@email.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Minimum 8 characters",
+        "confirmPasswordLabel": "Confirm password",
+        "confirmPasswordPlaceholder": "Re-enter your password",
+        "submitButton": "Create my account",
+        "success": "Account created successfully!",
+        "error": "An error occurred while creating the account",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "emailAlreadyExists": "This email is already in use",
+        "hasAccount": "Already have an account? Log in"
+      },
+      "structureForm": {
+        "title": "Create my structure account",
+        "subtitle": "Fill in the information below to create your account",
+        "firstNameLabel": "First name",
+        "firstNamePlaceholder": "Your first name",
+        "lastNameLabel": "Last name",
+        "lastNamePlaceholder": "Your last name",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "your@email.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Minimum 8 characters",
+        "confirmPasswordLabel": "Confirm password",
+        "confirmPasswordPlaceholder": "Re-enter your password",
+        "submitButton": "Create my account",
+        "success": "Account created successfully!",
+        "error": "An error occurred while creating the account",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "emailAlreadyExists": "This email is already in use",
+        "hasAccount": "Already have an account? Log in"
+      }
     }
   },
   "footer": {
@@ -106,6 +150,79 @@
         "question": "Is ProKid available everywhere in France?",
         "answer": "Yes, ProKid is available throughout France. The platform allows early childhood structures and professionals to connect anywhere in France."
       }
+    }
+  },
+  "professional": {
+    "title": "Find your professional",
+    "subtitle": "Discover qualified professionals near your structure",
+    "search": {
+      "placeholder": "Search by name, role or skill...",
+      "locationPlaceholder": "City or postal code",
+      "role": "Role",
+      "availability": "Avail.",
+      "activeFilters": "Active filters:"
+    },
+    "results": {
+      "found": "professionals found",
+      "foundOne": "professional found"
+    },
+    "card": {
+      "viewProfile": "View profile",
+      "hourlyRate": "/h",
+      "reviews": "reviews",
+      "upTo": "Up to",
+      "km": "km"
+    },
+    "profile": {
+      "notFound": "Professional not found",
+      "backToList": "Back to list",
+      "reviews": "reviews",
+      "upTo": "Up to",
+      "km": "km",
+      "about": "About",
+      "experience": "of experience",
+      "certifications": "Certifications",
+      "skills": "Skills",
+      "hourlyRate": "per hour",
+      "contact": "Contact",
+      "call": "Call",
+      "email": "Email",
+      "phone": "Phone",
+      "verified": "Verified profile",
+      "available": "Available",
+      "specialties": "Specialties",
+      "sector": "Sector",
+      "certifiedProfessional": "Certified professional",
+      "hour": "hour",
+      "day": "day",
+      "sendMessage": "Send a message",
+      "addFavorite": "Add to favorites",
+      "calendar": {
+        "title": "Availabilities",
+        "weekOf": "Week of",
+        "freeSlots": "free slots",
+        "previousWeek": "Previous week",
+        "thisWeek": "This week",
+        "nextWeek": "Next week",
+        "howToBook": "How to book?",
+        "bookingInstructions": "Click on an available slot to select the reason for consultation and confirm your appointment. You can also send a message for a personalized request."
+      }
+    },
+    "roles": {
+      "all": "All roles",
+      "rsai": "RSAI",
+      "technicalReferent": "Technical Referent",
+      "eje": "EJE",
+      "psychomotor": "Psychomotor therapist",
+      "ap": "AP",
+      "dietitian": "Dietitian"
+    },
+    "availability": {
+      "all": "All availabilities",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "fullDay": "Full day",
+      "weekend": "Weekend"
     }
   },
   "admin": {
