@@ -239,7 +239,8 @@
       "users": "Users",
       "subtitle": "Overview of your data.",
       "totalAcheteurs": "Total Buyers",
-      "correspondancesPotentielles": "Potential Matches"
+      "correspondancesPotentielles": "Potential Matches",
+      "totalAffaires": "Total Business"
     },
     "users": {
       "title": "Users",
@@ -260,6 +261,64 @@
       "page": "Page",
       "of": "of",
       "noResults": "No results."
+    },
+    "planning": {
+      "title": "My Schedule",
+      "modifyAvailabilities": "Modify my availabilities",
+      "fillRate": "Fill rate",
+      "bookedHours": "Booked hours",
+      "availableSlots": "Available slots",
+      "estimatedRevenue": "Estimated revenue",
+      "thisWeek": "this week",
+      "toBook": "to book",
+      "weekOf": "Week of",
+      "previousWeek": "Previous week",
+      "nextWeek": "Next week"
+    },
+    "report": {
+      "title": "Create a report",
+      "saveDraft": "Save draft",
+      "sendEmail": "Send by e-mail",
+      "newReport": "New report",
+      "reportTitle": "Report title",
+      "selectTemplate": "Select a template or enter",
+      "customTitlePlaceholder": "Or enter a custom title",
+      "recipientStructure": "Recipient structure",
+      "selectStructure": "Select a structure",
+      "reportContent": "Report content",
+      "contentPlaceholder": "Write the content of your report here...",
+      "exampleStructure": "Example structure:",
+      "example1": "- Context and objectives of the intervention",
+      "example2": "- Observations and analyses",
+      "example3": "- Recommendations",
+      "example4": "- Actions to be implemented",
+      "example5": "- Conclusion",
+      "attachments": "Attachments",
+      "optional": "optional",
+      "addFiles": "Add files",
+      "fileTypes": "PDF, Word, Images (max 10MB per file)",
+      "template1": "Intervention report",
+      "template2": "Observation report",
+      "template3": "Follow-up report",
+      "structure2": "Structure 2",
+      "structure3": "Structure 3"
+    },
+    "reports": {
+      "title": "My Reports",
+      "subtitle": "View all your reports",
+      "tableTitle": "Reports list",
+      "titleColumn": "Title",
+      "contentsColumn": "Contents",
+      "createdAt": "Created at",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of",
+      "noResults": "No results.",
+      "noReports": "No reports found.",
+      "loading": "Loading...",
+      "error": "Error loading reports",
+      "view": "View"
     }
   }
 }
