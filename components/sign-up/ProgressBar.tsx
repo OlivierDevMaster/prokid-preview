@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface ProgressBarProps {
   currentStep: number;
@@ -7,25 +7,25 @@ interface ProgressBarProps {
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
   const percentage = (currentStep / totalSteps) * 100;
-  const completedPercentage = ((currentStep) / totalSteps) * 100;
+  const completedPercentage = (currentStep / totalSteps) * 100;
   const currentStepPercentage = (1 / totalSteps) * 100;
 
   return (
-    <div className="w-full space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-700 font-medium">
+    <div className='w-full space-y-2'>
+      <div className='flex items-center justify-between text-sm'>
+        <span className='font-medium text-gray-700'>
           Étape {currentStep} sur {totalSteps}
         </span>
-        <span className="text-gray-700 font-medium">{percentage}%</span>
+        <span className='font-medium text-gray-700'>{percentage}%</span>
       </div>
-      <div className="w-full h-2 bg-green-400 rounded-full overflow-hidden">
-        <div className="h-full flex relative">
+      <div className='h-2 w-full overflow-hidden rounded-full bg-green-400'>
+        <div className='relative flex h-full'>
           <div
-            className="bg-blue-500 h-full transition-all duration-300"
+            className='h-full bg-blue-500 transition-all duration-300'
             style={{ width: `${completedPercentage}%` }}
           />
           <div
-            className="bg-green-400 h-full transition-all duration-300"
+            className='h-full bg-green-400 transition-all duration-300'
             style={{ width: `${currentStepPercentage}%` }}
           />
         </div>
@@ -33,4 +33,3 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
     </div>
   );
 }
-

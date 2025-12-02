@@ -1,22 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useRef } from "react";
-import { Camera } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProgressBar } from "../ProgressBar";
+import { Camera } from 'lucide-react';
+import Image from 'next/image';
+import { useRef, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+
+import { ProgressBar } from '../ProgressBar';
 
 interface Step1ProfilePhotoProps {
   onNext: () => void;
-  profilePhoto?: File | null;
   onPhotoChange: (file: File | null) => void;
+  profilePhoto?: File | null;
 }
 
 export function Step1ProfilePhoto({
   onNext,
-  profilePhoto,
   onPhotoChange,
 }: Step1ProfilePhotoProps) {
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<null | string>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,63 +43,65 @@ export function Step1ProfilePhoto({
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       <ProgressBar currentStep={1} totalSteps={4} />
 
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Photo de profil</h1>
-        <p className="text-gray-600">
+      <div className='space-y-2 text-center'>
+        <h1 className='text-3xl font-bold text-gray-900'>Photo de profil</h1>
+        <p className='text-gray-600'>
           Choisissez une photo professionnelle et souriante
         </p>
       </div>
 
-      <div className="flex justify-center">
-        <div className="relative">
-          <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+      <div className='flex justify-center'>
+        <div className='relative'>
+          <div className='flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
             {preview ? (
-              <img
+              <Image
+                alt='Profile preview'
+                className='h-full w-full object-cover'
+                height={128}
                 src={preview}
-                alt="Profile preview"
-                className="w-full h-full object-cover"
+                width={128}
               />
             ) : (
-              <span className="text-4xl font-semibold text-gray-500">kk</span>
+              <span className='text-4xl font-semibold text-gray-500'>kk</span>
             )}
           </div>
           <button
-            type="button"
+            className='absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-blue-400 shadow-md transition-colors hover:bg-blue-500'
             onClick={handleCameraClick}
-            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center shadow-md hover:bg-blue-500 transition-colors"
+            type='button'
           >
-            <Camera className="h-5 w-5 text-white" />
+            <Camera className='h-5 w-5 text-white' />
           </button>
           <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
+            accept='image/*'
+            className='hidden'
             onChange={handleFileChange}
-            className="hidden"
+            ref={fileInputRef}
+            type='file'
           />
         </div>
       </div>
 
-      <div className="text-center space-y-4">
-        <p className="text-sm text-gray-500">Format carré recommandé</p>
+      <div className='space-y-4 text-center'>
+        <p className='text-sm text-gray-500'>Format carré recommandé</p>
         <Button
-          type="button"
-          variant="outline"
+          className='border-gray-300 text-gray-600 hover:bg-gray-50'
           onClick={handleUseDefault}
-          className="border-gray-300 text-gray-600 hover:bg-gray-50"
+          type='button'
+          variant='outline'
         >
           Utiliser une photo par défaut
         </Button>
       </div>
 
-      <div className="flex justify-end pt-4">
+      <div className='flex justify-end pt-4'>
         <Button
-          type="button"
+          className='bg-blue-500 text-white hover:bg-blue-600'
           onClick={onNext}
-          className="bg-blue-500 hover:bg-blue-600 text-white"
+          type='button'
         >
           Suivant →
         </Button>
@@ -105,4 +109,3 @@ export function Step1ProfilePhoto({
     </div>
   );
 }
-

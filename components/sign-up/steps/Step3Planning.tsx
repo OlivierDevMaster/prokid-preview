@@ -1,45 +1,46 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ProgressBar } from "../ProgressBar";
-import { Clock } from "lucide-react";
+import { Clock } from 'lucide-react';
 
-export interface TimeSlot {
-  start: string;
-  end: string;
-}
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+import { ProgressBar } from '../ProgressBar';
 
 export interface DaySchedule {
   enabled: boolean;
   slots: TimeSlot[];
 }
 
+export interface TimeSlot {
+  end: string;
+  start: string;
+}
+
 interface Step3PlanningProps {
   onNext: () => void;
   onPrevious: () => void;
-  schedule: Record<string, DaySchedule>;
   onScheduleChange: (schedule: Record<string, DaySchedule>) => void;
+  schedule: Record<string, DaySchedule>;
 }
 
 const days = [
-  { key: "monday", label: "Lundi" },
-  { key: "tuesday", label: "Mardi" },
-  { key: "wednesday", label: "Mercredi" },
-  { key: "thursday", label: "Jeudi" },
-  { key: "friday", label: "Vendredi" },
-  { key: "saturday", label: "Samedi" },
-  { key: "sunday", label: "Dimanche" },
+  { key: 'monday', label: 'Lundi' },
+  { key: 'tuesday', label: 'Mardi' },
+  { key: 'wednesday', label: 'Mercredi' },
+  { key: 'thursday', label: 'Jeudi' },
+  { key: 'friday', label: 'Vendredi' },
+  { key: 'saturday', label: 'Samedi' },
+  { key: 'sunday', label: 'Dimanche' },
 ];
 
 export function Step3Planning({
   onNext,
   onPrevious,
-  schedule,
   onScheduleChange,
+  schedule,
 }: Step3PlanningProps) {
   const handleDayToggle = (dayKey: string) => {
     const newSchedule = {
@@ -57,7 +58,7 @@ export function Step3Planning({
       ...schedule,
       [dayKey]: {
         ...schedule[dayKey],
-        slots: [...schedule[dayKey].slots, { start: "09:00", end: "17:00" }],
+        slots: [...schedule[dayKey].slots, { end: '17:00', start: '09:00' }],
       },
     };
     onScheduleChange(newSchedule);
@@ -66,7 +67,7 @@ export function Step3Planning({
   const handleSlotChange = (
     dayKey: string,
     slotIndex: number,
-    field: "start" | "end",
+    field: 'end' | 'start',
     value: string
   ) => {
     const newSchedule = {
@@ -84,8 +85,8 @@ export function Step3Planning({
   const handleCopyMonday = () => {
     const mondaySchedule = schedule.monday;
     const newSchedule = { ...schedule };
-    days.forEach((day) => {
-      if (day.key !== "monday") {
+    days.forEach(day => {
+      if (day.key !== 'monday') {
         newSchedule[day.key] = {
           enabled: mondaySchedule.enabled,
           slots: [...mondaySchedule.slots],
@@ -96,93 +97,103 @@ export function Step3Planning({
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       <ProgressBar currentStep={3} totalSteps={4} />
 
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">
+      <div className='space-y-2 text-center'>
+        <h1 className='text-3xl font-bold text-gray-900'>
           Planning & disponibilités
         </h1>
-        <p className="text-gray-600">
+        <p className='text-gray-600'>
           Configurez vos jours et créneaux disponibles
         </p>
       </div>
 
       <Button
-        type="button"
+        className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
         onClick={handleCopyMonday}
-        variant="outline"
-        className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+        type='button'
+        variant='outline'
       >
         Copier les horaires du lundi à tous les jours
       </Button>
 
-      <div className="space-y-4">
-        {days.map((day) => (
+      <div className='space-y-4'>
+        {days.map(day => (
           <div
+            className='space-y-4 rounded-lg border border-gray-200 bg-white p-4'
             key={day.key}
-            className="bg-white border border-gray-200 rounded-lg p-4 space-y-4"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
                 <Checkbox
-                  id={day.key}
                   checked={schedule[day.key].enabled}
+                  id={day.key}
                   onCheckedChange={() => handleDayToggle(day.key)}
                 />
                 <Label
+                  className='cursor-pointer text-lg font-bold text-gray-900'
                   htmlFor={day.key}
-                  className="text-lg font-bold text-gray-900 cursor-pointer"
                 >
                   {day.label}
                 </Label>
               </div>
               {!schedule[day.key].enabled && (
-                <span className="text-sm text-gray-500">Non travaillé</span>
+                <span className='text-sm text-gray-500'>Non travaillé</span>
               )}
             </div>
 
             {schedule[day.key].enabled && (
-              <div className="space-y-3 pl-8">
+              <div className='space-y-3 pl-8'>
                 {schedule[day.key].slots.map((slot, slotIndex) => (
                   <div
+                    className='grid grid-cols-2 items-end gap-4'
                     key={slotIndex}
-                    className="grid grid-cols-2 gap-4 items-end"
                   >
-                    <div className="space-y-2">
-                      <Label className="text-sm text-gray-700">Début</Label>
-                      <div className="relative">
+                    <div className='space-y-2'>
+                      <Label className='text-sm text-gray-700'>Début</Label>
+                      <div className='relative'>
                         <Input
-                          type="time"
-                          value={slot.start}
-                          onChange={(e) =>
-                            handleSlotChange(day.key, slotIndex, "start", e.target.value)
+                          className='border-gray-300 pr-10'
+                          onChange={e =>
+                            handleSlotChange(
+                              day.key,
+                              slotIndex,
+                              'start',
+                              e.target.value
+                            )
                           }
-                          className="border-gray-300 pr-10"
+                          type='time'
+                          value={slot.start}
                         />
-                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm text-gray-700">Fin</Label>
-                      <div className="relative">
+                    <div className='space-y-2'>
+                      <Label className='text-sm text-gray-700'>Fin</Label>
+                      <div className='relative'>
                         <Input
-                          type="time"
-                          value={slot.end}
-                          onChange={(e) =>
-                            handleSlotChange(day.key, slotIndex, "end", e.target.value)
+                          className='border-gray-300 pr-10'
+                          onChange={e =>
+                            handleSlotChange(
+                              day.key,
+                              slotIndex,
+                              'end',
+                              e.target.value
+                            )
                           }
-                          className="border-gray-300 pr-10"
+                          type='time'
+                          value={slot.end}
                         />
-                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                       </div>
                     </div>
                   </div>
                 ))}
                 <button
-                  type="button"
+                  className='text-sm font-medium text-blue-500 hover:text-blue-600'
                   onClick={() => handleAddSlot(day.key)}
-                  className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                  type='button'
                 >
                   + Ajouter un créneau
                 </button>
@@ -192,19 +203,19 @@ export function Step3Planning({
         ))}
       </div>
 
-      <div className="flex justify-between pt-4">
+      <div className='flex justify-between pt-4'>
         <Button
-          type="button"
-          variant="outline"
+          className='border-gray-300 text-gray-700 hover:bg-gray-50'
           onClick={onPrevious}
-          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+          type='button'
+          variant='outline'
         >
           ← Précédent
         </Button>
         <Button
-          type="button"
+          className='bg-blue-500 text-white hover:bg-blue-600'
           onClick={onNext}
-          className="bg-blue-500 hover:bg-blue-600 text-white"
+          type='button'
         >
           Suivant →
         </Button>
@@ -212,4 +223,3 @@ export function Step3Planning({
     </div>
   );
 }
-

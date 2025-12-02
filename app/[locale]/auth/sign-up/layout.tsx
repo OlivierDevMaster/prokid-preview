@@ -24,11 +24,9 @@ export default function SingUpLayout({
                   </h1>
                   <p className='text-lg text-gray-700'>{t('question')}</p>
                 </div>
-                <div className="w-full max-w-3xl">
-                  {children}
-                </div>
-                <div className="text-center text-gray-700">
-                  {t("hasAccount")}{" "}
+                <div className='w-full max-w-3xl'>{children}</div>
+                <div className='text-center text-gray-700'>
+                  {t('hasAccount')}{' '}
                   <Link
                     className='font-medium text-blue-500 transition-colors hover:text-blue-600'
                     href='/auth/login'
