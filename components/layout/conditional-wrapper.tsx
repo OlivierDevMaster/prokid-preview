@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { usePathname } from "@/i18n/routing";
-import { Navigation } from "@/components/layout/navigation";
-import { Footer } from "@/components/layout/footer";
+import { Footer } from '@/components/layout/footer';
+import { Navigation } from '@/components/layout/navigation';
+import { usePathname } from '@/i18n/routing';
 
 export default function ConditionalWrapper({
   children,
@@ -10,13 +10,13 @@ export default function ConditionalWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname?.includes("/admin");
-  const isAuthRoute = pathname?.includes("/auth");
+  const isAdminRoute = pathname?.includes('/admin');
+  const isAuthRoute = pathname?.includes('/auth');
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className='flex min-h-screen flex-col'>
       {!isAdminRoute && !isAuthRoute && <Navigation />}
-      <main className="flex-1">{children}</main>
+      <main className='flex-1'>{children}</main>
       {!isAdminRoute && !isAuthRoute && <Footer />}
     </div>
   );

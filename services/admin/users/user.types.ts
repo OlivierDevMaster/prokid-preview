@@ -2,21 +2,20 @@
  * Types pour les utilisateurs
  */
 export interface User {
-  id: string;
-  email: string;
-  name?: string | null;
-  avatar_url?: string | null;
+  avatar_url?: null | string;
   created_at: string;
-  updated_at?: string | null;
+  email: string;
   email_verified?: boolean;
-  last_sign_in_at?: string | null;
+  id: string;
+  last_sign_in_at?: null | string;
+  name?: null | string;
+  updated_at?: null | string;
 }
 
 export interface UserWithMetadata extends User {
   user_metadata?: {
+    avatar_url?: string;
     full_name?: string;
     name?: string;
-    avatar_url?: string;
   };
 }
-

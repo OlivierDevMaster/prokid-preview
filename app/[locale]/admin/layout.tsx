@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "@/i18n/routing";
-import { useEffect } from "react";
-import { AdminSidebar } from "@/components/admin/layout/sidebar";
-import { AdminNavbar } from "@/components/admin/layout/AdminNavbar";
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+
+import { AdminNavbar } from '@/components/admin/layout/AdminNavbar';
+import { AdminSidebar } from '@/components/admin/layout/sidebar';
+import { useRouter } from '@/i18n/routing';
 
 export default function ProtectedLayout({
   children,
@@ -15,14 +16,14 @@ export default function ProtectedLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
     }
   }, [status, router]);
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center">
+      <main className='flex min-h-screen flex-col items-center justify-center'>
         <div>Loading...</div>
       </main>
     );
@@ -33,12 +34,12 @@ export default function ProtectedLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className='flex min-h-screen bg-gray-50'>
       <AdminSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className='flex flex-1 flex-col overflow-hidden'>
         <AdminNavbar />
-        <main className="flex-1 overflow-auto">
-          <div className="p-8">{children}</div>
+        <main className='flex-1 overflow-auto'>
+          <div className='p-8'>{children}</div>
         </main>
       </div>
     </div>

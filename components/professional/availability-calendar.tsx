@@ -1,13 +1,25 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { format, startOfWeek, addWeeks, subWeeks, addDays, isSameDay } from "date-fns";
-import { fr } from "date-fns/locale";
+import {
+  addDays,
+  addWeeks,
+  format,
+  isSameDay,
+  startOfWeek,
+  subWeeks,
+} from 'date-fns';
+import { fr } from 'date-fns/locale';
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface AvailabilityCalendarProps {
   professionalId: string;
@@ -15,14 +27,15 @@ interface AvailabilityCalendarProps {
 
 // Mock data pour les disponibilités
 const MOCK_AVAILABILITIES: Record<string, string[]> = {
-  "2025-11-27": ["09:00", "14:00"],
-  "2025-11-29": ["09:00", "14:00"],
+  '2025-11-27': ['09:00', '14:00'],
+  '2025-11-29': ['09:00', '14:00'],
 };
 
 export function AvailabilityCalendar({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   professionalId,
 }: AvailabilityCalendarProps) {
-  const t = useTranslations("professional.profile.calendar");
+  const t = useTranslations('professional.profile.calendar');
   const [currentWeek, setCurrentWeek] = useState(new Date(2025, 10, 24)); // 24 novembre 2025
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Lundi
@@ -46,7 +59,7 @@ export function AvailabilityCalendar({
   );
 
   const getAvailableSlots = (date: Date): string[] => {
-    const dateKey = format(date, "yyyy-MM-dd");
+    const dateKey = format(date, 'yyyy-MM-dd');
     return MOCK_AVAILABILITIES[dateKey] || [];
   };
 
@@ -55,98 +68,108 @@ export function AvailabilityCalendar({
     0
   );
 
-  const dayNames = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+  const dayNames = [
+    'Lundi',
+    'Mardi',
+    'Mercredi',
+    'Jeudi',
+    'Vendredi',
+    'Samedi',
+    'Dimanche',
+  ];
 
   return (
-    <Card className="bg-white rounded-lg border border-gray-200 shadow-md">
-      <div className="p-6">
+    <Card className='rounded-lg border border-gray-200 bg-white shadow-md'>
+      <div className='p-6'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-gray-600" />
-            <h3 className="text-lg font-bold text-gray-800">{t("title")}</h3>
+        <div className='mb-4 flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <CalendarIcon className='h-5 w-5 text-gray-600' />
+            <h3 className='text-lg font-bold text-gray-800'>{t('title')}</h3>
           </div>
           {totalAvailableSlots > 0 && (
-            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-              {totalAvailableSlots} {t("freeSlots")}
+            <Badge className='bg-blue-100 text-blue-700 hover:bg-blue-200'>
+              {totalAvailableSlots} {t('freeSlots')}
             </Badge>
           )}
         </div>
 
         {/* Semaine */}
-        <p className="text-sm text-gray-600 mb-4">
-          {t("weekOf")} {format(weekStart, "d MMMM yyyy", { locale: fr })}
+        <p className='mb-4 text-sm text-gray-600'>
+          {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
         </p>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mb-6">
+        <div className='mb-6 flex items-center justify-between'>
           <Button
-            variant="ghost"
-            size="sm"
+            className='text-gray-600 hover:text-gray-800'
             onClick={goToPreviousWeek}
-            className="text-gray-600 hover:text-gray-800"
+            size='sm'
+            variant='ghost'
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            {t("previousWeek")}
+            <ChevronLeft className='mr-1 h-4 w-4' />
+            {t('previousWeek')}
           </Button>
           <Button
-            variant={isCurrentWeek ? "default" : "ghost"}
-            size="sm"
+            className={
+              isCurrentWeek ? 'bg-blue-500 text-white' : 'text-gray-600'
+            }
             onClick={goToCurrentWeek}
-            className={isCurrentWeek ? "bg-blue-500 text-white" : "text-gray-600"}
+            size='sm'
+            variant={isCurrentWeek ? 'default' : 'ghost'}
           >
-            {t("thisWeek")}
+            {t('thisWeek')}
           </Button>
           <Button
-            variant="ghost"
-            size="sm"
+            className='text-gray-600 hover:text-gray-800'
             onClick={goToNextWeek}
-            className="text-gray-600 hover:text-gray-800"
+            size='sm'
+            variant='ghost'
           >
-            {t("nextWeek")}
-            <ChevronRight className="h-4 w-4 ml-1" />
+            {t('nextWeek')}
+            <ChevronRight className='ml-1 h-4 w-4' />
           </Button>
         </div>
 
         {/* Calendrier */}
-        <div className="grid grid-cols-7 gap-2 mb-6">
+        <div className='mb-6 grid grid-cols-7 gap-2'>
           {weekDays.map((day, index) => {
             const slots = getAvailableSlots(day);
             const isToday = isSameDay(day, new Date());
             const dayName = dayNames[index];
-            const dayNumber = format(day, "d");
-            const month = format(day, "MMM", { locale: fr });
+            const dayNumber = format(day, 'd');
+            const month = format(day, 'MMM', { locale: fr });
 
             return (
               <div
-                key={index}
-                className={`border rounded-lg p-3 min-h-[120px] ${
+                className={`min-h-[120px] rounded-lg border p-3 ${
                   isToday
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 bg-white"
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 bg-white'
                 }`}
+                key={index}
               >
-                <div className="text-xs font-semibold text-gray-700 mb-2">
+                <div className='mb-2 text-xs font-semibold text-gray-700'>
                   {dayName}
                 </div>
-                <div className="text-sm text-gray-600 mb-3">
+                <div className='mb-3 text-sm text-gray-600'>
                   {dayNumber} {month}
                 </div>
                 {slots.length > 0 ? (
-                  <div className="space-y-1">
+                  <div className='space-y-1'>
                     {slots.map((slot, slotIndex) => (
                       <Button
+                        className='w-full border-blue-200 bg-blue-50 text-xs text-blue-700 hover:bg-blue-100'
                         key={slotIndex}
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        size='sm'
+                        variant='outline'
                       >
                         {slot}
                       </Button>
                     ))}
                   </div>
                 ) : (
-                  <div className="h-px bg-gray-200 mt-2" />
+                  <div className='mt-2 h-px bg-gray-200' />
                 )}
               </div>
             );
@@ -154,15 +177,15 @@ export function AvailabilityCalendar({
         </div>
 
         {/* Instructions */}
-        <div className="border-t pt-4">
-          <div className="flex items-start gap-2">
-            <CalendarIcon className="h-4 w-4 text-gray-400 mt-0.5" />
+        <div className='border-t pt-4'>
+          <div className='flex items-start gap-2'>
+            <CalendarIcon className='mt-0.5 h-4 w-4 text-gray-400' />
             <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1">
-                {t("howToBook")}
+              <p className='mb-1 text-sm font-semibold text-gray-700'>
+                {t('howToBook')}
               </p>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                {t("bookingInstructions")}
+              <p className='text-xs leading-relaxed text-gray-600'>
+                {t('bookingInstructions')}
               </p>
             </div>
           </div>
@@ -171,4 +194,3 @@ export function AvailabilityCalendar({
     </Card>
   );
 }
-

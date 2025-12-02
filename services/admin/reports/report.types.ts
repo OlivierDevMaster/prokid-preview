@@ -1,17 +1,16 @@
+export interface CreateReportInput {
+  contents: string;
+  recipient_structure?: string;
+  title: string;
+}
+
 /**
  * Types pour les rapports
  */
 export interface Report {
-  id: string;
-  created_at: string;
-  title: string;
   contents: string;
+  created_at: string;
+  id: string;
+  title: string;
   user: string;
 }
-
-export interface CreateReportInput {
-  title: string;
-  contents: string;
-  recipient_structure?: string;
-}
-

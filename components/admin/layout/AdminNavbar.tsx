@@ -1,11 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Bell, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { NotificationPanel, type Notification } from "./NotificationPanel";
-import { useRouter } from "next/navigation";
+import { Bell, Settings } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+
+import { type Notification, NotificationPanel } from './NotificationPanel';
 
 interface AdminNavbarProps {
   userRole?: string;
@@ -13,71 +19,76 @@ interface AdminNavbarProps {
 
 const mockNotifications: Notification[] = [
   {
-    id: "1",
-    type: "team_invitation",
-    title: "Invitation d'équipe",
-    description: "Micro-crèche Nawan vous invite à rejoindre leur équipe",
-    sender: "Micro-crèche Nawan",
-    date: "15/01/2024",
+    date: '15/01/2024',
+    description: 'Micro-crèche Nawan vous invite à rejoindre leur équipe',
+    id: '1',
     isRead: false,
+    sender: 'Micro-crèche Nawan',
+    title: "Invitation d'équipe",
+    type: 'team_invitation',
   },
   {
-    id: "2",
-    type: "mission_request",
-    title: "Nouvelle demande de mission",
-    description: "Crèche Les Bambins souhaite programmer une intervention",
-    sender: "Crèche Les Bambins",
-    date: "14/01/2024",
+    date: '14/01/2024',
+    description: 'Crèche Les Bambins souhaite programmer une intervention',
+    id: '2',
     isRead: false,
+    sender: 'Crèche Les Bambins',
+    title: 'Nouvelle demande de mission',
+    type: 'mission_request',
   },
 ];
 
-export function AdminNavbar({ userRole = "Professionnel(le) petite enfance" }: AdminNavbarProps) {
+export function AdminNavbar({
+  userRole = 'Professionnel(le) petite enfance',
+}: AdminNavbarProps) {
   const [notifications] = useState<Notification[]>(mockNotifications);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const router = useRouter();
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const handleAccept = (id: string) => {
-    console.log("Accept notification:", id);
+    console.log('Accept notification:', id);
   };
 
   const handleDecline = (id: string) => {
-    console.log("Decline notification:", id);
+    console.log('Decline notification:', id);
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1" />
+    <nav className='sticky top-0 z-50 w-full border-b bg-white shadow-sm'>
+      <div className='px-6 py-4'>
+        <div className='flex items-center justify-between'>
+          <div className='flex-1' />
 
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-1.5 bg-blue-50 rounded-full">
-              <span className="text-sm font-medium text-blue-700">
+          <div className='flex items-center gap-3'>
+            <div className='rounded-full bg-blue-50 px-4 py-1.5'>
+              <span className='text-sm font-medium text-blue-700'>
                 {userRole}
               </span>
             </div>
 
-            <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+            <Popover
+              onOpenChange={setIsNotificationOpen}
+              open={isNotificationOpen}
+            >
               <PopoverTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-10 w-10 hover:bg-gray-100"
+                  className='relative h-10 w-10 hover:bg-gray-100'
+                  size='icon'
+                  variant='ghost'
                 >
-                  <Bell className="h-5 w-5 text-gray-700" />
+                  <Bell className='h-5 w-5 text-gray-700' />
                   {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-xs font-bold text-white border-2 border-white">
-                      {unreadCount > 9 ? "9+" : unreadCount}
+                    <span className='absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white'>
+                      {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent
-                align="end"
+                align='end'
+                className='w-auto border-gray-200 p-0 shadow-xl'
                 sideOffset={8}
-                className="w-auto p-0 border-gray-200 shadow-xl"
               >
                 <NotificationPanel
                   notifications={notifications}
@@ -88,12 +99,12 @@ export function AdminNavbar({ userRole = "Professionnel(le) petite enfance" }: A
             </Popover>
 
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 hover:bg-gray-100"
-              onClick={() => router.push("/admin/settings")}
+              className='h-10 w-10 hover:bg-gray-100'
+              onClick={() => router.push('/admin/settings')}
+              size='icon'
+              variant='ghost'
             >
-              <Settings className="h-5 w-5 text-gray-700" />
+              <Settings className='h-5 w-5 text-gray-700' />
             </Button>
           </div>
         </div>
@@ -101,4 +112,3 @@ export function AdminNavbar({ userRole = "Professionnel(le) petite enfance" }: A
     </nav>
   );
 }
-
