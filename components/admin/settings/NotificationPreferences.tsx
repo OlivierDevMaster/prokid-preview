@@ -1,66 +1,66 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface NotificationPreference {
+  checked: boolean;
   id: string;
   label: string;
-  checked: boolean;
 }
 
 export function NotificationPreferences() {
   const [preferences, setPreferences] = useState<NotificationPreference[]>([
     {
-      id: "appointment_reminders",
-      label:
-        "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
       checked: true,
+      id: 'appointment_reminders',
+      label: 'Recevoir des rappels de rendez-vous par e-mail (24h avant)',
     },
     {
-      id: "new_interventions",
+      checked: true,
+      id: 'new_interventions',
       label: "Recevoir les notifications de nouvelles demandes d'intervention",
-      checked: true,
     },
     {
-      id: "report_confirmation",
+      checked: false,
+      id: 'report_confirmation',
       label: "Recevoir une confirmation d'envoi des rapports",
-      checked: false,
     },
     {
-      id: "newsletter",
-      label: "Recevoir les actualités et conseils ProKid par e-mail",
       checked: false,
+      id: 'newsletter',
+      label: 'Recevoir les actualités et conseils ProKid par e-mail',
     },
   ]);
 
   const handleToggle = (id: string) => {
-    setPreferences((prev) =>
-      prev.map((pref) =>
+    setPreferences(prev =>
+      prev.map(pref =>
         pref.id === id ? { ...pref, checked: !pref.checked } : pref
       )
     );
   };
 
   return (
-    <div className="space-y-4 border-t border-gray-200 pt-6">
-      <h2 className="text-lg font-bold text-blue-900">
+    <div className='space-y-4 border-t border-gray-200 pt-6'>
+      <h2 className='text-lg font-bold text-blue-900'>
         Préférences de notification
       </h2>
 
-      <div className="space-y-4">
-        {preferences.map((preference) => (
-          <div key={preference.id} className="flex items-start gap-3">
+      <div className='space-y-4'>
+        {preferences.map(preference => (
+          <div className='flex items-start gap-3' key={preference.id}>
             <Checkbox
-              id={preference.id}
               checked={preference.checked}
+              className='mt-1'
+              id={preference.id}
               onCheckedChange={() => handleToggle(preference.id)}
-              className="mt-1"
             />
             <Label
+              className='flex-1 cursor-pointer text-sm text-gray-700'
               htmlFor={preference.id}
-              className="text-sm text-gray-700 cursor-pointer flex-1"
             >
               {preference.label}
             </Label>
@@ -70,4 +70,3 @@ export function NotificationPreferences() {
     </div>
   );
 }
-

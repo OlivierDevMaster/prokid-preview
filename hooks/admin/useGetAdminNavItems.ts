@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import { getUser } from "@/services/auth/auth.service";
-import { useQuery } from "@tanstack/react-query";
-import { Calendar } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+
+import { getUser } from '@/services/auth/auth.service';
 
 interface NavItem {
   href: string;
-  label: string;
   icon: string;
+  label: string;
 }
 
 export default function useGetAdminNavItems(): NavItem[] {
   const { data: session } = useSession();
   const user = session?.user;
   const [navItems, setNavItems] = useState<NavItem[]>([]);
-  
+
   const { data } = useQuery({
-    queryKey: ["user", user?.id],
-    queryFn: () => getUser(user?.id as string),
     enabled: !!user?.id, // Ne faire la requête que si l'ID existe
+    queryFn: () => getUser(user?.id as string),
+    queryKey: ['user', user?.id],
   });
 
   // Mettre à jour les items de navigation uniquement côté client après l'hydratation
@@ -33,21 +33,21 @@ export default function useGetAdminNavItems(): NavItem[] {
     const profile = data.profile;
     const items: NavItem[] = [];
 
-    if (profile?.userType === "professional") {
+    if (profile?.userType === 'professional') {
       items.push({
-        href: "/admin/planning",
-        label: "planning",
-        icon: "planning",
+        href: '/admin/planning',
+        icon: 'planning',
+        label: 'planning',
       });
       items.push({
-        href: "/admin/report",
-        label: "report",
-        icon: "report",
+        href: '/admin/report',
+        icon: 'report',
+        label: 'report',
       });
       items.push({
-        href: "/admin/structure",
-        label: "structure",
-        icon: "structure",
+        href: '/admin/structure',
+        icon: 'structure',
+        label: 'structure',
       });
     }
 

@@ -1,65 +1,70 @@
-"use client";
+'use client';
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export function PersonalInfoForm() {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold text-blue-900">
+    <div className='space-y-4'>
+      <h2 className='text-lg font-bold text-blue-900'>
         Informations personnelles
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className='space-y-2'>
+          <Label
+            className='text-sm font-medium text-gray-700'
+            htmlFor='firstName'
+          >
             Prénom *
           </Label>
           <Input
-            id="firstName"
-            type="text"
-            defaultValue="Marie"
-            className="w-full"
+            className='w-full'
+            defaultValue='Marie'
+            id='firstName'
+            type='text'
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+        <div className='space-y-2'>
+          <Label
+            className='text-sm font-medium text-gray-700'
+            htmlFor='lastName'
+          >
             Nom *
           </Label>
           <Input
-            id="lastName"
-            type="text"
-            defaultValue="Joux"
-            className="w-full"
+            className='w-full'
+            defaultValue='Joux'
+            id='lastName'
+            type='text'
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+        <div className='space-y-2'>
+          <Label className='text-sm font-medium text-gray-700' htmlFor='email'>
             Adresse e-mail *
           </Label>
           <Input
-            id="email"
-            type="email"
-            defaultValue="marie.joux@prokid.fr"
-            className="w-full"
+            className='w-full'
+            defaultValue='marie.joux@prokid.fr'
+            id='email'
+            type='email'
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+        <div className='space-y-2'>
+          <Label className='text-sm font-medium text-gray-700' htmlFor='phone'>
             Numéro de téléphone
           </Label>
           <Input
-            id="phone"
-            type="tel"
-            defaultValue="06 12 34 56 78"
-            className="w-full"
+            className='w-full'
+            defaultValue='06 12 34 56 78'
+            id='phone'
+            type='tel'
           />
         </div>
       </div>
     </div>
   );
 }
-

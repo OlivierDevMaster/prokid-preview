@@ -1,15 +1,23 @@
-"use client";
+'use client';
 
 import {
-  useReactTable,
+  type ColumnDef,
+  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  flexRender,
-  type ColumnDef,
   type SortingState,
-} from "@tanstack/react-table";
-import { useState } from "react";
+  useReactTable,
+} from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { enUS, fr } from 'date-fns/locale';
+import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+
+import type { User } from '@/services/admin/users/user.types';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -17,161 +25,155 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
-import { fr, enUS } from "date-fns/locale";
-import type { User } from "@/services/admin/users/user.types";
+} from '@/components/ui/table';
 
 interface UsersTableProps {
   data: User[];
   locale?: string;
   translations: {
-    name: string;
+    createdAt: string;
     email: string;
     emailVerified: string;
     lastSignIn: string;
-    createdAt: string;
-    noName: string;
-    verified: string;
-    notVerified: string;
+    name: string;
     never: string;
-    previous: string;
     next: string;
-    page: string;
-    of: string;
+    noName: string;
     noResults?: string;
+    notVerified: string;
+    of: string;
+    page: string;
+    previous: string;
+    verified: string;
   };
 }
 
-export function UsersTable({ data, locale = "en", translations }: UsersTableProps) {
+export function UsersTable({
+  data,
+  locale = 'en',
+  translations,
+}: UsersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const dateLocale = locale === "fr" ? fr : enUS;
+  const dateLocale = locale === 'fr' ? fr : enUS;
 
   const columns: ColumnDef<User>[] = [
     {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-8 px-2 lg:px-3"
-          >
-            {translations.name}
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      accessorKey: 'name',
       cell: ({ row }) => {
         const name = row.original.name;
-        return (
-          <div className="font-medium">
-            {name || translations.noName}
-          </div>
-        );
+        return <div className='font-medium'>{name || translations.noName}</div>;
       },
-    },
-    {
-      accessorKey: "email",
       header: ({ column }) => {
         return (
           <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-8 px-2 lg:px-3"
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
           >
-            {translations.email}
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {translations.name}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
           </Button>
         );
       },
     },
     {
-      accessorKey: "email_verified",
-      header: translations.emailVerified,
-      cell: ({ row }) => {
-        const verified = row.getValue("email_verified") as boolean;
+      accessorKey: 'email',
+      header: ({ column }) => {
         return (
-          <Badge variant={verified ? "default" : "secondary"}>
+          <Button
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
+          >
+            {translations.email}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
+          </Button>
+        );
+      },
+    },
+    {
+      accessorKey: 'email_verified',
+      cell: ({ row }) => {
+        const verified = row.getValue('email_verified') as boolean;
+        return (
+          <Badge variant={verified ? 'default' : 'secondary'}>
             {verified ? translations.verified : translations.notVerified}
           </Badge>
         );
       },
+      header: translations.emailVerified,
     },
     {
-      accessorKey: "last_sign_in_at",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-8 px-2 lg:px-3"
-          >
-            {translations.lastSignIn}
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      accessorKey: 'last_sign_in_at',
       cell: ({ row }) => {
-        const date = row.getValue("last_sign_in_at") as string | null;
+        const date = row.getValue('last_sign_in_at') as null | string;
         return (
           <div>
             {date
-              ? format(new Date(date), "PPp", { locale: dateLocale })
+              ? format(new Date(date), 'PPp', { locale: dateLocale })
               : translations.never}
           </div>
         );
       },
-    },
-    {
-      accessorKey: "created_at",
       header: ({ column }) => {
         return (
           <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-8 px-2 lg:px-3"
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
           >
-            {translations.createdAt}
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {translations.lastSignIn}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
           </Button>
         );
       },
+    },
+    {
+      accessorKey: 'created_at',
       cell: ({ row }) => {
-        const date = row.getValue("created_at") as string;
-        return format(new Date(date), "PPp", { locale: dateLocale });
+        const date = row.getValue('created_at') as string;
+        return format(new Date(date), 'PPp', { locale: dateLocale });
+      },
+      header: ({ column }) => {
+        return (
+          <Button
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
+          >
+            {translations.createdAt}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
+          </Button>
+        );
       },
     },
   ];
 
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
     initialState: {
       pagination: {
         pageSize: 10,
       },
     },
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
   });
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
+    <div className='space-y-4'>
+      <div className='rounded-md border'>
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -188,12 +190,12 @@ export function UsersTable({ data, locale = "en", translations }: UsersTableProp
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map(row => (
                 <TableRow
+                  data-state={row.getIsSelected() && 'selected'}
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -206,40 +208,39 @@ export function UsersTable({ data, locale = "en", translations }: UsersTableProp
             ) : (
               <TableRow>
                 <TableCell
+                  className='h-24 text-center'
                   colSpan={columns.length}
-                  className="h-24 text-center"
                 >
-                  {translations.noResults || "No results."}
+                  {translations.noResults || 'No results.'}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          {translations.page}{" "}
-          {table.getState().pagination.pageIndex + 1} {translations.of}{" "}
-          {table.getPageCount()}
+      <div className='flex items-center justify-between'>
+        <div className='text-sm text-muted-foreground'>
+          {translations.page} {table.getState().pagination.pageIndex + 1}{' '}
+          {translations.of} {table.getPageCount()}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className='flex items-center space-x-2'>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            onClick={() => table.previousPage()}
+            size='sm'
+            variant='outline'
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className='h-4 w-4' />
             {translations.previous}
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            onClick={() => table.nextPage()}
+            size='sm'
+            variant='outline'
           >
             {translations.next}
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className='h-4 w-4' />
           </Button>
         </div>
       </div>
