@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { UserService } from "@/services/admin/users/user.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UsersTable } from "@/components/admin/users-table";
+import { UsersTable } from "@/components/admin/users/UsersTable";
 
 export default async function UsersPage({
   params,

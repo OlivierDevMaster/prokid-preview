@@ -44,3 +44,25 @@ export async function signUpProfessional({ body }: Omit<SignUpParams, "userType"
 export async function signUpStructure({ body }: Omit<SignUpParams, "userType">) {
   return signUp({ userType: "structure", body });
 }
+
+export async function getUser(userId: string) {
+  try {
+    const response = await fetch(`/api/auth/user/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { error: data.error || "Failed to fetch user" };
+    }
+
+    return { profile: data };
+  } catch (err) {
+    console.error("Get user error:", err);
+    return { error: "Internal server error" };
+  }
+}

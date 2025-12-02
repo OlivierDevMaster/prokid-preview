@@ -239,7 +239,8 @@
       "subtitle": "Aperçu de vos données.",
       "users": "Utilisateurs",
       "totalAcheteurs": "Acheteurs Totaux",
-      "correspondancesPotentielles": "Correspondances Potentielles"
+      "correspondancesPotentielles": "Correspondances Potentielles",
+      "totalAffaires": "Affaires Totales"
     },
     "users": {
       "title": "Utilisateurs",
@@ -260,6 +261,64 @@
       "page": "Page",
       "of": "sur",
       "noResults": "Aucun résultat."
+    },
+    "planning": {
+      "title": "Mon Planning",
+      "modifyAvailabilities": "Modifier mes disponibilités",
+      "fillRate": "Taux de remplissage",
+      "bookedHours": "Heures réservées",
+      "availableSlots": "Créneaux disponibles",
+      "estimatedRevenue": "Revenus estimés",
+      "thisWeek": "cette semaine",
+      "toBook": "à réserver",
+      "weekOf": "Semaine du",
+      "previousWeek": "Semaine précédente",
+      "nextWeek": "Semaine suivante"
+    },
+    "report": {
+      "title": "Créer un rapport",
+      "saveDraft": "Enregistrer brouillon",
+      "sendEmail": "Envoyer par e-mail",
+      "newReport": "Nouveau rapport",
+      "reportTitle": "Titre du rapport",
+      "selectTemplate": "Sélectionner un modèle ou saisir",
+      "customTitlePlaceholder": "Ou saisir un titre personnalisé",
+      "recipientStructure": "Structure destinataire",
+      "selectStructure": "Sélectionner une structure",
+      "reportContent": "Contenu du rapport",
+      "contentPlaceholder": "Rédigez ici le contenu de votre rapport...",
+      "exampleStructure": "Exemple de structure :",
+      "example1": "- Contexte et objectifs de l'intervention",
+      "example2": "- Observations et analyses",
+      "example3": "- Recommandations",
+      "example4": "- Actions à mettre en œuvre",
+      "example5": "- Conclusion",
+      "attachments": "Pièces jointes",
+      "optional": "optionnel",
+      "addFiles": "Ajouter des fichiers",
+      "fileTypes": "PDF, Word, Images (max 10MB par fichier)",
+      "template1": "Rapport d'intervention",
+      "template2": "Rapport d'observation",
+      "template3": "Rapport de suivi",
+      "structure2": "Structure 2",
+      "structure3": "Structure 3"
+    },
+    "reports": {
+      "title": "Mes Rapports",
+      "subtitle": "Consultez tous vos rapports",
+      "tableTitle": "Liste des rapports",
+      "titleColumn": "Titre",
+      "contentsColumn": "Contenu",
+      "createdAt": "Date de création",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat.",
+      "noReports": "Aucun rapport trouvé.",
+      "loading": "Chargement...",
+      "error": "Erreur lors du chargement des rapports",
+      "view": "Voir"
     }
   }
 }

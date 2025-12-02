@@ -5,12 +5,9 @@ import { Link } from "@/i18n/routing";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  ChevronDown,
-} from "lucide-react";
+import { ChevronDown, LayoutDashboard, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +15,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import useGetAdminNavItems from "@/hooks/admin/useGetAdminNavItems";
+
+// Mapping des icônes
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  dashboard: LayoutDashboard,
+  planning: Calendar,
+};
 
 export function AdminSidebar() {
   const t = useTranslations("admin");
@@ -25,24 +29,17 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  // S'assurer que le composant est monté côté client avant d'afficher les items dynamiques
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push("/auth/signin");
   };
-
-  const navItems = [
-    {
-      href: "/admin",
-      label: t("dashboard.title"),
-      icon: LayoutDashboard,
-    },
-    {
-      href: "/admin/users",
-      label: t("dashboard.users"),
-      icon: Users,
-    },
-  ];
 
   const isActive = (href: string) => {
     if (href === "/admin") {
@@ -50,6 +47,8 @@ export function AdminSidebar() {
     }
     return pathname?.startsWith(href);
   };
+
+  const navItems = useGetAdminNavItems();
 
   return (
     <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
@@ -61,9 +60,9 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
+      <nav className="flex-1 p-4 space-y-1" suppressHydrationWarning>
+        {mounted && navItems.map((item) => {
+          const Icon = iconMap[item.icon] || LayoutDashboard;
           const active = isActive(item.href);
           return (
             <Link
