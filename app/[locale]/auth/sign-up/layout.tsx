@@ -24,9 +24,7 @@ export default function SingUpLayout({
                   </h1>
                   <p className='text-lg text-gray-700'>{t('question')}</p>
                 </div>
-
-                {children}
-
+                <div className='w-full max-w-3xl'>{children}</div>
                 <div className='text-center text-gray-700'>
                   {t('hasAccount')}{' '}
                   <Link
