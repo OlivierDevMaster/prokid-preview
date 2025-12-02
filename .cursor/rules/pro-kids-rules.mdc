@@ -1,0 +1,303 @@
+---
+alwaysApply: true
+---
+
+# Architecture Next.js - Règles et Bonnes Pratiques
+
+## 1. GESTION DES REQUÊTES
+
+### A. Routes API (`app/api/`)
+- Les routes API servent d'endpoints backend
+- Structure : Un fichier `route.ts` par endpoint
+- Exporter les méthodes HTTP : `GET`, `POST`, `PUT`, `DELETE`, etc.
+- Utiliser `NextRequest` et `NextResponse` de `next/server`
+- Toujours gérer les erreurs avec des codes HTTP appropriés
+- Structure recommandée :
+```
+src/app/api/
+├── payments/
+│   ├── route.ts              # GET /api/payments, POST /api/payments
+│   └── [id]/
+│       └── route.ts          # GET /api/payments/:id
+└── create-payment-intent/
+    └── route.ts              # POST /api/create-payment-intent
+```
+
+### B. Services (`features/*/services/`)
+- Les services encapsulent la logique métier et les appels API
+- Structure : `src/features/{feature}/services/{feature}.service.ts`
+- Les services doivent être des fonctions pures (pas de hooks React)
+- Utiliser TypeScript strictement avec des types définis
+- Gérer les erreurs de manière cohérente
+- Exemple :
+  ```typescript
+  // src/features/payments/services/payment.service.ts
+  export async function createPayment(params: CreatePaymentParams) {
+    // Logique métier
+  }
+  export async function getPayments() {
+    // Appel API
+  }
+  ```
+
+### C. Appels API depuis les composants
+- NE JAMAIS faire d'appels `fetch` directs dans les composants
+- Utiliser les services depuis les composants
+- Utiliser React Query (`@tanstack/react-query`) pour le cache et la gestion d'état
+- Les hooks doivent utiliser les services, pas les appels API directs
+
+## 2. ORGANISATION DES COMPOSANTS
+
+### Structure recommandée :
+```
+src/
+├── components/              # Composants réutilisables globaux
+│   ├── ui/                 # Composants UI de base (shadcn/ui)
+│   │   ├── button.tsx
+│   │   ├── dialog.tsx
+│   │   └── ...
+│   └── layout/             # Composants de layout
+│       ├── Header.tsx
+│       └── Footer.tsx
+│
+└── features/               # Composants par feature (Feature-Sliced Design)
+    └── payments/
+        └── components/
+            ├── PaymentModal.tsx
+            ├── PaymentList.tsx
+            └── PaymentForm.tsx
+```
+
+### Règles :
+- `components/` : Composants réutilisables à travers toute l'application
+- `components/ui/` : Composants UI de base (shadcn/ui, Radix UI, etc.)
+- `features/*/components/` : Composants spécifiques à une feature
+- Un composant = un fichier
+- Nommer les composants en PascalCase
+- Séparer la logique de l'UI (utiliser des hooks pour la logique)
+
+## 3. ORGANISATION DES HOOKS
+
+### Structure recommandée :
+```
+src/
+├── hooks/                  # Hooks réutilisables globaux
+│   ├── useAuth.ts
+│   ├── useLocalStorage.ts
+│   └── useDebounce.ts
+│
+└── features/               # Hooks spécifiques aux features
+    └── payments/
+        └── hooks/
+            ├── usePayments.ts           # Hook pour récupérer les paiements
+            ├── usePaymentMutation.ts    # Hook pour créer/modifier
+            └── usePaymentsColumnDefs.tsx # Hook pour les colonnes de table
+```
+
+### Bonnes pratiques :
+- `hooks/` : Hooks réutilisables à travers toute l'application
+- `features/*/hooks/` : Hooks spécifiques à une feature
+- Préfixer tous les hooks avec `use`
+- Utiliser React Query pour les données serveur
+- Exemple avec React Query :
+  ```typescript
+  // src/features/payments/hooks/usePayments.ts
+  import { useQuery } from '@tanstack/react-query';
+  import { getPayments } from '../services/payment.service';
+  
+  export function usePayments() {
+    return useQuery({
+      queryKey: ['payments'],
+      queryFn: getPayments,
+    });
+  }
+  ```
+
+## 4. STRUCTURE COMPLÈTE DES DOSSIERS
+
+### Architecture recommandée (Feature-Sliced Design) :
+```
+src/
+├── app/                    # App Router de Next.js
+│   ├── [locale]/           # Routes internationalisées
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── dashboard/
+│   │   │   └── page.tsx
+│   │   └── payments/
+│   │       └── page.tsx
+│   └── api/                # Routes API
+│       └── ...
+│
+├── components/             # Composants réutilisables
+│   ├── ui/                # Composants UI de base
+│   └── layout/            # Composants de layout
+│
+├── features/              # Features (Feature-Sliced Design)
+│   └── payments/
+│       ├── components/    # Composants spécifiques
+│       ├── hooks/         # Hooks spécifiques
+│       ├── services/      # Services/logique métier
+│       └── types/         # Types TypeScript spécifiques
+│
+├── lib/                   # Bibliothèques et configurations
+│   ├── supabase/
+│   ├── stripe.ts
+│   └── utils.ts
+│
+├── hooks/                 # Hooks réutilisables globaux
+│
+├── types/                 # Types TypeScript globaux
+│   └── index.ts
+│
+├── modeles/               # Modèles de données (ou types/)
+│   └── Payment.ts
+│
+├── providers/             # Context Providers
+│   └── QueryProvider.tsx
+│
+├── i18n/                  # Configuration i18n
+│
+└── middleware.ts          # Middleware Next.js
+```
+
+## 5. RÈGLES ET CONVENTIONS
+
+### A. Naming Conventions
+- **Composants** : `PascalCase` (ex: `PaymentModal.tsx`)
+- **Hooks** : `camelCase` avec préfixe `use` (ex: `usePayments.ts`)
+- **Services** : `camelCase` avec suffixe `.service.ts` (ex: `payment.service.ts`)
+- **Types** : `PascalCase` (ex: `Payment.ts`, `PaymentStatus.ts`)
+- **Fichiers** : `kebab-case` ou `PascalCase` selon le type
+- **Constantes** : `UPPER_SNAKE_CASE`
+
+### B. Séparation des Responsabilités
+```
+Composant (UI) 
+    ↓ utilise
+Hook (logique réutilisable)
+    ↓ utilise
+Service (appels API/logique métier)
+    ↓ utilise
+API Route (endpoint backend)
+```
+
+### C. Imports
+- Utiliser des alias de chemin (`@/`) définis dans `tsconfig.json`
+- Grouper les imports dans cet ordre :
+  1. Imports externes (packages npm)
+  2. Imports internes (composants)
+  3. Imports internes (features)
+  4. Imports internes (lib/utils)
+  5. Imports de types
+- Exemple :
+  ```typescript
+  // 1. Imports externes
+  import { useQuery } from '@tanstack/react-query';
+  import { useState } from 'react';
+  
+  // 2. Imports internes (composants)
+  import { Button } from '@/components/ui/button';
+  
+  // 3. Imports internes (features)
+  import { usePayments } from '@/features/payments/hooks/usePayments';
+  
+  // 4. Imports internes (lib/utils)
+  import { formatCurrency } from '@/lib/utils';
+  
+  // 5. Imports de types
+  import type { Payment } from '@/modeles/Payment';
+  ```
+
+## 6. EXEMPLE COMPLET : FEATURE PAYMENTS
+
+```
+src/features/payments/
+├── components/
+│   ├── PaymentModal.tsx        # Modal pour créer un paiement
+│   ├── PaymentList.tsx         # Liste des paiements
+│   └── PaymentCard.tsx          # Carte de paiement
+│
+├── hooks/
+│   ├── usePayments.ts          # useQuery pour récupérer les paiements
+│   ├── useCreatePayment.ts     # useMutation pour créer
+│   └── usePaymentsColumnDefs.tsx # Colonnes de table
+│
+├── services/
+│   ├── payment.service.ts      # Fonctions de service
+│   └── payment-api.service.ts  # Appels API directs
+│
+├── types/
+│   └── payment.types.ts        # Types TypeScript
+│
+└── index.ts                    # Exports publics
+```
+
+## 7. CHECKLIST DE BONNES PRATIQUES
+
+- [ ] Séparer les composants UI des composants métier
+- [ ] Utiliser React Query pour les données serveur
+- [ ] Encapsuler les appels API dans des services
+- [ ] Organiser par features plutôt que par type de fichier
+- [ ] Utiliser TypeScript strictement
+- [ ] Grouper les imports logiquement
+- [ ] Un composant = une responsabilité
+- [ ] Utiliser des alias de chemin (`@/`)
+- [ ] Documenter les fonctions complexes
+- [ ] Gérer les erreurs de manière cohérente
+- [ ] NE JAMAIS faire d'appels `fetch` directs dans les composants
+- [ ] Utiliser les services depuis les hooks
+- [ ] Préfixer tous les hooks avec `use`
+
+## 8. RÈGLES SPÉCIFIQUES NEXT.JS
+
+### App Router
+- Utiliser `'use client'` uniquement pour les composants clients
+- Les Server Components sont par défaut (pas besoin de directive)
+- Les routes API sont toujours côté serveur (pas de `'use client'`)
+- Utiliser `async/await` dans les Server Components
+
+### Routes API
+- Toujours exporter les fonctions nommées (GET, POST, etc.)
+- Utiliser `NextRequest` pour les requêtes
+- Utiliser `NextResponse` pour les réponses
+- Gérer les erreurs avec des codes HTTP appropriés (400, 401, 404, 500, etc.)
+
+### Internationalisation
+- Utiliser `next-intl` pour l'i18n
+- Stocker les traductions dans `messages/{locale}.json`
+- Utiliser `useTranslations()` dans les composants clients
+
+## 9. RÈGLES DE CODE QUALITÉ
+
+- Toujours utiliser TypeScript strictement
+- Définir des types pour tous les paramètres et retours de fonctions
+- Éviter `any`, utiliser `unknown` si nécessaire
+- Utiliser des interfaces pour les types complexes
+- Commenter uniquement si cela apporte une valeur ajoutée
+- Les commentaires doivent être en anglais
+- Séparer la logique de l'UI dans les composants
+- Utiliser des fonctions pures quand c'est possible
+
+## 10. RÈGLES DE PERFORMANCE
+
+- Utiliser React Query pour le cache des données
+- Éviter les re-renders inutiles (utiliser `useMemo`, `useCallback`)
+- Utiliser `next/image` pour les images
+- Lazy loading des composants lourds
+- Optimiser les requêtes API (pagination, filtres)
+
+## RÉSUMÉ VISUEL
+
+```
+Requête API depuis composant :
+Component → Hook (useQuery/useMutation) → Service → API Route
+
+Structure Feature :
+feature/
+  ├── components/  (UI)
+  ├── hooks/       (logique réutilisable)
+  ├── services/    (appels API)
+  └── types/       (TypeScript)
+```
+

@@ -44,6 +44,11 @@ export default function useGetAdminNavItems(): NavItem[] {
         label: "report",
         icon: "report",
       });
+      items.push({
+        href: "/admin/structure",
+        label: "structure",
+        icon: "structure",
+      });
     }
 
     setNavItems(items);
