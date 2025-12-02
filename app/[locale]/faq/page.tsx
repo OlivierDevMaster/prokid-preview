@@ -1,77 +1,78 @@
-"use client";
+'use client';
 
-import { useTranslations } from "next-intl";
+import { useTranslations } from 'next-intl';
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 
 export default function FAQPage() {
-  const t = useTranslations("faq");
+  const t = useTranslations('faq');
 
   const faqItems = [
     {
-      key: "whoCanUse",
-      question: t("items.whoCanUse.question"),
-      answer: t("items.whoCanUse.answer"),
+      answer: t('items.whoCanUse.answer'),
+      key: 'whoCanUse',
+      question: t('items.whoCanUse.question'),
     },
     {
-      key: "professionalTypes",
-      question: t("items.professionalTypes.question"),
-      answer: t("items.professionalTypes.answer"),
+      answer: t('items.professionalTypes.answer'),
+      key: 'professionalTypes',
+      question: t('items.professionalTypes.question'),
     },
     {
-      key: "publicStructures",
-      question: t("items.publicStructures.question"),
-      answer: t("items.publicStructures.answer"),
+      answer: t('items.publicStructures.answer'),
+      key: 'publicStructures',
+      question: t('items.publicStructures.question'),
     },
     {
-      key: "freeTrial",
-      question: t("items.freeTrial.question"),
-      answer: t("items.freeTrial.answer"),
+      answer: t('items.freeTrial.answer'),
+      key: 'freeTrial',
+      question: t('items.freeTrial.question'),
     },
     {
-      key: "automaticAppointments",
-      question: t("items.automaticAppointments.question"),
-      answer: t("items.automaticAppointments.answer"),
+      answer: t('items.automaticAppointments.answer'),
+      key: 'automaticAppointments',
+      question: t('items.automaticAppointments.question'),
     },
     {
-      key: "payments",
-      question: t("items.payments.question"),
-      answer: t("items.payments.answer"),
+      answer: t('items.payments.answer'),
+      key: 'payments',
+      question: t('items.payments.question'),
     },
     {
-      key: "availability",
-      question: t("items.availability.question"),
-      answer: t("items.availability.answer"),
+      answer: t('items.availability.answer'),
+      key: 'availability',
+      question: t('items.availability.question'),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f7f5] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-700 text-center mb-12">
-          {t("title")}
+    <div className='min-h-screen bg-[#f5f7f5] px-4 py-12 sm:px-6 lg:px-8'>
+      <div className='mx-auto max-w-3xl'>
+        <h1 className='mb-12 text-center text-3xl font-bold text-gray-700'>
+          {t('title')}
         </h1>
 
         <Accordion
-          type="single"
+          className='space-y-3'
           collapsible
-          defaultValue="whoCanUse"
-          className="space-y-3"
+          defaultValue='whoCanUse'
+          type='single'
         >
-          {faqItems.map((item) => (
+          {faqItems.map(item => (
             <AccordionItem
+              className='rounded-lg border border-green-100/50 bg-white px-6 shadow-sm data-[state=closed]:bg-green-50/30'
               key={item.key}
               value={item.key}
-              className="bg-white rounded-lg border border-green-100/50 px-6 shadow-sm data-[state=closed]:bg-green-50/30"
             >
-              <AccordionTrigger className="text-left font-medium text-gray-800 hover:no-underline py-4">
+              <AccordionTrigger className='py-4 text-left font-medium text-gray-800 hover:no-underline'>
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className="text-gray-600 pb-4 leading-relaxed">
+              <AccordionContent className='pb-4 leading-relaxed text-gray-600'>
                 {item.answer}
               </AccordionContent>
             </AccordionItem>
@@ -81,4 +82,3 @@ export default function FAQPage() {
     </div>
   );
 }
-

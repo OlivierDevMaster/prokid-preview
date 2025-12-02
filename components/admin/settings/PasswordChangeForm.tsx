@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export function PasswordChangeForm() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -12,105 +13,105 @@ export function PasswordChangeForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <div className="space-y-4 border-t border-gray-200 pt-6">
-      <h2 className="text-lg font-bold text-blue-900">
+    <div className='space-y-4 border-t border-gray-200 pt-6'>
+      <h2 className='text-lg font-bold text-blue-900'>
         Modifier le mot de passe
       </h2>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
+      <div className='space-y-4'>
+        <div className='space-y-2'>
           <Label
-            htmlFor="currentPassword"
-            className="text-sm font-medium text-gray-700"
+            className='text-sm font-medium text-gray-700'
+            htmlFor='currentPassword'
           >
             Mot de passe actuel
           </Label>
-          <div className="relative">
+          <div className='relative'>
             <Input
-              id="currentPassword"
-              type={showCurrentPassword ? "text" : "password"}
-              placeholder="Saisissez votre mot de passe actuel"
-              className="w-full pr-10"
+              className='w-full pr-10'
+              id='currentPassword'
+              placeholder='Saisissez votre mot de passe actuel'
+              type={showCurrentPassword ? 'text' : 'password'}
             />
             <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              size='icon'
+              type='button'
+              variant='ghost'
             >
               {showCurrentPassword ? (
-                <EyeOff className="h-4 w-4 text-gray-500" />
+                <EyeOff className='h-4 w-4 text-gray-500' />
               ) : (
-                <Eye className="h-4 w-4 text-gray-500" />
+                <Eye className='h-4 w-4 text-gray-500' />
               )}
             </Button>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className='space-y-2'>
           <Label
-            htmlFor="newPassword"
-            className="text-sm font-medium text-gray-700"
+            className='text-sm font-medium text-gray-700'
+            htmlFor='newPassword'
           >
             Nouveau mot de passe
           </Label>
-          <div className="relative">
+          <div className='relative'>
             <Input
-              id="newPassword"
-              type={showNewPassword ? "text" : "password"}
-              placeholder="Minimum 8 caractères"
-              className="w-full pr-10"
+              className='w-full pr-10'
+              id='newPassword'
+              placeholder='Minimum 8 caractères'
+              type={showNewPassword ? 'text' : 'password'}
             />
             <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
               onClick={() => setShowNewPassword(!showNewPassword)}
+              size='icon'
+              type='button'
+              variant='ghost'
             >
               {showNewPassword ? (
-                <EyeOff className="h-4 w-4 text-gray-500" />
+                <EyeOff className='h-4 w-4 text-gray-500' />
               ) : (
-                <Eye className="h-4 w-4 text-gray-500" />
+                <Eye className='h-4 w-4 text-gray-500' />
               )}
             </Button>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className='space-y-2'>
           <Label
-            htmlFor="confirmPassword"
-            className="text-sm font-medium text-gray-700"
+            className='text-sm font-medium text-gray-700'
+            htmlFor='confirmPassword'
           >
             Confirmer le nouveau mot de passe
           </Label>
-          <div className="relative">
+          <div className='relative'>
             <Input
-              id="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Répétez le nouveau mot de passe"
-              className="w-full pr-10"
+              className='w-full pr-10'
+              id='confirmPassword'
+              placeholder='Répétez le nouveau mot de passe'
+              type={showConfirmPassword ? 'text' : 'password'}
             />
             <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              size='icon'
+              type='button'
+              variant='ghost'
             >
               {showConfirmPassword ? (
-                <EyeOff className="h-4 w-4 text-gray-500" />
+                <EyeOff className='h-4 w-4 text-gray-500' />
               ) : (
-                <Eye className="h-4 w-4 text-gray-500" />
+                <Eye className='h-4 w-4 text-gray-500' />
               )}
             </Button>
           </div>
         </div>
 
-        <div className="space-y-1 pt-2">
-          <p className="text-sm text-gray-600">Exigences du mot de passe :</p>
-          <ul className="text-sm text-gray-500 space-y-1 list-disc list-inside">
+        <div className='space-y-1 pt-2'>
+          <p className='text-sm text-gray-600'>Exigences du mot de passe :</p>
+          <ul className='list-inside list-disc space-y-1 text-sm text-gray-500'>
             <li>Au moins 8 caractères</li>
             <li>Au moins une lettre majuscule et une minuscule</li>
             <li>Au moins un chiffre</li>
@@ -120,4 +121,3 @@ export function PasswordChangeForm() {
     </div>
   );
 }
-

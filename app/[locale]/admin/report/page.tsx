@@ -1,6 +1,7 @@
-import { getTranslations } from "next-intl/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ReportsList } from "@/components/admin/report/ReportsList";
+import { getTranslations } from 'next-intl/server';
+
+import { ReportsList } from '@/components/admin/report/ReportsList';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function ReportsListPage({
   params,
@@ -8,20 +9,20 @@ export default async function ReportsListPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("admin.reports");
+  const t = await getTranslations('admin.reports');
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-8'>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
-        <p className="text-gray-600 mt-2">{t("subtitle")}</p>
+        <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
+        <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
       </div>
 
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("tableTitle")}</CardTitle>
+          <CardTitle>{t('tableTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ReportsList locale={locale} />
@@ -30,4 +31,3 @@ export default async function ReportsListPage({
     </div>
   );
 }
-
