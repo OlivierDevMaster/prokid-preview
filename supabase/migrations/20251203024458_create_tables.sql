@@ -33,66 +33,6 @@ CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletters
   WITH CHECK (TRUE);
 
 -- ============================================================================
--- Model: plannings
--- ============================================================================
-
--- Declaration
-CREATE TABLE IF NOT EXISTS "public"."plannings" (
-  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "date" DATE NOT NULL,
-  "start_time" TIME WITHOUT TIME ZONE NOT NULL,
-  "end_time" TIME WITHOUT TIME ZONE,
-  "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
-  CONSTRAINT "plannings_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
-);
-
--- Comments
-COMMENT ON TABLE "public"."plannings" IS 'Professional planning/schedule entries';
-COMMENT ON COLUMN "public"."plannings"."date" IS 'Date of the planning entry';
-COMMENT ON COLUMN "public"."plannings"."start_time" IS 'Start time of the planning entry';
-COMMENT ON COLUMN "public"."plannings"."end_time" IS 'End time of the planning entry (optional)';
-COMMENT ON COLUMN "public"."plannings"."user_id" IS 'Reference to the professional who owns this planning entry';
-
--- Indexes
-CREATE INDEX IF NOT EXISTS "idx_plannings_user_id" ON "public"."plannings" ("user_id");
-CREATE INDEX IF NOT EXISTS "idx_plannings_date" ON "public"."plannings" ("date");
-CREATE INDEX IF NOT EXISTS "idx_plannings_user_id_date" ON "public"."plannings" ("user_id", "date");
-
--- Triggers
-CREATE TRIGGER update_plannings_updated_at BEFORE UPDATE ON "public"."plannings"
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-
--- RLS
-ALTER TABLE "public"."plannings" ENABLE ROW LEVEL SECURITY;
-
--- Everyone can view planning entries (public profile data)
-CREATE POLICY "Everyone can view planning entries" ON "public"."plannings"
-  FOR SELECT
-  TO authenticated, anon
-  USING (TRUE);
-
--- Professionals can insert their own planning entries
-CREATE POLICY "Professionals can insert their own planning" ON "public"."plannings"
-  FOR INSERT
-  TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
-
--- Professionals can update their own planning entries
-CREATE POLICY "Professionals can update their own planning" ON "public"."plannings"
-  FOR UPDATE
-  TO authenticated
-  USING ((SELECT auth.uid()) = "user_id")
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
-
--- Professionals can delete their own planning entries
-CREATE POLICY "Professionals can delete their own planning" ON "public"."plannings"
-  FOR DELETE
-  TO authenticated
-  USING ((SELECT auth.uid()) = "user_id");
-
--- ============================================================================
 -- Model: profiles
 -- ============================================================================
 
@@ -261,6 +201,66 @@ CREATE POLICY "Users can update their own structure profile" ON "public"."struct
 
 -- Users can delete their own structure profile
 CREATE POLICY "Users can delete their own structure profile" ON "public"."structures"
+  FOR DELETE
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id");
+
+-- ============================================================================
+-- Model: plannings
+-- ============================================================================
+
+-- Declaration
+CREATE TABLE IF NOT EXISTS "public"."plannings" (
+  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "date" DATE NOT NULL,
+  "start_time" TIME WITHOUT TIME ZONE NOT NULL,
+  "end_time" TIME WITHOUT TIME ZONE,
+  "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
+  CONSTRAINT "plannings_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
+);
+
+-- Comments
+COMMENT ON TABLE "public"."plannings" IS 'Professional planning/schedule entries';
+COMMENT ON COLUMN "public"."plannings"."date" IS 'Date of the planning entry';
+COMMENT ON COLUMN "public"."plannings"."start_time" IS 'Start time of the planning entry';
+COMMENT ON COLUMN "public"."plannings"."end_time" IS 'End time of the planning entry (optional)';
+COMMENT ON COLUMN "public"."plannings"."user_id" IS 'Reference to the professional who owns this planning entry';
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS "idx_plannings_user_id" ON "public"."plannings" ("user_id");
+CREATE INDEX IF NOT EXISTS "idx_plannings_date" ON "public"."plannings" ("date");
+CREATE INDEX IF NOT EXISTS "idx_plannings_user_id_date" ON "public"."plannings" ("user_id", "date");
+
+-- Triggers
+CREATE TRIGGER update_plannings_updated_at BEFORE UPDATE ON "public"."plannings"
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- RLS
+ALTER TABLE "public"."plannings" ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can view planning entries (public profile data)
+CREATE POLICY "Everyone can view planning entries" ON "public"."plannings"
+  FOR SELECT
+  TO authenticated, anon
+  USING (TRUE);
+
+-- Professionals can insert their own planning entries
+CREATE POLICY "Professionals can insert their own planning" ON "public"."plannings"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Professionals can update their own planning entries
+CREATE POLICY "Professionals can update their own planning" ON "public"."plannings"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id")
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Professionals can delete their own planning entries
+CREATE POLICY "Professionals can delete their own planning" ON "public"."plannings"
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id");
