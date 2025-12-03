@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
   "first_name" TEXT,
   "last_name" TEXT,
   "avatar_url" TEXT,
-  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "is_onboarded" BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 -- Comments
@@ -52,10 +53,12 @@ COMMENT ON TABLE "public"."profiles" IS 'User profiles';
 COMMENT ON COLUMN "public"."profiles"."user_id" IS 'Reference to the user';
 COMMENT ON COLUMN "public"."profiles"."role" IS 'User role: professional, structure, or admin';
 COMMENT ON COLUMN "public"."profiles"."email" IS 'User email address';
+COMMENT ON COLUMN "public"."profiles"."is_onboarded" IS 'Whether the user has completed the onboarding process';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_profiles_role" ON "public"."profiles" ("role");
 CREATE INDEX IF NOT EXISTS "idx_profiles_email" ON "public"."profiles" ("email");
+CREATE INDEX IF NOT EXISTS "idx_profiles_is_onboarded" ON "public"."profiles" ("is_onboarded");
 
 -- RLS
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
