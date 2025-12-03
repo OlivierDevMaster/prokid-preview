@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     // Récupérer les rapports de l'utilisateur
     const { data: reports, error: reportsError } = await supabase
-      .from('report')
+      .from('reports')
       .select('*')
       .eq('user', user.id)
       .order('created_at', { ascending: false });

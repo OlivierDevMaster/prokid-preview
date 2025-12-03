@@ -1,39 +1,39 @@
 -- Migration: create_tables
 -- Purpose: Create all database tables with constraints, indexes, triggers, and RLS policies
--- Affected tables: news_letters, planning, profiles, report
+-- Affected tables: newsletters, plannings, profiles, reports
 -- Special considerations: All tables have RLS enabled by default for security
 
 -- ============================================================================
--- Model: news_letters
+-- Model: newsletters
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS "public"."news_letters" (
+CREATE TABLE IF NOT EXISTS "public"."newsletters" (
   "id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   "created_at" timestamp with time zone DEFAULT now() NOT NULL,
   "email" text NOT NULL,
   "name" text,
-  CONSTRAINT "news_letters_email_unique" UNIQUE ("email")
+  CONSTRAINT "newsletters_email_unique" UNIQUE ("email")
 );
 
-COMMENT ON TABLE "public"."news_letters" IS 'Newsletter subscriptions';
-COMMENT ON COLUMN "public"."news_letters"."email" IS 'Subscriber email address';
-COMMENT ON COLUMN "public"."news_letters"."name" IS 'Optional subscriber name';
+COMMENT ON TABLE "public"."newsletters" IS 'Newsletter subscriptions';
+COMMENT ON COLUMN "public"."newsletters"."email" IS 'Subscriber email address';
+COMMENT ON COLUMN "public"."newsletters"."name" IS 'Optional subscriber name';
 
-CREATE INDEX IF NOT EXISTS "idx_news_letters_email" ON "public"."news_letters" ("email");
+CREATE INDEX IF NOT EXISTS "idx_newsletters_email" ON "public"."newsletters" ("email");
 
-ALTER TABLE "public"."news_letters" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."newsletters" ENABLE ROW LEVEL SECURITY;
 
 -- Allow public subscription to newsletter
-CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."news_letters"
+CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletters"
   FOR INSERT
   TO anon, authenticated
   WITH CHECK (true);
 
 -- ============================================================================
--- Model: planning
+-- Model: plannings
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS "public"."planning" (
+CREATE TABLE IF NOT EXISTS "public"."plannings" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "created_at" timestamp with time zone DEFAULT now() NOT NULL,
   "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -41,45 +41,45 @@ CREATE TABLE IF NOT EXISTS "public"."planning" (
   "start_time" time without time zone NOT NULL,
   "end_time" time without time zone,
   "user" uuid DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE,
-  CONSTRAINT "planning_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
+  CONSTRAINT "plannings_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
 );
 
-COMMENT ON TABLE "public"."planning" IS 'User planning/schedule entries';
-COMMENT ON COLUMN "public"."planning"."date" IS 'Date of the planning entry';
-COMMENT ON COLUMN "public"."planning"."start_time" IS 'Start time of the planning entry';
-COMMENT ON COLUMN "public"."planning"."end_time" IS 'End time of the planning entry (optional)';
-COMMENT ON COLUMN "public"."planning"."user" IS 'Reference to the user who owns this planning entry';
+COMMENT ON TABLE "public"."plannings" IS 'User planning/schedule entries';
+COMMENT ON COLUMN "public"."plannings"."date" IS 'Date of the planning entry';
+COMMENT ON COLUMN "public"."plannings"."start_time" IS 'Start time of the planning entry';
+COMMENT ON COLUMN "public"."plannings"."end_time" IS 'End time of the planning entry (optional)';
+COMMENT ON COLUMN "public"."plannings"."user" IS 'Reference to the user who owns this planning entry';
 
-CREATE INDEX IF NOT EXISTS "idx_planning_user" ON "public"."planning" ("user");
-CREATE INDEX IF NOT EXISTS "idx_planning_date" ON "public"."planning" ("date");
-CREATE INDEX IF NOT EXISTS "idx_planning_user_date" ON "public"."planning" ("user", "date");
+CREATE INDEX IF NOT EXISTS "idx_plannings_user" ON "public"."plannings" ("user");
+CREATE INDEX IF NOT EXISTS "idx_plannings_date" ON "public"."plannings" ("date");
+CREATE INDEX IF NOT EXISTS "idx_plannings_user_date" ON "public"."plannings" ("user", "date");
 
-CREATE TRIGGER update_planning_updated_at BEFORE UPDATE ON "public"."planning"
+CREATE TRIGGER update_plannings_updated_at BEFORE UPDATE ON "public"."plannings"
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
-ALTER TABLE "public"."planning" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."plannings" ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own planning entries
-CREATE POLICY "Users can view their own planning" ON "public"."planning"
+CREATE POLICY "Users can view their own planning" ON "public"."plannings"
   FOR SELECT
   TO authenticated
   USING ((SELECT auth.uid()) = "user");
 
 -- Users can insert their own planning entries
-CREATE POLICY "Users can insert their own planning" ON "public"."planning"
+CREATE POLICY "Users can insert their own planning" ON "public"."plannings"
   FOR INSERT
   TO authenticated
   WITH CHECK ((SELECT auth.uid()) = "user");
 
 -- Users can update their own planning entries
-CREATE POLICY "Users can update their own planning" ON "public"."planning"
+CREATE POLICY "Users can update their own planning" ON "public"."plannings"
   FOR UPDATE
   TO authenticated
   USING ((SELECT auth.uid()) = "user")
   WITH CHECK ((SELECT auth.uid()) = "user");
 
 -- Users can delete their own planning entries
-CREATE POLICY "Users can delete their own planning" ON "public"."planning"
+CREATE POLICY "Users can delete their own planning" ON "public"."plannings"
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user");
@@ -156,10 +156,10 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
   WITH CHECK ((SELECT auth.uid()) = "user");
 
 -- ============================================================================
--- Model: report
+-- Model: reports
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS "public"."report" (
+CREATE TABLE IF NOT EXISTS "public"."reports" (
   "id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   "created_at" timestamp with time zone DEFAULT now() NOT NULL,
   "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -168,40 +168,40 @@ CREATE TABLE IF NOT EXISTS "public"."report" (
   "user" uuid DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE
 );
 
-COMMENT ON TABLE "public"."report" IS 'User reports or feedback';
-COMMENT ON COLUMN "public"."report"."title" IS 'Report title';
-COMMENT ON COLUMN "public"."report"."contents" IS 'Report content/description';
-COMMENT ON COLUMN "public"."report"."user" IS 'Reference to the user who created this report';
+COMMENT ON TABLE "public"."reports" IS 'User reports or feedback';
+COMMENT ON COLUMN "public"."reports"."title" IS 'Report title';
+COMMENT ON COLUMN "public"."reports"."contents" IS 'Report content/description';
+COMMENT ON COLUMN "public"."reports"."user" IS 'Reference to the user who created this report';
 
-CREATE INDEX IF NOT EXISTS "idx_report_user" ON "public"."report" ("user");
-CREATE INDEX IF NOT EXISTS "idx_report_created_at" ON "public"."report" ("created_at");
+CREATE INDEX IF NOT EXISTS "idx_reports_user" ON "public"."reports" ("user");
+CREATE INDEX IF NOT EXISTS "idx_reports_created_at" ON "public"."reports" ("created_at");
 
-CREATE TRIGGER update_report_updated_at BEFORE UPDATE ON "public"."report"
+CREATE TRIGGER update_reports_updated_at BEFORE UPDATE ON "public"."reports"
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
-ALTER TABLE "public"."report" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."reports" ENABLE ROW LEVEL SECURITY;
 
 -- Users can create their own reports
-CREATE POLICY "Users can create their own reports" ON "public"."report"
+CREATE POLICY "Users can create their own reports" ON "public"."reports"
   FOR INSERT
   TO authenticated
   WITH CHECK ((SELECT auth.uid()) = "user");
 
 -- Users can view their own reports
-CREATE POLICY "Users can view their own reports" ON "public"."report"
+CREATE POLICY "Users can view their own reports" ON "public"."reports"
   FOR SELECT
   TO authenticated
   USING ((SELECT auth.uid()) = "user");
 
 -- Users can update their own reports
-CREATE POLICY "Users can update their own reports" ON "public"."report"
+CREATE POLICY "Users can update their own reports" ON "public"."reports"
   FOR UPDATE
   TO authenticated
   USING ((SELECT auth.uid()) = "user")
   WITH CHECK ((SELECT auth.uid()) = "user");
 
 -- Users can delete their own reports
-CREATE POLICY "Users can delete their own reports" ON "public"."report"
+CREATE POLICY "Users can delete their own reports" ON "public"."reports"
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user");

@@ -73,7 +73,7 @@ export async function POST(
       first_name: firstName,
       last_name: lastName,
       user: userId,
-      user_type: userType,
+      role: userType,
     });
 
     if (profileError) {

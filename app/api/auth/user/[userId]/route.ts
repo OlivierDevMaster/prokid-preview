@@ -55,7 +55,7 @@ export async function GET(
         id: profile.user,
         lastName: profile.last_name,
         updatedAt: profile.updated_at,
-        userType: profile.user_type,
+        userType: profile.role,
         // Ajoutez d'autres champs selon votre schéma de table profiles
       },
       { status: 200 }
