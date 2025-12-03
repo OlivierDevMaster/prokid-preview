@@ -11,9 +11,8 @@
 CREATE TABLE IF NOT EXISTS "public"."newsletters" (
   "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "email" TEXT NOT NULL,
-  "name" TEXT,
-  CONSTRAINT "newsletters_email_unique" UNIQUE ("email")
+  "email" TEXT NOT NULL UNIQUE,
+  "name" TEXT
 );
 
 -- Comments
