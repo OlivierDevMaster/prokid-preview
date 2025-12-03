@@ -1,4 +1,4 @@
-import { Role } from '@/features/role/role.model';
+import { Role } from '@/features/roles/role.model';
 
 type SignUpParams = {
   body: {
