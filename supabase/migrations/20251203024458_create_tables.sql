@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "last_name" text,
     "email" text NOT NULL,
     "status" text DEFAULT 'created'::text NOT NULL,
-    "user_type" text NOT NULL,
+    "role" "public"."role" NOT NULL,
     "phone" text,
     "jobs" text[],
     "postal_code" text,
@@ -99,14 +99,13 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "hourly_rate" numeric,
     "avatar" text,
     CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['created'::text, 'banned'::text, 'validated'::text]))),
-    CONSTRAINT "user_type_check" CHECK (("user_type" = ANY (ARRAY['professional'::text, 'structure'::text]))),
     CONSTRAINT "experience_check" CHECK ("experience" IS NULL OR "experience" >= 0),
     CONSTRAINT "hourly_rate_check" CHECK ("hourly_rate" IS NULL OR "hourly_rate" >= 0)
 );
 
 COMMENT ON TABLE "public"."profiles" IS 'User profiles with extended information';
 COMMENT ON COLUMN "public"."profiles"."status" IS 'Profile status: created, validated, or banned';
-COMMENT ON COLUMN "public"."profiles"."user_type" IS 'Type of user: professional or structure';
+COMMENT ON COLUMN "public"."profiles"."role" IS 'User role: professional, structure, or admin';
 COMMENT ON COLUMN "public"."profiles"."experience" IS 'Years of experience (must be >= 0)';
 COMMENT ON COLUMN "public"."profiles"."hourly_rate" IS 'Hourly rate in currency (must be >= 0)';
 COMMENT ON COLUMN "public"."profiles"."jobs" IS 'Array of job titles or specializations';
@@ -114,7 +113,7 @@ COMMENT ON COLUMN "public"."profiles"."jobs" IS 'Array of job titles or speciali
 CREATE INDEX IF NOT EXISTS "idx_profiles_user" ON "public"."profiles" ("user");
 CREATE INDEX IF NOT EXISTS "idx_profiles_email" ON "public"."profiles" ("email");
 CREATE INDEX IF NOT EXISTS "idx_profiles_status" ON "public"."profiles" ("status");
-CREATE INDEX IF NOT EXISTS "idx_profiles_user_type" ON "public"."profiles" ("user_type");
+CREATE INDEX IF NOT EXISTS "idx_profiles_role" ON "public"."profiles" ("role");
 
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON "public"."profiles"
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
