@@ -1,14 +1,14 @@
 -- Migration: create_tables
 -- Purpose: Create all database tables with constraints, indexes, triggers, and RLS policies
--- Affected tables: newsletters, plannings, profiles, reports
+-- Affected tables: newsletter_subscriptions, plannings, profiles, reports
 -- Special considerations: All tables have RLS enabled by default for security
 
 -- ============================================================================
--- Model: newsletters
+-- Model: newsletter_subscriptions
 -- ============================================================================
 
 -- Declaration
-CREATE TABLE IF NOT EXISTS "public"."newsletters" (
+CREATE TABLE IF NOT EXISTS "public"."newsletter_subscriptions" (
   "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "email" TEXT NOT NULL UNIQUE,
@@ -16,18 +16,18 @@ CREATE TABLE IF NOT EXISTS "public"."newsletters" (
 );
 
 -- Comments
-COMMENT ON TABLE "public"."newsletters" IS 'Newsletter subscriptions';
-COMMENT ON COLUMN "public"."newsletters"."email" IS 'Subscriber email address';
-COMMENT ON COLUMN "public"."newsletters"."name" IS 'Optional subscriber name';
+COMMENT ON TABLE "public"."newsletter_subscriptions" IS 'Newsletter subscriptions';
+COMMENT ON COLUMN "public"."newsletter_subscriptions"."email" IS 'Subscriber email address';
+COMMENT ON COLUMN "public"."newsletter_subscriptions"."name" IS 'Optional subscriber name';
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS "idx_newsletters_email" ON "public"."newsletters" ("email");
+CREATE INDEX IF NOT EXISTS "idx_newsletter_subscriptions_email" ON "public"."newsletter_subscriptions" ("email");
 
 -- RLS
-ALTER TABLE "public"."newsletters" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."newsletter_subscriptions" ENABLE ROW LEVEL SECURITY;
 
 -- Allow public subscription to newsletter
-CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletters"
+CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletter_subscriptions"
   FOR INSERT
   TO anon, authenticated
   WITH CHECK (TRUE);
