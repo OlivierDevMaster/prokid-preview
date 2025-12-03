@@ -36,7 +36,7 @@ export function StructureSignUpForm({
         lastName: string;
         password: string;
       };
-    }) => signUp({ body, userType: 'structure' }),
+    }) => signUp({ body, role: 'structure' }),
   });
 
   const handleSignUp = async (e: React.FormEvent) => {

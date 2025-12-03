@@ -36,7 +36,7 @@ export function ProfessionalSignUpForm({
         lastName: string;
         password: string;
       };
-    }) => signUp({ body, userType: 'professional' }),
+    }) => signUp({ body, role: 'professional' }),
   });
 
   const handleSignUp = async (e: React.FormEvent) => {

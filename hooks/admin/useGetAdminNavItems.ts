@@ -33,7 +33,7 @@ export default function useGetAdminNavItems(): NavItem[] {
     const profile = data.profile;
     const items: NavItem[] = [];
 
-    if (profile?.userType === 'professional') {
+    if (profile?.role === 'professional') {
       items.push({
         href: '/admin/planning',
         icon: 'planning',
