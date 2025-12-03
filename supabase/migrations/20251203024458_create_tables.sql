@@ -98,47 +98,24 @@ CREATE POLICY "Users can delete their own planning" ON "public"."plannings"
 
 -- Declaration
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
-  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "user" UUID DEFAULT auth.uid() NOT NULL UNIQUE REFERENCES "auth"."users"("id") ON DELETE CASCADE,
-  "first_name" TEXT NOT NULL,
-  "last_name" TEXT,
-  "email" TEXT NOT NULL,
-  "status" TEXT DEFAULT 'created'::TEXT NOT NULL,
+  "user_id" UUID NOT NULL PRIMARY KEY REFERENCES "auth"."users"("id") ON DELETE CASCADE,
   "role" "public"."role" NOT NULL,
-  "phone" TEXT,
-  "jobs" TEXT[],
-  "postal_code" TEXT,
-  "city" TEXT,
-  "intervention_zone" TEXT,
-  "professional_email" TEXT,
-  "description" TEXT,
-  "experience" NUMERIC,
-  "hourly_rate" NUMERIC,
-  "avatar" TEXT,
-  CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['created'::TEXT, 'banned'::TEXT, 'validated'::TEXT]))),
-  CONSTRAINT "experience_check" CHECK ("experience" IS NULL OR "experience" >= 0),
-  CONSTRAINT "hourly_rate_check" CHECK ("hourly_rate" IS NULL OR "hourly_rate" >= 0)
+  "email" TEXT NOT NULL UNIQUE,
+  "first_name" TEXT,
+  "last_name" TEXT,
+  "avatar_url" TEXT,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
 -- Comments
-COMMENT ON TABLE "public"."profiles" IS 'User profiles with extended information';
-COMMENT ON COLUMN "public"."profiles"."status" IS 'Profile status: created, validated, or banned';
+COMMENT ON TABLE "public"."profiles" IS 'User profiles';
+COMMENT ON COLUMN "public"."profiles"."user_id" IS 'Reference to the user';
 COMMENT ON COLUMN "public"."profiles"."role" IS 'User role: professional, structure, or admin';
-COMMENT ON COLUMN "public"."profiles"."experience" IS 'Years of experience (must be >= 0)';
-COMMENT ON COLUMN "public"."profiles"."hourly_rate" IS 'Hourly rate in currency (must be >= 0)';
-COMMENT ON COLUMN "public"."profiles"."jobs" IS 'Array of job titles or specializations';
+COMMENT ON COLUMN "public"."profiles"."email" IS 'User email address';
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS "idx_profiles_user" ON "public"."profiles" ("user");
-CREATE INDEX IF NOT EXISTS "idx_profiles_email" ON "public"."profiles" ("email");
-CREATE INDEX IF NOT EXISTS "idx_profiles_status" ON "public"."profiles" ("status");
 CREATE INDEX IF NOT EXISTS "idx_profiles_role" ON "public"."profiles" ("role");
-
--- Triggers
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON "public"."profiles"
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE INDEX IF NOT EXISTS "idx_profiles_email" ON "public"."profiles" ("email");
 
 -- RLS
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
@@ -153,20 +130,14 @@ CREATE POLICY "Allow public to create profiles" ON "public"."profiles"
 CREATE POLICY "Users can view their own profile" ON "public"."profiles"
   FOR SELECT
   TO authenticated
-  USING ((SELECT auth.uid()) = "user");
-
--- Public can view validated profiles
-CREATE POLICY "Users can view public profiles" ON "public"."profiles"
-  FOR SELECT
-  TO authenticated, anon
-  USING ("status" = 'validated');
+  USING ((SELECT auth.uid()) = "user_id");
 
 -- Users can update their own profile
 CREATE POLICY "Users can update their own profile" ON "public"."profiles"
   FOR UPDATE
   TO authenticated
-  USING ((SELECT auth.uid()) = "user")
-  WITH CHECK ((SELECT auth.uid()) = "user");
+  USING ((SELECT auth.uid()) = "user_id")
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
 
 -- ============================================================================
 -- Model: reports
