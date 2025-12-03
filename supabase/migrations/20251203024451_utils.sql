@@ -1,9 +1,16 @@
--- Create function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+-- Migration: utils
+-- Purpose: Create utility functions for database operations
+-- Affected objects: update_updated_at_column function
+
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
 BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
+  NEW.updated_at := now();
+  RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$;
 
