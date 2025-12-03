@@ -214,6 +214,58 @@ CREATE POLICY "Users can update their own professional profile" ON "public"."pro
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
 -- ============================================================================
+-- Model: structures
+-- ============================================================================
+
+-- Declaration
+CREATE TABLE IF NOT EXISTS "public"."structures" (
+  "user_id" UUID NOT NULL PRIMARY KEY REFERENCES "public"."profiles"("user_id") ON DELETE CASCADE,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "name" TEXT NOT NULL
+);
+
+-- Comments
+COMMENT ON TABLE "public"."structures" IS 'Structure user profiles';
+COMMENT ON COLUMN "public"."structures"."user_id" IS 'Reference to the profile user';
+COMMENT ON COLUMN "public"."structures"."name" IS 'Structure name';
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS "idx_structures_name" ON "public"."structures" ("name");
+
+-- Triggers
+CREATE TRIGGER update_structures_updated_at BEFORE UPDATE ON "public"."structures"
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- RLS
+ALTER TABLE "public"."structures" ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can view structures (public profile data)
+CREATE POLICY "Everyone can view structures" ON "public"."structures"
+  FOR SELECT
+  TO authenticated, anon
+  USING (TRUE);
+
+-- Users can insert their own structure profile
+CREATE POLICY "Users can insert their own structure profile" ON "public"."structures"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Users can update their own structure profile
+CREATE POLICY "Users can update their own structure profile" ON "public"."structures"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id")
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Users can delete their own structure profile
+CREATE POLICY "Users can delete their own structure profile" ON "public"."structures"
+  FOR DELETE
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id");
+
+-- ============================================================================
 -- Model: reports
 -- ============================================================================
 
@@ -223,18 +275,21 @@ CREATE TABLE IF NOT EXISTS "public"."reports" (
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "title" TEXT NOT NULL,
-  "contents" TEXT NOT NULL,
-  "user" UUID DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE
+  "content" TEXT NOT NULL,
+  "author_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
+  "recipient_id" UUID NOT NULL REFERENCES "public"."structures"("user_id") ON DELETE CASCADE
 );
 
 -- Comments
-COMMENT ON TABLE "public"."reports" IS 'User reports or feedback';
+COMMENT ON TABLE "public"."reports" IS 'Reports from professionals to structures';
 COMMENT ON COLUMN "public"."reports"."title" IS 'Report title';
-COMMENT ON COLUMN "public"."reports"."contents" IS 'Report content/description';
-COMMENT ON COLUMN "public"."reports"."user" IS 'Reference to the user who created this report';
+COMMENT ON COLUMN "public"."reports"."content" IS 'Report content/description';
+COMMENT ON COLUMN "public"."reports"."author_id" IS 'Reference to the professional who created this report';
+COMMENT ON COLUMN "public"."reports"."recipient_id" IS 'Reference to the structure receiving this report';
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS "idx_reports_user" ON "public"."reports" ("user");
+CREATE INDEX IF NOT EXISTS "idx_reports_author_id" ON "public"."reports" ("author_id");
+CREATE INDEX IF NOT EXISTS "idx_reports_recipient_id" ON "public"."reports" ("recipient_id");
 CREATE INDEX IF NOT EXISTS "idx_reports_created_at" ON "public"."reports" ("created_at");
 
 -- Triggers
@@ -244,27 +299,33 @@ CREATE TRIGGER update_reports_updated_at BEFORE UPDATE ON "public"."reports"
 -- RLS
 ALTER TABLE "public"."reports" ENABLE ROW LEVEL SECURITY;
 
--- Users can create their own reports
-CREATE POLICY "Users can create their own reports" ON "public"."reports"
+-- Professionals can create reports
+CREATE POLICY "Professionals can create reports" ON "public"."reports"
   FOR INSERT
   TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user");
+  WITH CHECK ((SELECT auth.uid()) = "author_id");
 
--- Users can view their own reports
-CREATE POLICY "Users can view their own reports" ON "public"."reports"
+-- Professionals can view their own reports
+CREATE POLICY "Professionals can view their own reports" ON "public"."reports"
   FOR SELECT
   TO authenticated
-  USING ((SELECT auth.uid()) = "user");
+  USING ((SELECT auth.uid()) = "author_id");
 
--- Users can update their own reports
-CREATE POLICY "Users can update their own reports" ON "public"."reports"
+-- Structures can view reports they received
+CREATE POLICY "Structures can view reports they received" ON "public"."reports"
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT auth.uid()) = "recipient_id");
+
+-- Professionals can update their own reports
+CREATE POLICY "Professionals can update their own reports" ON "public"."reports"
   FOR UPDATE
   TO authenticated
-  USING ((SELECT auth.uid()) = "user")
-  WITH CHECK ((SELECT auth.uid()) = "user");
+  USING ((SELECT auth.uid()) = "author_id")
+  WITH CHECK ((SELECT auth.uid()) = "author_id");
 
--- Users can delete their own reports
-CREATE POLICY "Users can delete their own reports" ON "public"."reports"
+-- Professionals can delete their own reports
+CREATE POLICY "Professionals can delete their own reports" ON "public"."reports"
   FOR DELETE
   TO authenticated
-  USING ((SELECT auth.uid()) = "user");
+  USING ((SELECT auth.uid()) = "author_id");
