@@ -8,10 +8,10 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS "public"."newsletters" (
-  "id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "email" text NOT NULL,
-  "name" text,
+  "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "email" TEXT NOT NULL,
+  "name" TEXT,
   CONSTRAINT "newsletters_email_unique" UNIQUE ("email")
 );
 
@@ -27,20 +27,20 @@ ALTER TABLE "public"."newsletters" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletters"
   FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (TRUE);
 
 -- ============================================================================
 -- Model: plannings
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS "public"."plannings" (
-  "id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-  "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "date" timestamp with time zone NOT NULL,
-  "start_time" time without time zone NOT NULL,
-  "end_time" time without time zone,
-  "user" uuid DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE,
+  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "date" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "start_time" TIME WITHOUT TIME ZONE NOT NULL,
+  "end_time" TIME WITHOUT TIME ZONE,
+  "user" UUID DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE,
   CONSTRAINT "plannings_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
 );
 
@@ -89,26 +89,26 @@ CREATE POLICY "Users can delete their own planning" ON "public"."plannings"
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
-  "id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-  "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "user" uuid DEFAULT auth.uid() NOT NULL UNIQUE REFERENCES "auth"."users"("id") ON DELETE CASCADE,
-  "first_name" text NOT NULL,
-  "last_name" text,
-  "email" text NOT NULL,
-  "status" text DEFAULT 'created'::text NOT NULL,
+  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "user" UUID DEFAULT auth.uid() NOT NULL UNIQUE REFERENCES "auth"."users"("id") ON DELETE CASCADE,
+  "first_name" TEXT NOT NULL,
+  "last_name" TEXT,
+  "email" TEXT NOT NULL,
+  "status" TEXT DEFAULT 'created'::TEXT NOT NULL,
   "role" "public"."role" NOT NULL,
-  "phone" text,
-  "jobs" text[],
-  "postal_code" text,
-  "city" text,
-  "intervention_zone" text,
-  "professional_email" text,
-  "description" text,
-  "experience" numeric,
-  "hourly_rate" numeric,
-  "avatar" text,
-  CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['created'::text, 'banned'::text, 'validated'::text]))),
+  "phone" TEXT,
+  "jobs" TEXT[],
+  "postal_code" TEXT,
+  "city" TEXT,
+  "intervention_zone" TEXT,
+  "professional_email" TEXT,
+  "description" TEXT,
+  "experience" NUMERIC,
+  "hourly_rate" NUMERIC,
+  "avatar" TEXT,
+  CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['created'::TEXT, 'banned'::TEXT, 'validated'::TEXT]))),
   CONSTRAINT "experience_check" CHECK ("experience" IS NULL OR "experience" >= 0),
   CONSTRAINT "hourly_rate_check" CHECK ("hourly_rate" IS NULL OR "hourly_rate" >= 0)
 );
@@ -134,7 +134,7 @@ ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public to create profiles" ON "public"."profiles"
   FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (TRUE);
 
 -- Users can view their own profile
 CREATE POLICY "Users can view their own profile" ON "public"."profiles"
@@ -160,12 +160,12 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS "public"."reports" (
-  "id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-  "title" text NOT NULL,
-  "contents" text NOT NULL,
-  "user" uuid DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE
+  "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "title" TEXT NOT NULL,
+  "contents" TEXT NOT NULL,
+  "user" UUID DEFAULT auth.uid() NOT NULL REFERENCES "auth"."users"("id") ON DELETE CASCADE
 );
 
 COMMENT ON TABLE "public"."reports" IS 'User reports or feedback';

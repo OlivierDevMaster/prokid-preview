@@ -9,8 +9,7 @@ SECURITY INVOKER
 SET search_path = ''
 AS $$
 BEGIN
-  NEW.updated_at := now();
+  NEW.updated_at := NOW();
   RETURN NEW;
 END;
 $$;
-
