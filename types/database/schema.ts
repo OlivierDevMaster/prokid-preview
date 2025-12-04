@@ -273,6 +273,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_onetime_availability: {
+        Args: {
+          day_offset: number
+          duration_hours: number
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      create_recurring_availability: {
+        Args: {
+          day_offset: number
+          duration_hours: number
+          exdate_offsets?: number[]
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      format_exdate: { Args: { date_offset: number }; Returns: string }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
     }
     Enums: {

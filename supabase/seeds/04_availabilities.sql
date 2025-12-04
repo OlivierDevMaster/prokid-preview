@@ -1,105 +1,85 @@
 -- Seed: availabilities
 -- Purpose: Create availability entries for professionals using RRULE format
--- Note: Professionals must exist first
 -- RRULE format: DTSTART:YYYYMMDDTHHMMSSZ;RRULE:FREQ=WEEKLY;BYDAY=...;DURATION:PT...H;EXDATE:YYYYMMDDTHHMMSSZ
--- Note: get_rrule_day function is defined in migration 20251203024451_utils.sql
--- EXDATE format: EXDATE:YYYYMMDDTHHMMSSZ,YYYYMMDDTHHMMSSZ (comma-separated exception dates)
--- Non-recurrent: DTSTART:YYYYMMDDTHHMMSSZ;DURATION:PT...H (no RRULE for one-time events)
+-- Note: get_rrule_day function converts day offset to RRULE day abbreviation
 
--- Insert availability entries for multiple professionals (sample entries for first 10 professionals)
--- Professional 010 (John Doe)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
--- Recurring with EXDATE (not available on specific dates)
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT3H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '15 days', 'YYYYMMDD') || 'T090000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '22 days', 'YYYYMMDD') || 'T090000Z', '00000000-0000-0000-0000-000000000010'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000010'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '16 days', 'YYYYMMDD') || 'T080000Z', '00000000-0000-0000-0000-000000000010'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000010'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '5 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(5) || ';DURATION:PT8H', '00000000-0000-0000-0000-000000000010'),
--- Non-recurrent (one-time availability)
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '10 days', 'YYYYMMDD') || 'T100000Z;DURATION:PT5H', '00000000-0000-0000-0000-000000000010'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '20 days', 'YYYYMMDD') || 'T140000Z;DURATION:PT3H', '00000000-0000-0000-0000-000000000010');
 
--- Professional 011 (Marie Martin)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT5H', '00000000-0000-0000-0000-000000000011'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '9 days', 'YYYYMMDD') || 'T140000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '23 days', 'YYYYMMDD') || 'T140000Z', '00000000-0000-0000-0000-000000000011'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '4 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(4) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000011'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '6 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(6) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000011'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '12 days', 'YYYYMMDD') || 'T080000Z;DURATION:PT4H', '00000000-0000-0000-0000-000000000011');
+-- Professional 010 (John Doe) - Therapist with morning and afternoon sessions
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000010', 1, 9, 3, ARRAY[15, 22]); -- Monday 9am-12pm, not available on specific Mondays
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000010', 1, 14, 4); -- Monday 2pm-6pm weekly
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000010', 2, 8, 4, ARRAY[16]); -- Tuesday 8am-12pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000010', 3, 10, 6); -- Wednesday 10am-4pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000010', 5, 9, 8); -- Friday 9am-5pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000010', 10, 10, 5); -- Special Saturday session
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000010', 20, 14, 3); -- Special Monday session
 
--- Professional 012 (Pierre Dupont)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T130000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000012'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT3H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '17 days', 'YYYYMMDD') || 'T090000Z', '00000000-0000-0000-0000-000000000012'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000012'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(7) || ';DURATION:PT8H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '14 days', 'YYYYMMDD') || 'T080000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '21 days', 'YYYYMMDD') || 'T080000Z', '00000000-0000-0000-0000-000000000012'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '11 days', 'YYYYMMDD') || 'T100000Z;DURATION:PT6H', '00000000-0000-0000-0000-000000000012'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '18 days', 'YYYYMMDD') || 'T130000Z;DURATION:PT3H', '00000000-0000-0000-0000-000000000012');
+-- Professional 011 (Marie Martin) - Doctor with regular hours
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000011', 1, 8, 5); -- Monday 8am-1pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000011', 2, 14, 4, ARRAY[9, 23]); -- Tuesday 2pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000011', 4, 9, 6); -- Thursday 9am-3pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000011', 6, 10, 6); -- Saturday 10am-4pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000011', 12, 8, 4); -- Special Thursday morning
 
--- Professional 013 (Sophie Bernard)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT6H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '8 days', 'YYYYMMDD') || 'T090000Z', '00000000-0000-0000-0000-000000000013'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000013'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '4 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(4) || ';DURATION:PT5H', '00000000-0000-0000-0000-000000000013'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '13 days', 'YYYYMMDD') || 'T090000Z;DURATION:PT4H', '00000000-0000-0000-0000-000000000013');
+-- Professional 012 (Pierre Dupont) - Consultant with flexible hours
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000012', 1, 13, 4); -- Monday 1pm-5pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000012', 3, 9, 3, ARRAY[17]); -- Wednesday 9am-12pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000012', 3, 14, 4); -- Wednesday 2pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000012', 7, 8, 8, ARRAY[14, 21]); -- Sunday 8am-4pm (some Sundays off)
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000012', 11, 10, 6); -- Special Tuesday
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000012', 18, 13, 3); -- Special Wednesday
 
--- Professional 014 (Thomas Leroy)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000014'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT8H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '10 days', 'YYYYMMDD') || 'T090000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '24 days', 'YYYYMMDD') || 'T090000Z', '00000000-0000-0000-0000-000000000014'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '5 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(5) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000014'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '14 days', 'YYYYMMDD') || 'T110000Z;DURATION:PT5H', '00000000-0000-0000-0000-000000000014');
+-- Professional 013 (Sophie Bernard) - Part-time availability
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000013', 1, 9, 6, ARRAY[8]); -- Monday 9am-3pm (except one Monday)
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000013', 2, 10, 6); -- Tuesday 10am-4pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000013', 4, 8, 5); -- Thursday 8am-1pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000013', 13, 9, 4); -- Special Monday
 
+-- Professional 014 (Thomas Leroy) - Evening specialist
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000014', 2, 14, 4); -- Tuesday 2pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000014', 3, 9, 8, ARRAY[10, 24]); -- Wednesday 9am-5pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000014', 5, 10, 6); -- Friday 10am-4pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000014', 14, 11, 5); -- Special Tuesday
+
+-- Continue with other professionals...
 -- Professional 015 (Lucie Moreau)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000015'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T130000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT5H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '17 days', 'YYYYMMDD') || 'T130000Z', '00000000-0000-0000-0000-000000000015'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '6 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(6) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000015'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '15 days', 'YYYYMMDD') || 'T080000Z;DURATION:PT6H', '00000000-0000-0000-0000-000000000015');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000015', 1, 8, 4); -- Monday 8am-12pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000015', 3, 13, 5, ARRAY[17]); -- Wednesday 1pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000015', 6, 9, 6); -- Saturday 9am-3pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000015', 15, 8, 6); -- Special Saturday
 
 -- Professional 016 (Antoine Petit)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '16 days', 'YYYYMMDD') || 'T100000Z', '00000000-0000-0000-0000-000000000016'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '4 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(4) || ';DURATION:PT8H', '00000000-0000-0000-0000-000000000016'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '5 days', 'YYYYMMDD') || 'T110000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(5) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000016'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '19 days', 'YYYYMMDD') || 'T140000Z;DURATION:PT4H', '00000000-0000-0000-0000-000000000016');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000016', 2, 10, 4, ARRAY[16]); -- Tuesday 10am-2pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000016', 4, 8, 8); -- Thursday 8am-4pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000016', 5, 11, 6); -- Friday 11am-5pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000016', 19, 14, 4); -- Special Thursday
 
 -- Professional 017 (Camille Laurent)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000017'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '9 days', 'YYYYMMDD') || 'T140000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '23 days', 'YYYYMMDD') || 'T140000Z', '00000000-0000-0000-0000-000000000017'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '4 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(4) || ';DURATION:PT4H', '00000000-0000-0000-0000-000000000017'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(7) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000017'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '21 days', 'YYYYMMDD') || 'T090000Z;DURATION:PT5H', '00000000-0000-0000-0000-000000000017');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000017', 1, 9, 4); -- Monday 9am-1pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000017', 2, 14, 4, ARRAY[9, 23]); -- Tuesday 2pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000017', 4, 8, 4); -- Thursday 8am-12pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000017', 7, 10, 6); -- Sunday 10am-4pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000017', 21, 9, 5); -- Special Monday
 
 -- Professional 018 (Julien Simon)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T130000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '8 days', 'YYYYMMDD') || 'T130000Z', '00000000-0000-0000-0000-000000000018'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000018'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '5 days', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(5) || ';DURATION:PT6H', '00000000-0000-0000-0000-000000000018'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '16 days', 'YYYYMMDD') || 'T100000Z;DURATION:PT7H', '00000000-0000-0000-0000-000000000018');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000018', 1, 13, 4, ARRAY[8]); -- Monday 1pm-5pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000018', 3, 9, 6); -- Wednesday 9am-3pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000018', 5, 10, 6); -- Friday 10am-4pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000018', 16, 10, 7); -- Special Wednesday
 
 -- Professional 019 (Emilie Michel)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '2 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(2) || ';DURATION:PT5H', '00000000-0000-0000-0000-000000000019'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '4 days', 'YYYYMMDD') || 'T140000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(4) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '11 days', 'YYYYMMDD') || 'T140000Z,' || TO_CHAR(CURRENT_DATE + INTERVAL '25 days', 'YYYYMMDD') || 'T140000Z', '00000000-0000-0000-0000-000000000019'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '6 days', 'YYYYMMDD') || 'T090000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(6) || ';DURATION:PT8H', '00000000-0000-0000-0000-000000000019'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '22 days', 'YYYYMMDD') || 'T080000Z;DURATION:PT6H', '00000000-0000-0000-0000-000000000019');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000019', 2, 8, 5); -- Tuesday 8am-1pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000019', 4, 14, 4, ARRAY[11, 25]); -- Thursday 2pm-6pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-000000000019', 6, 9, 8); -- Saturday 9am-5pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-000000000019', 22, 8, 6); -- Special Saturday
 
 -- Professional 01a (Nicolas Garcia)
-INSERT INTO public.availabilities (rrule, user_id) VALUES
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '1 day', 'YYYYMMDD') || 'T100000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(1) || ';DURATION:PT4H;EXDATE:' || TO_CHAR(CURRENT_DATE + INTERVAL '15 days', 'YYYYMMDD') || 'T100000Z', '00000000-0000-0000-0000-00000000001a'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '3 days', 'YYYYMMDD') || 'T080000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(3) || ';DURATION:PT4H', '00000000-0000-0000-0000-00000000001a'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '5 days', 'YYYYMMDD') || 'T130000Z;RRULE:FREQ=WEEKLY;BYDAY=' || public.get_rrule_day(5) || ';DURATION:PT4H', '00000000-0000-0000-0000-00000000001a'),
--- Non-recurrent
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '17 days', 'YYYYMMDD') || 'T110000Z;DURATION:PT4H', '00000000-0000-0000-0000-00000000001a'),
-('DTSTART:' || TO_CHAR(CURRENT_DATE + INTERVAL '24 days', 'YYYYMMDD') || 'T140000Z;DURATION:PT3H', '00000000-0000-0000-0000-00000000001a');
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-00000000001a', 1, 10, 4, ARRAY[15]); -- Monday 10am-2pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-00000000001a', 3, 8, 4); -- Wednesday 8am-12pm
+SELECT public.create_recurring_availability('00000000-0000-0000-0000-00000000001a', 5, 13, 4); -- Friday 1pm-5pm
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-00000000001a', 17, 11, 4); -- Special Wednesday
+SELECT public.create_onetime_availability('00000000-0000-0000-0000-00000000001a', 24, 14, 3); -- Special Monday
+
+-- Clean up temporary functions if desired (optional)
+-- DROP FUNCTION public.create_recurring_availability;
+-- DROP FUNCTION public.create_onetime_availability;
+-- DROP FUNCTION public.format_exdate;
