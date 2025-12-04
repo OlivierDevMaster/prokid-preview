@@ -54,7 +54,7 @@ const parseJsonBody = async (
   };
 };
 
-export const validateRequest = async <T>(
+export const validateRequestBody = async <T>(
   schema: ZodSchema<T>,
   request: HonoRequest
 ): Promise<
@@ -102,6 +102,50 @@ export const validateRequest = async <T>(
 
   return {
     data: parseBodyResult.data,
+    success: true,
+  };
+};
+
+export const validateRequestQuery = <T>(
+  schema: ZodSchema<T>,
+  request: HonoRequest
+):
+  | {
+      data: T;
+      success: true;
+    }
+  | {
+      response: Response;
+      success: false;
+    } => {
+  const queryParams = request.query();
+
+  const parseResult = schema.safeParse(queryParams);
+
+  if (!parseResult.success) {
+    const errors = parseResult.error.issues.map((err: ZodIssue) => ({
+      field: err.path.join('.'),
+      message: err.message,
+    }));
+
+    return {
+      response: apiResponse.badRequest(
+        'VALIDATION_ERROR',
+        'Invalid query parameters',
+        errors.reduce(
+          (acc, err) => {
+            acc[err.field] = err.message;
+            return acc;
+          },
+          {} as Record<string, string>
+        )
+      ),
+      success: false,
+    };
+  }
+
+  return {
+    data: parseResult.data,
     success: true,
   };
 };

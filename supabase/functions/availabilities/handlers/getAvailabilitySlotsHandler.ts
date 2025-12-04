@@ -1,0 +1,104 @@
+import { createFactory } from '@hono/hono/factory';
+import { createClient } from '@supabase/supabase-js';
+import { rrulestr } from 'rrule';
+
+import {
+  AvailabilitySlot,
+  GetAvailabilitySlotsQuerySchema,
+} from '../../_shared/features/availabilities/index.ts';
+import { validateRequestQuery } from '../../_shared/utils/requests.ts';
+import { apiResponse } from '../../_shared/utils/responses.ts';
+import { Database } from '../../../../types/database/schema.ts';
+
+const factory = createFactory();
+
+export const getAvailabilitySlotsHandler = factory.createHandlers(
+  async ({ req }) => {
+    try {
+      const supabaseClient = createClient<Database>(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      );
+
+      const validationResult = validateRequestQuery(
+        GetAvailabilitySlotsQuerySchema,
+        req
+      );
+
+      if (!validationResult.success) {
+        return validationResult.response;
+      }
+
+      const { endAt, professionalId, startAt } = validationResult.data;
+
+      const startDate = new Date(startAt);
+      const endDate = new Date(endAt);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return apiResponse.badRequest(
+          'INVALID_DATE_FORMAT',
+          'Invalid date format. Dates must be in ISO 8601 format.'
+        );
+      }
+
+      if (startDate >= endDate) {
+        return apiResponse.badRequest(
+          'INVALID_DATE_RANGE',
+          'startAt must be before endAt'
+        );
+      }
+
+      const { data: availabilities, error } = await supabaseClient
+        .from('availabilities')
+        .select('duration_mn, id, rrule')
+        .eq('user_id', professionalId);
+
+      if (error) {
+        console.error('Error fetching availabilities:', error);
+        return apiResponse.internalServerError(
+          'Failed to fetch availabilities'
+        );
+      }
+
+      if (!availabilities || availabilities.length === 0) {
+        return apiResponse.ok([]);
+      }
+
+      const slots: AvailabilitySlot[] = [];
+
+      for (const availability of availabilities) {
+        try {
+          const rule = rrulestr(availability.rrule);
+
+          const occurrences = rule.between(startDate, endDate, true);
+
+          for (const occurrence of occurrences) {
+            const slotStartAt = occurrence.toISOString();
+            const slotEndAt = new Date(
+              occurrence.getTime() + availability.duration_mn * 60 * 1000
+            ).toISOString();
+
+            slots.push({
+              endAt: slotEndAt,
+              startAt: slotStartAt,
+            });
+          }
+        } catch (rruleError) {
+          console.error(
+            `Error parsing rrule for availability ${availability.id}:`,
+            rruleError
+          );
+        }
+      }
+
+      slots.sort(
+        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+      );
+
+      return apiResponse.ok(slots);
+    } catch (error) {
+      console.error('Error in getAvailabilitySlotsHandler:', error);
+      return apiResponse.internalServerError();
+    }
+  }
+);

@@ -378,13 +378,13 @@ entrypoint = "./functions/hello-world/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/hello-world/*.html" ]
 
-[functions.availability-slots]
+[functions.availabilities]
 enabled = true
 verify_jwt = true
-import_map = "./functions/availability-slots/deno.json"
+import_map = "./functions/availabilities/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/availability-slots/index.ts"
+entrypoint = "./functions/availabilities/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/availability-slots/*.html" ]
+# static_files = [ "./functions/availabilities/*.html" ]

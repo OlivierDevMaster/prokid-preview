@@ -29,6 +29,7 @@
     "npm:eslint@^9.38.0": "9.38.0",
     "npm:http-status-codes@2.3.0": "2.3.0",
     "npm:openai@^4.52.5": "4.104.0_zod@4.1.13",
+    "npm:rrule@^2.8.1": "2.8.1",
     "npm:stripe@^19.3.1": "19.3.1_@types+node@24.2.0",
     "npm:type-fest@^5.1.0": "5.3.0",
     "npm:typescript-eslint@^8.46.1": "8.46.1_eslint@9.38.0_typescript@5.9.3_@typescript-eslint+parser@8.46.1__eslint@9.38.0__typescript@5.9.3",
@@ -992,6 +993,12 @@
     "reusify@1.1.0": {
       "integrity": "sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw=="
     },
+    "rrule@2.8.1": {
+      "integrity": "sha512-hM3dHSBMeaJ0Ktp7W38BJZ7O1zOgaFEsn41PDk+yHoEtfLV+PoJt9E9xAlZiWgf/iqEqionN0ebHFZIDAp+iGw==",
+      "dependencies": [
+        "tslib"
+      ]
+    },
     "run-parallel@1.2.0": {
       "integrity": "sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==",
       "dependencies": [
@@ -1187,6 +1194,7 @@
       "npm:eslint-plugin-prettier@^5.5.4",
       "npm:eslint@^9.38.0",
       "npm:http-status-codes@2.3.0",
+      "npm:rrule@^2.8.1",
       "npm:stripe@^19.3.1",
       "npm:type-fest@^5.1.0",
       "npm:typescript-eslint@^8.46.1",

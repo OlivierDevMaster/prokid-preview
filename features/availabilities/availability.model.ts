@@ -12,4 +12,9 @@ export interface AvailabilityFilters {
 
 export type AvailabilityInsert = TablesInsert<'availabilities'>;
 
+export interface AvailabilitySlot {
+  endAt: string;
+  startAt: string;
+}
+
 export type AvailabilityUpdate = TablesUpdate<'availabilities'>;
