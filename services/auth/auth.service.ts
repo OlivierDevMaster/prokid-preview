@@ -1,3 +1,5 @@
+import { Role } from '@/features/roles/role.model';
+
 type SignUpParams = {
   body: {
     email: string;
@@ -5,7 +7,7 @@ type SignUpParams = {
     lastName: string;
     password: string;
   };
-  userType: 'professional' | 'structure';
+  role: Exclude<Role, typeof Role.admin>;
 };
 
 export async function getUser(userId: string) {
@@ -30,9 +32,9 @@ export async function getUser(userId: string) {
   }
 }
 
-export async function signUp({ body, userType }: SignUpParams) {
+export async function signUp({ body, role }: SignUpParams) {
   try {
-    const response = await fetch(`/api/auth/sign-up/${userType}`, {
+    const response = await fetch(`/api/auth/sign-up/${role}`, {
       body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
@@ -58,15 +60,11 @@ export async function signUp({ body, userType }: SignUpParams) {
 }
 
 // Fonction helper pour maintenir la compatibilité
-export async function signUpProfessional({
-  body,
-}: Omit<SignUpParams, 'userType'>) {
-  return signUp({ body, userType: 'professional' });
+export async function signUpProfessional({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.professional });
 }
 
 // Fonction helper pour les structures
-export async function signUpStructure({
-  body,
-}: Omit<SignUpParams, 'userType'>) {
-  return signUp({ body, userType: 'structure' });
+export async function signUpStructure({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.structure });
 }

@@ -1,7 +1,7 @@
 import { Building2, MessageSquare, Users } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
-import { StatCard } from '@/components/admin/stat-card';
+import { StatCard } from '@/features/admin/StatCard';
 
 export default async function DashboardPage() {
   const t = await getTranslations('admin.dashboard');

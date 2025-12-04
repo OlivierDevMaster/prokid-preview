@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 
-import { UsersTable } from '@/components/admin/users/UsersTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AddUserButton } from '@/features/admin/users/components/AddUserButton';
+import { UsersTable } from '@/features/admin/users/components/UsersTable';
 import { UserService } from '@/services/admin/users/user.service';
 
 export default async function UsersPage({
@@ -10,11 +11,14 @@ export default async function UsersPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations('admin.users');
+  const t = await getTranslations({ locale, namespace: 'admin.users' });
   const users = await UserService.getAllUsers();
 
   const translations = {
+    actions: t('actions'),
     createdAt: t('createdAt'),
+    delete: t('delete'),
+    edit: t('edit'),
     email: t('email'),
     emailVerified: t('emailVerified'),
     lastSignIn: t('lastSignIn'),
@@ -27,7 +31,9 @@ export default async function UsersPage({
     of: t('of'),
     page: t('page'),
     previous: t('previous'),
+    suspend: t('suspend'),
     verified: t('verified'),
+    view: t('view'),
   };
 
   return (
@@ -36,6 +42,10 @@ export default async function UsersPage({
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
         <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
+      </div>
+
+      <div className='flex w-full justify-end'>
+        <AddUserButton />
       </div>
 
       {/* Table */}
