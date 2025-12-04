@@ -52,10 +52,9 @@ export async function GET(
           profile.first_name && profile.last_name
             ? `${profile.first_name} ${profile.last_name}`
             : null,
-        id: profile.user,
         lastName: profile.last_name,
-        updatedAt: profile.updated_at,
-        userType: profile.user_type,
+        role: profile.role,
+        userId: profile.user_id,
         // Ajoutez d'autres champs selon votre schéma de table profiles
       },
       { status: 200 }

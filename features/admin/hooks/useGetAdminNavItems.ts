@@ -37,14 +37,10 @@ export default function useGetAdminNavItems(): NavItem[] {
     /**
      * Should be the user type or user role
      */
-    const profile = true;
+    const profile = data?.profile;
     const items: NavItem[] = [];
 
-    /**
-     * This should be like so :
-     *  - if (profile.role === 'professional')
-     */
-    if (profile) {
+    if (profile?.role === 'professional') {
       items.push({
         href: '/admin/planning',
         icon: 'planning',
@@ -66,25 +62,13 @@ export default function useGetAdminNavItems(): NavItem[] {
      * This should be like so :
      *  - if (profile.role === 'admin')
      */
-    if (profile) {
+    if (profile?.role === 'admin') {
       items.push({
         href: '/admin/users',
         icon: 'users',
         label: tAdmin('navigation.users'),
       });
     }
-
-    /**
-     * This should be like so :
-     *  - if (profile.role === 'structure')
-     */
-    // if (profile) {
-    //   items.push({
-    //     href: '/admin/settings',
-    //     icon: 'settings',
-    //     label: tAdmin('navigation.settings'),
-    //   });
-    // }
 
     setNavItems(items);
   }, [user, data?.profile, tAdmin]);

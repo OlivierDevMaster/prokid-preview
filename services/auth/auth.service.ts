@@ -1,4 +1,4 @@
-import { callSupabaseFunction } from '@/lib/supabase/functions';
+import { Role } from '@/features/roles/role.model';
 
 type SignUpParams = {
   body: {
@@ -7,67 +7,52 @@ type SignUpParams = {
     lastName: string;
     password: string;
   };
-  userType: 'professional' | 'structure';
+  role: Exclude<Role, typeof Role.admin>;
 };
 
 export async function getUser(userId: string) {
   try {
-    const result = await callSupabaseFunction<{
-      createdAt: string;
-      email: string;
-      firstName: string;
-      fullName: null | string;
-      id: string;
-      lastName: string;
-      updatedAt: string;
-      userType: string;
-    }>(`get-user/${userId}`, {
+    const response = await fetch(`/api/auth/user/${userId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       method: 'GET',
     });
 
-    if (result.error) {
-      return { error: result.error };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { error: data.error || 'Failed to fetch user' };
     }
 
-    // Handle new standardized response format
-    const profile = result.data;
-    if (!profile) {
-      return { error: 'Profile not found' };
-    }
-
-    return { profile };
+    return { profile: data };
   } catch (err) {
     console.error('Get user error:', err);
     return { error: 'Internal server error' };
   }
 }
 
-export async function signUp({ body, userType }: SignUpParams) {
+export async function signUp({ body, role }: SignUpParams) {
   try {
-    const result = await callSupabaseFunction<{
-      message: string;
-      user: {
-        email: string;
-        id: string;
-        name: string;
-      };
-    }>('sign-up', {
-      body: {
-        ...body,
-        userType,
+    const response = await fetch(`/api/auth/sign-up/${role}`, {
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
       },
       method: 'POST',
     });
 
-    if (result.error) {
-      if (result.error === 'Email already exists') {
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (data.error === 'Email already exists') {
         return { error: 'Email already exists' };
       } else {
-        return { error: result.error };
+        return { error: data.error };
       }
     }
 
-    return { message: result.data?.message || 'User created successfully' };
+    return { message: 'User created successfully' };
   } catch (err) {
     console.error('Sign up error:', err);
     return { error: 'Internal server error' };
@@ -75,15 +60,11 @@ export async function signUp({ body, userType }: SignUpParams) {
 }
 
 // Fonction helper pour maintenir la compatibilité
-export async function signUpProfessional({
-  body,
-}: Omit<SignUpParams, 'userType'>) {
-  return signUp({ body, userType: 'professional' });
+export async function signUpProfessional({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.professional });
 }
 
 // Fonction helper pour les structures
-export async function signUpStructure({
-  body,
-}: Omit<SignUpParams, 'userType'>) {
-  return signUp({ body, userType: 'structure' });
+export async function signUpStructure({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.structure });
 }

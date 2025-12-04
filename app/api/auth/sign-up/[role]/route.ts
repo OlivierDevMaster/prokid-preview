@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server';
 
+import { Role } from '@/features/roles/role.model';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ userType: string }> }
+  { params }: { params: Promise<{ role: string }> }
 ) {
   try {
     const { email, firstName, lastName, password } = await request.json();
-    const { userType } = await params;
+    const { role } = await params;
+
+    const allowedRoles: Role[] = [Role.professional, Role.structure];
 
     // Validation du type d'utilisateur
-    if (!userType || !['professional', 'structure'].includes(userType)) {
+    if (!role || !allowedRoles.includes(role as Role)) {
       return NextResponse.json(
-        { error: "Invalid user type. Must be 'professional' or 'structure'" },
+        { error: "Invalid role. Must be 'professional' or 'structure'" },
         { status: 400 }
       );
     }
@@ -43,7 +46,7 @@ export async function POST(
           first_name: firstName,
           full_name: fullName,
           last_name: lastName,
-          user_type: userType,
+          role: role,
         },
       },
       password,
@@ -66,41 +69,15 @@ export async function POST(
       );
     }
 
-    const userId = authData.user.id;
-
-    const { error: profileError } = await supabase.from('profiles').insert({
-      email: email,
-      first_name: firstName,
-      last_name: lastName,
-      user: userId,
-      user_type: userType,
-    });
-
-    if (profileError) {
-      console.error('Error creating profile:', profileError);
-
-      if (profileError.code === 'PGRST116') {
-        return NextResponse.json(
-          {
-            error:
-              'Profile table does not exist. Please create the profiles table in your Supabase database.',
-          },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json(
-        { error: 'Failed to create profile' },
-        { status: 500 }
-      );
-    }
+    // Profile is automatically created by the database trigger handle_new_user()
+    // No need to manually insert the profile
 
     return NextResponse.json(
       {
         message: 'User created successfully',
         user: {
           email: email,
-          id: userId,
+          id: authData.user.id,
           name: fullName,
         },
       },

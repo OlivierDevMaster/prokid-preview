@@ -6,9 +6,12 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "typecheck": "npx tsc --noEmit --pretty"
+    "typecheck": "npx tsc --noEmit --pretty",
+    "functions:serve": "supabase functions serve --env-file .env",
+    "db:reset:local": "supabase db reset --local",
+    "db:reset:remote": "supabase db reset --linked",
+    "db:generate:local": "supabase gen types typescript --local > types/database/schema.ts",
+    "db:generate:remote": "supabase gen types typescript --linked > types/database/schema.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -33,7 +36,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
