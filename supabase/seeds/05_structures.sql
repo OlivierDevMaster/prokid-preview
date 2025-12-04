@@ -14,7 +14,7 @@ INSERT INTO public.structures (
   user_id,
   name,
   stripe_customer_id
-) VALUES 
+) VALUES
 (
   '00000000-0000-0000-0000-000000000030',
   'Happy Kids Daycare Center',
