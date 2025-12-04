@@ -274,7 +274,8 @@
       "next": "Suivant",
       "page": "Page",
       "of": "sur",
-      "noResults": "Aucun résultat."
+      "noResults": "Aucun résultat.",
+      "addUser": "Ajouter un utilisateur"
     },
     "planning": {
       "title": "Mon Planning",
@@ -377,7 +378,7 @@
       "planning": "Mon Planning",
       "reports": "Mes Rapports",
       "structure": "Structure",
-      "users": "Utilisateurs"
+      "users": "Utilisateurs,"
     }
   }
 }

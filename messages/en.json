@@ -274,7 +274,8 @@
       "next": "Next",
       "page": "Page",
       "of": "of",
-      "noResults": "No results."
+      "noResults": "No results.",
+      "addUser": "Add user"
     },
     "planning": {
       "title": "My Schedule",
