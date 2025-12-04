@@ -168,6 +168,16 @@
   },
   "professional": {
     "title": "Find your professional",
+    "label": {
+      "profilePhoto": "Profile photo",
+      "profilePhotoPlaceholder": "Choose a professional and smiling photo",
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit",
+      "recomandedFormat": "Recommended square format",
+      "useDefault": "Use a default photo",
+      "profileConfiguration": "Setting up your professional profile"
+    },
     "subtitle": "Discover qualified professionals near your structure",
     "search": {
       "placeholder": "Search by name, role or skill...",
@@ -275,7 +285,12 @@
       "page": "Page",
       "of": "of",
       "noResults": "No results.",
-      "addUser": "Add user"
+      "addUser": "Add user",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "suspend": "Suspend",
+      "view": "View"
     },
     "planning": {
       "title": "My Schedule",

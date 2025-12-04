@@ -1,6 +1,7 @@
 'use client';
 
 import { Camera } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ export function Step1ProfilePhoto({
 }: Step1ProfilePhotoProps) {
   const [preview, setPreview] = useState<null | string>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('professional.label');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,10 +48,10 @@ export function Step1ProfilePhoto({
       <ProgressBar currentStep={1} totalSteps={4} />
 
       <div className='space-y-2 text-center'>
-        <h1 className='text-3xl font-bold text-gray-900'>Photo de profil</h1>
-        <p className='text-gray-600'>
-          Choisissez une photo professionnelle et souriante
-        </p>
+        <h1 className='text-3xl font-bold text-gray-900'>
+          {t('profilePhoto')}
+        </h1>
+        <p className='text-gray-600'>{t('profilePhotoPlaceholder')}</p>
       </div>
 
       <div className='flex justify-center'>

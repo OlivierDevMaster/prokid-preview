@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import type { DaySchedule } from '@/features/sign-up/steps/Step3Planning';
@@ -22,6 +23,7 @@ const initialSchedule: Record<string, DaySchedule> = {
 
 export default function ProfessionalSignUpForm2() {
   const [currentStep, setCurrentStep] = useState(1);
+  const t = useTranslations('professional.label');
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     city: '',
@@ -61,15 +63,8 @@ export default function ProfessionalSignUpForm2() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
+    <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
       <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
-        <div className='mb-6 text-center'>
-          <h1 className='mb-2 text-2xl font-bold text-blue-600'>PROKid</h1>
-          <p className='text-sm text-gray-600'>
-            Configuration de votre profil professionnel
-          </p>
-        </div>
-
         {currentStep === 1 && (
           <Step1ProfilePhoto
             onNext={handleNext}

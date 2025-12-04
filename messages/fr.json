@@ -168,6 +168,16 @@
   },
   "professional": {
     "title": "Trouvez votre professionnel",
+    "label": {
+      "profilePhoto": "Photo de profil",
+      "profilePhotoPlaceholder": "Choisissez une photo professionnelle et souriante",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "submit": "Soumettre",
+      "recomandedFormat": "Format carré recommandé",
+      "useDefault": "Utiliser une photo par défaut",
+      "profileConfiguration": "Configuration de votre profil professionnel"
+    },
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
       "placeholder": "Rechercher par nom, rôle ou compétence...",
@@ -275,7 +285,12 @@
       "page": "Page",
       "of": "sur",
       "noResults": "Aucun résultat.",
-      "addUser": "Ajouter un utilisateur"
+      "addUser": "Ajouter un utilisateur",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "suspend": "Suspendre",
+      "view": "Voir"
     },
     "planning": {
       "title": "Mon Planning",

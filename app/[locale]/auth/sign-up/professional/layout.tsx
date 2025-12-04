@@ -1,25 +1,16 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
 
 import { Link } from '@/i18n/routing';
 
-export default function SingUpLayout({
+export default function ProfessionalSignUpLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const t = useTranslations('auth.signUp');
-  const pathname = usePathname();
-  const isProfessionalSignUpRoute = pathname?.includes(
-    '/auth/sign-up/professional'
-  );
-
-  if (isProfessionalSignUpRoute) {
-    return children;
-  }
-
+  const tProfessional = useTranslations('professional.label');
   return (
     <main>
       <div className='overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100'>
@@ -32,7 +23,9 @@ export default function SingUpLayout({
                     {t('welcome')} <span className='text-blue-400'>PRO</span>
                     <span className='text-green-400'>Kid</span> 👋
                   </h1>
-                  <p className='text-lg text-gray-700'>{t('question')}</p>
+                  <p className='text-sm text-gray-600'>
+                    {tProfessional('profileConfiguration')}
+                  </p>
                 </div>
                 <div className='w-full max-w-3xl'>{children}</div>
                 <div className='text-center text-gray-700'>
