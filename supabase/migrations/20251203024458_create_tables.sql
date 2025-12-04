@@ -63,12 +63,6 @@ CREATE INDEX IF NOT EXISTS "idx_profiles_is_onboarded" ON "public"."profiles" ("
 -- RLS
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
--- Allow public profile creation during signup
-CREATE POLICY "Allow public to create profiles" ON "public"."profiles"
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (TRUE);
-
 -- Users can view their own profile
 CREATE POLICY "Users can view their own profile" ON "public"."profiles"
   FOR SELECT
@@ -151,6 +145,12 @@ CREATE POLICY "Users can view all professionals" ON "public"."professionals"
   FOR SELECT
   TO authenticated, anon
   USING (TRUE);
+
+-- Users can create their own professional profile
+CREATE POLICY "Users can create their own professional profile" ON "public"."professionals"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
 
 -- Users can update their own professional profile
 CREATE POLICY "Users can update their own professional profile" ON "public"."professionals"

@@ -2,6 +2,7 @@
 -- Purpose: Create function and trigger to automatically create profiles when new users are created
 -- Affected tables: profiles
 -- Special considerations: Only handles 'professional' and 'structure' roles from user metadata
+-- Uses SECURITY DEFINER to allow the trigger to insert/update profiles when called by auth admin role
 
 -- ============================================================================
 -- Function: handle_new_user
@@ -10,7 +11,7 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
@@ -70,7 +71,7 @@ CREATE TRIGGER on_auth_user_created
 CREATE OR REPLACE FUNCTION public.handle_user_email_update()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
