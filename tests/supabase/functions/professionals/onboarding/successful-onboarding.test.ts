@@ -23,7 +23,10 @@ describe('Successful professional onboarding', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new ProfessionalFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new ProfessionalFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new ProfessionalCleanupHelper(adminClient);
   });
 
@@ -48,9 +51,16 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
-    ProfessionalAssertions.assertProfessionalBelongsToUser(data, fixture.userId);
+    ProfessionalAssertions.assertProfessionalBelongsToUser(
+      data,
+      fixture.userId
+    );
     ProfessionalAssertions.assertProfessionalHasProfile(data);
     ProfessionalAssertions.assertValidTimestamps(data);
     ProfessionalAssertions.assertRecentlyCreated(data);
@@ -71,7 +81,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
     assertEquals(data.description, null);
     assertEquals(data.phone, null);
@@ -92,7 +106,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
   });
 
@@ -111,7 +129,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
     assertEquals(data.skills.length, requestBody.skills.length);
   });
@@ -131,7 +153,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
     assertEquals(data.experience_years, 0);
   });
@@ -151,7 +177,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
   });
 
@@ -170,8 +200,11 @@ describe('Successful professional onboarding', () => {
     });
 
     // Assert
-    ProfessionalAssertions.assertSuccessfulOnboarding(response, data, requestBody);
+    ProfessionalAssertions.assertSuccessfulOnboarding(
+      response,
+      data,
+      requestBody
+    );
     ProfessionalAssertions.assertContentType(response);
   });
 });
-

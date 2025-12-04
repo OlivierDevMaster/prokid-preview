@@ -22,7 +22,10 @@ describe('Professional onboarding validation errors', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new ProfessionalFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new ProfessionalFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new ProfessionalCleanupHelper(adminClient);
   });
 
@@ -35,7 +38,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when address is missing', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestMissingAddress;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestMissingAddress;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -53,7 +57,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when city is missing', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestMissingCity;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestMissingCity;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -71,7 +76,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when skills array is empty', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestEmptySkills;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestEmptySkills;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -89,7 +95,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when experience years is negative', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestNegativeExperience;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestNegativeExperience;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -107,7 +114,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when hourly rate is negative', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestNegativeHourlyRate;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestNegativeHourlyRate;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -125,7 +133,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when intervention radius is negative', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestNegativeRadius;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestNegativeRadius;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -143,7 +152,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when address is empty', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestEmptyAddress;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestEmptyAddress;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -179,7 +189,8 @@ describe('Professional onboarding validation errors', () => {
   it('should return validation error when postal code is empty', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalUser();
-    const requestBody = ProfessionalTestData.invalidOnboardingRequestEmptyPostalCode;
+    const requestBody =
+      ProfessionalTestData.invalidOnboardingRequestEmptyPostalCode;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
