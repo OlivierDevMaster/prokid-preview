@@ -63,8 +63,6 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
-COMMENT ON TRIGGER on_auth_user_created ON auth.users IS 'Automatically creates a profile when a new user is created in auth.users';
-
 -- ============================================================================
 -- Function: handle_user_email_update
 -- ============================================================================
@@ -98,6 +96,4 @@ CREATE TRIGGER on_auth_user_email_updated
   AFTER UPDATE ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_user_email_update();
-
-COMMENT ON TRIGGER on_auth_user_email_updated ON auth.users IS 'Automatically updates the profile email when the auth.users email is updated';
 

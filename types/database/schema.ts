@@ -38,19 +38,19 @@ export type Database = {
         Row: {
           created_at: string
           email: string
-          id: number
+          id: string
           name: string | null
         }
         Insert: {
           created_at?: string
           email: string
-          id?: never
+          id?: string
           name?: string | null
         }
         Update: {
           created_at?: string
           email?: string
-          id?: never
+          id?: string
           name?: string | null
         }
         Relationships: []
@@ -109,6 +109,7 @@ export type Database = {
           rating: number | null
           reviews_count: number
           skills: string[] | null
+          stripe_customer_id: string | null
           updated_at: string
           user_id: string
           verified_at: string | null
@@ -128,6 +129,7 @@ export type Database = {
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
           verified_at?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
           verified_at?: string | null
@@ -199,7 +202,7 @@ export type Database = {
           author_id: string
           content: string
           created_at: string
-          id: number
+          id: string
           recipient_id: string
           title: string
           updated_at: string
@@ -208,7 +211,7 @@ export type Database = {
           author_id: string
           content: string
           created_at?: string
-          id?: never
+          id?: string
           recipient_id: string
           title: string
           updated_at?: string
@@ -217,7 +220,7 @@ export type Database = {
           author_id?: string
           content?: string
           created_at?: string
-          id?: never
+          id?: string
           recipient_id?: string
           title?: string
           updated_at?: string
@@ -243,18 +246,21 @@ export type Database = {
         Row: {
           created_at: string
           name: string
+          stripe_customer_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           name: string
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           name?: string
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
         }

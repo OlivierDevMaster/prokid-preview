@@ -9,7 +9,7 @@
 
 -- Declaration
 CREATE TABLE IF NOT EXISTS "public"."newsletter_subscriptions" (
-  "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "email" TEXT NOT NULL UNIQUE,
   "name" TEXT
@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS "public"."professionals" (
   "reviews_count" INTEGER DEFAULT 0 NOT NULL,
   "skills" TEXT[],
   "is_certified" BOOLEAN DEFAULT FALSE NOT NULL,
+  "stripe_customer_id" TEXT,
   CONSTRAINT "intervention_radius_km_check" CHECK ("intervention_radius_km" >= 0),
   CONSTRAINT "experience_years_check" CHECK ("experience_years" >= 0),
   CONSTRAINT "hourly_rate_check" CHECK ("hourly_rate" >= 0),
@@ -128,6 +129,7 @@ COMMENT ON COLUMN "public"."professionals"."rating" IS 'Average rating from revi
 COMMENT ON COLUMN "public"."professionals"."reviews_count" IS 'Total number of reviews received';
 COMMENT ON COLUMN "public"."professionals"."skills" IS 'Array of professional skills or specializations';
 COMMENT ON COLUMN "public"."professionals"."is_certified" IS 'Whether the professional has certifications';
+COMMENT ON COLUMN "public"."professionals"."stripe_customer_id" IS 'Stripe customer ID for payment processing';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_professionals_city" ON "public"."professionals" ("city");
@@ -135,6 +137,7 @@ CREATE INDEX IF NOT EXISTS "idx_professionals_postal_code" ON "public"."professi
 CREATE INDEX IF NOT EXISTS "idx_professionals_is_available" ON "public"."professionals" ("is_available");
 CREATE INDEX IF NOT EXISTS "idx_professionals_is_certified" ON "public"."professionals" ("is_certified");
 CREATE INDEX IF NOT EXISTS "idx_professionals_rating" ON "public"."professionals" ("rating");
+CREATE INDEX IF NOT EXISTS "idx_professionals_stripe_customer_id" ON "public"."professionals" ("stripe_customer_id");
 
 -- Triggers
 CREATE TRIGGER update_professionals_updated_at BEFORE UPDATE ON "public"."professionals"
@@ -165,16 +168,19 @@ CREATE TABLE IF NOT EXISTS "public"."structures" (
   "user_id" UUID NOT NULL PRIMARY KEY REFERENCES "public"."profiles"("user_id") ON DELETE CASCADE,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "name" TEXT NOT NULL
+  "name" TEXT NOT NULL,
+  "stripe_customer_id" TEXT
 );
 
 -- Comments
 COMMENT ON TABLE "public"."structures" IS 'Structure user profiles';
 COMMENT ON COLUMN "public"."structures"."user_id" IS 'Reference to the profile user';
 COMMENT ON COLUMN "public"."structures"."name" IS 'Structure name';
+COMMENT ON COLUMN "public"."structures"."stripe_customer_id" IS 'Stripe customer ID for payment processing';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_structures_name" ON "public"."structures" ("name");
+CREATE INDEX IF NOT EXISTS "idx_structures_stripe_customer_id" ON "public"."structures" ("stripe_customer_id");
 
 -- Triggers
 CREATE TRIGGER update_structures_updated_at BEFORE UPDATE ON "public"."structures"
@@ -274,7 +280,7 @@ CREATE POLICY "Professionals can delete their own planning" ON "public"."plannin
 
 -- Declaration
 CREATE TABLE IF NOT EXISTS "public"."reports" (
-  "id" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "title" TEXT NOT NULL,

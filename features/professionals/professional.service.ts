@@ -34,7 +34,7 @@ export const createProfessional = async (
   return data;
 };
 
-export const getProfessional = async (
+export const findProfessional = async (
   userId: string
 ): Promise<null | Professional> => {
   const supabase = createClient();
