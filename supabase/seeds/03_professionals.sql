@@ -27,7 +27,7 @@ INSERT INTO public.professionals (
   skills,
   is_certified,
   stripe_customer_id
-) VALUES 
+) VALUES
 -- Original 3 professionals
 (
   '00000000-0000-0000-0000-000000000010',
