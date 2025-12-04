@@ -1,6 +1,9 @@
 import { createFactory } from '@hono/hono/factory';
 import { createClient } from '@supabase/supabase-js';
-import { rrulestr } from 'rrule';
+// ! rrule package is a CommonJS package, so we need to import it as a namespace
+// ! and then destructure the rrulestr function from it
+import * as RRulePkg from 'rrule';
+const { rrulestr } = RRulePkg;
 
 import {
   AvailabilitySlot,
