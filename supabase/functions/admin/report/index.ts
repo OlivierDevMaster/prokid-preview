@@ -26,7 +26,7 @@ const handler = async req => {
   return new Response(
     JSON.stringify({
       data: user,
-    });
+    })
   );
 
   const data = {
