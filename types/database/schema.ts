@@ -297,6 +297,7 @@ export type Database = {
       }
       format_exdate: { Args: { date_offset: number }; Returns: string }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       role: "professional" | "structure" | "admin"

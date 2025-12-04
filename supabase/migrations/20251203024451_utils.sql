@@ -116,3 +116,24 @@ BEGIN
   RETURN 'Created one-time availability for user ' || user_id_param;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to check if current user is admin
+-- Uses SECURITY DEFINER to bypass RLS when checking admin status
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+STABLE
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE user_id = (SELECT auth.uid())
+    AND role = 'admin'
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.is_admin() IS 'Checks if the current user is an admin. Uses SECURITY DEFINER to bypass RLS.';

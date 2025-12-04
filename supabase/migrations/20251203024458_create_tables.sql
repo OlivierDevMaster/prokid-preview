@@ -81,56 +81,26 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
 CREATE POLICY "Admins can view all profiles" ON "public"."profiles"
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- Admins can update all profiles
 CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
   FOR UPDATE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can insert profiles
 CREATE POLICY "Admins can insert profiles" ON "public"."profiles"
   FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can delete profiles
 CREATE POLICY "Admins can delete profiles" ON "public"."profiles"
   FOR DELETE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- ============================================================================
 -- Model: professionals
@@ -220,56 +190,26 @@ CREATE POLICY "Users can update their own professional profile" ON "public"."pro
 CREATE POLICY "Admins can view all professionals" ON "public"."professionals"
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- Admins can update all professionals
 CREATE POLICY "Admins can update all professionals" ON "public"."professionals"
   FOR UPDATE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can insert professionals
 CREATE POLICY "Admins can insert professionals" ON "public"."professionals"
   FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can delete professionals
 CREATE POLICY "Admins can delete professionals" ON "public"."professionals"
   FOR DELETE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- ============================================================================
 -- Model: structures
@@ -331,56 +271,26 @@ CREATE POLICY "Users can delete their own structure profile" ON "public"."struct
 CREATE POLICY "Admins can view all structures" ON "public"."structures"
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- Admins can update all structures
 CREATE POLICY "Admins can update all structures" ON "public"."structures"
   FOR UPDATE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can insert structures
 CREATE POLICY "Admins can insert structures" ON "public"."structures"
   FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can delete structures
 CREATE POLICY "Admins can delete structures" ON "public"."structures"
   FOR DELETE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- ============================================================================
 -- Model: availabilities
@@ -561,53 +471,23 @@ CREATE POLICY "Professionals can delete their own reports" ON "public"."reports"
 CREATE POLICY "Admins can view all reports" ON "public"."reports"
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
 
 -- Admins can update all reports
 CREATE POLICY "Admins can update all reports" ON "public"."reports"
   FOR UPDATE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  )
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can insert reports
 CREATE POLICY "Admins can insert reports" ON "public"."reports"
   FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  WITH CHECK ((SELECT public.is_admin()));
 
 -- Admins can delete reports
 CREATE POLICY "Admins can delete reports" ON "public"."reports"
   FOR DELETE
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = (SELECT auth.uid())
-      AND role = 'admin'
-    )
-  );
+  USING ((SELECT public.is_admin()));
