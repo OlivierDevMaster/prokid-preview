@@ -25,11 +25,11 @@ export const getOrCreateProfessionalStripeCustomerId = async (
       `
     )
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
-  if (professionalError) {
+  if (professionalError || !professional) {
     throw new Error(
-      `Failed to fetch professional: ${professionalError.message}`
+      `Failed to fetch professional: ${professionalError?.message}`
     );
   }
 
@@ -86,10 +86,10 @@ export const getOrCreateStructureStripeCustomerId = async (
       `
     )
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
-  if (structureError) {
-    throw new Error(`Failed to fetch structure: ${structureError.message}`);
+  if (structureError || !structure) {
+    throw new Error(`Failed to fetch structure: ${structureError?.message}`);
   }
 
   // If user already has a Stripe customer ID, return it

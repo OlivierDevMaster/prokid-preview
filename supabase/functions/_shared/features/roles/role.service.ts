@@ -11,7 +11,7 @@ export const isAdmin = async (
     .from('profiles')
     .select('role')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return false;
@@ -28,7 +28,7 @@ export const isProfessional = async (
     .from('profiles')
     .select('role')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return false;
@@ -45,7 +45,7 @@ export const isStructure = async (
     .from('profiles')
     .select('role')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return false;

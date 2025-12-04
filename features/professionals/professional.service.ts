@@ -48,7 +48,7 @@ export const findProfessional = async (
       `
     )
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
 
