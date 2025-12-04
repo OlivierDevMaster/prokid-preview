@@ -6,12 +6,11 @@ import { ThemeProvider } from 'next-themes';
 import { Geist } from 'next/font/google';
 import { notFound } from 'next/navigation';
 
-import { AuthSessionProvider } from '@/components/providers/session-provider';
 import { Toaster } from '@/components/ui/sonner';
+import ConditionalWrapper from '@/features/layout/ConditionalWrapper';
+import QueryProvider from '@/features/providers/QueryProvider';
+import { AuthSessionProvider } from '@/features/providers/SessionProvider';
 import { routing } from '@/i18n/routing';
-
-import ConditionalWrapper from '../../components/layout/conditional-wrapper';
-import QueryProvider from '../../components/providers/query-provider';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

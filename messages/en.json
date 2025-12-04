@@ -4,7 +4,21 @@
   },
   "common": {
     "welcome": "Welcome",
-    "hello": "Hello"
+    "hello": "Hello",
+    "label": {
+      "firstName": "First name",
+      "lastName": "Name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password"
+    },
+    "placeholder": {
+      "currentPassword": "Enter your current password",
+      "newPassword": "Enter your new password",
+      "confirmPassword": "Confirm your new password"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -319,6 +333,51 @@
       "loading": "Loading...",
       "error": "Error loading reports",
       "view": "View"
+    },
+    "structure": {
+      "title": "My structures",
+      "description": "Manage your interventions and follow-ups for each establishment",
+      "addStructure": "Add a structure",
+      "noStructures": "No structure found."
+    },
+    "setting": {
+      "activate": "Activate now",
+      "manageMySubscription": "Manage my subscription",
+      "stripePayment": "Secure payment via Stripe.",
+      "freeCancellation": "Cancellation at any time without fees.",
+      "invoicesAvailableInStripePortal": "Invoices available in your Stripe customer portal.",
+      "billing": "Billing",
+      "information": "Information",
+      "subscriptionStatus": "Subscription status",
+      "trialActivated": "Free trial active",
+      "afterTrial": "After the free trial",
+      "subscriptionStart": "Your subscription will automatically switch to €9.99/month",
+      "remaining": "Remaining",
+      "profileSettings": "Profile settings",
+      "saveChanges": "Save changes",
+      "availabilities": "Availabilities",
+      "profile": "Profile",
+      "personalData": "Personal data",
+      "changePassword": "Change password",
+      "passwordRequirements": {
+        "title": "The password must contain:",
+        "length": "At least 8 characters",
+        "uppercase": "At least one uppercase letter",
+        "number": "At least one number"
+      },
+      "notificationPreferences": {
+        "title": "Notification preferences",
+        "appointmentReminders": "Receive appointment reminders by email (24 hours before)",
+        "newInterventions": "Receive new intervention requests notifications",
+        "reportConfirmation": "Receive report sending confirmation",
+        "newsletter": "Receive newsletter and ProKid tips by email"
+      }
+    },
+    "navigation": {
+      "planning": "My Schedule",
+      "reports": "My Reports",
+      "structure": "Structure",
+      "users": "Users"
     }
   }
 }

@@ -4,7 +4,21 @@
   },
   "common": {
     "welcome": "Bienvenue",
-    "hello": "Bonjour"
+    "hello": "Bonjour",
+    "label": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+    "placeholder": {
+      "currentPassword": "Saisissez votre mot de passe actuel",
+      "newPassword": "Saisissez votre nouveau mot de passe",
+      "confirmPassword": "Confirmez votre nouveau mot de passe"
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -319,6 +333,51 @@
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
       "view": "Voir"
+    },
+    "setting": {
+      "activate": "Activer maintenant",
+      "manageMySubscription": "Gérer mon abonnement",
+      "stripePayment": "Paiement sécurisé via stripe",
+      "freeCancellation": "Annulation à tout moment sans frais.",
+      "invoicesAvailableInStripePortal": "Factures disponibles dans votre portail stripe",
+      "billing": "Facturation",
+      "information": "Informations",
+      "subscriptionStatus": "Status de l'abonnement",
+      "trialActivated": "Essai gratuit actif",
+      "afterTrial": "Après l'essai gratuit",
+      "subscriptionStart": "Votre abonnement passera automatiquement à 9.99 €/mois",
+      "remaining": "Restants",
+      "profileSettings": "Paramètres du profil",
+      "saveChanges": "Enregistrer les modifications",
+      "availabilities": "Disponibilités",
+      "profile": "Profil",
+      "personalData": "Informations personnelles",
+      "changePassword": "Changer de mot de passe",
+      "passwordRequirements": {
+        "title": "Le mot de passe doit contenir :",
+        "length": "Au moins 8 caractères",
+        "uppercase": "Au moins une lettre majuscule",
+        "number": "Au moins un chiffre"
+      },
+      "notificationPreferences": {
+        "title": "Préférences de notification",
+        "appointmentReminders": "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
+        "newInterventions": "Recevoir les notifications de nouvelles demandes d'intervention",
+        "reportConfirmation": "Recevoir une confirmation d'envoi des rapports",
+        "newsletter": "Recevoir les actualités et conseils ProKid par e-mail"
+      }
+    },
+    "structure": {
+      "title": "Mes structures",
+      "description": "Gérez vos interventions et suivis pour chaque établissement",
+      "addStructure": "Ajouter une structure",
+      "noStructures": "Aucune structure pour le moment."
+    },
+    "navigation": {
+      "planning": "Mon Planning",
+      "reports": "Mes Rapports",
+      "structure": "Structure",
+      "users": "Utilisateurs"
     }
   }
 }

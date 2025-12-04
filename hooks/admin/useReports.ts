@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import type { Report } from '@/services/admin/reports/report.types';
 
+import { callSupabaseFunction } from '@/lib/supabase/functions';
+
 export function useReports() {
   return useQuery({
     queryFn: fetchReports,
@@ -12,12 +14,27 @@ export function useReports() {
 }
 
 async function fetchReports(): Promise<Report[]> {
-  const response = await fetch('/api/reports');
-  const data = await response.json();
+  const result = await callSupabaseFunction<{ reports: Report[] }>(
+    'get-reports',
+    {
+      method: 'GET',
+    }
+  );
 
-  if (!response.ok) {
-    throw new Error(data.error || 'Failed to fetch reports');
+  if (result.error) {
+    throw new Error(result.error);
   }
 
-  return data.reports || [];
+  // Handle new standardized response format
+  const data = result.data;
+  if (!data) {
+    return [];
+  }
+
+  // Support both old format { reports: [] } and new format { data: { reports: [] } }
+  if ('reports' in data) {
+    return data.reports || [];
+  }
+
+  return [];
 }

@@ -1,7 +1,9 @@
+import { Plus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
-import { UsersTable } from '@/components/admin/users/UsersTable';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { UsersTable } from '@/features/admin/users/components/UsersTable';
 import { UserService } from '@/services/admin/users/user.service';
 
 export default async function UsersPage({
@@ -10,7 +12,7 @@ export default async function UsersPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations('admin.users');
+  const t = await getTranslations({ locale, namespace: 'admin.users' });
   const users = await UserService.getAllUsers();
 
   const translations = {
@@ -36,6 +38,13 @@ export default async function UsersPage({
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
         <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
+      </div>
+
+      <div className='flex w-full justify-end'>
+        <Button className='bg-blue-500 text-white hover:bg-blue-400'>
+          <Plus className='h-4 w-4' />
+          {t('addUser')}
+        </Button>
       </div>
 
       {/* Table */}

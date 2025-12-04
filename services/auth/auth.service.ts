@@ -1,3 +1,5 @@
+import { callSupabaseFunction } from '@/lib/supabase/functions';
+
 type SignUpParams = {
   body: {
     email: string;
@@ -10,20 +12,30 @@ type SignUpParams = {
 
 export async function getUser(userId: string) {
   try {
-    const response = await fetch(`/api/auth/user/${userId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const result = await callSupabaseFunction<{
+      createdAt: string;
+      email: string;
+      firstName: string;
+      fullName: null | string;
+      id: string;
+      lastName: string;
+      updatedAt: string;
+      userType: string;
+    }>(`get-user/${userId}`, {
       method: 'GET',
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { error: data.error || 'Failed to fetch user' };
+    if (result.error) {
+      return { error: result.error };
     }
 
-    return { profile: data };
+    // Handle new standardized response format
+    const profile = result.data;
+    if (!profile) {
+      return { error: 'Profile not found' };
+    }
+
+    return { profile };
   } catch (err) {
     console.error('Get user error:', err);
     return { error: 'Internal server error' };
@@ -32,25 +44,30 @@ export async function getUser(userId: string) {
 
 export async function signUp({ body, userType }: SignUpParams) {
   try {
-    const response = await fetch(`/api/auth/sign-up/${userType}`, {
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
+    const result = await callSupabaseFunction<{
+      message: string;
+      user: {
+        email: string;
+        id: string;
+        name: string;
+      };
+    }>('sign-up', {
+      body: {
+        ...body,
+        userType,
       },
       method: 'POST',
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      if (data.error === 'Email already exists') {
+    if (result.error) {
+      if (result.error === 'Email already exists') {
         return { error: 'Email already exists' };
       } else {
-        return { error: data.error };
+        return { error: result.error };
       }
     }
 
-    return { message: 'User created successfully' };
+    return { message: result.data?.message || 'User created successfully' };
   } catch (err) {
     console.error('Sign up error:', err);
     return { error: 'Internal server error' };

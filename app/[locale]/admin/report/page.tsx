@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
-import { ReportsList } from '@/components/admin/report/ReportsList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ReportsList } from '@/features/admin/report/components/ReportsList';
 
 export default async function ReportsListPage({
   params,
@@ -9,7 +9,7 @@ export default async function ReportsListPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations('admin.reports');
+  const t = await getTranslations({ locale, namespace: 'admin.reports' });
 
   return (
     <div className='space-y-8'>
