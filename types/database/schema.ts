@@ -34,28 +34,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      newsletter_subscriptions: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          name: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          name?: string | null
-        }
-        Relationships: []
-      }
-      plannings: {
+      availabilities: {
         Row: {
           created_at: string
           date: string
@@ -85,13 +64,34 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "plannings_user_id_fkey"
+            foreignKeyName: "availabilities_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "professionals"
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
       }
       professionals: {
         Row: {

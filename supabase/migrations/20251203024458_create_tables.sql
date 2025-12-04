@@ -1,6 +1,6 @@
 -- Migration: create_tables
 -- Purpose: Create all database tables with constraints, indexes, triggers, and RLS policies
--- Affected tables: newsletter_subscriptions, availability, profiles, reports
+-- Affected tables: newsletter_subscriptions, availabilities, profiles, reports
 -- Special considerations: All tables have RLS enabled by default for security
 
 -- ============================================================================
@@ -383,11 +383,11 @@ CREATE POLICY "Admins can delete structures" ON "public"."structures"
   );
 
 -- ============================================================================
--- Model: availability
+-- Model: availabilities
 -- ============================================================================
 
 -- Declaration
-CREATE TABLE IF NOT EXISTS "public"."availability" (
+CREATE TABLE IF NOT EXISTS "public"."availabilities" (
   "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
@@ -395,55 +395,55 @@ CREATE TABLE IF NOT EXISTS "public"."availability" (
   "start_time" TIME WITHOUT TIME ZONE NOT NULL,
   "end_time" TIME WITHOUT TIME ZONE,
   "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
-  CONSTRAINT "availability_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
+  CONSTRAINT "availabilities_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
 );
 
 -- Comments
-COMMENT ON TABLE "public"."availability" IS 'Professional availability/schedule entries';
-COMMENT ON COLUMN "public"."availability"."date" IS 'Date of the availability entry';
-COMMENT ON COLUMN "public"."availability"."start_time" IS 'Start time of the availability entry';
-COMMENT ON COLUMN "public"."availability"."end_time" IS 'End time of the availability entry (optional)';
-COMMENT ON COLUMN "public"."availability"."user_id" IS 'Reference to the professional who owns this availability entry';
+COMMENT ON TABLE "public"."availabilities" IS 'Professional availability/schedule entries';
+COMMENT ON COLUMN "public"."availabilities"."date" IS 'Date of the availability entry';
+COMMENT ON COLUMN "public"."availabilities"."start_time" IS 'Start time of the availability entry';
+COMMENT ON COLUMN "public"."availabilities"."end_time" IS 'End time of the availability entry (optional)';
+COMMENT ON COLUMN "public"."availabilities"."user_id" IS 'Reference to the professional who owns this availability entry';
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS "idx_availability_user_id" ON "public"."availability" ("user_id");
-CREATE INDEX IF NOT EXISTS "idx_availability_date" ON "public"."availability" ("date");
-CREATE INDEX IF NOT EXISTS "idx_availability_user_id_date" ON "public"."availability" ("user_id", "date");
+CREATE INDEX IF NOT EXISTS "idx_availabilities_user_id" ON "public"."availabilities" ("user_id");
+CREATE INDEX IF NOT EXISTS "idx_availabilities_date" ON "public"."availabilities" ("date");
+CREATE INDEX IF NOT EXISTS "idx_availabilities_user_id_date" ON "public"."availabilities" ("user_id", "date");
 
 -- Triggers
-CREATE TRIGGER update_availability_updated_at BEFORE UPDATE ON "public"."availability"
+CREATE TRIGGER update_availabilities_updated_at BEFORE UPDATE ON "public"."availabilities"
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- RLS
-ALTER TABLE "public"."availability" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."availabilities" ENABLE ROW LEVEL SECURITY;
 
 -- Everyone can view availability entries (public profile data)
-CREATE POLICY "Everyone can view availability entries" ON "public"."availability"
+CREATE POLICY "Everyone can view availability entries" ON "public"."availabilities"
   FOR SELECT
   TO authenticated, anon
   USING (TRUE);
 
 -- Professionals can insert their own availability entries
-CREATE POLICY "Professionals can insert their own availability" ON "public"."availability"
+CREATE POLICY "Professionals can insert their own availability" ON "public"."availabilities"
   FOR INSERT
   TO authenticated
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
 -- Professionals can update their own availability entries
-CREATE POLICY "Professionals can update their own availability" ON "public"."availability"
+CREATE POLICY "Professionals can update their own availability" ON "public"."availabilities"
   FOR UPDATE
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id")
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
 -- Professionals can delete their own availability entries
-CREATE POLICY "Professionals can delete their own availability" ON "public"."availability"
+CREATE POLICY "Professionals can delete their own availability" ON "public"."availabilities"
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id");
 
 -- Admins can view all availability
-CREATE POLICY "Admins can view all availability" ON "public"."availability"
+CREATE POLICY "Admins can view all availability" ON "public"."availabilities"
   FOR SELECT
   TO authenticated
   USING (
@@ -455,7 +455,7 @@ CREATE POLICY "Admins can view all availability" ON "public"."availability"
   );
 
 -- Admins can update all availability
-CREATE POLICY "Admins can update all availability" ON "public"."availability"
+CREATE POLICY "Admins can update all availability" ON "public"."availabilities"
   FOR UPDATE
   TO authenticated
   USING (
@@ -474,7 +474,7 @@ CREATE POLICY "Admins can update all availability" ON "public"."availability"
   );
 
 -- Admins can insert availability
-CREATE POLICY "Admins can insert availability" ON "public"."availability"
+CREATE POLICY "Admins can insert availability" ON "public"."availabilities"
   FOR INSERT
   TO authenticated
   WITH CHECK (
@@ -486,7 +486,7 @@ CREATE POLICY "Admins can insert availability" ON "public"."availability"
   );
 
 -- Admins can delete availability
-CREATE POLICY "Admins can delete availability" ON "public"."availability"
+CREATE POLICY "Admins can delete availability" ON "public"."availabilities"
   FOR DELETE
   TO authenticated
   USING (
