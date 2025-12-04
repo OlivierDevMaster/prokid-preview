@@ -56,6 +56,7 @@ COMMENT ON COLUMN "public"."profiles"."email" IS 'User email address';
 COMMENT ON COLUMN "public"."profiles"."is_onboarded" IS 'Whether the user has completed the onboarding process';
 
 -- Indexes
+CREATE INDEX IF NOT EXISTS "idx_profiles_user_id" ON "public"."profiles" ("user_id");
 CREATE INDEX IF NOT EXISTS "idx_profiles_role" ON "public"."profiles" ("role");
 CREATE INDEX IF NOT EXISTS "idx_profiles_email" ON "public"."profiles" ("email");
 CREATE INDEX IF NOT EXISTS "idx_profiles_is_onboarded" ON "public"."profiles" ("is_onboarded");
@@ -75,6 +76,61 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id")
   WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Admins can view all profiles
+CREATE POLICY "Admins can view all profiles" ON "public"."profiles"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can update all profiles
+CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can insert profiles
+CREATE POLICY "Admins can insert profiles" ON "public"."profiles"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can delete profiles
+CREATE POLICY "Admins can delete profiles" ON "public"."profiles"
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
 
 -- ============================================================================
 -- Model: professionals
@@ -126,6 +182,7 @@ COMMENT ON COLUMN "public"."professionals"."is_certified" IS 'Whether the profes
 COMMENT ON COLUMN "public"."professionals"."stripe_customer_id" IS 'Stripe customer ID for payment processing';
 
 -- Indexes
+CREATE INDEX IF NOT EXISTS "idx_professionals_user_id" ON "public"."professionals" ("user_id");
 CREATE INDEX IF NOT EXISTS "idx_professionals_city" ON "public"."professionals" ("city");
 CREATE INDEX IF NOT EXISTS "idx_professionals_postal_code" ON "public"."professionals" ("postal_code");
 CREATE INDEX IF NOT EXISTS "idx_professionals_is_available" ON "public"."professionals" ("is_available");
@@ -159,6 +216,61 @@ CREATE POLICY "Users can update their own professional profile" ON "public"."pro
   USING ((SELECT auth.uid()) = "user_id")
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
+-- Admins can view all professionals
+CREATE POLICY "Admins can view all professionals" ON "public"."professionals"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can update all professionals
+CREATE POLICY "Admins can update all professionals" ON "public"."professionals"
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can insert professionals
+CREATE POLICY "Admins can insert professionals" ON "public"."professionals"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can delete professionals
+CREATE POLICY "Admins can delete professionals" ON "public"."professionals"
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
 -- ============================================================================
 -- Model: structures
 -- ============================================================================
@@ -179,6 +291,7 @@ COMMENT ON COLUMN "public"."structures"."name" IS 'Structure name';
 COMMENT ON COLUMN "public"."structures"."stripe_customer_id" IS 'Stripe customer ID for payment processing';
 
 -- Indexes
+CREATE INDEX IF NOT EXISTS "idx_structures_user_id" ON "public"."structures" ("user_id");
 CREATE INDEX IF NOT EXISTS "idx_structures_name" ON "public"."structures" ("name");
 CREATE INDEX IF NOT EXISTS "idx_structures_stripe_customer_id" ON "public"."structures" ("stripe_customer_id");
 
@@ -213,6 +326,61 @@ CREATE POLICY "Users can delete their own structure profile" ON "public"."struct
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id");
+
+-- Admins can view all structures
+CREATE POLICY "Admins can view all structures" ON "public"."structures"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can update all structures
+CREATE POLICY "Admins can update all structures" ON "public"."structures"
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can insert structures
+CREATE POLICY "Admins can insert structures" ON "public"."structures"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can delete structures
+CREATE POLICY "Admins can delete structures" ON "public"."structures"
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
 
 -- ============================================================================
 -- Model: plannings
@@ -273,6 +441,61 @@ CREATE POLICY "Professionals can delete their own planning" ON "public"."plannin
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "user_id");
+
+-- Admins can view all plannings
+CREATE POLICY "Admins can view all plannings" ON "public"."plannings"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can update all plannings
+CREATE POLICY "Admins can update all plannings" ON "public"."plannings"
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can insert plannings
+CREATE POLICY "Admins can insert plannings" ON "public"."plannings"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can delete plannings
+CREATE POLICY "Admins can delete plannings" ON "public"."plannings"
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
 
 -- ============================================================================
 -- Model: reports
@@ -338,3 +561,58 @@ CREATE POLICY "Professionals can delete their own reports" ON "public"."reports"
   FOR DELETE
   TO authenticated
   USING ((SELECT auth.uid()) = "author_id");
+
+-- Admins can view all reports
+CREATE POLICY "Admins can view all reports" ON "public"."reports"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can update all reports
+CREATE POLICY "Admins can update all reports" ON "public"."reports"
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can insert reports
+CREATE POLICY "Admins can insert reports" ON "public"."reports"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
+
+-- Admins can delete reports
+CREATE POLICY "Admins can delete reports" ON "public"."reports"
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'admin'
+    )
+  );
