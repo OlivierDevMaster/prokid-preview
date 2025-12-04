@@ -22,6 +22,7 @@ const factory = createFactory<{ Variables: Variables }>();
 
 export const onBoardingProfessionalHandler = factory.createHandlers(
   async ({ get, req }) => {
+    console.log('onBoardingProfessionalHandler');
     try {
       const user = get('user');
       const supabaseClient = get('supabaseClient');
@@ -72,7 +73,8 @@ export const onBoardingProfessionalHandler = factory.createHandlers(
       });
 
       return apiResponse.ok(updatedProfessional);
-    } catch {
+    } catch (error) {
+      console.error(error);
       return apiResponse.internalServerError();
     }
   }
