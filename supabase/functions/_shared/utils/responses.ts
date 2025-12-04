@@ -25,7 +25,7 @@ const createResponse = (
 
 const createErrorResponse = (
   code: string,
-  message: string,
+  message?: string,
   details?: Record<string, unknown>,
   status: StatusCodes = StatusCodes.BAD_REQUEST
 ): Response => {
@@ -82,7 +82,7 @@ export const apiResponse = Object.freeze({
   // Error responses
   badRequest: (
     code: string,
-    message: string,
+    message?: string,
     details?: Record<string, unknown>
   ) => createErrorResponse(code, message, details, StatusCodes.BAD_REQUEST),
 
