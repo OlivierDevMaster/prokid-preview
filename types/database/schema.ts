@@ -37,6 +37,7 @@ export type Database = {
       availabilities: {
         Row: {
           created_at: string
+          duration_mn: number
           id: string
           rrule: string
           updated_at: string
@@ -44,6 +45,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duration_mn: number
           id?: string
           rrule: string
           updated_at?: string
@@ -51,6 +53,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duration_mn?: number
           id?: string
           rrule?: string
           updated_at?: string
@@ -276,7 +279,7 @@ export type Database = {
       create_onetime_availability: {
         Args: {
           day_offset: number
-          duration_hours: number
+          duration_minutes: number
           hour: number
           user_id_param: string
         }
@@ -285,7 +288,7 @@ export type Database = {
       create_recurring_availability: {
         Args: {
           day_offset: number
-          duration_hours: number
+          duration_minutes: number
           exdate_offsets?: number[]
           hour: number
           user_id_param: string

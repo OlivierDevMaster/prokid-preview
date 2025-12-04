@@ -392,12 +392,14 @@ CREATE TABLE IF NOT EXISTS "public"."availabilities" (
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "rrule" TEXT NOT NULL,
+  "duration_mn" INTEGER NOT NULL,
   "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE
 );
 
 -- Comments
 COMMENT ON TABLE "public"."availabilities" IS 'Professional availability/schedule entries using RRULE (RFC 5545) format';
-COMMENT ON COLUMN "public"."availabilities"."rrule" IS 'Complete RRULE string including DTSTART, RRULE, DURATION, and EXDATE (RFC 5545 format)';
+COMMENT ON COLUMN "public"."availabilities"."rrule" IS 'Complete RRULE string including DTSTART, RRULE, and EXDATE (RFC 5545 format, newline-separated)';
+COMMENT ON COLUMN "public"."availabilities"."duration_mn" IS 'Duration of the availability in minutes';
 COMMENT ON COLUMN "public"."availabilities"."user_id" IS 'Reference to the professional who owns this availability entry';
 
 -- Indexes
