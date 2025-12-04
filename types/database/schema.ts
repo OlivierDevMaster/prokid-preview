@@ -37,28 +37,22 @@ export type Database = {
       availabilities: {
         Row: {
           created_at: string
-          date: string
-          end_time: string | null
           id: string
-          start_time: string
+          rrule: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
-          date: string
-          end_time?: string | null
           id?: string
-          start_time: string
+          rrule: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
-          date?: string
-          end_time?: string | null
           id?: string
-          start_time?: string
+          rrule?: string
           updated_at?: string
           user_id?: string
         }
@@ -279,7 +273,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_rrule_day: { Args: { day_offset: number }; Returns: string }
     }
     Enums: {
       role: "professional" | "structure" | "admin"

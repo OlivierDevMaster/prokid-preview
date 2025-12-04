@@ -391,24 +391,17 @@ CREATE TABLE IF NOT EXISTS "public"."availabilities" (
   "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  "date" DATE NOT NULL,
-  "start_time" TIME WITHOUT TIME ZONE NOT NULL,
-  "end_time" TIME WITHOUT TIME ZONE,
-  "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
-  CONSTRAINT "availabilities_time_check" CHECK ("end_time" IS NULL OR "end_time" > "start_time")
+  "rrule" TEXT NOT NULL,
+  "user_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE
 );
 
 -- Comments
-COMMENT ON TABLE "public"."availabilities" IS 'Professional availability/schedule entries';
-COMMENT ON COLUMN "public"."availabilities"."date" IS 'Date of the availability entry';
-COMMENT ON COLUMN "public"."availabilities"."start_time" IS 'Start time of the availability entry';
-COMMENT ON COLUMN "public"."availabilities"."end_time" IS 'End time of the availability entry (optional)';
+COMMENT ON TABLE "public"."availabilities" IS 'Professional availability/schedule entries using RRULE (RFC 5545) format';
+COMMENT ON COLUMN "public"."availabilities"."rrule" IS 'Complete RRULE string including DTSTART, RRULE, DURATION, and EXDATE (RFC 5545 format)';
 COMMENT ON COLUMN "public"."availabilities"."user_id" IS 'Reference to the professional who owns this availability entry';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_availabilities_user_id" ON "public"."availabilities" ("user_id");
-CREATE INDEX IF NOT EXISTS "idx_availabilities_date" ON "public"."availabilities" ("date");
-CREATE INDEX IF NOT EXISTS "idx_availabilities_user_id_date" ON "public"."availabilities" ("user_id", "date");
 
 -- Triggers
 CREATE TRIGGER update_availabilities_updated_at BEFORE UPDATE ON "public"."availabilities"
