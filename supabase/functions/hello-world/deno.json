@@ -6,6 +6,7 @@
     "change-case": "npm:change-case@^5.4.4",
     "http-status-codes": "npm:http-status-codes@2.3.0",
     "stripe": "npm:stripe@^19.3.1",
+    "rrule": "npm:rrule@^2.8.1",
     "type-fest": "npm:type-fest@^5.3.0",
     "zod": "npm:zod@^4.1.13"
   }

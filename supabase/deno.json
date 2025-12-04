@@ -21,6 +21,7 @@
     "eslint-plugin-perfectionist": "npm:eslint-plugin-perfectionist@^4.15.1",
     "eslint-plugin-prettier": "npm:eslint-plugin-prettier@^5.5.4",
     "stripe": "npm:stripe@^19.3.1",
+    "rrule": "npm:rrule@^2.8.1",
     "type-fest": "npm:type-fest@^5.1.0",
     "typescript-eslint": "npm:typescript-eslint@^8.46.1",
     "zod": "npm:zod@^4.1.13"
