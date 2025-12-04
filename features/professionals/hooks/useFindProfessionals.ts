@@ -13,7 +13,7 @@ export const useFindProfessionals = (
     enabled: true,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      return await getProfessionals(filters, options);
+      return getProfessionals(filters, options);
     },
     queryKey: ['professionals', filters, options],
   });

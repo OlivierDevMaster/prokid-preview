@@ -15,7 +15,7 @@ export const useUpdateProfessional = () => {
       professionalId: string;
       updateData: ProfessionalUpdate;
     }) => {
-      return await updateProfessional(professionalId, updateData);
+      return updateProfessional(professionalId, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['professionals'] });

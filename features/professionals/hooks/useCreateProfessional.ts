@@ -9,7 +9,7 @@ export const useCreateProfessional = () => {
 
   return useMutation({
     mutationFn: async (insertData: ProfessionalInsert) => {
-      return await createProfessional(insertData);
+      return createProfessional(insertData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['professionals'] });
