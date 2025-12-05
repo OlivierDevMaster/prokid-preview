@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// deno-lint-ignore-file no-explicit-any
+
 import '@std/dotenv/load';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
@@ -22,7 +25,10 @@ describe('Edge cases', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new AvailabilityFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new AvailabilityFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new AvailabilityCleanupHelper(adminClient);
   });
 
@@ -59,9 +65,9 @@ describe('Edge cases', () => {
     fixture = await fixtureBuilder.createProfessionalWithAvailability();
     // Use a date range in the past before the availability starts
     const queryParams = {
+      endAt: '2020-01-31T23:59:59Z',
       professionalId: fixture.professionalId!,
       startAt: '2020-01-01T00:00:00Z',
-      endAt: '2020-01-31T23:59:59Z',
     };
 
     // Act
@@ -82,9 +88,9 @@ describe('Edge cases', () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalWithAvailability();
     const queryParams = {
+      endAt: '2030-01-31T23:59:59Z',
       professionalId: fixture.professionalId!,
       startAt: '2030-01-01T00:00:00Z',
-      endAt: '2030-01-31T23:59:59Z',
     };
 
     // Act
@@ -141,4 +147,3 @@ describe('Edge cases', () => {
     );
   });
 });
-

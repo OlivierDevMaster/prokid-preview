@@ -74,6 +74,13 @@ export class AvailabilityAssertions {
   }
 
   /**
+   * Assert missing endAt error
+   */
+  static assertMissingEndAt(response: Response, data: any) {
+    this.assertBadRequest(response, data);
+  }
+
+  /**
    * Assert missing professional ID error
    */
   static assertMissingProfessionalId(response: Response, data: any) {
@@ -84,13 +91,6 @@ export class AvailabilityAssertions {
    * Assert missing startAt error
    */
   static assertMissingStartAt(response: Response, data: any) {
-    this.assertBadRequest(response, data);
-  }
-
-  /**
-   * Assert missing endAt error
-   */
-  static assertMissingEndAt(response: Response, data: any) {
     this.assertBadRequest(response, data);
   }
 
@@ -114,18 +114,31 @@ export class AvailabilityAssertions {
   }
 
   /**
-   * Assert successful availability slots response
+   * Assert slots are within date range
    */
-  static assertSuccessfulSlotsResponse(
-    response: Response,
-    data: any,
-    expectedMinSlots?: number
-  ) {
-    assertEquals(response.status, 200);
-    assertExists(data);
-    assertInstanceOf(data, Array);
-    if (expectedMinSlots !== undefined) {
-      assertEquals(data.length >= expectedMinSlots, true);
+  static assertSlotsInDateRange(slots: any[], startAt: string, endAt: string) {
+    const rangeStart = new Date(startAt);
+    const rangeEnd = new Date(endAt);
+
+    for (const slot of slots) {
+      const slotStart = new Date(slot.startAt);
+      const slotEnd = new Date(slot.endAt);
+
+      // Slot should start within or at the start of the range
+      assertEquals(slotStart >= rangeStart, true);
+      // Slot should end within or at the end of the range
+      assertEquals(slotEnd <= rangeEnd, true);
+    }
+  }
+
+  /**
+   * Assert slots are sorted by startAt
+   */
+  static assertSlotsSorted(slots: any[]) {
+    for (let i = 1; i < slots.length; i++) {
+      const prevStart = new Date(slots[i - 1].startAt);
+      const currStart = new Date(slots[i].startAt);
+      assertEquals(currStart >= prevStart, true);
     }
   }
 
@@ -157,35 +170,18 @@ export class AvailabilityAssertions {
   }
 
   /**
-   * Assert slots are sorted by startAt
+   * Assert successful availability slots response
    */
-  static assertSlotsSorted(slots: any[]) {
-    for (let i = 1; i < slots.length; i++) {
-      const prevStart = new Date(slots[i - 1].startAt);
-      const currStart = new Date(slots[i].startAt);
-      assertEquals(currStart >= prevStart, true);
-    }
-  }
-
-  /**
-   * Assert slots are within date range
-   */
-  static assertSlotsInDateRange(
-    slots: any[],
-    startAt: string,
-    endAt: string
+  static assertSuccessfulSlotsResponse(
+    response: Response,
+    data: any,
+    expectedMinSlots?: number
   ) {
-    const rangeStart = new Date(startAt);
-    const rangeEnd = new Date(endAt);
-
-    for (const slot of slots) {
-      const slotStart = new Date(slot.startAt);
-      const slotEnd = new Date(slot.endAt);
-
-      // Slot should start within or at the start of the range
-      assertEquals(slotStart >= rangeStart, true);
-      // Slot should end within or at the end of the range
-      assertEquals(slotEnd <= rangeEnd, true);
+    assertEquals(response.status, 200);
+    assertExists(data);
+    assertInstanceOf(data, Array);
+    if (expectedMinSlots !== undefined) {
+      assertEquals(data.length >= expectedMinSlots, true);
     }
   }
 
@@ -231,4 +227,3 @@ export class AvailabilityAssertions {
     }
   }
 }
-

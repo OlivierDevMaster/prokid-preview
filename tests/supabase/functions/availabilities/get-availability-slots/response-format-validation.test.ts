@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// deno-lint-ignore-file no-explicit-any
+
 import '@std/dotenv/load';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
@@ -22,7 +25,10 @@ describe('Response format validation', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new AvailabilityFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new AvailabilityFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new AvailabilityCleanupHelper(adminClient);
   });
 
@@ -81,7 +87,8 @@ describe('Response format validation', () => {
 
   it('should return slots sorted by startAt', async () => {
     // Arrange
-    fixture = await fixtureBuilder.createProfessionalWithMultipleAvailabilities();
+    fixture =
+      await fixtureBuilder.createProfessionalWithMultipleAvailabilities();
     const queryParams = {
       ...AvailabilityTestData.validQueryParams,
       professionalId: fixture.professionalId!,
@@ -129,4 +136,3 @@ describe('Response format validation', () => {
     );
   });
 });
-

@@ -120,85 +120,6 @@ export class AvailabilityFixtureBuilder {
   }
 
   /**
-   * Create a professional user with availability
-   */
-  async createProfessionalWithAvailability(): Promise<AvailabilityTestFixture> {
-    const fixture = await this.createOnboardedProfessional();
-
-    // Create a recurring availability (Monday 9am-12pm, 180 minutes)
-    // Using RRULE format: DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO
-    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
-
-    const { data: availabilityData, error: availabilityError } =
-      await this.adminClient
-        .from('availabilities')
-        .insert({
-          duration_mn: 180,
-          rrule,
-          user_id: fixture.professionalId!,
-        })
-        .select('id')
-        .single();
-
-    if (availabilityError || !availabilityData) {
-      throw new Error(
-        `Failed to create availability: ${availabilityError?.message}`
-      );
-    }
-
-    fixture.availabilityId = availabilityData.id;
-
-    return fixture;
-  }
-
-  /**
-   * Create a professional user with multiple availabilities
-   */
-  async createProfessionalWithMultipleAvailabilities(): Promise<
-    { availabilityIds: string[] } & AvailabilityTestFixture
-  > {
-    const fixture = await this.createOnboardedProfessional();
-
-    // Create multiple availabilities
-    const availabilities = [
-      {
-        duration_mn: 180,
-        rrule: `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`,
-        user_id: fixture.professionalId!,
-      }, // Monday 9am-12pm
-      {
-        duration_mn: 240,
-        rrule: `DTSTART:20250101T140000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`,
-        user_id: fixture.professionalId!,
-      }, // Monday 2pm-6pm
-      {
-        duration_mn: 360,
-        rrule: `DTSTART:20250102T100000Z\nRRULE:FREQ=WEEKLY;BYDAY=TU`,
-        user_id: fixture.professionalId!,
-      }, // Tuesday 10am-4pm
-    ];
-
-    const { data: availabilityData, error: availabilityError } =
-      await this.adminClient
-        .from('availabilities')
-        .insert(availabilities)
-        .select('id');
-
-    if (availabilityError || !availabilityData) {
-      throw new Error(
-        `Failed to create availabilities: ${availabilityError?.message}`
-      );
-    }
-
-    const availabilityIds = availabilityData.map(a => a.id);
-
-    return {
-      ...fixture,
-      availabilityIds,
-    };
-  }
-
-  /**
    * Create an onboarded professional user
    */
   async createOnboardedProfessional(): Promise<AvailabilityTestFixture> {
@@ -284,10 +205,88 @@ export class AvailabilityFixtureBuilder {
   }
 
   /**
+   * Create a professional user with availability
+   */
+  async createProfessionalWithAvailability(): Promise<AvailabilityTestFixture> {
+    const fixture = await this.createOnboardedProfessional();
+
+    // Create a recurring availability (Monday 9am-12pm, 180 minutes)
+    // Using RRULE format: DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO
+    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
+
+    const { data: availabilityData, error: availabilityError } =
+      await this.adminClient
+        .from('availabilities')
+        .insert({
+          duration_mn: 180,
+          rrule,
+          user_id: fixture.professionalId!,
+        })
+        .select('id')
+        .single();
+
+    if (availabilityError || !availabilityData) {
+      throw new Error(
+        `Failed to create availability: ${availabilityError?.message}`
+      );
+    }
+
+    fixture.availabilityId = availabilityData.id;
+
+    return fixture;
+  }
+
+  /**
+   * Create a professional user with multiple availabilities
+   */
+  async createProfessionalWithMultipleAvailabilities(): Promise<
+    { availabilityIds: string[] } & AvailabilityTestFixture
+  > {
+    const fixture = await this.createOnboardedProfessional();
+
+    // Create multiple availabilities
+    const availabilities = [
+      {
+        duration_mn: 180,
+        rrule: `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`,
+        user_id: fixture.professionalId!,
+      }, // Monday 9am-12pm
+      {
+        duration_mn: 240,
+        rrule: `DTSTART:20250101T140000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`,
+        user_id: fixture.professionalId!,
+      }, // Monday 2pm-6pm
+      {
+        duration_mn: 360,
+        rrule: `DTSTART:20250102T100000Z\nRRULE:FREQ=WEEKLY;BYDAY=TU`,
+        user_id: fixture.professionalId!,
+      }, // Tuesday 10am-4pm
+    ];
+
+    const { data: availabilityData, error: availabilityError } =
+      await this.adminClient
+        .from('availabilities')
+        .insert(availabilities)
+        .select('id');
+
+    if (availabilityError || !availabilityData) {
+      throw new Error(
+        `Failed to create availabilities: ${availabilityError?.message}`
+      );
+    }
+
+    const availabilityIds = availabilityData.map(a => a.id);
+
+    return {
+      ...fixture,
+      availabilityIds,
+    };
+  }
+
+  /**
    * Create a professional user without availabilities
    */
   async createProfessionalWithoutAvailabilities(): Promise<AvailabilityTestFixture> {
     return await this.createOnboardedProfessional();
   }
 }
-

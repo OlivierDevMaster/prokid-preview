@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// deno-lint-ignore-file no-unused-vars no-explicit-any
 import { assertEquals } from '@std/assert';
 import '@std/dotenv/load';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
