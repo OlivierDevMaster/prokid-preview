@@ -8,6 +8,7 @@ import {
   AvailabilityRlsCleanupHelper,
   AvailabilityRlsFixture,
   AvailabilityRlsFixtureBuilder,
+  StructureRlsFixture,
 } from './availabilities.fixture.ts';
 
 describe('Availabilities RLS - DELETE', () => {
@@ -15,7 +16,9 @@ describe('Availabilities RLS - DELETE', () => {
   let adminClient: ReturnType<SupabaseTestClient['createAdminClient']>;
   let fixtureBuilder: AvailabilityRlsFixtureBuilder;
   let cleanupHelper: AvailabilityRlsCleanupHelper;
-  let fixtures: Array<AdminRlsFixture | AvailabilityRlsFixture> = [];
+  let fixtures: Array<
+    AdminRlsFixture | AvailabilityRlsFixture | StructureRlsFixture
+  > = [];
 
   beforeEach(() => {
     supabaseClient = SupabaseTestClient.getInstance();
@@ -33,6 +36,8 @@ describe('Availabilities RLS - DELETE', () => {
         await cleanupHelper.cleanupAvailability(
           fixture as AvailabilityRlsFixture
         );
+      } else if ('structureId' in fixture) {
+        await cleanupHelper.cleanupStructure(fixture as StructureRlsFixture);
       } else {
         await cleanupHelper.cleanupAdmin(fixture as AdminRlsFixture);
       }
@@ -58,7 +63,7 @@ describe('Availabilities RLS - DELETE', () => {
     assertExists(availability);
 
     const unauthenticatedClient = supabaseClient.createUnauthenticatedClient();
-    const { error, data } = await unauthenticatedClient
+    const { data, error } = await unauthenticatedClient
       .from('availabilities')
       .delete()
       .eq('id', availability.id)
@@ -99,7 +104,7 @@ describe('Availabilities RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional.token
     );
-    const { error, data } = await authenticatedClient
+    const { data, error } = await authenticatedClient
       .from('availabilities')
       .delete()
       .eq('id', availability.id)
@@ -139,7 +144,7 @@ describe('Availabilities RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional1.token
     );
-    const { error, data } = await authenticatedClient
+    const { data, error } = await authenticatedClient
       .from('availabilities')
       .delete()
       .eq('id', availability.id)
@@ -181,7 +186,7 @@ describe('Availabilities RLS - DELETE', () => {
     const adminAuthClient = supabaseClient.createAuthenticatedClient(
       admin.token
     );
-    const { error, data } = await adminAuthClient
+    const { data, error } = await adminAuthClient
       .from('availabilities')
       .delete()
       .eq('id', availability.id)
@@ -198,5 +203,47 @@ describe('Availabilities RLS - DELETE', () => {
       .single();
 
     assertEquals(deleted, null);
+  });
+
+  it('should prevent structures from deleting availabilities', async () => {
+    const professional = await fixtureBuilder.createOnboardedProfessional();
+    const structure = await fixtureBuilder.createOnboardedStructure();
+    fixtures.push(professional, structure);
+
+    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
+    const { data: availability } = await adminClient
+      .from('availabilities')
+      .insert({
+        duration_mn: 180,
+        rrule,
+        user_id: professional.professionalId!,
+      })
+      .select('id')
+      .single();
+
+    assertExists(availability);
+
+    const structureClient = supabaseClient.createAuthenticatedClient(
+      structure.token
+    );
+    const { data, error } = await structureClient
+      .from('availabilities')
+      .delete()
+      .eq('id', availability.id)
+      .select();
+
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('availabilities')
+      .select('id')
+      .eq('id', availability.id)
+      .single();
+
+    assertExists(stillExists);
   });
 });

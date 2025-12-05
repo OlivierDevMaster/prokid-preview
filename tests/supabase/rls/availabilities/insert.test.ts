@@ -8,6 +8,7 @@ import {
   AvailabilityRlsCleanupHelper,
   AvailabilityRlsFixture,
   AvailabilityRlsFixtureBuilder,
+  StructureRlsFixture,
 } from './availabilities.fixture.ts';
 
 describe('Availabilities RLS - INSERT', () => {
@@ -15,7 +16,9 @@ describe('Availabilities RLS - INSERT', () => {
   let adminClient: ReturnType<SupabaseTestClient['createAdminClient']>;
   let fixtureBuilder: AvailabilityRlsFixtureBuilder;
   let cleanupHelper: AvailabilityRlsCleanupHelper;
-  let fixtures: Array<AdminRlsFixture | AvailabilityRlsFixture> = [];
+  let fixtures: Array<
+    AdminRlsFixture | AvailabilityRlsFixture | StructureRlsFixture
+  > = [];
 
   beforeEach(() => {
     supabaseClient = SupabaseTestClient.getInstance();
@@ -33,6 +36,8 @@ describe('Availabilities RLS - INSERT', () => {
         await cleanupHelper.cleanupAvailability(
           fixture as AvailabilityRlsFixture
         );
+      } else if ('structureId' in fixture) {
+        await cleanupHelper.cleanupStructure(fixture as StructureRlsFixture);
       } else {
         await cleanupHelper.cleanupAdmin(fixture as AdminRlsFixture);
       }
@@ -128,5 +133,28 @@ describe('Availabilities RLS - INSERT', () => {
     assertEquals(error, null);
     assertExists(data);
     assertEquals(data.user_id, professional.professionalId);
+  });
+
+  it('should prevent structures from creating availabilities', async () => {
+    const professional = await fixtureBuilder.createOnboardedProfessional();
+    const structure = await fixtureBuilder.createOnboardedStructure();
+    fixtures.push(professional, structure);
+
+    const structureClient = supabaseClient.createAuthenticatedClient(
+      structure.token
+    );
+    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
+    const { data, error } = await structureClient
+      .from('availabilities')
+      .insert({
+        duration_mn: 180,
+        rrule,
+        user_id: professional.professionalId!,
+      })
+      .select();
+
+    assertEquals(data, null);
+    assertExists(error);
+    assertEquals(error.code, '42501');
   });
 });

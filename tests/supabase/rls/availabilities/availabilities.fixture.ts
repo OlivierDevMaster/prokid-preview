@@ -21,6 +21,15 @@ export interface AvailabilityRlsFixture {
   userId: string;
 }
 
+export interface StructureRlsFixture {
+  adminClient: ReturnType<typeof createClient<Database>>;
+  email: string;
+  structureId?: string;
+  supabaseClient: SupabaseTestClient;
+  token: string;
+  userId: string;
+}
+
 export class AvailabilityRlsCleanupHelper {
   constructor(private adminClient: ReturnType<typeof createClient<Database>>) {}
 
@@ -56,6 +65,26 @@ export class AvailabilityRlsCleanupHelper {
       if (fixture.professionalId) {
         await this.adminClient
           .from('professionals')
+          .delete()
+          .eq('user_id', fixture.userId);
+      }
+
+      await this.adminClient
+        .from('profiles')
+        .delete()
+        .eq('user_id', fixture.userId);
+
+      await this.adminClient.auth.admin.deleteUser(fixture.userId);
+    } catch (error) {
+      console.warn('Cleanup warning:', error);
+    }
+  }
+
+  async cleanupStructure(fixture: StructureRlsFixture): Promise<void> {
+    try {
+      if (fixture.structureId) {
+        await this.adminClient
+          .from('structures')
           .delete()
           .eq('user_id', fixture.userId);
       }
@@ -110,15 +139,17 @@ export class AvailabilityRlsFixtureBuilder {
     const { error: profileError } = await this.adminClient
       .from('profiles')
       .insert({
-        user_id: userId,
-        role: 'admin',
         email,
         first_name: 'Test',
         last_name: 'Admin',
+        role: 'admin',
+        user_id: userId,
       });
 
     if (profileError) {
-      throw new Error(`Failed to create admin profile: ${profileError.message}`);
+      throw new Error(
+        `Failed to create admin profile: ${profileError.message}`
+      );
     }
 
     const authClient =
@@ -216,6 +247,96 @@ export class AvailabilityRlsFixtureBuilder {
       adminClient: this.adminClient,
       email,
       professionalId: professionalData.user_id,
+      supabaseClient: this.supabaseClient,
+      token,
+      userId,
+    };
+  }
+
+  async createOnboardedStructure(): Promise<StructureRlsFixture> {
+    const email = `test-structure-rls-${Date.now()}@example.com`;
+
+    const { data: authData, error: authError } =
+      await this.adminClient.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        password: 'testpassword123',
+        user_metadata: {
+          first_name: 'Test',
+          last_name: 'Structure',
+          role: 'structure',
+        },
+      });
+
+    if (authError || !authData.user) {
+      throw new Error(`Failed to create test user: ${authError?.message}`);
+    }
+
+    const userId = authData.user.id;
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const { error: profileError } = await this.adminClient
+      .from('profiles')
+      .upsert(
+        {
+          email,
+          first_name: 'Test',
+          last_name: 'Structure',
+          role: 'structure',
+          user_id: userId,
+        },
+        {
+          onConflict: 'user_id',
+        }
+      );
+
+    if (profileError) {
+      throw new Error(
+        `Failed to create structure profile: ${profileError.message}`
+      );
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const { data: structureData, error: structureError } =
+      await this.adminClient
+        .from('structures')
+        .insert({
+          name: 'Test Structure',
+          user_id: userId,
+        })
+        .select('user_id')
+        .single();
+
+    if (structureError || !structureData) {
+      throw new Error(`Failed to create structure: ${structureError?.message}`);
+    }
+
+    await this.adminClient
+      .from('profiles')
+      .update({ is_onboarded: true })
+      .eq('user_id', userId);
+
+    const authClient =
+      this.supabaseClient.createAuthenticatedClient('dummy-token');
+
+    const { data: signInData, error: signInError } =
+      await authClient.auth.signInWithPassword({
+        email,
+        password: 'testpassword123',
+      });
+
+    if (signInError || !signInData.session) {
+      throw new Error(`Failed to sign in test user: ${signInError?.message}`);
+    }
+
+    const token = signInData.session.access_token;
+
+    return {
+      adminClient: this.adminClient,
+      email,
+      structureId: structureData.user_id,
       supabaseClient: this.supabaseClient,
       token,
       userId,

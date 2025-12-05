@@ -8,6 +8,7 @@ This document describes the Row Level Security (RLS) policies for the `availabil
 | -------------------------- | ------ | ------------ | -------------- | ------------ | -------------- | ------------ | -------------- |
 | Unauthenticated            | ✅ All | ❌           | ❌             | ❌           | ❌             | ❌           | ❌             |
 | Authenticated Professional | ✅ All | ✅           | ❌             | ✅           | ❌             | ✅           | ❌             |
+| Structure                  | ✅ All | ❌           | ❌             | ❌           | ❌             | ❌           | ❌             |
 | Admin                      | ✅ All | ✅           | ✅             | ✅           | ✅             | ✅           | ✅             |
 
 ## Legend
@@ -19,6 +20,7 @@ This document describes the Row Level Security (RLS) policies for the `availabil
 
 - **Unauthenticated**: Users who are not signed in (no authentication token). These users access the database using the public `anon` key without any session.
 - **Authenticated Professional**: Users who have signed in and have a valid authentication token. They are identified by their `user_id`.
+- **Structure**: Users with the `structure` role in the `profiles` table. They can view availabilities but cannot modify them.
 - **Admin**: Users with the `admin` role in the `profiles` table. They have elevated privileges.
 
 **Note**: "Unauthenticated" users are different from Supabase's built-in "anonymous users" feature. Anonymous users in Supabase are a special type of authenticated user that can be created without email/password. Our tests use unauthenticated users (no auth token), which map to Supabase's `anon` role in RLS policies.
@@ -29,29 +31,34 @@ This document describes the Row Level Security (RLS) policies for the `availabil
 
 - **Unauthenticated users**: Can view all availability entries (public profile data)
 - **Authenticated professionals**: Can view all availability entries
+- **Structures**: Can view all availability entries
 - **Admins**: Can view all availability entries
 
 ### INSERT (Create)
 
 - **Unauthenticated users**: Cannot create availability entries
 - **Authenticated professionals**: Can only create availability entries for themselves (`user_id` must match authenticated user)
+- **Structures**: Cannot create availability entries
 - **Admins**: Can create availability entries for any professional
 
 ### UPDATE (Modify)
 
 - **Unauthenticated users**: Cannot update availability entries
 - **Authenticated professionals**: Can only update their own availability entries (`user_id` must match authenticated user)
+- **Structures**: Cannot update availability entries
 - **Admins**: Can update any availability entry
 
 ### DELETE (Remove)
 
 - **Unauthenticated users**: Cannot delete availability entries
 - **Authenticated professionals**: Can only delete their own availability entries (`user_id` must match authenticated user)
+- **Structures**: Cannot delete availability entries
 - **Admins**: Can delete any availability entry
 
 ## Notes
 
-- All availability entries are considered public data and can be viewed by anyone (including unauthenticated users)
+- All availability entries are considered public data and can be viewed by anyone (including unauthenticated users and structures)
 - Professionals can only modify (INSERT, UPDATE, DELETE) their own availability entries
+- Structures can view all availability entries but cannot modify them (they are read-only users)
 - Admins have full access to all operations on all availability entries
 - The `user_id` field in the `availabilities` table references the `professionals.user_id` and is used to enforce ownership

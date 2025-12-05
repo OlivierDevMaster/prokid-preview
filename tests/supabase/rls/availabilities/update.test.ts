@@ -8,6 +8,7 @@ import {
   AvailabilityRlsCleanupHelper,
   AvailabilityRlsFixture,
   AvailabilityRlsFixtureBuilder,
+  StructureRlsFixture,
 } from './availabilities.fixture.ts';
 
 describe('Availabilities RLS - UPDATE', () => {
@@ -15,7 +16,9 @@ describe('Availabilities RLS - UPDATE', () => {
   let adminClient: ReturnType<SupabaseTestClient['createAdminClient']>;
   let fixtureBuilder: AvailabilityRlsFixtureBuilder;
   let cleanupHelper: AvailabilityRlsCleanupHelper;
-  let fixtures: Array<AdminRlsFixture | AvailabilityRlsFixture> = [];
+  let fixtures: Array<
+    AdminRlsFixture | AvailabilityRlsFixture | StructureRlsFixture
+  > = [];
 
   beforeEach(() => {
     supabaseClient = SupabaseTestClient.getInstance();
@@ -33,6 +36,8 @@ describe('Availabilities RLS - UPDATE', () => {
         await cleanupHelper.cleanupAvailability(
           fixture as AvailabilityRlsFixture
         );
+      } else if ('structureId' in fixture) {
+        await cleanupHelper.cleanupStructure(fixture as StructureRlsFixture);
       } else {
         await cleanupHelper.cleanupAdmin(fixture as AdminRlsFixture);
       }
@@ -180,5 +185,45 @@ describe('Availabilities RLS - UPDATE', () => {
     assertEquals(error, null);
     assertExists(data);
     assertEquals(data.duration_mn, 240);
+  });
+
+  it('should prevent structures from updating availabilities', async () => {
+    const professional = await fixtureBuilder.createOnboardedProfessional();
+    const structure = await fixtureBuilder.createOnboardedStructure();
+    fixtures.push(professional, structure);
+
+    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
+    const { data: availability } = await adminClient
+      .from('availabilities')
+      .insert({
+        duration_mn: 180,
+        rrule,
+        user_id: professional.professionalId!,
+      })
+      .select('id')
+      .single();
+
+    assertExists(availability);
+
+    const structureClient = supabaseClient.createAuthenticatedClient(
+      structure.token
+    );
+    const { data, error } = await structureClient
+      .from('availabilities')
+      .update({ duration_mn: 240 })
+      .eq('id', availability.id)
+      .select();
+
+    assertEquals(data, []);
+    assertEquals(error, null);
+
+    // Verify the row was not actually updated
+    const { data: verifyData } = await adminClient
+      .from('availabilities')
+      .select('duration_mn')
+      .eq('id', availability.id)
+      .single();
+
+    assertEquals(verifyData?.duration_mn, 180);
   });
 });

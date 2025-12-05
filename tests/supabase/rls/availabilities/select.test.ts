@@ -8,6 +8,7 @@ import {
   AvailabilityRlsCleanupHelper,
   AvailabilityRlsFixture,
   AvailabilityRlsFixtureBuilder,
+  StructureRlsFixture,
 } from './availabilities.fixture.ts';
 
 describe('Availabilities RLS - SELECT', () => {
@@ -15,7 +16,9 @@ describe('Availabilities RLS - SELECT', () => {
   let adminClient: ReturnType<SupabaseTestClient['createAdminClient']>;
   let fixtureBuilder: AvailabilityRlsFixtureBuilder;
   let cleanupHelper: AvailabilityRlsCleanupHelper;
-  let fixtures: Array<AdminRlsFixture | AvailabilityRlsFixture> = [];
+  let fixtures: Array<
+    AdminRlsFixture | AvailabilityRlsFixture | StructureRlsFixture
+  > = [];
 
   beforeEach(() => {
     supabaseClient = SupabaseTestClient.getInstance();
@@ -33,6 +36,8 @@ describe('Availabilities RLS - SELECT', () => {
         await cleanupHelper.cleanupAvailability(
           fixture as AvailabilityRlsFixture
         );
+      } else if ('structureId' in fixture) {
+        await cleanupHelper.cleanupStructure(fixture as StructureRlsFixture);
       } else {
         await cleanupHelper.cleanupAdmin(fixture as AdminRlsFixture);
       }
@@ -121,6 +126,37 @@ describe('Availabilities RLS - SELECT', () => {
       admin.token
     );
     const { data, error } = await adminAuthClient
+      .from('availabilities')
+      .select('*')
+      .eq('id', availability.id);
+
+    assertEquals(error, null);
+    assertEquals(data?.length, 1);
+    assertEquals(data?.[0].id, availability.id);
+  });
+
+  it('should allow structures to view all availabilities', async () => {
+    const professional = await fixtureBuilder.createOnboardedProfessional();
+    const structure = await fixtureBuilder.createOnboardedStructure();
+    fixtures.push(professional, structure);
+
+    const rrule = `DTSTART:20250101T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO`;
+    const { data: availability } = await adminClient
+      .from('availabilities')
+      .insert({
+        duration_mn: 180,
+        rrule,
+        user_id: professional.professionalId!,
+      })
+      .select('id')
+      .single();
+
+    assertExists(availability);
+
+    const structureClient = supabaseClient.createAuthenticatedClient(
+      structure.token
+    );
+    const { data, error } = await structureClient
       .from('availabilities')
       .select('*')
       .eq('id', availability.id);
