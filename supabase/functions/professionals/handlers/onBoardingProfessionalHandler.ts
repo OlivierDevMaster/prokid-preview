@@ -9,7 +9,7 @@ import {
   findProfile,
   updateProfile,
 } from '../../_shared/features/profiles/index.ts';
-import { validateRequest } from '../../_shared/utils/requests.ts';
+import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
@@ -46,7 +46,7 @@ export const onBoardingProfessionalHandler = factory.createHandlers(
         return apiResponse.unauthorized();
       }
 
-      const validationResult = await validateRequest(
+      const validationResult = await validateRequestBody(
         ProfessionalOnboardingRequestBodySchema,
         req
       );

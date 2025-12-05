@@ -1,6 +1,7 @@
 'use client';
 
 import { Info } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 // import { signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -29,16 +30,16 @@ export function LoginForm({
     setError(null);
 
     try {
-      // const result = await signIn('credentials', {
-      //   email,
-      //   password,
-      //   redirect: false,
-      // });
-      // if (result?.error) {
-      //   setError(t('error'));
-      // } else {
-      //   router.push('/admin');
-      // }
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+      if (result?.error) {
+        setError(t('error'));
+      } else {
+        router.push('/admin');
+      }
     } catch {
       setError(t('error'));
     } finally {

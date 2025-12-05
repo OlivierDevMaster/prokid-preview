@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -34,6 +39,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      availabilities: {
+        Row: {
+          created_at: string
+          duration_mn: number
+          id: string
+          rrule: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_mn: number
+          id?: string
+          rrule: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_mn?: number
+          id?: string
+          rrule?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availabilities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       newsletter_subscriptions: {
         Row: {
           created_at: string
@@ -54,44 +94,6 @@ export type Database = {
           name?: string | null
         }
         Relationships: []
-      }
-      plannings: {
-        Row: {
-          created_at: string
-          date: string
-          end_time: string | null
-          id: string
-          start_time: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          end_time?: string | null
-          id?: string
-          start_time: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          end_time?: string | null
-          id?: string
-          start_time?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "plannings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "professionals"
-            referencedColumns: ["user_id"]
-          },
-        ]
       }
       professionals: {
         Row: {
@@ -279,7 +281,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_onetime_availability: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      create_recurring_availability: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          exdate_offsets?: number[]
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      format_exdate: { Args: { date_offset: number }; Returns: string }
+      get_rrule_day: { Args: { day_offset: number }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       role: "professional" | "structure" | "admin"
@@ -417,4 +440,3 @@ export const Constants = {
     },
   },
 } as const
-

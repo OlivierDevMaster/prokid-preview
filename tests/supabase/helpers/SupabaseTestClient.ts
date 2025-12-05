@@ -34,18 +34,18 @@ export class SupabaseTestClient {
     });
   }
 
-  createAnonymousClient() {
-    return createClient(this.supabaseUrl, this.supabaseAnonKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-  }
-
   createAuthenticatedClient(token: string) {
     return createClient(this.supabaseUrl, this.supabaseAnonKey, {
       auth: { autoRefreshToken: false, persistSession: false },
       global: {
         headers: { Authorization: `Bearer ${token}` },
       },
+    });
+  }
+
+  createUnauthenticatedClient() {
+    return createClient(this.supabaseUrl, this.supabaseAnonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
     });
   }
 }

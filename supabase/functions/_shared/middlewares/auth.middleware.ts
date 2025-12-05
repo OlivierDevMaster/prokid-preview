@@ -3,6 +3,12 @@ import { createMiddleware } from '@hono/hono/factory';
 import { authenticateUser } from '../utils/authenticateUser.ts';
 
 export const authMiddleware = createMiddleware(async (context, next) => {
+  // Skip authentication for OPTIONS requests (CORS preflight)
+  if (context.req.method === 'OPTIONS') {
+    await next();
+    return;
+  }
+
   const authResult = await authenticateUser(context.req);
 
   if (!authResult.success) {

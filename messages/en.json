@@ -331,7 +331,8 @@
       "template2": "Observation report",
       "template3": "Follow-up report",
       "structure2": "Structure 2",
-      "structure3": "Structure 3"
+      "structure3": "Structure 3",
+      "createReport": "Create a report"
     },
     "reports": {
       "title": "My Reports",

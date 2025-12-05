@@ -69,5 +69,6 @@
     "fs",
     "http",
     "net"
-  ]
+  ],
+  "cSpell.words": ["rrule"]
 }
