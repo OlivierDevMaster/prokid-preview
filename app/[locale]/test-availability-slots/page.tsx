@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import { useState } from 'react';
 
 import {
@@ -19,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useFindAvailabilitySlots } from '@/features/availabilities/hooks/useFindAvailabilitySlots';
+import { useGroupedAvailabilitySlots } from '@/features/availabilities/hooks/useGroupedAvailabilitySlots';
 import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
 
 const convertDatetimeLocalToISO = (datetimeLocal: string): string => {
@@ -32,6 +34,7 @@ export default function TestAvailabilitySlotsPage() {
   const [professionalId, setProfessionalId] = useState('');
   const [startAtLocal, setStartAtLocal] = useState('');
   const [endAtLocal, setEndAtLocal] = useState('');
+  const [testDateLocal, setTestDateLocal] = useState('');
 
   const { data: professionalsData } = useFindProfessionals({}, { limit: 100 });
 
@@ -43,6 +46,13 @@ export default function TestAvailabilitySlotsPage() {
     professionalId,
     startAt,
   });
+
+  const { getSlotsByDay, slotsByDay } = useGroupedAvailabilitySlots(data ?? []);
+
+  const testDate = testDateLocal
+    ? convertDatetimeLocalToISO(testDateLocal)
+    : null;
+  const slotsForTestDate = testDate ? getSlotsByDay(testDate) : [];
 
   return (
     <div className='container mx-auto p-6'>
@@ -110,25 +120,127 @@ export default function TestAvailabilitySlotsPage() {
               </div>
             </div>
 
-            <div className='space-y-2'>
-              <div className='text-sm font-medium'>Results:</div>
-              {data && data.length > 0 ? (
-                <div className='space-y-2'>
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <div className='text-sm font-medium'>Raw Results:</div>
+                {data && data.length > 0 ? (
+                  <div className='space-y-2'>
+                    <div className='text-sm text-muted-foreground'>
+                      Found {data.length} slot(s)
+                    </div>
+                    <div className='rounded-md border p-4'>
+                      <pre className='overflow-auto text-xs'>
+                        {JSON.stringify(data, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                ) : (
                   <div className='text-sm text-muted-foreground'>
-                    Found {data.length} slot(s)
+                    {!professionalId || !startAtLocal || !endAtLocal
+                      ? 'Fill in all fields to enable the query'
+                      : 'No slots found'}
                   </div>
-                  <div className='rounded-md border p-4'>
-                    <pre className='overflow-auto text-xs'>
-                      {JSON.stringify(data, null, 2)}
-                    </pre>
+                )}
+              </div>
+
+              {data && data.length > 0 && (
+                <>
+                  <div className='space-y-2'>
+                    <div className='text-sm font-medium'>
+                      Grouped by Day ({Object.keys(slotsByDay).length} day(s)):
+                    </div>
+                    <div className='space-y-3'>
+                      {Object.entries(slotsByDay).map(([day, slots]) => (
+                        <div className='rounded-md border p-3' key={day}>
+                          <div className='mb-2 text-sm font-semibold'>
+                            {format(new Date(day), 'EEEE, MMMM d, yyyy')} ({day}
+                            )
+                          </div>
+                          <div className='text-xs text-muted-foreground'>
+                            {slots.length} slot(s)
+                          </div>
+                          <div className='mt-2 space-y-1'>
+                            {slots.map((slot, index) => (
+                              <div
+                                className='rounded bg-muted p-2 text-xs'
+                                key={index}
+                              >
+                                <div>
+                                  <span className='font-medium'>Start:</span>{' '}
+                                  {format(new Date(slot.startAt), 'HH:mm:ss')}
+                                </div>
+                                <div>
+                                  <span className='font-medium'>End:</span>{' '}
+                                  {format(new Date(slot.endAt), 'HH:mm:ss')}
+                                </div>
+                                <div>
+                                  <span className='font-medium'>Duration:</span>{' '}
+                                  {slot.durationMn} minutes
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className='text-sm text-muted-foreground'>
-                  {!professionalId || !startAtLocal || !endAtLocal
-                    ? 'Fill in all fields to enable the query'
-                    : 'No slots found'}
-                </div>
+
+                  <div className='space-y-2'>
+                    <div className='text-sm font-medium'>
+                      Test getSlotsByDay Function:
+                    </div>
+                    <div className='space-y-2'>
+                      <Label htmlFor='testDate'>Select a Date</Label>
+                      <Input
+                        id='testDate'
+                        onChange={e => setTestDateLocal(e.target.value)}
+                        type='date'
+                        value={testDateLocal}
+                      />
+                      {testDateLocal && (
+                        <div className='rounded-md border p-3'>
+                          <div className='mb-2 text-sm font-semibold'>
+                            Slots for{' '}
+                            {format(
+                              new Date(testDateLocal),
+                              'EEEE, MMMM d, yyyy'
+                            )}
+                            :
+                          </div>
+                          {slotsForTestDate.length > 0 ? (
+                            <div className='space-y-1'>
+                              {slotsForTestDate.map((slot, index) => (
+                                <div
+                                  className='rounded bg-muted p-2 text-xs'
+                                  key={index}
+                                >
+                                  <div>
+                                    <span className='font-medium'>Start:</span>{' '}
+                                    {format(new Date(slot.startAt), 'HH:mm:ss')}
+                                  </div>
+                                  <div>
+                                    <span className='font-medium'>End:</span>{' '}
+                                    {format(new Date(slot.endAt), 'HH:mm:ss')}
+                                  </div>
+                                  <div>
+                                    <span className='font-medium'>
+                                      Duration:
+                                    </span>{' '}
+                                    {slot.durationMn} minutes
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className='text-sm text-muted-foreground'>
+                              No slots found for this date
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
