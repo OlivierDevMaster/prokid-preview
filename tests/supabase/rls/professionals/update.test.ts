@@ -44,6 +44,14 @@ describe('Professionals RLS - UPDATE', () => {
     const professional = await fixtureBuilder.createOnboardedProfessional();
     fixtures.push(professional);
 
+    const { data: originalData } = await adminClient
+      .from('professionals')
+      .select('city')
+      .eq('user_id', professional.professionalId!)
+      .single();
+
+    assertExists(originalData);
+
     const unauthenticatedClient = supabaseClient.createUnauthenticatedClient();
     const { data, error } = await unauthenticatedClient
       .from('professionals')
@@ -51,9 +59,16 @@ describe('Professionals RLS - UPDATE', () => {
       .eq('user_id', professional.professionalId!)
       .select();
 
-    assertEquals(data, null);
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    assertEquals(data, []);
+    assertEquals(error, null);
+
+    const { data: verifyData } = await adminClient
+      .from('professionals')
+      .select('city')
+      .eq('user_id', professional.professionalId!)
+      .single();
+
+    assertEquals(verifyData?.city, originalData.city);
   });
 
   it('should allow professionals to update their own profile', async () => {
@@ -81,6 +96,14 @@ describe('Professionals RLS - UPDATE', () => {
     const professional2 = await fixtureBuilder.createOnboardedProfessional();
     fixtures.push(professional1, professional2);
 
+    const { data: originalData } = await adminClient
+      .from('professionals')
+      .select('city')
+      .eq('user_id', professional2.professionalId!)
+      .single();
+
+    assertExists(originalData);
+
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional1.token
     );
@@ -90,9 +113,16 @@ describe('Professionals RLS - UPDATE', () => {
       .eq('user_id', professional2.professionalId!)
       .select();
 
-    assertEquals(data, null);
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    assertEquals(data, []);
+    assertEquals(error, null);
+
+    const { data: verifyData } = await adminClient
+      .from('professionals')
+      .select('city')
+      .eq('user_id', professional2.professionalId!)
+      .single();
+
+    assertEquals(verifyData?.city, originalData.city);
   });
 
   it('should allow admins to update any professional profile', async () => {
