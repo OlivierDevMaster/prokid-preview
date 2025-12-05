@@ -64,9 +64,17 @@ describe('Availabilities RLS - UPDATE', () => {
       .eq('id', availability.id)
       .select();
 
-    assertEquals(data, null);
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    assertEquals(data, []);
+    assertEquals(error, null);
+
+    // Verify the row was not actually updated
+    const { data: verifyData } = await adminClient
+      .from('availabilities')
+      .select('duration_mn')
+      .eq('id', availability.id)
+      .single();
+
+    assertEquals(verifyData?.duration_mn, 180);
   });
 
   it('should allow professionals to update their own availabilities', async () => {
@@ -128,9 +136,17 @@ describe('Availabilities RLS - UPDATE', () => {
       .eq('id', availability.id)
       .select();
 
-    assertEquals(data, null);
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    assertEquals(data, []);
+    assertEquals(error, null);
+
+    // Verify the row was not actually updated
+    const { data: verifyData } = await adminClient
+      .from('availabilities')
+      .select('duration_mn')
+      .eq('id', availability.id)
+      .single();
+
+    assertEquals(verifyData?.duration_mn, 180);
   });
 
   it('should allow admins to update any availability', async () => {
