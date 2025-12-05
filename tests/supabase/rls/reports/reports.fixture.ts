@@ -144,10 +144,7 @@ export class ReportRlsFixtureBuilder {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // Clean up any orphaned profile that might exist (from previous failed tests)
-    await this.adminClient
-      .from('profiles')
-      .delete()
-      .eq('user_id', userId);
+    await this.adminClient.from('profiles').delete().eq('user_id', userId);
 
     const { error: profileError } = await this.adminClient
       .from('profiles')
@@ -290,10 +287,7 @@ export class ReportRlsFixtureBuilder {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // Clean up any orphaned profile that might exist (from previous failed tests)
-    await this.adminClient
-      .from('profiles')
-      .delete()
-      .eq('user_id', userId);
+    await this.adminClient.from('profiles').delete().eq('user_id', userId);
 
     const { error: profileError } = await this.adminClient
       .from('profiles')

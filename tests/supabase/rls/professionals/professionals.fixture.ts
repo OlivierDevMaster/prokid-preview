@@ -134,6 +134,70 @@ export class ProfessionalRlsFixtureBuilder {
     };
   }
 
+  async createAuthenticatedUser(): Promise<ProfessionalRlsFixture> {
+    const email = `test-user-rls-${Date.now()}@example.com`;
+
+    const { data: authData, error: authError } =
+      await this.adminClient.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        password: 'testpassword123',
+        user_metadata: {
+          first_name: 'Test',
+          last_name: 'User',
+          role: 'structure',
+        },
+      });
+
+    if (authError || !authData.user) {
+      throw new Error(`Failed to create test user: ${authError?.message}`);
+    }
+
+    const userId = authData.user.id;
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Clean up any orphaned profile that might exist (from previous failed tests)
+    await this.adminClient.from('profiles').delete().eq('user_id', userId);
+
+    const { error: profileError } = await this.adminClient
+      .from('profiles')
+      .insert({
+        email,
+        first_name: 'Test',
+        last_name: 'User',
+        role: 'structure',
+        user_id: userId,
+      });
+
+    if (profileError) {
+      throw new Error(`Failed to create user profile: ${profileError.message}`);
+    }
+
+    const authClient =
+      this.supabaseClient.createAuthenticatedClient('dummy-token');
+
+    const { data: signInData, error: signInError } =
+      await authClient.auth.signInWithPassword({
+        email,
+        password: 'testpassword123',
+      });
+
+    if (signInError || !signInData.session) {
+      throw new Error(`Failed to sign in test user: ${signInError?.message}`);
+    }
+
+    const token = signInData.session.access_token;
+
+    return {
+      adminClient: this.adminClient,
+      email,
+      supabaseClient: this.supabaseClient,
+      token,
+      userId,
+    };
+  }
+
   async createOnboardedProfessional(): Promise<ProfessionalRlsFixture> {
     const email = `test-professional-rls-${Date.now()}@example.com`;
 
@@ -233,73 +297,6 @@ export class ProfessionalRlsFixtureBuilder {
     const userId = authData.user.id;
 
     await new Promise(resolve => setTimeout(resolve, 100));
-
-    const authClient =
-      this.supabaseClient.createAuthenticatedClient('dummy-token');
-
-    const { data: signInData, error: signInError } =
-      await authClient.auth.signInWithPassword({
-        email,
-        password: 'testpassword123',
-      });
-
-    if (signInError || !signInData.session) {
-      throw new Error(`Failed to sign in test user: ${signInError?.message}`);
-    }
-
-    const token = signInData.session.access_token;
-
-    return {
-      adminClient: this.adminClient,
-      email,
-      supabaseClient: this.supabaseClient,
-      token,
-      userId,
-    };
-  }
-
-  async createAuthenticatedUser(): Promise<ProfessionalRlsFixture> {
-    const email = `test-user-rls-${Date.now()}@example.com`;
-
-    const { data: authData, error: authError } =
-      await this.adminClient.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        password: 'testpassword123',
-        user_metadata: {
-          first_name: 'Test',
-          last_name: 'User',
-          role: 'structure',
-        },
-      });
-
-    if (authError || !authData.user) {
-      throw new Error(`Failed to create test user: ${authError?.message}`);
-    }
-
-    const userId = authData.user.id;
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Clean up any orphaned profile that might exist (from previous failed tests)
-    await this.adminClient
-      .from('profiles')
-      .delete()
-      .eq('user_id', userId);
-
-    const { error: profileError } = await this.adminClient
-      .from('profiles')
-      .insert({
-        email,
-        first_name: 'Test',
-        last_name: 'User',
-        role: 'structure',
-        user_id: userId,
-      });
-
-    if (profileError) {
-      throw new Error(`Failed to create user profile: ${profileError.message}`);
-    }
 
     const authClient =
       this.supabaseClient.createAuthenticatedClient('dummy-token');
