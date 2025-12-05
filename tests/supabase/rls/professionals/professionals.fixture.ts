@@ -95,11 +95,11 @@ export class ProfessionalRlsFixtureBuilder {
     const { error: profileError } = await this.adminClient
       .from('profiles')
       .insert({
-        user_id: userId,
-        role: 'admin',
         email,
         first_name: 'Test',
         last_name: 'Admin',
+        role: 'admin',
+        user_id: userId,
       });
 
     if (profileError) {
