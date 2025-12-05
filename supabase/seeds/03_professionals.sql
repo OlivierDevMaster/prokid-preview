@@ -6,8 +6,8 @@
 UPDATE public.profiles
 SET is_onboarded = TRUE
 WHERE role = 'professional'::public.role
-  AND user_id >= '00000000-0000-0000-0000-000000000010'::uuid
-  AND user_id <= '00000000-0000-0000-0000-000000000023'::uuid;
+  AND user_id >= '08fb0a72-ee9b-4771-bf24-7fe19c869ae2'::uuid
+  AND user_id <= '08fb0a72-ee9b-4771-bf24-7fe19c869af5'::uuid;
 
 -- Insert professional profiles
 INSERT INTO public.professionals (
@@ -30,7 +30,7 @@ INSERT INTO public.professionals (
 ) VALUES
 -- Original 3 professionals
 (
-  '00000000-0000-0000-0000-000000000010',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae2',
   'Paris',
   '75001',
   25.0,
@@ -48,7 +48,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000011',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3',
   'Lyon',
   '69001',
   30.0,
@@ -66,7 +66,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000012',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae4',
   'Marseille',
   '13001',
   20.0,
@@ -85,7 +85,7 @@ INSERT INTO public.professionals (
 ),
 -- Additional professionals
 (
-  '00000000-0000-0000-0000-000000000013',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae5',
   'Toulouse',
   '31000',
   35.0,
@@ -103,7 +103,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000014',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae6',
   'Nice',
   '06000',
   15.0,
@@ -121,7 +121,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000015',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae7',
   'Nantes',
   '44000',
   25.0,
@@ -139,7 +139,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000016',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae8',
   'Strasbourg',
   '67000',
   20.0,
@@ -157,7 +157,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000017',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae9',
   'Bordeaux',
   '33000',
   30.0,
@@ -175,7 +175,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000018',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aea',
   'Lille',
   '59000',
   25.0,
@@ -193,7 +193,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000019',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aeb',
   'Rennes',
   '35000',
   20.0,
@@ -211,7 +211,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001a',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aec',
   'Montpellier',
   '34000',
   22.0,
@@ -229,7 +229,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001b',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aed',
   'Reims',
   '51100',
   18.0,
@@ -247,7 +247,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001c',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aee',
   'Le Havre',
   '76600',
   20.0,
@@ -265,7 +265,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001d',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aef',
   'Saint-Étienne',
   '42000',
   25.0,
@@ -283,7 +283,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001e',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af0',
   'Toulon',
   '83000',
   15.0,
@@ -301,7 +301,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-00000000001f',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af1',
   'Grenoble',
   '38000',
   28.0,
@@ -319,7 +319,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000020',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af2',
   'Dijon',
   '21000',
   20.0,
@@ -337,7 +337,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000021',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af3',
   'Angers',
   '49000',
   22.0,
@@ -355,7 +355,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000022',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af4',
   'Nîmes',
   '30000',
   18.0,
@@ -373,7 +373,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000020',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af2',
   'Dijon',
   '21000',
   20.0,
@@ -391,7 +391,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000021',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af3',
   'Angers',
   '49000',
   22.0,
@@ -409,7 +409,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000022',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af4',
   'Nîmes',
   '30000',
   18.0,
@@ -427,7 +427,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000023',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af5',
   'Villeurbanne',
   '69100',
   25.0,

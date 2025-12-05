@@ -22,7 +22,7 @@ INSERT INTO auth.users (
     email_change_token_new,
     recovery_token
 ) VALUES (
-    '00000000-0000-0000-0000-000000000001',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae1',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -58,9 +58,9 @@ INSERT INTO auth.users (
     email_change,
     email_change_token_new,
     recovery_token
-) VALUES 
+) VALUES
 (
-    '00000000-0000-0000-0000-000000000010',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae2',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -78,7 +78,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000011',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae3',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -96,7 +96,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000012',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae4',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -114,7 +114,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000013',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae5',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -132,7 +132,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000014',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae6',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -150,7 +150,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000015',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae7',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -168,7 +168,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000016',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae8',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -186,7 +186,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000017',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae9',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -204,7 +204,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000018',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aea',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -222,7 +222,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000019',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aeb',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -240,7 +240,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001a',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aec',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -258,7 +258,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001b',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aed',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -276,7 +276,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001c',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aee',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -294,7 +294,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001d',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aef',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -312,7 +312,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001e',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af0',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -330,7 +330,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-00000000001f',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af1',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -348,7 +348,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000020',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af2',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -366,7 +366,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000021',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af3',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -384,7 +384,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000022',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af4',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -402,7 +402,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000023',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af5',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -420,7 +420,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000024',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af6',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -438,7 +438,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000025',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af7',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -456,7 +456,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000026',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af8',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -492,9 +492,9 @@ INSERT INTO auth.users (
     email_change,
     email_change_token_new,
     recovery_token
-) VALUES 
+) VALUES
 (
-    '00000000-0000-0000-0000-000000000030',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -512,7 +512,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000031',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afa',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -530,7 +530,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000032',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afb',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -548,7 +548,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000033',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afc',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -566,7 +566,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000034',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -584,7 +584,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000035',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afe',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -602,7 +602,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000036',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aff',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -620,7 +620,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000037',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869b00',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -638,7 +638,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000038',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869b01',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
@@ -656,7 +656,7 @@ INSERT INTO auth.users (
     ''
 ),
 (
-    '00000000-0000-0000-0000-000000000039',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869b02',
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
