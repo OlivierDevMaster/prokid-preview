@@ -1,5 +1,13 @@
 import { createFactory } from '@hono/hono/factory';
 import { createClient } from '@supabase/supabase-js';
+import {
+  addMinutes,
+  compareAsc,
+  formatISO,
+  isAfter,
+  isValid,
+  parseISO,
+} from 'date-fns';
 // ! rrule package is a CommonJS package, so we need to import it as a namespace
 // ! and then destructure the rrulestr function from it
 import RRulePkg from 'rrule';
@@ -34,17 +42,20 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
 
       const { endAt, professionalId, startAt } = validationResult.data;
 
-      const startDate = new Date(startAt);
-      const endDate = new Date(endAt);
+      const startDate = parseISO(startAt);
+      const endDate = parseISO(endAt);
 
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      if (!isValid(startDate) || !isValid(endDate)) {
         return apiResponse.badRequest(
           'INVALID_DATE_FORMAT',
           'Invalid date format. Dates must be in ISO 8601 format.'
         );
       }
 
-      if (startDate >= endDate) {
+      if (
+        isAfter(startDate, endDate) ||
+        startDate.getTime() === endDate.getTime()
+      ) {
         return apiResponse.badRequest(
           'INVALID_DATE_RANGE',
           'startAt must be before endAt'
@@ -76,10 +87,10 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
           const occurrences = rule.between(startDate, endDate, true);
 
           for (const occurrence of occurrences) {
-            const slotStartAt = occurrence.toISOString();
-            const slotEndAt = new Date(
-              occurrence.getTime() + availability.duration_mn * 60 * 1000
-            ).toISOString();
+            const slotStartAt = formatISO(occurrence);
+            const slotEndAt = formatISO(
+              addMinutes(occurrence, availability.duration_mn)
+            );
 
             slots.push({
               endAt: slotEndAt,
@@ -94,8 +105,8 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
         }
       }
 
-      slots.sort(
-        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+      slots.sort((a, b) =>
+        compareAsc(parseISO(a.startAt), parseISO(b.startAt))
       );
 
       return apiResponse.ok(slots);
