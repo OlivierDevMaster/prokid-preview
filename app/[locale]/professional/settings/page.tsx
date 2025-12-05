@@ -6,10 +6,10 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import BillingTabContent from '@/features/admin/settings/components/BillingTabContent';
-import { NotificationPreferences } from '@/features/admin/settings/components/NotificationPreferences';
-import { PasswordChangeForm } from '@/features/admin/settings/components/PasswordChangeForm';
-import { PersonalInfoForm } from '@/features/admin/settings/components/PersonalInfoForm';
+import BillingTabContent from '@/features/professional/settings/components/BillingTabContent';
+import { NotificationPreferences } from '@/features/professional/settings/components/NotificationPreferences';
+import { PasswordChangeForm } from '@/features/professional/settings/components/PasswordChangeForm';
+import { PersonalInfoForm } from '@/features/professional/settings/components/PersonalInfoForm';
 import { useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 

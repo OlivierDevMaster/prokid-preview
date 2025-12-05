@@ -7,9 +7,8 @@ import { useRouter } from 'next/navigation';
 import type { Report } from '@/services/admin/reports/report.types';
 
 import { Button } from '@/components/ui/button';
-
-import TableActions from '../../components/TableActions';
-import { TableActionType } from '../../models/table.modele';
+import TableActions from '@/features/admin/components/TableActions';
+import { TableActionType } from '@/features/professional/tables/TableActionType';
 
 type UseReportColumnDefsProps = {
   locale?: string;

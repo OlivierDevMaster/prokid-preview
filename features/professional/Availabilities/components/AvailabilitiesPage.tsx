@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-export default function PlanningPage() {
+export default function AvailabilitiesPage() {
   const t = useTranslations('admin.planning');
   // Initialiser avec une date fixe pour éviter les problèmes d'hydratation
   // Utiliser useState avec une fonction pour garantir la même valeur entre serveur et client

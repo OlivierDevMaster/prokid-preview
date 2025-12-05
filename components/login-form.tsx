@@ -1,8 +1,7 @@
 'use client';
 
 import { Info } from 'lucide-react';
-import { signIn } from 'next-auth/react';
-// import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -12,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { getUser } from '@/services/auth/auth.service';
 
 export function LoginForm({
   className,
@@ -35,10 +35,45 @@ export function LoginForm({
         password,
         redirect: false,
       });
+
       if (result?.error) {
         setError(t('error'));
-      } else {
+        setIsLoading(false);
+        return;
+      }
+
+      // Wait a bit for the session to be available
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Get the session to retrieve user ID
+      const session = await getSession();
+
+      if (!session?.user?.id) {
+        setError(t('error'));
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch user profile to get role
+      const userResult = await getUser(session.user.id);
+
+      if (userResult.error || !userResult.profile) {
+        setError(t('error'));
+        setIsLoading(false);
+        return;
+      }
+
+      const role = userResult.profile.role;
+
+      // Redirect based on role
+      if (role === 'professional') {
+        router.push('/professional');
+      } else if (role === 'structure') {
+        router.push('/structure');
+      } else if (role === 'admin') {
         router.push('/admin');
+      } else {
+        setError(t('error'));
       }
     } catch {
       setError(t('error'));

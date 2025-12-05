@@ -1,6 +1,5 @@
 import type { Report } from '@/services/admin/reports/report.types';
 
-import { createClient } from '@/lib/supabase/client';
 import { callSupabaseFunction } from '@/lib/supabase/functions';
 
 type ReportInsert = {
@@ -39,7 +38,7 @@ export async function createUserReport(
   }
 }
 
-export async function getUserReports(userId: string): Promise<Report[]> {
+export async function getUserReports(): Promise<Report[]> {
   try {
     const result = await callSupabaseFunction<Report[]>('reports', {
       method: 'GET',
@@ -57,7 +56,7 @@ export async function getUserReports(userId: string): Promise<Report[]> {
   }
 }
 
-export async function getUserReports2(userId: string): Promise<Report[]> {
+export async function getUserReports2(): Promise<Report[]> {
   try {
     const result = await callSupabaseFunction<Report[]>('reports', {
       method: 'GET',

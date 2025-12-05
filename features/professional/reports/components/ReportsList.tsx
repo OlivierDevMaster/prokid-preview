@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import TableHeaderActions from '@/features/admin/components/TableHeaderActions';
 
-import TableHeaderActions from '../../components/TableHeaderActions';
 import { useReports } from '../hooks/useReports';
 import useReportTableHeaderActions from '../hooks/useReportTableHeaderActions';
 import { ReportTable } from './ReportTable';
