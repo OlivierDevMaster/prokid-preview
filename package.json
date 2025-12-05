@@ -11,7 +11,9 @@
     "db:reset:local": "supabase db reset --local",
     "db:reset:remote": "supabase db reset --linked",
     "db:generate:local": "supabase gen types typescript --local > types/database/schema.ts",
-    "db:generate:remote": "supabase gen types typescript --linked > types/database/schema.ts"
+    "db:generate:remote": "supabase gen types typescript --linked > types/database/schema.ts",
+    "db:delete-all": "tsx scripts/delete-all-data.ts",
+    "db:delete-all-with-auth": "tsx scripts/delete-all-data-with-auth.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -25,6 +27,7 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@tanstack/react-query": "^5.90.11",
+    "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -37,6 +40,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.68.0",
+    "rrule": "^2.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
     "zod": "^4.1.13"
@@ -57,6 +61,7 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.21.0",
     "type-fest": "^5.3.0",
     "typescript": "^5"
   }

@@ -27,3 +27,4 @@ INSERT INTO public.newsletter_subscriptions (
   NULL
 ) ON CONFLICT (email) DO NOTHING;
 
+

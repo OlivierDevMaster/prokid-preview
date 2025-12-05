@@ -12,7 +12,7 @@ INSERT INTO public.profiles (
   avatar_url,
   is_onboarded
 ) VALUES (
-  '00000000-0000-0000-0000-000000000001',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae1',
   'admin'::public.role,
   'admin@prokid.com',
   'Admin',
