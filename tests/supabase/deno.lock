@@ -23,6 +23,7 @@
     "npm:@supabase/storage-js@2.86.0": "2.86.0",
     "npm:@types/node@*": "24.2.0",
     "npm:change-case@^5.4.4": "5.4.4",
+    "npm:date-fns@^4.1.0": "4.1.0",
     "npm:eslint-config-prettier@^10.1.8": "10.1.8_eslint@9.38.0",
     "npm:eslint-plugin-perfectionist@^4.15.1": "4.15.1_eslint@9.38.0",
     "npm:eslint-plugin-prettier@^5.5.4": "5.5.4_eslint@9.38.0_eslint-config-prettier@10.1.8__eslint@9.38.0_prettier@3.6.2",
@@ -465,6 +466,9 @@
         "shebang-command",
         "which"
       ]
+    },
+    "date-fns@4.1.0": {
+      "integrity": "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="
     },
     "debug@4.4.3": {
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
@@ -1120,6 +1124,7 @@
       "jsr:@supabase/supabase-js@^2.86.0",
       "npm:@eslint/js@^9.38.0",
       "npm:change-case@^5.4.4",
+      "npm:date-fns@^4.1.0",
       "npm:eslint-config-prettier@^10.1.8",
       "npm:eslint-plugin-perfectionist@^4.15.1",
       "npm:eslint-plugin-prettier@^5.5.4",
