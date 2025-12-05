@@ -1,5 +1,4 @@
-import 'jsr:@supabase/functions-js/edge-runtime.d';
-import { serve } from 'https://deno.land/std@0.168.0/http/server';
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 import { apiResponse } from '../_shared/responses';
@@ -11,7 +10,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
 };
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

@@ -331,7 +331,8 @@
       "template2": "Rapport d'observation",
       "template3": "Rapport de suivi",
       "structure2": "Structure 2",
-      "structure3": "Structure 3"
+      "structure3": "Structure 3",
+      "createReport": "Créer un rapport"
     },
     "reports": {
       "title": "Mes Rapports",

@@ -3,11 +3,10 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import 'jsr:@supabase/functions-js/edge-runtime.d';
-import { serve } from 'https://deno.land/std@0.168.0/http/server';
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
-const handler = async req => {
+const handler = async (req: Request) => {
   const data = await req.json();
   const supabase = await createClient();
   const {
@@ -38,4 +37,4 @@ const handler = async req => {
   });
 };
 
-serve(handler);
+Deno.serve(handler);

@@ -17,9 +17,6 @@ export async function GET(
       );
     }
 
-    // Use service role key to bypass RLS and avoid infinite recursion
-    // The RLS policy "Admins can view all profiles" queries the profiles table
-    // which would trigger the same policy again, causing infinite recursion
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -41,8 +38,6 @@ export async function GET(
       }
     );
 
-    // Récupérer le profil depuis la table profiles
-    // Service role key bypasses RLS, avoiding infinite recursion
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select(

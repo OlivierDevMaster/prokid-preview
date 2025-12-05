@@ -20,23 +20,12 @@ export default function useGetAdminNavItems(): NavItem[] {
   const [navItems, setNavItems] = useState<NavItem[]>([]);
 
   const { data } = useQuery({
-    enabled: !!user?.id, // Ne faire la requête que si l'ID existe
+    enabled: !!user?.id,
     queryFn: () => getUser(user?.id as string),
     queryKey: ['user', user?.id],
   });
 
-  /**
-   * Uncomment the code below when the user type is implemented
-   */
   useEffect(() => {
-    // if (!user || !data?.profile) {
-    //   setNavItems([]);
-    //   return;
-    // }
-
-    /**
-     * Should be the user type or user role
-     */
     const profile = data?.profile;
     const items: NavItem[] = [];
 
@@ -58,10 +47,6 @@ export default function useGetAdminNavItems(): NavItem[] {
       });
     }
 
-    /**
-     * This should be like so :
-     *  - if (profile.role === 'admin')
-     */
     if (profile?.role === 'admin') {
       items.push({
         href: '/admin/users',
