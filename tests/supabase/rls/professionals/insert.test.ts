@@ -66,6 +66,34 @@ describe('Professionals RLS - INSERT', () => {
     assertEquals(error.code, '42501');
   });
 
+  it('should prevent authenticated users (non-professionals) from creating professional profiles', async () => {
+    const user = await fixtureBuilder.createAuthenticatedUser();
+    fixtures.push(user);
+
+    const authenticatedClient = supabaseClient.createAuthenticatedClient(
+      user.token
+    );
+    const { data, error } = await authenticatedClient
+      .from('professionals')
+      .insert({
+        city: 'Paris',
+        description: 'Test professional',
+        experience_years: 5,
+        hourly_rate: 50.0,
+        intervention_radius_km: 10,
+        phone: '+33123456789',
+        postal_code: '75001',
+        professional_email: user.email,
+        skills: ['skill1', 'skill2'],
+        user_id: user.userId,
+      })
+      .select();
+
+    assertEquals(data, null);
+    assertExists(error);
+    assertEquals(error.code, '42501');
+  });
+
   it('should allow users to create their own professional profile', async () => {
     const professional = await fixtureBuilder.createProfessionalUser();
     fixtures.push(professional);
