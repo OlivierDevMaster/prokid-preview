@@ -116,7 +116,9 @@ async function deleteAllData() {
         totalDeleted++;
       }
 
-      console.log(`  ✓ Deleted ${users.length} user(s) (total: ${totalDeleted})`);
+      console.log(
+        `  ✓ Deleted ${users.length} user(s) (total: ${totalDeleted})`
+      );
 
       // Check if there are more users
       if (users.length < 100) {
@@ -138,4 +140,3 @@ async function deleteAllData() {
 
 // Run the script
 deleteAllData();
-
