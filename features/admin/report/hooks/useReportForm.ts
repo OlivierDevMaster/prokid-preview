@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 
 import { createClient } from '@/lib/supabase/client';
 
-import type { ReportFormData } from '../schemas/report.schema';
-
-import { reportFormSchema } from '../schemas/report.schema';
+import {
+  type ReportFormData,
+  reportFormSchema,
+} from '../schemas/report.schema';
 import { createUserReport } from '../services/report.service';
 
 export function useReportForm() {

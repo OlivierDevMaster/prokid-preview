@@ -11,6 +11,7 @@ WHERE role = 'professional'::public.role
 
 -- Insert professional profiles
 INSERT INTO public.professionals (
+  id,
   user_id,
   city,
   postal_code,
@@ -27,9 +28,10 @@ INSERT INTO public.professionals (
   skills,
   is_certified,
   stripe_customer_id
-) VALUES 
+) VALUES
 -- Original 3 professionals
 (
+  '20000000-0000-0000-0000-000000000010',
   '00000000-0000-0000-0000-000000000010',
   'Paris',
   '75001',
@@ -48,6 +50,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000011',
   '00000000-0000-0000-0000-000000000011',
   'Lyon',
   '69001',
@@ -66,6 +69,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000012',
   '00000000-0000-0000-0000-000000000012',
   'Marseille',
   '13001',
@@ -85,6 +89,7 @@ INSERT INTO public.professionals (
 ),
 -- Additional professionals
 (
+  '20000000-0000-0000-0000-000000000013',
   '00000000-0000-0000-0000-000000000013',
   'Toulouse',
   '31000',
@@ -103,6 +108,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000014',
   '00000000-0000-0000-0000-000000000014',
   'Nice',
   '06000',
@@ -121,6 +127,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000015',
   '00000000-0000-0000-0000-000000000015',
   'Nantes',
   '44000',
@@ -139,6 +146,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000016',
   '00000000-0000-0000-0000-000000000016',
   'Strasbourg',
   '67000',
@@ -157,6 +165,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000017',
   '00000000-0000-0000-0000-000000000017',
   'Bordeaux',
   '33000',
@@ -175,6 +184,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000018',
   '00000000-0000-0000-0000-000000000018',
   'Lille',
   '59000',
@@ -193,6 +203,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-000000000019',
   '00000000-0000-0000-0000-000000000019',
   'Rennes',
   '35000',
@@ -211,6 +222,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001a',
   '00000000-0000-0000-0000-00000000001a',
   'Montpellier',
   '34000',
@@ -229,6 +241,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001b',
   '00000000-0000-0000-0000-00000000001b',
   'Reims',
   '51100',
@@ -247,6 +260,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001c',
   '00000000-0000-0000-0000-00000000001c',
   'Le Havre',
   '76600',
@@ -265,6 +279,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001d',
   '00000000-0000-0000-0000-00000000001d',
   'Saint-Étienne',
   '42000',
@@ -283,6 +298,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001e',
   '00000000-0000-0000-0000-00000000001e',
   'Toulon',
   '83000',
@@ -301,6 +317,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
+  '20000000-0000-0000-0000-00000000001f',
   '00000000-0000-0000-0000-00000000001f',
   'Grenoble',
   '38000',
@@ -319,114 +336,7 @@ INSERT INTO public.professionals (
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000020',
-  'Dijon',
-  '21000',
-  20.0,
-  'romain.lefebvre@example.com',
-  '+33999000111',
-  'Professional with strong background in mathematics and logical thinking activities. Makes learning fun through games.',
-  6,
-  24.50,
-  NOW(),
-  TRUE,
-  4.5,
-  14,
-  ARRAY['Mathematics Education', 'Logical Thinking', 'Educational Games', 'Problem Solving'],
-  TRUE,
-  NULL
-),
-(
-  '00000000-0000-0000-0000-000000000021',
-  'Angers',
-  '49000',
-  22.0,
-  'julie.roussel@example.com',
-  '+33111222333',
-  'Certified professional specializing in cultural activities and diversity education. Organizes multicultural events.',
-  5,
-  23.00,
-  NOW(),
-  TRUE,
-  4.4,
-  12,
-  ARRAY['Cultural Activities', 'Diversity Education', 'Multicultural Events', 'Cultural Awareness'],
-  TRUE,
-  NULL
-),
-(
-  '00000000-0000-0000-0000-000000000022',
-  'Nîmes',
-  '30000',
-  18.0,
-  'quentin.colin@example.com',
-  '+33222333444',
-  'Professional with expertise in theater and drama activities. Uses role-playing to develop communication skills.',
-  4,
-  21.50,
-  NULL,
-  TRUE,
-  4.2,
-  8,
-  ARRAY['Theater Activities', 'Drama Education', 'Role-Playing', 'Communication Skills'],
-  FALSE,
-  NULL
-),
-(
-  '00000000-0000-0000-0000-000000000020',
-  'Dijon',
-  '21000',
-  20.0,
-  'romain.lefebvre@example.com',
-  '+33999000111',
-  'Professional with strong background in mathematics and logical thinking activities. Makes learning fun through games.',
-  6,
-  24.50,
-  NOW(),
-  TRUE,
-  4.5,
-  14,
-  ARRAY['Mathematics Education', 'Logical Thinking', 'Educational Games', 'Problem Solving'],
-  TRUE,
-  NULL
-),
-(
-  '00000000-0000-0000-0000-000000000021',
-  'Angers',
-  '49000',
-  22.0,
-  'julie.roussel@example.com',
-  '+33111222333',
-  'Certified professional specializing in cultural activities and diversity education. Organizes multicultural events.',
-  5,
-  23.00,
-  NOW(),
-  TRUE,
-  4.4,
-  12,
-  ARRAY['Cultural Activities', 'Diversity Education', 'Multicultural Events', 'Cultural Awareness'],
-  TRUE,
-  NULL
-),
-(
-  '00000000-0000-0000-0000-000000000022',
-  'Nîmes',
-  '30000',
-  18.0,
-  'quentin.colin@example.com',
-  '+33222333444',
-  'Professional with expertise in theater and drama activities. Uses role-playing to develop communication skills.',
-  4,
-  21.50,
-  NULL,
-  TRUE,
-  4.2,
-  8,
-  ARRAY['Theater Activities', 'Drama Education', 'Role-Playing', 'Communication Skills'],
-  FALSE,
-  NULL
-),
-(
+  '20000000-0000-0000-0000-000000000023',
   '00000000-0000-0000-0000-000000000023',
   'Villeurbanne',
   '69100',
@@ -443,4 +353,4 @@ INSERT INTO public.professionals (
   ARRAY['Mindfulness', 'Relaxation Techniques', 'Emotional Well-being', 'Stress Management'],
   TRUE,
   NULL
-) ON CONFLICT (user_id) DO NOTHING;
+) ON CONFLICT (user_id) DO UPDATE SET id = EXCLUDED.id;
