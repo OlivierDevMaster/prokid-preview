@@ -58,13 +58,25 @@ describe('Availabilities RLS - DELETE', () => {
     assertExists(availability);
 
     const unauthenticatedClient = supabaseClient.createUnauthenticatedClient();
-    const { error } = await unauthenticatedClient
+    const { error, data } = await unauthenticatedClient
       .from('availabilities')
       .delete()
-      .eq('id', availability.id);
+      .eq('id', availability.id)
+      .select();
 
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('availabilities')
+      .select('id')
+      .eq('id', availability.id)
+      .single();
+
+    assertExists(stillExists);
   });
 
   it('should allow professionals to delete their own availabilities', async () => {
@@ -87,12 +99,15 @@ describe('Availabilities RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional.token
     );
-    const { error } = await authenticatedClient
+    const { error, data } = await authenticatedClient
       .from('availabilities')
       .delete()
-      .eq('id', availability.id);
+      .eq('id', availability.id)
+      .select();
 
     assertEquals(error, null);
+    assertExists(data);
+    assertEquals(data.length, 1);
 
     const { data: deleted } = await adminClient
       .from('availabilities')
@@ -124,13 +139,25 @@ describe('Availabilities RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional1.token
     );
-    const { error } = await authenticatedClient
+    const { error, data } = await authenticatedClient
       .from('availabilities')
       .delete()
-      .eq('id', availability.id);
+      .eq('id', availability.id)
+      .select();
 
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('availabilities')
+      .select('id')
+      .eq('id', availability.id)
+      .single();
+
+    assertExists(stillExists);
   });
 
   it('should allow admins to delete any availability', async () => {
@@ -154,12 +181,15 @@ describe('Availabilities RLS - DELETE', () => {
     const adminAuthClient = supabaseClient.createAuthenticatedClient(
       admin.token
     );
-    const { error } = await adminAuthClient
+    const { error, data } = await adminAuthClient
       .from('availabilities')
       .delete()
-      .eq('id', availability.id);
+      .eq('id', availability.id)
+      .select();
 
     assertEquals(error, null);
+    assertExists(data);
+    assertEquals(data.length, 1);
 
     const { data: deleted } = await adminClient
       .from('availabilities')
