@@ -32,6 +32,25 @@ CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletter_
   TO anon, authenticated
   WITH CHECK (TRUE);
 
+-- Admins can view all subscriptions
+CREATE POLICY "Admins can view all subscriptions" ON "public"."newsletter_subscriptions"
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT public.is_admin()));
+
+-- Admins can update subscriptions
+CREATE POLICY "Admins can update subscriptions" ON "public"."newsletter_subscriptions"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
+
+-- Admins can delete subscriptions
+CREATE POLICY "Admins can delete subscriptions" ON "public"."newsletter_subscriptions"
+  FOR DELETE
+  TO authenticated
+  USING ((SELECT public.is_admin()));
+
 -- ============================================================================
 -- Model: profiles
 -- ============================================================================
@@ -64,11 +83,11 @@ CREATE INDEX IF NOT EXISTS "idx_profiles_is_onboarded" ON "public"."profiles" ("
 -- RLS
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own profile
-CREATE POLICY "Users can view their own profile" ON "public"."profiles"
+-- Anyone can view all profiles
+CREATE POLICY "Anyone can view all profiles" ON "public"."profiles"
   FOR SELECT
-  TO authenticated
-  USING ((SELECT auth.uid()) = "user_id");
+  TO authenticated, anon
+  USING (TRUE);
 
 -- Users can update their own profile
 CREATE POLICY "Users can update their own profile" ON "public"."profiles"
@@ -77,12 +96,6 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
   USING ((SELECT auth.uid()) = "user_id")
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
--- Admins can view all profiles
-CREATE POLICY "Admins can view all profiles" ON "public"."profiles"
-  FOR SELECT
-  TO authenticated
-  USING ((SELECT public.is_admin()));
-
 -- Admins can update all profiles
 CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
   FOR UPDATE
@@ -90,11 +103,11 @@ CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
   USING ((SELECT public.is_admin()))
   WITH CHECK ((SELECT public.is_admin()));
 
--- Admins can insert profiles
-CREATE POLICY "Admins can insert profiles" ON "public"."profiles"
-  FOR INSERT
+-- Users can delete their own profile
+CREATE POLICY "Users can delete their own profile" ON "public"."profiles"
+  FOR DELETE
   TO authenticated
-  WITH CHECK ((SELECT public.is_admin()));
+  USING ((SELECT auth.uid()) = "user_id");
 
 -- Admins can delete profiles
 CREATE POLICY "Admins can delete profiles" ON "public"."profiles"
@@ -177,7 +190,14 @@ CREATE POLICY "Users can view all professionals" ON "public"."professionals"
 CREATE POLICY "Users can create their own professional profile" ON "public"."professionals"
   FOR INSERT
   TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
+  WITH CHECK (
+    (SELECT auth.uid()) = "user_id"
+    AND EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'professional'
+    )
+  );
 
 -- Users can update their own professional profile
 CREATE POLICY "Users can update their own professional profile" ON "public"."professionals"
@@ -252,7 +272,14 @@ CREATE POLICY "Everyone can view structures" ON "public"."structures"
 CREATE POLICY "Users can insert their own structure profile" ON "public"."structures"
   FOR INSERT
   TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
+  WITH CHECK (
+    (SELECT auth.uid()) = "user_id"
+    AND EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'structure'
+    )
+  );
 
 -- Users can update their own structure profile
 CREATE POLICY "Users can update their own structure profile" ON "public"."structures"

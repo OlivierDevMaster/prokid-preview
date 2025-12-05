@@ -22,7 +22,10 @@ describe('Validation errors', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new AvailabilityFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new AvailabilityFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new AvailabilityCleanupHelper(adminClient);
   });
 
@@ -35,7 +38,8 @@ describe('Validation errors', () => {
   it('should return validation error for missing professionalId', async () => {
     // Arrange
     fixture = await fixtureBuilder.createProfessionalWithoutAvailabilities();
-    const queryParams = AvailabilityTestData.invalidQueryParamsMissingProfessionalId;
+    const queryParams =
+      AvailabilityTestData.invalidQueryParamsMissingProfessionalId;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -100,8 +104,8 @@ describe('Validation errors', () => {
     fixture = await fixtureBuilder.createProfessionalWithoutAvailabilities();
     const queryParams = {
       ...AvailabilityTestData.invalidQueryParamsInvalidProfessionalId,
-      startAt: AvailabilityTestData.validQueryParams.startAt,
       endAt: AvailabilityTestData.validQueryParams.endAt,
+      startAt: AvailabilityTestData.validQueryParams.startAt,
     };
 
     // Act
@@ -206,4 +210,3 @@ describe('Validation errors', () => {
     AvailabilityAssertions.assertContentType(response);
   });
 });
-

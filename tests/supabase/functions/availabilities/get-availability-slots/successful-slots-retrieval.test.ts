@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// deno-lint-ignore-file no-explicit-any
+
 import { assertEquals } from '@std/assert';
 import '@std/dotenv/load';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
@@ -23,7 +26,10 @@ describe('Successful availability slots retrieval', () => {
     supabaseClient = SupabaseTestClient.getInstance();
     const adminClient = supabaseClient.createAdminClient();
     apiHelper = new ApiTestHelper(supabaseClient);
-    fixtureBuilder = new AvailabilityFixtureBuilder(adminClient, supabaseClient);
+    fixtureBuilder = new AvailabilityFixtureBuilder(
+      adminClient,
+      supabaseClient
+    );
     cleanupHelper = new AvailabilityCleanupHelper(adminClient);
   });
 
@@ -89,7 +95,8 @@ describe('Successful availability slots retrieval', () => {
 
   it('should retrieve slots for professional with multiple availabilities', async () => {
     // Arrange
-    fixture = await fixtureBuilder.createProfessionalWithMultipleAvailabilities();
+    fixture =
+      await fixtureBuilder.createProfessionalWithMultipleAvailabilities();
     const queryParams = {
       ...AvailabilityTestData.validQueryParams,
       professionalId: fixture.professionalId!,
@@ -180,4 +187,3 @@ describe('Successful availability slots retrieval', () => {
     );
   });
 });
-

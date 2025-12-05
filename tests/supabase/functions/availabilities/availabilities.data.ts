@@ -1,39 +1,45 @@
 export const AvailabilityTestData = {
-  // Valid query parameters
-  validQueryParams: {
-    professionalId: '550e8400-e29b-41d4-a716-446655440000',
-    startAt: '2025-01-01T00:00:00Z',
-    endAt: '2025-01-31T23:59:59Z',
-  },
-
   // Edge cases
   edgeCaseLargeDateRange: {
-    professionalId: '550e8400-e29b-41d4-a716-446655440000',
-    startAt: '2025-01-01T00:00:00Z',
     endAt: '2025-12-31T23:59:59Z', // Full year
-  },
-
-  edgeCaseSmallDateRange: {
     professionalId: '550e8400-e29b-41d4-a716-446655440000',
     startAt: '2025-01-01T00:00:00Z',
-    endAt: '2025-01-01T23:59:59Z', // Single day
   },
 
   edgeCaseSameDay: {
-    professionalId: '550e8400-e29b-41d4-a716-446655440000',
-    startAt: '2025-01-01T00:00:00Z',
     endAt: '2025-01-01T23:59:59Z',
-  },
-
-  // Invalid query parameters
-  invalidQueryParamsMissingProfessionalId: {
-    startAt: '2025-01-01T00:00:00Z',
-    endAt: '2025-01-31T23:59:59Z',
-  },
-
-  invalidQueryParamsMissingStartAt: {
     professionalId: '550e8400-e29b-41d4-a716-446655440000',
+    startAt: '2025-01-01T00:00:00Z',
+  },
+
+  edgeCaseSmallDateRange: {
+    endAt: '2025-01-01T23:59:59Z', // Single day
+    professionalId: '550e8400-e29b-41d4-a716-446655440000',
+    startAt: '2025-01-01T00:00:00Z',
+  },
+
+  // Expected response structures
+  expectedSlotStructure: {
+    endAt: 'string',
+    startAt: 'string',
+  },
+
+  invalidQueryParamsInvalidEndAt: {
+    endAt: 'invalid-date',
+    professionalId: '550e8400-e29b-41d4-a716-446655440000',
+    startAt: '2025-01-01T00:00:00Z',
+  },
+
+  invalidQueryParamsInvalidProfessionalId: {
     endAt: '2025-01-31T23:59:59Z',
+    professionalId: 'invalid-uuid',
+    startAt: '2025-01-01T00:00:00Z',
+  },
+
+  invalidQueryParamsInvalidStartAt: {
+    endAt: '2025-01-31T23:59:59Z',
+    professionalId: '550e8400-e29b-41d4-a716-446655440000',
+    startAt: 'invalid-date',
   },
 
   invalidQueryParamsMissingEndAt: {
@@ -41,34 +47,27 @@ export const AvailabilityTestData = {
     startAt: '2025-01-01T00:00:00Z',
   },
 
-  invalidQueryParamsInvalidProfessionalId: {
-    professionalId: 'invalid-uuid',
-    startAt: '2025-01-01T00:00:00Z',
+  // Invalid query parameters
+  invalidQueryParamsMissingProfessionalId: {
     endAt: '2025-01-31T23:59:59Z',
+    startAt: '2025-01-01T00:00:00Z',
   },
 
-  invalidQueryParamsInvalidStartAt: {
-    professionalId: '550e8400-e29b-41d4-a716-446655440000',
-    startAt: 'invalid-date',
+  invalidQueryParamsMissingStartAt: {
     endAt: '2025-01-31T23:59:59Z',
-  },
-
-  invalidQueryParamsInvalidEndAt: {
     professionalId: '550e8400-e29b-41d4-a716-446655440000',
-    startAt: '2025-01-01T00:00:00Z',
-    endAt: 'invalid-date',
   },
 
   invalidQueryParamsStartAfterEnd: {
+    endAt: '2025-01-01T00:00:00Z', // Start after end
     professionalId: '550e8400-e29b-41d4-a716-446655440000',
     startAt: '2025-01-31T23:59:59Z',
-    endAt: '2025-01-01T00:00:00Z', // Start after end
   },
 
   invalidQueryParamsStartEqualsEnd: {
+    endAt: '2025-01-01T00:00:00Z', // Start equals end
     professionalId: '550e8400-e29b-41d4-a716-446655440000',
     startAt: '2025-01-01T00:00:00Z',
-    endAt: '2025-01-01T00:00:00Z', // Start equals end
   },
 
   // Test UUIDs
@@ -81,10 +80,10 @@ export const AvailabilityTestData = {
     valid3: '550e8400-e29b-41d4-a716-446655440002',
   },
 
-  // Expected response structures
-  expectedSlotStructure: {
-    startAt: 'string',
-    endAt: 'string',
+  // Valid query parameters
+  validQueryParams: {
+    endAt: '2025-01-31T23:59:59Z',
+    professionalId: '550e8400-e29b-41d4-a716-446655440000',
+    startAt: '2025-01-01T00:00:00Z',
   },
 };
-
