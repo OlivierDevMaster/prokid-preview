@@ -177,7 +177,14 @@ CREATE POLICY "Users can view all professionals" ON "public"."professionals"
 CREATE POLICY "Users can create their own professional profile" ON "public"."professionals"
   FOR INSERT
   TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
+  WITH CHECK (
+    (SELECT auth.uid()) = "user_id"
+    AND EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'professional'
+    )
+  );
 
 -- Users can update their own professional profile
 CREATE POLICY "Users can update their own professional profile" ON "public"."professionals"
@@ -252,7 +259,14 @@ CREATE POLICY "Everyone can view structures" ON "public"."structures"
 CREATE POLICY "Users can insert their own structure profile" ON "public"."structures"
   FOR INSERT
   TO authenticated
-  WITH CHECK ((SELECT auth.uid()) = "user_id");
+  WITH CHECK (
+    (SELECT auth.uid()) = "user_id"
+    AND EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE user_id = (SELECT auth.uid())
+      AND role = 'structure'
+    )
+  );
 
 -- Users can update their own structure profile
 CREATE POLICY "Users can update their own structure profile" ON "public"."structures"
