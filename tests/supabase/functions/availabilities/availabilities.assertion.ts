@@ -136,8 +136,10 @@ export class AvailabilityAssertions {
     assertExists(slot);
     assertExists(slot.startAt);
     assertExists(slot.endAt);
+    assertExists(slot.durationMn);
     assertEquals(typeof slot.startAt, 'string');
     assertEquals(typeof slot.endAt, 'string');
+    assertEquals(typeof slot.durationMn, 'number');
 
     // Validate ISO 8601 date format
     const startDate = new Date(slot.startAt);
@@ -149,6 +151,9 @@ export class AvailabilityAssertions {
 
     // End date should be after start date
     assertEquals(endDate > startDate, true);
+
+    // Duration should be positive
+    assertEquals(slot.durationMn > 0, true);
   }
 
   /**

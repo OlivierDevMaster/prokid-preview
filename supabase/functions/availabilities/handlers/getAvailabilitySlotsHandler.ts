@@ -93,6 +93,7 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
             );
 
             slots.push({
+              durationMn: availability.duration_mn,
               endAt: slotEndAt,
               startAt: slotStartAt,
             });
