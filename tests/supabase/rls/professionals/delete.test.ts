@@ -45,13 +45,25 @@ describe('Professionals RLS - DELETE', () => {
     fixtures.push(professional);
 
     const unauthenticatedClient = supabaseClient.createUnauthenticatedClient();
-    const { error } = await unauthenticatedClient
+    const { data, error } = await unauthenticatedClient
       .from('professionals')
       .delete()
-      .eq('user_id', professional.professionalId!);
+      .eq('user_id', professional.professionalId!)
+      .select();
 
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('professionals')
+      .select('user_id')
+      .eq('user_id', professional.professionalId!)
+      .single();
+
+    assertExists(stillExists);
   });
 
   it('should prevent professionals from deleting their own profile', async () => {
@@ -61,13 +73,25 @@ describe('Professionals RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional.token
     );
-    const { error } = await authenticatedClient
+    const { data, error } = await authenticatedClient
       .from('professionals')
       .delete()
-      .eq('user_id', professional.professionalId!);
+      .eq('user_id', professional.professionalId!)
+      .select();
 
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('professionals')
+      .select('user_id')
+      .eq('user_id', professional.professionalId!)
+      .single();
+
+    assertExists(stillExists);
   });
 
   it("should prevent professionals from deleting other professionals' profiles", async () => {
@@ -78,13 +102,25 @@ describe('Professionals RLS - DELETE', () => {
     const authenticatedClient = supabaseClient.createAuthenticatedClient(
       professional1.token
     );
-    const { error } = await authenticatedClient
+    const { data, error } = await authenticatedClient
       .from('professionals')
       .delete()
-      .eq('user_id', professional2.professionalId!);
+      .eq('user_id', professional2.professionalId!)
+      .select();
 
-    assertExists(error);
-    assertEquals(error.code, '42501');
+    if (error) {
+      assertEquals(error.code, '42501');
+    } else {
+      assertEquals(data, []);
+    }
+
+    const { data: stillExists } = await adminClient
+      .from('professionals')
+      .select('user_id')
+      .eq('user_id', professional2.professionalId!)
+      .single();
+
+    assertExists(stillExists);
   });
 
   it('should allow admins to delete any professional profile', async () => {
@@ -95,12 +131,15 @@ describe('Professionals RLS - DELETE', () => {
     const adminAuthClient = supabaseClient.createAuthenticatedClient(
       admin.token
     );
-    const { error } = await adminAuthClient
+    const { data, error } = await adminAuthClient
       .from('professionals')
       .delete()
-      .eq('user_id', professional.professionalId!);
+      .eq('user_id', professional.professionalId!)
+      .select();
 
     assertEquals(error, null);
+    assertExists(data);
+    assertEquals(data.length, 1);
 
     const { data: deleted } = await adminClient
       .from('professionals')

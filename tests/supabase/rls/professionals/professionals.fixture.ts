@@ -92,6 +92,24 @@ export class ProfessionalRlsFixtureBuilder {
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
+    const { error: profileError } = await this.adminClient
+      .from('profiles')
+      .insert({
+        user_id: userId,
+        role: 'admin',
+        email,
+        first_name: 'Test',
+        last_name: 'Admin',
+      });
+
+    if (profileError) {
+      throw new Error(
+        `Failed to create admin profile: ${profileError.message}`
+      );
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     const authClient =
       this.supabaseClient.createAuthenticatedClient('dummy-token');
 
