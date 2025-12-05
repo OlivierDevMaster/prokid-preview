@@ -17,4 +17,10 @@ export interface AvailabilitySlot {
   startAt: string;
 }
 
+export interface AvailabilitySlotFilters {
+  endAt: string;
+  professionalId: string;
+  startAt: string;
+}
+
 export type AvailabilityUpdate = TablesUpdate<'availabilities'>;

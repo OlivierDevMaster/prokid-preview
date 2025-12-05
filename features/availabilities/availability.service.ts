@@ -1,9 +1,12 @@
 import { createClient } from '@/lib/supabase/client';
+import { invokeEdgeFunction } from '@/lib/supabase/edge-functions';
 
 import type {
   Availability,
   AvailabilityFilters,
   AvailabilityInsert,
+  AvailabilitySlot,
+  AvailabilitySlotFilters,
   AvailabilityUpdate,
 } from './availability.model';
 
@@ -100,4 +103,25 @@ export const getAvailabilities = async (
     count: count ?? 0,
     data: data ?? [],
   };
+};
+
+export const findAvailabilitySlots = async (
+  filters: AvailabilitySlotFilters
+): Promise<AvailabilitySlot[]> => {
+  const supabase = createClient();
+
+  const data = await invokeEdgeFunction<AvailabilitySlot[]>(
+    supabase,
+    'availabilities',
+    {
+      path: '/slots',
+      queryParams: {
+        endAt: filters.endAt,
+        professionalId: filters.professionalId,
+        startAt: filters.startAt,
+      },
+    }
+  );
+
+  return data;
 };
