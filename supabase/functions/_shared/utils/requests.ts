@@ -119,7 +119,6 @@ export const validateRequestQuery = <T>(
       success: false;
     } => {
   const queryParams = request.query();
-  console.log(queryParams);
 
   const parseResult = schema.safeParse(queryParams);
 
