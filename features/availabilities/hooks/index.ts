@@ -3,4 +3,5 @@ export * from './useDeleteAvailability';
 export * from './useFindAvailabilities';
 export * from './useFindAvailability';
 export * from './useFindAvailabilitySlots';
+export * from './useGroupedAvailabilitySlots';
 export * from './useUpdateAvailability';
