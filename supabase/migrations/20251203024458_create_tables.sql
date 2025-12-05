@@ -32,6 +32,25 @@ CREATE POLICY "Allow public to subscribe to newsletter" ON "public"."newsletter_
   TO anon, authenticated
   WITH CHECK (TRUE);
 
+-- Admins can view all subscriptions
+CREATE POLICY "Admins can view all subscriptions" ON "public"."newsletter_subscriptions"
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT public.is_admin()));
+
+-- Admins can update subscriptions
+CREATE POLICY "Admins can update subscriptions" ON "public"."newsletter_subscriptions"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
+
+-- Admins can delete subscriptions
+CREATE POLICY "Admins can delete subscriptions" ON "public"."newsletter_subscriptions"
+  FOR DELETE
+  TO authenticated
+  USING ((SELECT public.is_admin()));
+
 -- ============================================================================
 -- Model: profiles
 -- ============================================================================

@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from '@std/assert';
+import { assertEquals } from '@std/assert';
 import '@std/dotenv/load';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
