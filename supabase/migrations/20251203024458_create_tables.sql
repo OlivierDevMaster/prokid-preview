@@ -64,11 +64,11 @@ CREATE INDEX IF NOT EXISTS "idx_profiles_is_onboarded" ON "public"."profiles" ("
 -- RLS
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own profile
-CREATE POLICY "Users can view their own profile" ON "public"."profiles"
+-- Anyone can view all profiles
+CREATE POLICY "Anyone can view all profiles" ON "public"."profiles"
   FOR SELECT
-  TO authenticated
-  USING ((SELECT auth.uid()) = "user_id");
+  TO authenticated, anon
+  USING (TRUE);
 
 -- Users can update their own profile
 CREATE POLICY "Users can update their own profile" ON "public"."profiles"
@@ -77,12 +77,6 @@ CREATE POLICY "Users can update their own profile" ON "public"."profiles"
   USING ((SELECT auth.uid()) = "user_id")
   WITH CHECK ((SELECT auth.uid()) = "user_id");
 
--- Admins can view all profiles
-CREATE POLICY "Admins can view all profiles" ON "public"."profiles"
-  FOR SELECT
-  TO authenticated
-  USING ((SELECT public.is_admin()));
-
 -- Admins can update all profiles
 CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
   FOR UPDATE
@@ -90,11 +84,11 @@ CREATE POLICY "Admins can update all profiles" ON "public"."profiles"
   USING ((SELECT public.is_admin()))
   WITH CHECK ((SELECT public.is_admin()));
 
--- Admins can insert profiles
-CREATE POLICY "Admins can insert profiles" ON "public"."profiles"
-  FOR INSERT
+-- Users can delete their own profile
+CREATE POLICY "Users can delete their own profile" ON "public"."profiles"
+  FOR DELETE
   TO authenticated
-  WITH CHECK ((SELECT public.is_admin()));
+  USING ((SELECT auth.uid()) = "user_id");
 
 -- Admins can delete profiles
 CREATE POLICY "Admins can delete profiles" ON "public"."profiles"
