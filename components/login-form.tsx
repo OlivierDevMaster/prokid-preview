@@ -2,6 +2,7 @@
 
 import { Info } from 'lucide-react';
 import { signIn } from 'next-auth/react';
+// import { signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -34,7 +35,6 @@ export function LoginForm({
         password,
         redirect: false,
       });
-
       if (result?.error) {
         setError(t('error'));
       } else {

@@ -10,10 +10,10 @@ import {
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 
-import { AvailabilityCalendar } from '@/components/professional/availability-calendar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
 import { Link } from '@/i18n/routing';
 
 // Mock data - À remplacer par un appel API/service

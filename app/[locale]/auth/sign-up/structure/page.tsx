@@ -1,4 +1,4 @@
-import { StructureSignUpForm } from '@/components/structure/StructureSignUpForm';
+import { StructureSignUpForm } from '@/features/structure/StructureSignUpForm';
 
 export default function StructureSignUpPage() {
   return (

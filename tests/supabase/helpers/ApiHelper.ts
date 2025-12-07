@@ -26,7 +26,7 @@ export class ApiTestHelper {
 
     const client = token
       ? this.supabaseClientFactory.createAuthenticatedClient(token)
-      : this.supabaseClientFactory.createAnonymousClient();
+      : this.supabaseClientFactory.createUnauthenticatedClient();
 
     // Build the function name with path and query parameters
     let functionName = name;

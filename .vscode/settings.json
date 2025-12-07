@@ -1,4 +1,58 @@
 {
+  // Force LF line endings
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // EditorConfig
+  "editorconfig.enable": true,
+
+  // Prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // TypeScript/JavaScript
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // JSON
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // Markdown
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // Ignore TypeScript errors for Deno functions
+  "typescript.validate.enable": true,
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true
+  },
+
+  // Deno configuration (if Deno extension is installed)
+  "deno.enable": true,
   "deno.enablePaths": ["supabase/functions", "tests/supabase"],
   "deno.lint": true,
   "deno.unstable": [
@@ -16,7 +70,5 @@
     "http",
     "net"
   ],
-  "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  }
+  "cSpell.words": ["rrule"]
 }

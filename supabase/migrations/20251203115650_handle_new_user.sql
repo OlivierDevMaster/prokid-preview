@@ -98,3 +98,43 @@ CREATE TRIGGER on_auth_user_email_updated
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_user_email_update();
 
+-- ============================================================================
+-- Function: prevent_profile_email_role_update
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.prevent_profile_email_role_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+BEGIN
+  -- Allow email updates from system functions (handle_user_email_update uses SECURITY DEFINER)
+  -- System roles like 'postgres', 'supabase_admin', 'service_role' can update email
+  -- Regular authenticated users cannot update email directly
+  IF OLD.email IS DISTINCT FROM NEW.email THEN
+    IF current_user NOT IN ('postgres', 'supabase_admin', 'service_role') THEN
+      RAISE EXCEPTION 'Email cannot be updated directly. Email updates are handled automatically when auth.users email changes.';
+    END IF;
+  END IF;
+
+  -- Prevent role updates from all users (including system)
+  IF OLD.role IS DISTINCT FROM NEW.role THEN
+    RAISE EXCEPTION 'Role cannot be updated directly.';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.prevent_profile_email_role_update() IS 'Prevents direct updates to email and role fields in profiles table. Email updates are only allowed from system functions.';
+
+-- ============================================================================
+-- Trigger: prevent_profile_email_role_update_trigger
+-- ============================================================================
+
+CREATE TRIGGER prevent_profile_email_role_update_trigger
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_email_role_update();
+

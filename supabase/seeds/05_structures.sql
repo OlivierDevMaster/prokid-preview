@@ -6,62 +6,62 @@
 UPDATE public.profiles
 SET is_onboarded = TRUE
 WHERE role = 'structure'::public.role
-  AND user_id >= '00000000-0000-0000-0000-000000000030'::uuid
-  AND user_id <= '00000000-0000-0000-0000-000000000039'::uuid;
+  AND user_id >= '08fb0a72-ee9b-4771-bf24-7fe19c869af9'::uuid
+  AND user_id <= '08fb0a72-ee9b-4771-bf24-7fe19c869b02'::uuid;
 
 -- Insert structure profiles
 INSERT INTO public.structures (
   user_id,
   name,
   stripe_customer_id
-) VALUES 
+) VALUES
 (
-  '00000000-0000-0000-0000-000000000030',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
   'Happy Kids Daycare Center',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000031',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869afa',
   'Sunshine Childcare Services',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000032',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869afb',
   'Little Stars Nursery',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000033',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869afc',
   'Rainbow Children Center',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000034',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
   'Butterfly Daycare',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000035',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869afe',
   'Wonderland Childcare',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000036',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aff',
   'Little Explorers Academy',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000037',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869b00',
   'Bright Future Daycare',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000038',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869b01',
   'Tiny Tots Nursery',
   NULL
 ),
 (
-  '00000000-0000-0000-0000-000000000039',
+  '08fb0a72-ee9b-4771-bf24-7fe19c869b02',
   'Growing Minds Center',
   NULL
 ) ON CONFLICT (user_id) DO NOTHING;
