@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 
 import { AdminNavbar } from '@/features/admin/layout/AdminNavbar';
-import { AdminSidebar } from '@/features/admin/layout/Sidebar';
+import { AdminSidebar } from '@/features/admin/layout/sidebar';
 import { useRouter } from '@/i18n/routing';
 
 export default function ProtectedLayout({

@@ -18,7 +18,7 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { href: '/professional', label: t('professionals') },
+    { href: '/professionals', label: t('professionals') },
     { href: '/how-it-works', label: t('howItWorks') },
   ];
 

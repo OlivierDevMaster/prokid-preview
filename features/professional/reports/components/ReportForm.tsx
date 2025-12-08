@@ -23,15 +23,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+import useGetStructures from '../../structures/hooks/useGetStructures';
 import { useReportForm } from '../hooks/useReportForm';
 
-interface ReportFormProps {
-  structures?: Array<{ id: string; name: string }>;
-}
-
-export function ReportForm({ structures = [] }: ReportFormProps) {
+export function ReportForm() {
   const t = useTranslations('admin.report');
   const { form, isLoading, onSubmit } = useReportForm();
+  const { data: structures } = useGetStructures();
 
   return (
     <Form {...form}>
@@ -110,8 +108,11 @@ export function ReportForm({ structures = [] }: ReportFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {structures.map(structure => (
-                            <SelectItem key={structure.id} value={structure.id}>
+                          {(structures ?? []).map(structure => (
+                            <SelectItem
+                              key={structure.user_id}
+                              value={structure.user_id}
+                            >
                               {structure.name}
                             </SelectItem>
                           ))}

@@ -1,6 +1,13 @@
 import type { Report } from '@/services/admin/reports/report.types';
 
+import { Structure } from '@/features/structures/structure.model';
+import { createClient } from '@/lib/supabase/client';
 import { callSupabaseFunction } from '@/lib/supabase/functions';
+
+type GetReportResponse = {
+  report: null | Report;
+  structure: null | Structure;
+};
 
 type ReportInsert = {
   author_id: string;
@@ -38,6 +45,54 @@ export async function createUserReport(
   }
 }
 
+export async function getReport(reportId: string): Promise<GetReportResponse> {
+  try {
+    const supabase = await createClient();
+
+    // First, fetch the report
+    const { data: report, error: reportError } = await supabase
+      .from('reports')
+      .select('*')
+      .eq('id', reportId)
+      .maybeSingle();
+
+    if (reportError) {
+      throw reportError;
+    }
+
+    if (!report) {
+      return {
+        report: null,
+        structure: null,
+      };
+    }
+
+    // Then, fetch the structure separately using recipient_id
+    const { data: structure, error: structureError } = await supabase
+      .from('structures')
+      .select(
+        `
+        *,
+        profile:profiles(*)
+      `
+      )
+      .eq('user_id', report.recipient_id)
+      .maybeSingle();
+
+    if (structureError) {
+      throw structureError;
+    }
+
+    return {
+      report,
+      structure: structure ?? null,
+    };
+  } catch (error) {
+    console.error('Unexpected error fetching reports:', error);
+    throw error;
+  }
+}
+
 export async function getUserReports(): Promise<Report[]> {
   try {
     const result = await callSupabaseFunction<Report[]>('reports', {
@@ -58,14 +113,27 @@ export async function getUserReports(): Promise<Report[]> {
 
 export async function getUserReports2(): Promise<Report[]> {
   try {
-    const result = await callSupabaseFunction<Report[]>('reports', {
-      method: 'GET',
-    });
-    if (result.error) {
-      console.error('Error fetching reports:', result.error);
-      throw new Error(result.error);
+    const supabase = await createClient();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError && !session?.user) {
+      throw sessionError;
     }
-    return result.data || [];
+
+    const userId = session?.user.id ?? '';
+    const { data: reports, error: reportError } = await supabase
+      .from('reports')
+      .select('*')
+      .eq('author_id', userId);
+
+    if (reportError) {
+      throw reportError;
+    }
+
+    return reports;
   } catch (error) {
     console.error('Unexpected error fetching reports:', error);
     throw error;

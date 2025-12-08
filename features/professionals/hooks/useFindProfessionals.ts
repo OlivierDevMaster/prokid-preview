@@ -9,6 +9,7 @@ export const useFindProfessionals = (
   filters: ProfessionalFilters = {},
   options: PaginationOptions = {}
 ) => {
+  console.info({ filters, options });
   return useQuery({
     enabled: true,
     placeholderData: keepPreviousData,

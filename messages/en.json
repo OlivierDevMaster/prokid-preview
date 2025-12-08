@@ -18,6 +18,9 @@
       "currentPassword": "Enter your current password",
       "newPassword": "Enter your new password",
       "confirmPassword": "Confirm your new password"
+    },
+    "actions": {
+      "edit": "Edit"
     }
   },
   "navigation": {
@@ -307,6 +310,7 @@
     },
     "report": {
       "title": "Create a report",
+      "details": "Report details",
       "saveDraft": "Save draft",
       "sendEmail": "Send by e-mail",
       "newReport": "New report",
@@ -332,7 +336,12 @@
       "template3": "Follow-up report",
       "structure2": "Structure 2",
       "structure3": "Structure 3",
-      "createReport": "Create a report"
+      "createReport": "Create a report",
+      "label": {
+        "title": "Tiele",
+        "structure": "Structure",
+        "content": "Description"
+      }
     },
     "reports": {
       "title": "My Reports",

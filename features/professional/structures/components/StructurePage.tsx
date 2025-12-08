@@ -2,16 +2,15 @@
 
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { StructureCard } from '@/features/admin/structure/components/StructureCard';
-import { MOCK_STRUCTURES } from '@/features/admin/structure/fixtures/structure.fixtures';
-import { Structure } from '@/features/admin/structure/modeles/Structure';
+import { StructureCard } from '@/features/professional/structures/components/StructureCard';
+
+import useGetStructures from '../hooks/useGetStructures';
 
 export default function StructuresPage() {
   const tAdmin = useTranslations('admin');
-  const [structures] = useState<Structure[]>(MOCK_STRUCTURES);
+  const { data: structures } = useGetStructures();
 
   const handleAddStructure = () => {
     console.log('Add structure');
@@ -44,16 +43,16 @@ export default function StructuresPage() {
 
       {/* Structures Grid */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-        {structures.map(structure => (
+        {(structures ?? []).map(structure => (
           <StructureCard
-            key={structure.id}
+            key={structure.user_id}
             onViewDetails={handleViewDetails}
             structure={structure}
           />
         ))}
       </div>
 
-      {structures.length === 0 && (
+      {(structures ?? []).length === 0 && (
         <div className='py-12 text-center text-gray-500'>
           <p>{tAdmin('structure.noStructures')}</p>
           <Button

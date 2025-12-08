@@ -8,7 +8,7 @@ import type { Report } from '@/services/admin/reports/report.types';
 
 import { Button } from '@/components/ui/button';
 import TableActions from '@/features/admin/components/TableActions';
-import { TableActionType } from '@/features/professional/tables/TableActionType';
+import { TableActionType } from '@/features/admin/models/table.modele';
 
 type UseReportColumnDefsProps = {
   locale?: string;
@@ -77,7 +77,7 @@ export default function useReportColumnDefs({
         const date = row.getValue('created_at') as string;
         return (
           <div className='text-sm'>
-            {format(new Date(date), 'PPp', { locale: dateLocale })}
+            {format(new Date(date), 'dd/MM/yyyy', { locale: dateLocale })}
           </div>
         );
       },
@@ -102,7 +102,7 @@ export default function useReportColumnDefs({
           icon: <Eye className='h-4 w-4' />,
           label: translations.view || 'View',
           onClick: () => {
-            router.push(`/admin/report/${row.original.id}`);
+            router.push(`/professional/reports/${row.original.id}`);
           },
         });
 
@@ -110,7 +110,7 @@ export default function useReportColumnDefs({
           icon: <Edit className='h-4 w-4' />,
           label: 'Edit',
           onClick: () => {
-            router.push(`/admin/report/${row.original.id}/edit`);
+            router.push(`/professional/reports/${row.original.id}/edit`);
           },
         });
 
@@ -118,7 +118,7 @@ export default function useReportColumnDefs({
           icon: <Send className='h-4 w-4' />,
           label: 'Send',
           onClick: () => {
-            router.push(`/admin/report/${row.original.id}/edit`);
+            router.push(`/professional/reports/${row.original.id}/edit`);
           },
         });
 
@@ -126,7 +126,7 @@ export default function useReportColumnDefs({
           icon: <Trash className='h-4 w-4' />,
           label: 'Delete',
           onClick: () => {
-            router.push(`/admin/report/${row.original.id}/delete`);
+            router.push(`/professional/reports/${row.original.id}/delete`);
           },
         });
 

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-import { Structure } from '../modeles/Structure';
+import { Structure } from '../modeles/Structure.modele';
 
 interface StructureCardProps {
   onViewDetails?: (id: string) => void;
@@ -17,10 +17,10 @@ export function StructureCard({
   onViewDetails,
   structure,
 }: StructureCardProps) {
-  const progressPercentage =
-    (structure.hoursCompleted / structure.hoursTotal) * 100;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const remainingHours = structure.hoursTotal - structure.hoursCompleted;
+  // const progressPercentage =
+  //   (structure.hoursCompleted / structure.hoursTotal) * 100;
+
+  const progressPercentage = 60;
 
   const statusConfig = {
     on_time: {
@@ -37,7 +37,7 @@ export function StructureCard({
     },
   };
 
-  const status = statusConfig[structure.status];
+  const status = statusConfig['on_time'];
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -54,7 +54,7 @@ export function StructureCard({
               </h3>
               <div className='flex items-center gap-1.5 text-sm text-gray-600'>
                 <MapPin className='h-4 w-4 text-gray-400' />
-                <span>{structure.location}</span>
+                {/* <span>{structure.location}</span> */}
               </div>
             </div>
           </div>
@@ -74,7 +74,7 @@ export function StructureCard({
         <div className='mb-4 space-y-3'>
           <div className='flex items-center gap-2 text-sm text-gray-600'>
             <Phone className='h-4 w-4 text-gray-400' />
-            <span>{structure.email}</span>
+            {/* <span>{structure.email}</span> */}
           </div>
 
           <div className='space-y-2'>
@@ -96,7 +96,7 @@ export function StructureCard({
                 </div>
               </div>
               <span className='whitespace-nowrap text-sm font-medium text-gray-700'>
-                {structure.hoursCompleted}h / {structure.hoursTotal}h
+                {/* {structure.hoursCompleted}h / {structure.hoursTotal}h */}
               </span>
             </div>
           </div>
@@ -104,14 +104,14 @@ export function StructureCard({
           <div className='flex items-center gap-2 text-sm text-gray-600'>
             <FileText className='h-4 w-4 text-gray-400' />
             <span>Dernier compte rendu</span>
-            <span className='text-gray-500'>{structure.lastReportDate}</span>
+            {/* <span className='text-gray-500'>{structure.lastReportDate}</span> */}
           </div>
         </div>
 
         {/* Action Button */}
         <Button
           className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={() => onViewDetails?.(structure.id)}
+          onClick={() => onViewDetails?.(structure.user_id)}
           variant='outline'
         >
           Voir les détails

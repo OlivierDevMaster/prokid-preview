@@ -17,10 +17,7 @@ export function useReports() {
         return [];
       }
 
-      // getUserReports now uses the edge function which handles authentication
-      // The userId parameter is kept for compatibility but the edge function
-      // will use the authenticated user from the token
-      const reports = await getUserReports2(session.user.id);
+      const reports = await getUserReports2();
       return reports;
     },
     queryKey: ['reports'],

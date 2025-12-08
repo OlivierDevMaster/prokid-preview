@@ -2,7 +2,7 @@ import { Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
-import { TableActionType } from '../../models/table.modele';
+import { TableActionType } from '@/features/admin/models/table.modele';
 
 export default function useReportTableActions() {
   const t = useTranslations('admin.report');

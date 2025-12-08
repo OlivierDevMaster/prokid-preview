@@ -18,6 +18,9 @@
       "currentPassword": "Saisissez votre mot de passe actuel",
       "newPassword": "Saisissez votre nouveau mot de passe",
       "confirmPassword": "Confirmez votre nouveau mot de passe"
+    },
+    "actions": {
+      "edit": "Modifier"
     }
   },
   "navigation": {
@@ -307,6 +310,7 @@
     },
     "report": {
       "title": "Créer un rapport",
+      "details": "Détail du rapport",
       "saveDraft": "Enregistrer brouillon",
       "sendEmail": "Envoyer par e-mail",
       "newReport": "Nouveau rapport",
@@ -332,7 +336,12 @@
       "template3": "Rapport de suivi",
       "structure2": "Structure 2",
       "structure3": "Structure 3",
-      "createReport": "Créer un rapport"
+      "createReport": "Créer un rapport",
+      "label": {
+        "title": "Titre",
+        "structure": "Structure",
+        "content": "Description"
+      }
     },
     "reports": {
       "title": "Mes Rapports",
