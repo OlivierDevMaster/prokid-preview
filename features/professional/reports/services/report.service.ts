@@ -1,4 +1,4 @@
-import type { Report } from '@/services/admin/reports/report.types';
+import type { Report, ReportUpdate } from '@/features/reports/report.model';
 
 import { Structure } from '@/features/structures/structure.model';
 import { createClient } from '@/lib/supabase/client';
@@ -24,7 +24,19 @@ export async function createUserReport(
     const { data, error } = await supabase
       .from('reports')
       .insert(report)
-      .select()
+      .select(
+        `
+        *,
+        author:professionals(
+          *,
+          profile:profiles(*)
+        ),
+        recipient:structures(
+          *,
+          profile:profiles(*)
+        )
+      `
+      )
       .single();
 
     if (error) {
@@ -50,7 +62,19 @@ export async function getReport(reportId: string): Promise<GetReportResponse> {
     // First, fetch the report
     const { data: report, error: reportError } = await supabase
       .from('reports')
-      .select('*')
+      .select(
+        `
+        *,
+        author:professionals(
+          *,
+          profile:profiles(*)
+        ),
+        recipient:structures(
+          *,
+          profile:profiles(*)
+        )
+      `
+      )
       .eq('id', reportId)
       .maybeSingle();
 
@@ -124,7 +148,19 @@ export async function getUserReports2(): Promise<Report[]> {
     const userId = session?.user.id ?? '';
     const { data: reports, error: reportError } = await supabase
       .from('reports')
-      .select('*')
+      .select(
+        `
+        *,
+        author:professionals(
+          *,
+          profile:profiles(*)
+        ),
+        recipient:structures(
+          *,
+          profile:profiles(*)
+        )
+      `
+      )
       .eq('author_id', userId);
 
     if (reportError) {
@@ -134,6 +170,47 @@ export async function getUserReports2(): Promise<Report[]> {
     return reports;
   } catch (error) {
     console.error('Unexpected error fetching reports:', error);
+    throw error;
+  }
+}
+
+export async function updateUserReport(
+  reportId: string,
+  report: ReportUpdate
+): Promise<null | Report> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('reports')
+      .update(report)
+      .eq('id', reportId)
+      .select(
+        `
+        *,
+        author:professionals(
+          *,
+          profile:profiles(*)
+        ),
+        recipient:structures(
+          *,
+          profile:profiles(*)
+        )
+      `
+      )
+      .eq('id', reportId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Unexpected error updating report:', error);
     throw error;
   }
 }

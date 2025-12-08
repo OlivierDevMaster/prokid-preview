@@ -406,6 +406,7 @@
       "saveDraft": "Save draft",
       "sendEmail": "Send by e-mail",
       "newReport": "New report",
+      "editReport": "Edit report",
       "reportTitle": "Report title",
       "selectTemplate": "Select a template or enter",
       "customTitlePlaceholder": "Or enter a custom title",
@@ -433,6 +434,15 @@
         "title": "Tiele",
         "structure": "Structure",
         "content": "Description"
+      },
+      "messages": {
+        "unauthenticated": "Unauthenticated user",
+        "errorCreatingReport": "An error occurred while creating the report",
+        "reportCreatedSuccessfully": "Report created successfully",
+        "reportSavedSuccessfully": "Report saved successfully",
+        "impossibleToCreateReport": "Impossible to create the report",
+        "data": "Data",
+        "dataDescription": "Report data"
       }
     },
     "reports": {

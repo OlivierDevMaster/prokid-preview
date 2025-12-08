@@ -2,7 +2,7 @@
 
 import { ArrowLeft, FileText, Link, Paperclip, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { useGetReport } from '../hooks/useGetReport';
 
 export function ReportDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const t = useTranslations('admin.report');
   const tCommon = useTranslations('common');
 
@@ -50,7 +51,9 @@ export function ReportDetails() {
         <div className='flex gap-3'>
           <Button
             className='border-gray-300 text-gray-700 hover:bg-gray-50'
-            type='submit'
+            onClick={() => {
+              router.push(`/professional/reports/${id}/edit`);
+            }}
             variant='outline'
           >
             <FileText className='mr-2 h-4 w-4' />

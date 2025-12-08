@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -12,11 +13,12 @@ import {
   type ReportFormData,
   reportFormSchema,
 } from '../schemas/report.schema';
-import { createUserReport } from '../services/report.service';
+import { createUserReport, updateUserReport } from '../services/report.service';
 
 export function useReportForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations('admin');
 
   const form = useForm<ReportFormData>({
     defaultValues: {
@@ -35,9 +37,16 @@ export function useReportForm() {
       } = await supabase.auth.getSession();
 
       if (!session?.user?.id) {
-        throw new Error('Utilisateur non authentifié');
+        throw new Error(t('report.messages.unauthenticated'));
       }
 
+      if (data.id) {
+        return updateUserReport(data.id, {
+          content: data.content,
+          recipient_id: data.recipient_id,
+          title: data.title,
+        });
+      }
       // Create report object - author_id will be set by the edge function
       // The edge function uses the authenticated user from the token
       return createUserReport({
@@ -48,26 +57,24 @@ export function useReportForm() {
       });
     },
     onError: error => {
-      console.error('Error creating report:', error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Une erreur est survenue lors de la création du rapport'
+          : t('report.messages.errorCreatingReport')
       );
     },
     onSuccess: data => {
       if (data) {
         queryClient.invalidateQueries({ queryKey: ['reports'] });
-        toast.success('Rapport créé avec succès');
-        router.push('/admin/report');
+        toast.success(t('report.messages.reportSavedSuccessfully'));
+        router.push('/professional/reports');
       } else {
-        toast.error('Impossible de créer le rapport');
+        toast.error(t('report.messages.impossibleToCreateReport'));
       }
     },
   });
 
   const onSubmit = form.handleSubmit(data => {
-    console.info({ data });
     mutation.mutate(data);
   });
 

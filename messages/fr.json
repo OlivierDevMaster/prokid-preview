@@ -406,6 +406,7 @@
       "saveDraft": "Enregistrer brouillon",
       "sendEmail": "Envoyer par e-mail",
       "newReport": "Nouveau rapport",
+      "editReport": "Modifier le rapport",
       "reportTitle": "Titre du rapport",
       "selectTemplate": "Sélectionner un modèle ou saisir",
       "customTitlePlaceholder": "Ou saisir un titre personnalisé",
@@ -433,6 +434,15 @@
         "title": "Titre",
         "structure": "Structure",
         "content": "Description"
+      },
+      "messages": {
+        "unauthenticated": "Utilisateur non authentifié",
+        "errorCreatingReport": "Une erreur est survenue lors de la création du rapport",
+        "reportCreatedSuccessfully": "Rapport créé avec succès",
+        "reportSavedSuccessfully": "Rapport enregistré avec succès",
+        "impossibleToCreateReport": "Impossible de créer le rapport",
+        "data": "Données",
+        "dataDescription": "Données du rapport"
       }
     },
     "reports": {

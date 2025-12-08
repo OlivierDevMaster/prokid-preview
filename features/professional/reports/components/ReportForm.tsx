@@ -2,6 +2,7 @@
 
 import { ArrowLeft, FileText, Link, Paperclip, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,14 +23,31 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Report } from '@/features/reports/report.model';
 
 import useGetStructures from '../../structures/hooks/useGetStructures';
 import { useReportForm } from '../hooks/useReportForm';
 
-export function ReportForm() {
+type ReportFormProps = {
+  isEdit?: boolean;
+  report?: Report;
+};
+
+export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const t = useTranslations('admin.report');
   const { form, isLoading, onSubmit } = useReportForm();
   const { data: structures } = useGetStructures();
+
+  useEffect(() => {
+    if (isEdit && report) {
+      form.reset({
+        content: report.content,
+        id: report.id,
+        recipient_id: report.recipient_id,
+        title: report.title,
+      });
+    }
+  }, [isEdit, report, form]);
 
   return (
     <Form {...form}>
@@ -41,7 +59,9 @@ export function ReportForm() {
               <Link href='/admin/report'>
                 <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
               </Link>
-              <h1 className='text-3xl font-bold text-blue-600'>{t('title')}</h1>
+              <h1 className='text-3xl font-bold text-blue-600'>
+                {isEdit ? t('editReport') : t('newReport')}
+              </h1>
             </div>
             <div className='flex gap-3'>
               <Button
@@ -64,7 +84,7 @@ export function ReportForm() {
           <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
             <div className='p-8'>
               <h2 className='mb-6 text-2xl font-bold text-gray-800'>
-                {t('newReport')}
+                {isEdit ? t('editReport') : t('newReport')}
               </h2>
               {/* Title Section */}
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
