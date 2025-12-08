@@ -14,16 +14,20 @@ export function ReportDetails() {
   const t = useTranslations('admin.report');
   const tCommon = useTranslations('common');
 
-  const { data: reportData } = useGetReport(id as string);
+  const { data: reportData, isLoading } = useGetReport(id as string);
   const report = reportData?.report;
   const structure = reportData?.structure;
+
+  if (isLoading) {
+    return <div>{tCommon('messages.loading')}</div>;
+  }
 
   if (!report) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-white'>
         <Card className='p-8'>
           <h1 className='mb-4 text-2xl font-bold text-gray-800'>
-            {t('notFound')}
+            {tCommon('messages.notFound')}
           </h1>
           <Link href='/professional'>
             <Button>{t('backToList')}</Button>

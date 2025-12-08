@@ -20,25 +20,23 @@ export async function createUserReport(
   report: ReportInsert
 ): Promise<null | Report> {
   try {
-    const result = await callSupabaseFunction<Report>('reports', {
-      body: {
-        content: report.content,
-        recipient_id: report.recipient_id,
-        title: report.title,
-      },
-      method: 'POST',
-    });
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('reports')
+      .insert(report)
+      .select()
+      .single();
 
-    if (result.error) {
-      console.error('Error creating report:', result.error);
-      throw new Error(result.error);
+    if (error) {
+      console.error('Error creating report:', error);
+      throw new Error(error.message);
     }
 
-    if (!result.data) {
+    if (!data) {
       return null;
     }
 
-    return result.data;
+    return data;
   } catch (error) {
     console.error('Unexpected error creating report:', error);
     throw error;

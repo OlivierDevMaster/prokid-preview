@@ -21,6 +21,10 @@
     },
     "actions": {
       "edit": "Edit"
+    },
+    "messages": {
+      "loading": "Loading...",
+      "notFound": "Not found"
     }
   },
   "navigation": {
