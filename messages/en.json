@@ -12,7 +12,8 @@
       "phone": "Phone number",
       "currentPassword": "Current password",
       "newPassword": "New password",
-      "confirmPassword": "Confirm password"
+      "confirmPassword": "Confirm password",
+      "dashboard": "Dashboard"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -20,7 +21,8 @@
       "confirmPassword": "Confirm your new password"
     },
     "actions": {
-      "edit": "Edit"
+      "edit": "Edit",
+      "signOut": "Sign out"
     },
     "messages": {
       "loading": "Loading...",
@@ -507,7 +509,8 @@
       "structure": "Structure",
       "users": "Users",
       "professionals": "Professionals",
-      "structures": "Structures"
+      "structures": "Structures",
+      "availabilities": "Availabilities"
     }
   }
 }

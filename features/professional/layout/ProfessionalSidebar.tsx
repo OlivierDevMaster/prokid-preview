@@ -27,8 +27,8 @@ import useGetProfessionalNavItems from '../hooks/useGetProfessionalNavItems';
 
 // Mapping des icônes
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  availabilities: Calendar,
   dashboard: LayoutDashboard,
-  planning: Calendar,
   report: ClipboardMinus,
   structure: Users,
   users: Users,

@@ -11,9 +11,9 @@ export default function useGetProfessionalNavItems(): NavItem[] {
 
   const items: NavItem[] = [
     {
-      href: '/professional/plannings',
-      icon: 'planning',
-      label: tProfessional('navigation.planning'),
+      href: '/professional/availabilities',
+      icon: 'availabilities',
+      label: tProfessional('navigation.availabilities'),
     },
     {
       href: '/professional/reports',

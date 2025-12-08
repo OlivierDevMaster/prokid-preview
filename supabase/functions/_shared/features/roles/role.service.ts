@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { Database } from '../../../../../types/database/schema.ts';
-import { Role } from './role.model.ts';
+import { Database } from '../../../../../types/database/schema';
+import { Role } from './role.model';
 
 export const isAdmin = async (
   supabase: SupabaseClient<Database>,

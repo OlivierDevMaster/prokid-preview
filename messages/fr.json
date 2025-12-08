@@ -12,7 +12,8 @@
       "phone": "Numéro de téléphone",
       "currentPassword": "Mot de passe actuel",
       "newPassword": "Nouveau mot de passe",
-      "confirmPassword": "Confirmer le mot de passe"
+      "confirmPassword": "Confirmer le mot de passe",
+      "dashboard": "Tableau de bord"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -20,7 +21,8 @@
       "confirmPassword": "Confirmez votre nouveau mot de passe"
     },
     "actions": {
-      "edit": "Modifier"
+      "edit": "Modifier",
+      "signOut": "Déconnexion"
     },
     "messages": {
       "loading": "Chargement...",
@@ -507,7 +509,8 @@
       "structure": "Structure",
       "users": "Utilisateurs",
       "professionals": "Professionnels",
-      "structures": "Structures"
+      "structures": "Structures",
+      "availabilities": "Disponibilités"
     }
   }
 }
