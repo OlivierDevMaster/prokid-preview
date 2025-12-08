@@ -17,8 +17,11 @@ export const useUpdateProfessional = () => {
     }) => {
       return updateProfessional(professionalId, updateData);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['professionals'] });
+      queryClient.invalidateQueries({
+        queryKey: ['professional', variables.professionalId],
+      });
     },
   });
 };

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -12,7 +11,7 @@ import {
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
-import type { User } from '@/features/admin/users/modeles/user.modele';
+import type { Professional } from '@/features/professionals/professional.model';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,43 +23,41 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import useGetUserColumnDefs from '../hooks/useGetUserColumnDefs';
+import useGetProfessionalColumnDefs from '../hooks/useGetProfessionalColumnDefs';
 
-interface UsersTableProps {
-  data: User[];
+interface ProfessionalsTableProps {
+  data: Professional[];
   locale?: string;
   translations: {
     actions?: string;
+    city: string;
     createdAt: string;
     delete?: string;
     edit?: string;
     email: string;
-    emailVerified: string;
-    lastSignIn: string;
     name: string;
-    never: string;
     next: string;
-    noName: string;
     noResults?: string;
-    notVerified: string;
     of: string;
+    onDelete?: (professional: Professional) => void;
+    onEdit?: (professional: Professional) => void;
     page: string;
     previous: string;
-    suspend?: string;
-    verified: string;
+    skills: string;
+    view?: string;
   };
 }
 
-export function UsersTable({
+export function ProfessionalsTable({
   data,
   locale = 'en',
   translations,
-}: UsersTableProps) {
+}: ProfessionalsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const columns = useGetUserColumnDefs({ locale, translations });
+  const columns = useGetProfessionalColumnDefs({ locale, translations });
   const table = useReactTable({
-    columns: columns as ColumnDef<User>[],
+    columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

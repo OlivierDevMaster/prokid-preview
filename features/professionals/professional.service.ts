@@ -132,3 +132,14 @@ export const getProfessionals = async (
     throw error;
   }
 };
+
+export const deleteProfessional = async (userId: string): Promise<void> => {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('professionals')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) throw error;
+};

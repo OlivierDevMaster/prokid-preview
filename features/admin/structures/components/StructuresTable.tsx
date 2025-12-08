@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -12,7 +11,7 @@ import {
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
-import type { User } from '@/features/admin/users/modeles/user.modele';
+import type { Structure } from '@/features/structures/structure.model';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,10 +23,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import useGetUserColumnDefs from '../hooks/useGetUserColumnDefs';
+import useGetStructureColumnDefs from '../hooks/useGetStructureColumnDefs';
 
-interface UsersTableProps {
-  data: User[];
+interface StructuresTableProps {
+  data: Structure[];
   locale?: string;
   translations: {
     actions?: string;
@@ -35,32 +34,28 @@ interface UsersTableProps {
     delete?: string;
     edit?: string;
     email: string;
-    emailVerified: string;
-    lastSignIn: string;
     name: string;
-    never: string;
     next: string;
-    noName: string;
     noResults?: string;
-    notVerified: string;
     of: string;
+    onDelete?: (structure: Structure) => void;
+    onEdit?: (structure: Structure) => void;
     page: string;
     previous: string;
-    suspend?: string;
-    verified: string;
+    view?: string;
   };
 }
 
-export function UsersTable({
+export function StructuresTable({
   data,
   locale = 'en',
   translations,
-}: UsersTableProps) {
+}: StructuresTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const columns = useGetUserColumnDefs({ locale, translations });
+  const columns = useGetStructureColumnDefs({ locale, translations });
   const table = useReactTable({
-    columns: columns as ColumnDef<User>[],
+    columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

@@ -115,9 +115,7 @@ export const getStructures = async (
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  query = query
-    .order('profile.first_name', { ascending: false })
-    .range(from, to);
+  query = query.order('created_at', { ascending: false }).range(from, to);
 
   const { count, data, error } = await query;
 
@@ -127,4 +125,15 @@ export const getStructures = async (
     count: count ?? 0,
     data: data ?? [],
   };
+};
+
+export const deleteStructure = async (userId: string): Promise<void> => {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('structures')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) throw error;
 };
