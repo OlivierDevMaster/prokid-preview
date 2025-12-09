@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION public.get_rrule_day(day_offset INTEGER) RETURNS TEXT
     WHEN 5 THEN 'FR'
     WHEN 6 THEN 'SA'
   END;
-$$ LANGUAGE SQL STABLE;
+$$ LANGUAGE SQL STABLE SET search_path = '';
 
 -- Helper function to get date string for EXDATE (simplifies formatting)
 CREATE OR REPLACE FUNCTION public.format_exdate(date_offset INTEGER) RETURNS TEXT AS $$
@@ -32,7 +32,7 @@ BEGIN
   RETURN TO_CHAR(CURRENT_DATE + (date_offset::TEXT || ' days')::INTERVAL, 'YYYYMMDD') || 'T' ||
          TO_CHAR(CURRENT_DATE + (date_offset::TEXT || ' days')::INTERVAL, 'HH24MI') || '00Z';
 END;
-$$ LANGUAGE plpgsql STABLE;
+$$ LANGUAGE plpgsql STABLE SET search_path = '';
 
 -- Function to create recurring availability with optional EXDATE
 CREATE OR REPLACE FUNCTION public.create_recurring_availability(
@@ -92,7 +92,7 @@ BEGIN
 
   RETURN 'Created availability for user ' || user_id_param;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = '';
 
 -- Function to create one-time availability
 CREATE OR REPLACE FUNCTION public.create_onetime_availability(
@@ -115,7 +115,7 @@ BEGIN
 
   RETURN 'Created one-time availability for user ' || user_id_param;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = '';
 
 -- Function to check if current user is admin
 -- Uses SECURITY DEFINER to bypass RLS when checking admin status

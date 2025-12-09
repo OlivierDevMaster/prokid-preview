@@ -5,11 +5,12 @@ import {
   createReport,
   CreateReportRequestBodySchema,
 } from '../../_shared/features/reports/index.ts';
-import { validateRequest } from '../../_shared/utils/requests.ts';
+import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
+  supabaseAdminClient: SupabaseClient<Database>;
   supabaseClient: SupabaseClient<Database>;
   user: User;
 };
@@ -22,7 +23,7 @@ export const createReportHandler = factory.createHandlers(
       const user = get('user');
       const supabaseClient = get('supabaseClient');
 
-      const validationResult = await validateRequest(
+      const validationResult = await validateRequestBody(
         CreateReportRequestBodySchema,
         req
       );

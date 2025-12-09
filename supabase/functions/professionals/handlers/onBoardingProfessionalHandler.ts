@@ -14,6 +14,7 @@ import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
+  supabaseAdminClient: SupabaseClient<Database>;
   supabaseClient: SupabaseClient<Database>;
   user: User;
 };
@@ -61,13 +62,13 @@ export const onBoardingProfessionalHandler = factory.createHandlers(
 
       const updatedProfessional = await createProfessional(supabaseClient, {
         city: validationResult.data.city,
+        current_job: validationResult.data.currentJob,
         description: validationResult.data.description,
         experience_years: validationResult.data.experienceYears,
         hourly_rate: validationResult.data.hourlyRate,
         intervention_radius_km: validationResult.data.interventionRadiusKm,
         phone: validationResult.data.phone,
         postal_code: validationResult.data.postalCode,
-        professional_email: profile.email,
         skills: validationResult.data.skills,
         user_id: user.id,
       });

@@ -55,7 +55,6 @@ describe('Professionals RLS - INSERT', () => {
         intervention_radius_km: 10,
         phone: '+33123456789',
         postal_code: '75001',
-        professional_email: professional.email,
         skills: ['skill1', 'skill2'],
         user_id: professional.userId,
       })
@@ -83,7 +82,6 @@ describe('Professionals RLS - INSERT', () => {
         intervention_radius_km: 10,
         phone: '+33123456789',
         postal_code: '75001',
-        professional_email: user.email,
         skills: ['skill1', 'skill2'],
         user_id: user.userId,
       })
@@ -111,7 +109,6 @@ describe('Professionals RLS - INSERT', () => {
         intervention_radius_km: 10,
         phone: '+33123456789',
         postal_code: '75001',
-        professional_email: professional.email,
         skills: ['skill1', 'skill2'],
         user_id: professional.userId,
       })
@@ -141,7 +138,6 @@ describe('Professionals RLS - INSERT', () => {
         intervention_radius_km: 10,
         phone: '+33123456789',
         postal_code: '75001',
-        professional_email: professional2.email,
         skills: ['skill1', 'skill2'],
         user_id: professional2.userId,
       })
@@ -170,7 +166,6 @@ describe('Professionals RLS - INSERT', () => {
         intervention_radius_km: 10,
         phone: '+33123456789',
         postal_code: '75001',
-        professional_email: professional.email,
         skills: ['skill1', 'skill2'],
         user_id: professional.userId,
       })

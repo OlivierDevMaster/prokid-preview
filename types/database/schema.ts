@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -99,6 +94,7 @@ export type Database = {
         Row: {
           city: string
           created_at: string
+          current_job: string | null
           description: string | null
           experience_years: number
           hourly_rate: number
@@ -107,7 +103,6 @@ export type Database = {
           is_certified: boolean
           phone: string | null
           postal_code: string | null
-          professional_email: string
           rating: number | null
           reviews_count: number
           skills: string[] | null
@@ -119,6 +114,7 @@ export type Database = {
         Insert: {
           city: string
           created_at?: string
+          current_job?: string | null
           description?: string | null
           experience_years: number
           hourly_rate: number
@@ -127,7 +123,6 @@ export type Database = {
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
-          professional_email: string
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
@@ -139,6 +134,7 @@ export type Database = {
         Update: {
           city?: string
           created_at?: string
+          current_job?: string | null
           description?: string | null
           experience_years?: number
           hourly_rate?: number
@@ -147,7 +143,6 @@ export type Database = {
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
-          professional_email?: string
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
@@ -174,6 +169,7 @@ export type Database = {
           first_name: string | null
           is_onboarded: boolean
           last_name: string | null
+          preferred_language: Database["public"]["Enums"]["locale"]
           role: Database["public"]["Enums"]["role"]
           user_id: string
         }
@@ -184,6 +180,7 @@ export type Database = {
           first_name?: string | null
           is_onboarded?: boolean
           last_name?: string | null
+          preferred_language?: Database["public"]["Enums"]["locale"]
           role: Database["public"]["Enums"]["role"]
           user_id: string
         }
@@ -194,6 +191,7 @@ export type Database = {
           first_name?: string | null
           is_onboarded?: boolean
           last_name?: string | null
+          preferred_language?: Database["public"]["Enums"]["locale"]
           role?: Database["public"]["Enums"]["role"]
           user_id?: string
         }
@@ -238,6 +236,152 @@ export type Database = {
           {
             foreignKeyName: "reports_recipient_id_fkey"
             columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_invitations: {
+        Row: {
+          created_at: string
+          id: string
+          professional_id: string
+          status: Database["public"]["Enums"]["invitation_status"]
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          professional_id: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          professional_id?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_invitations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_invitations_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_members: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          professional_id: string
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          professional_id: string
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          professional_id?: string
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_members_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_members_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_membership_history: {
+        Row: {
+          action: Database["public"]["Enums"]["membership_action"]
+          created_at: string
+          id: string
+          initiated_by: string
+          initiated_by_role: Database["public"]["Enums"]["role"]
+          membership_id: string
+          professional_id: string
+          structure_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["membership_action"]
+          created_at?: string
+          id?: string
+          initiated_by: string
+          initiated_by_role: Database["public"]["Enums"]["role"]
+          membership_id: string
+          professional_id: string
+          structure_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["membership_action"]
+          created_at?: string
+          id?: string
+          initiated_by?: string
+          initiated_by_role?: Database["public"]["Enums"]["role"]
+          membership_id?: string
+          professional_id?: string
+          structure_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_membership_history_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "structure_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_structure_id_fkey"
+            columns: ["structure_id"]
             isOneToOne: false
             referencedRelation: "structures"
             referencedColumns: ["user_id"]
@@ -305,6 +449,13 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "declined"
+      locale: "en" | "fr"
+      membership_action:
+        | "joined"
+        | "left"
+        | "removed_by_structure"
+        | "removed_by_admin"
       role: "professional" | "structure" | "admin"
     }
     CompositeTypes: {
@@ -436,7 +587,16 @@ export const Constants = {
   },
   public: {
     Enums: {
+      invitation_status: ["pending", "accepted", "declined"],
+      locale: ["en", "fr"],
+      membership_action: [
+        "joined",
+        "left",
+        "removed_by_structure",
+        "removed_by_admin",
+      ],
       role: ["professional", "structure", "admin"],
     },
   },
 } as const
+
