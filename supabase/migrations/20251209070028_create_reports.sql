@@ -1,7 +1,7 @@
 -- Migration: create_reports
 -- Purpose: Create reports table with constraints, indexes, triggers, and RLS policies
 -- Affected tables: reports
--- Dependencies: Requires professionals and missions tables to exist
+-- Dependencies: Requires professionals and missions tables to exist, and report_status enum type
 
 -- ============================================================================
 -- Model: reports
@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS "public"."reports" (
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "title" TEXT NOT NULL,
   "content" TEXT NOT NULL,
+  "status" "public"."report_status" NOT NULL DEFAULT 'draft',
   "author_id" UUID NOT NULL REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
   "mission_id" UUID NOT NULL REFERENCES "public"."missions"("id") ON DELETE CASCADE
 );
@@ -22,6 +23,7 @@ CREATE TABLE IF NOT EXISTS "public"."reports" (
 COMMENT ON TABLE "public"."reports" IS 'Reports from professionals about their missions. Multiple reports can be created for the same mission since missions can be long-term jobs.';
 COMMENT ON COLUMN "public"."reports"."title" IS 'Report title';
 COMMENT ON COLUMN "public"."reports"."content" IS 'Report content/description';
+COMMENT ON COLUMN "public"."reports"."status" IS 'Report status: draft (work in progress) or sent (submitted to structure)';
 COMMENT ON COLUMN "public"."reports"."author_id" IS 'Reference to the professional who created this report (must match mission.professional_id)';
 COMMENT ON COLUMN "public"."reports"."mission_id" IS 'Reference to the mission this report is about';
 
@@ -82,10 +84,37 @@ CREATE TRIGGER "check_report_author_matches_mission_professional"
   FOR EACH ROW
   EXECUTE FUNCTION "public"."check_report_author_matches_mission_professional"();
 
+-- ============================================================================
+-- Function: prevent_status_rollback_from_sent
+-- ============================================================================
+
+-- Function to prevent changing status from 'sent' back to 'draft'
+-- Once a report is sent, it cannot be changed back to draft
+CREATE OR REPLACE FUNCTION "public"."prevent_status_rollback_from_sent"()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- If the old status was 'sent' and new status is 'draft', prevent the change
+  IF OLD."status" = 'sent' AND NEW."status" = 'draft' THEN
+    RAISE EXCEPTION 'Cannot change report status from sent back to draft. Once a report is sent, it cannot be reverted.';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+COMMENT ON FUNCTION "public"."prevent_status_rollback_from_sent"() IS 'Prevents changing report status from sent back to draft. Once sent, reports cannot be reverted to draft status.';
+
+-- Trigger to prevent status rollback from sent to draft
+CREATE TRIGGER "prevent_status_rollback_from_sent"
+  BEFORE UPDATE OF "status" ON "public"."reports"
+  FOR EACH ROW
+  EXECUTE FUNCTION "public"."prevent_status_rollback_from_sent"();
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_reports_author_id" ON "public"."reports" ("author_id");
 CREATE INDEX IF NOT EXISTS "idx_reports_mission_id" ON "public"."reports" ("mission_id");
 CREATE INDEX IF NOT EXISTS "idx_reports_created_at" ON "public"."reports" ("created_at");
+CREATE INDEX IF NOT EXISTS "idx_reports_status" ON "public"."reports" ("status");
 
 -- Triggers
 CREATE TRIGGER update_reports_updated_at BEFORE UPDATE ON "public"."reports"
