@@ -17,7 +17,7 @@ interface ProfessionalsCardProps {
 
 export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
   const t = useTranslations('professional.card');
-  console.info({ professional });
+
   return (
     <Card className='rounded-lg border border-green-100/50 bg-white shadow-sm transition-shadow hover:shadow-md'>
       <div className='p-6'>
@@ -43,7 +43,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
           </div>
 
           <div className='min-w-0 flex-1'>
-            <div className='flex items-start justify-between gap-4'>
+            <div className='flex items-stretch justify-between gap-4'>
               <div className='flex-1'>
                 <h3 className='mb-1 text-lg font-bold text-gray-800'>
                   {professional.profile.first_name}
@@ -87,7 +87,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                 </div>
               </div>
 
-              <div className='flex-shrink-0 text-right'>
+              <div className='flex flex-col justify-between text-right'>
                 <div className='mb-2 flex items-center gap-1'>
                   <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
                   <span className='text-sm font-semibold text-gray-800'>
@@ -97,15 +97,20 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                     ({professional.reviews_count} {t('reviews')})
                   </span>
                 </div>
-                <p className='mb-4 text-lg font-bold text-gray-800'>
-                  {professional.hourly_rate}€{t('hourlyRate')}
-                </p>
-                <Link href={`/professionals/${professional.user_id}`}>
-                  <Button className='w-full' size='sm'>
-                    <Eye className='mr-2 h-4 w-4' />
-                    {t('viewProfile')}
-                  </Button>
-                </Link>
+                <div className='flex items-center justify-between gap-2'>
+                  <p className='text-sm text-gray-800'>
+                    {professional.hourly_rate}€{t('hourlyRate')}
+                  </p>
+                  <Link href={`/professionals/${professional.user_id}`}>
+                    <Button
+                      className='w-full rounded-lg bg-blue-400 text-white hover:bg-blue-600'
+                      size='sm'
+                    >
+                      <Eye className='mr-2 h-4 w-4' />
+                      {t('viewProfile')}
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

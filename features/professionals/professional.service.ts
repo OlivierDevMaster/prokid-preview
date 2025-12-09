@@ -4,6 +4,7 @@ import type {
   Professional,
   ProfessionalFilters,
   ProfessionalInsert,
+  ProfessionalsWithProfilesSearch,
   ProfessionalUpdate,
 } from './professional.model';
 
@@ -86,23 +87,22 @@ export const getProfessionals = async (
   try {
     const supabase = createClient();
 
-    let query = supabase.from('professionals').select(
-      `
-      *,
-      profile:profiles(*)
-    `,
-      { count: 'exact' }
-    );
+    let query = supabase
+      .from('professionals_with_profiles_search')
+      .select('*', { count: 'exact' });
 
     if (filters.search) {
-      query = query.ilike('description', `%${filters.search}%`);
-      query = query.ilike('profile.first_name', `%${filters.search}%`);
-      query = query.ilike('profile.last_name', `%${filters.search}%`);
+      const searchPattern = `%${filters.search}%`;
+      query = query.or(
+        `description.ilike.${searchPattern},first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`
+      );
     }
 
     if (filters.locationSearch) {
-      query = query.ilike('city', `%${filters.locationSearch}%`);
-      query = query.ilike('postal_code', `%${filters.locationSearch}%`);
+      const locationSearchPattern = `%${filters.locationSearch}%`;
+      query = query.or(
+        `city.ilike.${locationSearchPattern},postal_code.ilike.${locationSearchPattern}`
+      );
     }
 
     if (filters.skills?.length) {
@@ -123,9 +123,36 @@ export const getProfessionals = async (
 
     if (error) throw error;
 
+    // Transform flat view data to nested Professional structure
+    const transformedData: Professional[] =
+      (data as null | ProfessionalsWithProfilesSearch[])?.map(row => {
+        const {
+          avatar_url,
+          first_name,
+          is_onboarded,
+          last_name,
+          profile_created_at,
+          profile_email,
+          profile_role,
+          ...professionalData
+        } = row;
+        return {
+          ...professionalData,
+          profile: {
+            avatar_url,
+            created_at: profile_created_at,
+            email: profile_email,
+            first_name,
+            is_onboarded,
+            last_name,
+            role: profile_role,
+            user_id: row.user_id,
+          },
+        } as Professional;
+      }) ?? [];
     return {
       count: count ?? 0,
-      data: data ?? [],
+      data: transformedData,
     };
   } catch (error) {
     console.error(error);

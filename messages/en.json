@@ -185,7 +185,8 @@
       "submit": "Submit",
       "recomandedFormat": "Recommended square format",
       "useDefault": "Use a default photo",
-      "profileConfiguration": "Setting up your professional profile"
+      "profileConfiguration": "Setting up your professional profile",
+      "filters": "Filters"
     },
     "subtitle": "Discover qualified professionals near your structure",
     "search": {
@@ -204,7 +205,9 @@
       "hourlyRate": "/h",
       "reviews": "reviews",
       "upTo": "Up to",
-      "km": "km"
+      "km": "km",
+      "available": "Available",
+      "unavailable": "Unavailable"
     },
     "profile": {
       "notFound": "Professional not found",

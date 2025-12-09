@@ -72,6 +72,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "availabilities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       newsletter_subscriptions: {
@@ -236,6 +243,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "reports_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "reports_recipient_id_fkey"
             columns: ["recipient_id"]
             isOneToOne: false
@@ -278,7 +292,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      professionals_with_profiles_search: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          experience_years: number | null
+          first_name: string | null
+          hourly_rate: number | null
+          intervention_radius_km: number | null
+          is_available: boolean | null
+          is_certified: boolean | null
+          is_onboarded: boolean | null
+          last_name: string | null
+          phone: string | null
+          postal_code: string | null
+          professional_email: string | null
+          profile_created_at: string | null
+          profile_email: string | null
+          profile_role: Database["public"]["Enums"]["role"] | null
+          rating: number | null
+          reviews_count: number | null
+          skills: string[] | null
+          stripe_customer_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_onetime_availability: {

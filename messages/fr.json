@@ -185,7 +185,8 @@
       "submit": "Soumettre",
       "recomandedFormat": "Format carré recommandé",
       "useDefault": "Utiliser une photo par défaut",
-      "profileConfiguration": "Configuration de votre profil professionnel"
+      "profileConfiguration": "Configuration de votre profil professionnel",
+      "filters": "Filtres"
     },
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
@@ -204,7 +205,9 @@
       "hourlyRate": "/h",
       "reviews": "avis",
       "upTo": "Jusqu'à",
-      "km": "km"
+      "km": "km",
+      "available": "Disponible",
+      "unavailable": "Indisponible"
     },
     "profile": {
       "notFound": "Professionnel non trouvé",
