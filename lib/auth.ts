@@ -28,9 +28,9 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
         try {
           const supabase = await createClient();
+
           const {
             data: { session, user },
             error,

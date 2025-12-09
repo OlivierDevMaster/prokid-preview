@@ -1,26 +1,46 @@
 'use client';
 
 import { Menu, X } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
+import { useRole } from '@/hooks/useRole';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 export function Navigation() {
   const t = useTranslations('navigation');
   const title = useTranslations('title');
+  const tCommon = useTranslations('common');
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
+  const { isAdmin, isProfessional, isStructure } = useRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { href: '/professional', label: t('professionals') },
+    { href: '/professionals', label: t('professionals') },
     { href: '/how-it-works', label: t('howItWorks') },
   ];
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push('/');
+  };
+
+  const handleDashboard = () => {
+    if (isAdmin) {
+      router.push('/admin/dashboard');
+    } else if (isProfessional) {
+      router.push('/professional/availabilities');
+    } else if (isStructure) {
+      router.push('/structure/dashboard');
+    }
+  };
 
   return (
     <nav className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -57,6 +77,16 @@ export function Navigation() {
                 <span className='text-sm text-muted-foreground'>
                   {session.user?.email}
                 </span>
+                <Button
+                  className='bg-blue-500 text-white'
+                  onClick={handleDashboard}
+                  size='sm'
+                >
+                  {tCommon('label.dashboard')}
+                </Button>
+                <Button onClick={handleSignOut} size='sm'>
+                  {tCommon('actions.signOut')}
+                </Button>
               </div>
             ) : (
               <div className='hidden md:flex md:items-center md:gap-2'>

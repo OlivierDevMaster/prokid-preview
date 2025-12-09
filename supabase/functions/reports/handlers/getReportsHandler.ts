@@ -6,6 +6,7 @@ import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
+  supabaseAdminClient: SupabaseClient<Database>;
   supabaseClient: SupabaseClient<Database>;
   user: User;
 };

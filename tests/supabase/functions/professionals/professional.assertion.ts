@@ -55,7 +55,6 @@ export class ProfessionalAssertions {
     assertExists(professional.city);
     assertExists(professional.postal_code);
     assertExists(professional.intervention_radius_km);
-    assertExists(professional.professional_email);
     assertExists(professional.experience_years);
     assertExists(professional.hourly_rate);
     assertExists(professional.skills);
@@ -99,7 +98,6 @@ export class ProfessionalAssertions {
     assertEquals(professional.phone, requestBody.phone);
     assertExists(professional.skills);
     assertEquals(professional.skills.length, requestBody.skills.length);
-    assertExists(professional.professional_email);
     assertExists(professional.created_at);
     assertExists(professional.updated_at);
   }

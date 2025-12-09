@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import type { DaySchedule } from '@/features/sign-up/steps/Step3Planning';
@@ -23,7 +22,6 @@ const initialSchedule: Record<string, DaySchedule> = {
 
 export default function ProfessionalSignUpForm2() {
   const [currentStep, setCurrentStep] = useState(1);
-  const t = useTranslations('professional.label');
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     city: '',
@@ -59,7 +57,6 @@ export default function ProfessionalSignUpForm2() {
       profilePhoto,
       schedule,
     });
-    // TODO: Implement actual submission logic
   };
 
   return (

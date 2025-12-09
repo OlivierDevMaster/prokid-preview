@@ -1,10 +1,12 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
+import { MultiSelect } from '@/components/multi-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import useGetProfessionalJobs from '@/features/professionals/hooks/useGetProfessionalJobs';
 
 import { ProgressBar } from '../ProgressBar';
 
@@ -27,20 +29,16 @@ interface Step2IdentityInfoProps {
   onPrevious: () => void;
 }
 
-const professions = [
-  'Psychomotricien',
-  'Éducateur de jeunes enfants',
-  'Auxiliaire de puériculture',
-  'Infirmier(ère)',
-  'Autre',
-];
-
 export function Step2IdentityInfo({
   formData,
   onFormDataChange,
   onNext,
   onPrevious,
 }: Step2IdentityInfoProps) {
+  const t = useTranslations('professional');
+  const tCommon = useTranslations('common');
+  const professionalJobs = useGetProfessionalJobs();
+
   const handleChange = (field: string, value: number | string) => {
     onFormDataChange({ [field]: value });
   };
@@ -51,15 +49,15 @@ export function Step2IdentityInfo({
 
       <div className='space-y-2 text-center'>
         <h1 className='text-3xl font-bold text-gray-900'>
-          Identité & informations
+          {t('label.informations')}
         </h1>
-        <p className='text-gray-600'>Complétez votre profil professionnel</p>
+        <p className='text-gray-600'>{t('label.completeProfile')}</p>
       </div>
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='firstName'>
-            Prénom *
+            {tCommon('label.firstName')} *
           </Label>
           <Input
             className='border-gray-300'
@@ -73,7 +71,7 @@ export function Step2IdentityInfo({
 
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='lastName'>
-            Nom *
+            {tCommon('label.lastName')} *
           </Label>
           <Input
             className='border-gray-300'
@@ -84,30 +82,29 @@ export function Step2IdentityInfo({
             value={formData.lastName}
           />
         </div>
+      </div>
 
-        <div className='space-y-2'>
-          <Label className='text-gray-700' htmlFor='profession'>
-            Profession *
-          </Label>
-          <div className='relative'>
-            <select
-              className='h-9 w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
-              id='profession'
-              onChange={e => handleChange('profession', e.target.value)}
-              required
-              value={formData.profession}
-            >
-              <option value=''>Sélectionnez une profession</option>
-              {professions.map(prof => (
-                <option key={prof} value={prof}>
-                  {prof}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
-          </div>
+      <div className='space-y-2'>
+        <Label className='text-gray-700' htmlFor='profession'>
+          {tCommon('label.profession')} *
+        </Label>
+        <div className='w-full'>
+          <MultiSelect
+            animationConfig={{
+              badgeAnimation: 'fade',
+              popoverAnimation: 'scale',
+            }}
+            className='w-full'
+            hideSelectAll={true}
+            onValueChange={value => console.log(value)}
+            options={professionalJobs}
+            placeholder='Select without search'
+            searchable={false}
+          />
         </div>
+      </div>
 
+      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='city'>
             Ville *

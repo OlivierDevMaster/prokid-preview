@@ -4,6 +4,7 @@ import type {
   Professional,
   ProfessionalFilters,
   ProfessionalInsert,
+  ProfessionalsWithProfilesSearch,
   ProfessionalUpdate,
 } from './professional.model';
 
@@ -83,46 +84,89 @@ export const getProfessionals = async (
   filters: ProfessionalFilters,
   paginationOptions: PaginationOptions
 ): Promise<PaginationResult<Professional>> => {
+  try {
+    const supabase = createClient();
+
+    let query = supabase
+      .from('professionals_with_profiles_search')
+      .select('*', { count: 'exact' });
+
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      query = query.or(
+        `description.ilike.${searchPattern},first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`
+      );
+    }
+
+    if (filters.locationSearch) {
+      const locationSearchPattern = `%${filters.locationSearch}%`;
+      query = query.or(
+        `city.ilike.${locationSearchPattern},postal_code.ilike.${locationSearchPattern}`
+      );
+    }
+
+    if (filters.skills?.length) {
+      query = query.overlaps('skills', filters.skills);
+    }
+
+    const page = paginationOptions.page ?? ProfessionalConfig.PAGE_DEFAULT;
+
+    const limit =
+      paginationOptions.limit ?? ProfessionalConfig.PAGE_SIZE_DEFAULT;
+
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    query = query.order('created_at', { ascending: false }).range(from, to);
+
+    const { count, data, error } = await query;
+
+    if (error) throw error;
+
+    // Transform flat view data to nested Professional structure
+    const transformedData: Professional[] =
+      (data as null | ProfessionalsWithProfilesSearch[])?.map(row => {
+        const {
+          avatar_url,
+          first_name,
+          is_onboarded,
+          last_name,
+          profile_created_at,
+          profile_email,
+          profile_role,
+          ...professionalData
+        } = row;
+        return {
+          ...professionalData,
+          profile: {
+            avatar_url,
+            created_at: profile_created_at,
+            email: profile_email,
+            first_name,
+            is_onboarded,
+            last_name,
+            role: profile_role,
+            user_id: row.user_id,
+          },
+        } as Professional;
+      }) ?? [];
+    return {
+      count: count ?? 0,
+      data: transformedData,
+    };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const deleteProfessional = async (userId: string): Promise<void> => {
   const supabase = createClient();
 
-  let query = supabase.from('professionals').select(
-    `
-      *,
-      profile:profiles(*)
-    `,
-    { count: 'exact' }
-  );
-
-  if (filters.search) {
-    query = query.ilike('description', `%${filters.search}%`);
-    query = query.ilike('profile.first_name', `%${filters.search}%`);
-    query = query.ilike('profile.last_name', `%${filters.search}%`);
-  }
-
-  if (filters.locationSearch) {
-    query = query.ilike('city', `%${filters.locationSearch}%`);
-    query = query.ilike('postal_code', `%${filters.locationSearch}%`);
-  }
-
-  if (filters.skills?.length) {
-    query = query.overlaps('skills', filters.skills);
-  }
-
-  const page = paginationOptions.page ?? ProfessionalConfig.PAGE_DEFAULT;
-
-  const limit = paginationOptions.limit ?? ProfessionalConfig.PAGE_SIZE_DEFAULT;
-
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  query = query.order('created_at', { ascending: false }).range(from, to);
-
-  const { count, data, error } = await query;
+  const { error } = await supabase
+    .from('professionals')
+    .delete()
+    .eq('user_id', userId);
 
   if (error) throw error;
-
-  return {
-    count: count ?? 0,
-    data: data ?? [],
-  };
 };

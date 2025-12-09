@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddUserButton } from '@/features/admin/users/components/AddUserButton';
 import { UsersTable } from '@/features/admin/users/components/UsersTable';
-import { UserService } from '@/services/admin/users/user.service';
+import { User } from '@/features/admin/users/modeles/user.modele';
 
 export default async function UsersPage({
   params,
@@ -12,7 +12,7 @@ export default async function UsersPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'admin.users' });
-  const users = await UserService.getAllUsers();
+  const users: User[] = [];
 
   const translations = {
     actions: t('actions'),

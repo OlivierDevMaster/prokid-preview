@@ -45,12 +45,17 @@ describe('Reports RLS - SELECT', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -73,12 +78,17 @@ describe('Reports RLS - SELECT', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -105,12 +115,17 @@ describe('Reports RLS - SELECT', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional1, professional2, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional2.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional2.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -130,17 +145,22 @@ describe('Reports RLS - SELECT', () => {
     assertEquals(data?.length, 0);
   });
 
-  it('should allow structures to view reports they received', async () => {
+  it('should allow structures to view reports for their missions', async () => {
     const professional = await fixtureBuilder.createOnboardedProfessional();
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
+
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
 
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -161,18 +181,23 @@ describe('Reports RLS - SELECT', () => {
     assertEquals(data?.[0].id, report.id);
   });
 
-  it('should prevent structures from viewing reports they did not receive', async () => {
+  it('should prevent structures from viewing reports for missions they did not create', async () => {
     const professional = await fixtureBuilder.createOnboardedProfessional();
     const structure1 = await fixtureBuilder.createOnboardedStructure();
     const structure2 = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure1, structure2);
+
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure2.structureId!
+    );
 
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure2.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -198,12 +223,17 @@ describe('Reports RLS - SELECT', () => {
     const admin = await fixtureBuilder.createAdminUser();
     fixtures.push(professional, structure, admin);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')

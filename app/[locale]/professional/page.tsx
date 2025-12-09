@@ -1,5 +1,9 @@
-import ProfessionalPage from '@/features/professional/components/ProfessionalPage';
+'use client';
 
-export default function Page() {
-  return <ProfessionalPage />;
+import { useRouter } from 'next/navigation';
+
+export default function DashboardPage() {
+  const router = useRouter();
+  router.push('/professional/dashboard');
+  return null;
 }

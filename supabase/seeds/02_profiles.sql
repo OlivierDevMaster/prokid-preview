@@ -10,6 +10,7 @@ INSERT INTO public.profiles (
   first_name,
   last_name,
   avatar_url,
+  preferred_language,
   is_onboarded
 ) VALUES (
   '08fb0a72-ee9b-4771-bf24-7fe19c869ae1',
@@ -18,6 +19,7 @@ INSERT INTO public.profiles (
   'Admin',
   'User',
   NULL,
+  'en',
   TRUE
 ) ON CONFLICT (user_id) DO NOTHING;
 

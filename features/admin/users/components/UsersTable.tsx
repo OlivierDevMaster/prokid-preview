@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -11,7 +12,7 @@ import {
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
-import type { User } from '@/services/admin/users/user.types';
+import type { User } from '@/features/admin/users/modeles/user.modele';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -59,7 +60,7 @@ export function UsersTable({
 
   const columns = useGetUserColumnDefs({ locale, translations });
   const table = useReactTable({
-    columns,
+    columns: columns as ColumnDef<User>[],
     data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

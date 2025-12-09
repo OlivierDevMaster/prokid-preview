@@ -159,7 +159,6 @@ export class AvailabilityFixtureBuilder {
           intervention_radius_km: 10,
           phone: '+33123456789',
           postal_code: '75001',
-          professional_email: email,
           skills: ['skill1', 'skill2'],
           user_id: userId,
         })
