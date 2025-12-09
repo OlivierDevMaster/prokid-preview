@@ -37,25 +37,31 @@ export type Database = {
       availabilities: {
         Row: {
           created_at: string
+          dtstart: string | null
           duration_mn: number
           id: string
           rrule: string
+          until: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          dtstart?: string | null
           duration_mn: number
           id?: string
           rrule: string
+          until?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          dtstart?: string | null
           duration_mn?: number
           id?: string
           rrule?: string
+          until?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -65,6 +71,66 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          created_at: string
+          description: string | null
+          dtstart: string | null
+          duration_mn: number
+          id: string
+          professional_id: string
+          rrule: string
+          status: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          until: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          dtstart?: string | null
+          duration_mn: number
+          id?: string
+          professional_id: string
+          rrule: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          dtstart?: string | null
+          duration_mn?: number
+          id?: string
+          professional_id?: string
+          rrule?: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id?: string
+          title?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "missions_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
             referencedColumns: ["user_id"]
           },
         ]
@@ -203,7 +269,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          recipient_id: string
+          mission_id: string
           title: string
           updated_at: string
         }
@@ -212,7 +278,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
-          recipient_id: string
+          mission_id: string
           title: string
           updated_at?: string
         }
@@ -221,7 +287,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
-          recipient_id?: string
+          mission_id?: string
           title?: string
           updated_at?: string
         }
@@ -234,11 +300,11 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "reports_recipient_id_fkey"
-            columns: ["recipient_id"]
+            foreignKeyName: "reports_mission_id_fkey"
+            columns: ["mission_id"]
             isOneToOne: false
-            referencedRelation: "structures"
-            referencedColumns: ["user_id"]
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -425,6 +491,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_mission_rrule: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          hour: number
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
       create_onetime_availability: {
         Args: {
           day_offset: number
@@ -445,6 +521,10 @@ export type Database = {
         Returns: string
       }
       format_exdate: { Args: { date_offset: number }; Returns: string }
+      get_next_weekday: {
+        Args: { days_ahead?: number; target_dow: number }
+        Returns: string
+      }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
     }
@@ -456,6 +536,7 @@ export type Database = {
         | "left"
         | "removed_by_structure"
         | "removed_by_admin"
+      mission_status: "pending" | "accepted" | "declined" | "cancelled"
       role: "professional" | "structure" | "admin"
     }
     CompositeTypes: {
@@ -595,6 +676,7 @@ export const Constants = {
         "removed_by_structure",
         "removed_by_admin",
       ],
+      mission_status: ["pending", "accepted", "declined", "cancelled"],
       role: ["professional", "structure", "admin"],
     },
   },

@@ -1,6 +1,6 @@
 -- Migration: create_enums
 -- Purpose: Create enum types for the database schema
--- Affected objects: role enum type, invitation_status enum type, membership_action enum type, locale enum type
+-- Affected objects: role enum type, invitation_status enum type, membership_action enum type, locale enum type, mission_status enum type
 
 CREATE TYPE "public"."role" AS ENUM ('professional', 'structure', 'admin');
 
@@ -17,3 +17,7 @@ COMMENT ON TYPE "public"."membership_action" IS 'Action types for membership his
 CREATE TYPE "public"."locale" AS ENUM ('en', 'fr');
 
 COMMENT ON TYPE "public"."locale" IS 'Supported locales: en (English) or fr (French)';
+
+CREATE TYPE "public"."mission_status" AS ENUM ('pending', 'accepted', 'declined', 'cancelled');
+
+COMMENT ON TYPE "public"."mission_status" IS 'Status of missions: pending, accepted, declined, or cancelled';

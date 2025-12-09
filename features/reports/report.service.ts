@@ -28,9 +28,12 @@ export const createReport = async (
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
     )
@@ -53,9 +56,12 @@ export const findReport = async (reportId: string): Promise<null | Report> => {
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
     )
@@ -84,9 +90,12 @@ export const updateReport = async (
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
     )
@@ -111,9 +120,12 @@ export const findReports = async (
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `,
     { count: 'exact' }
@@ -135,23 +147,16 @@ export const findReports = async (
     );
   }
 
-  if (filters.recipientSearch) {
-    query = query.ilike(
-      'recipient.profile.first_name',
-      `%${filters.recipientSearch}%`
-    );
-    query = query.ilike(
-      'recipient.profile.last_name',
-      `%${filters.recipientSearch}%`
-    );
+  if (filters.missionId) {
+    query = query.eq('mission_id', filters.missionId);
+  }
+
+  if (filters.structureId) {
+    query = query.eq('mission.structure_id', filters.structureId);
   }
 
   if (filters.authorId) {
-    query = query.eq('author.id', filters.authorId);
-  }
-
-  if (filters.recipientId) {
-    query = query.eq('recipient.id', filters.recipientId);
+    query = query.eq('author_id', filters.authorId);
   }
 
   const page = paginationOptions.page ?? ReportConfig.PAGE_DEFAULT;

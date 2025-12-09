@@ -8,17 +8,19 @@ export type Report = {
   author: {
     profile: Tables<'profiles'>;
   } & Tables<'professionals'>;
-  recipient: {
-    profile: Tables<'profiles'>;
-  } & Tables<'structures'>;
+  mission: {
+    structure: {
+      profile: Tables<'profiles'>;
+    } & Tables<'structures'>;
+  } & Tables<'missions'>;
 } & Tables<'reports'>;
 
 export interface ReportFilters {
   authorId?: string;
   authorSearch?: string;
-  recipientId?: string;
-  recipientSearch?: string;
+  missionId?: string;
   search?: string;
+  structureId?: string;
 }
 
 export type ReportInsert = TablesInsert<'reports'>;

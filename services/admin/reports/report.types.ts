@@ -2,7 +2,7 @@ import { Tables } from '@/types/database/schema';
 
 export interface CreateReportInput {
   contents: string;
-  recipient_structure?: string;
+  mission_id?: string;
   title: string;
 }
 

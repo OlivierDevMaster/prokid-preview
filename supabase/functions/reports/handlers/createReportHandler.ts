@@ -35,7 +35,7 @@ export const createReportHandler = factory.createHandlers(
       const report = await createReport(supabaseClient, {
         author_id: user.id,
         content: validationResult.data.content,
-        recipient_id: validationResult.data.recipient_id,
+        mission_id: validationResult.data.mission_id,
         title: validationResult.data.title,
       });
 
