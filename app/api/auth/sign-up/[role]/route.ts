@@ -8,7 +8,8 @@ export async function POST(
   { params }: { params: Promise<{ role: string }> }
 ) {
   try {
-    const { email, firstName, lastName, password } = await request.json();
+    const { email, firstName, lastName, password, preferredLanguage } =
+      await request.json();
     const { role } = await params;
 
     const allowedRoles: Role[] = [Role.professional, Role.structure];
@@ -35,6 +36,13 @@ export async function POST(
       );
     }
 
+    // Validate preferred_language if provided
+    const validLanguages = ['en', 'fr'];
+    const preferred_language =
+      preferredLanguage && validLanguages.includes(preferredLanguage)
+        ? preferredLanguage
+        : 'fr';
+
     const supabase = await createClient();
 
     const fullName = `${firstName} ${lastName}`;
@@ -46,6 +54,7 @@ export async function POST(
           first_name: firstName,
           full_name: fullName,
           last_name: lastName,
+          preferred_language: preferred_language,
           role: role,
         },
       },

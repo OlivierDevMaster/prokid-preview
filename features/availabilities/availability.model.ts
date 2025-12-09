@@ -1,3 +1,4 @@
+import type { Mission } from '@/features/missions/mission.model';
 import type {
   Tables,
   TablesInsert,
@@ -15,6 +16,8 @@ export type AvailabilityInsert = TablesInsert<'availabilities'>;
 export interface AvailabilitySlot {
   durationMn: number;
   endAt: string;
+  isAvailable: boolean;
+  mission: Mission | null;
   startAt: string;
 }
 

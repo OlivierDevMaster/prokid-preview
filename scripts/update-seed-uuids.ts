@@ -77,7 +77,7 @@ const seedFiles = [
   'supabase/seeds/03_professionals.sql',
   'supabase/seeds/04_availabilities.sql',
   'supabase/seeds/05_structures.sql',
-  'supabase/seeds/06_reports.sql',
+  'supabase/seeds/09_reports.sql',
 ];
 
 seedFiles.forEach(filePath => {

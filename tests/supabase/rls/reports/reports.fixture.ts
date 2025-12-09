@@ -11,6 +11,12 @@ export interface AdminRlsFixture {
   userId: string;
 }
 
+export interface MissionRlsFixture {
+  id: string;
+  professionalId: string;
+  structureId: string;
+}
+
 export interface ReportRlsFixture {
   adminClient: ReturnType<typeof createClient<Database>>;
   email: string;
@@ -63,6 +69,29 @@ export class ReportRlsCleanupHelper {
       }
 
       if (fixture.professionalId) {
+        const { data: missions } = await this.adminClient
+          .from('missions')
+          .select('id')
+          .eq('professional_id', fixture.professionalId);
+
+        if (missions && missions.length > 0) {
+          const missionIds = missions.map(m => m.id);
+          await this.adminClient
+            .from('reports')
+            .delete()
+            .in('mission_id', missionIds);
+        }
+
+        await this.adminClient
+          .from('missions')
+          .delete()
+          .eq('professional_id', fixture.professionalId);
+
+        await this.adminClient
+          .from('structure_members')
+          .delete()
+          .eq('professional_id', fixture.professionalId);
+
         await this.adminClient
           .from('professionals')
           .delete()
@@ -83,13 +112,29 @@ export class ReportRlsCleanupHelper {
   async cleanupStructure(fixture: StructureRlsFixture): Promise<void> {
     try {
       if (fixture.structureId) {
-        await this.adminClient
-          .from('reports')
-          .delete()
-          .eq('recipient_id', fixture.structureId);
-      }
+        const { data: missions } = await this.adminClient
+          .from('missions')
+          .select('id')
+          .eq('structure_id', fixture.structureId);
 
-      if (fixture.structureId) {
+        if (missions && missions.length > 0) {
+          const missionIds = missions.map(m => m.id);
+          await this.adminClient
+            .from('reports')
+            .delete()
+            .in('mission_id', missionIds);
+        }
+
+        await this.adminClient
+          .from('missions')
+          .delete()
+          .eq('structure_id', fixture.structureId);
+
+        await this.adminClient
+          .from('structure_members')
+          .delete()
+          .eq('structure_id', fixture.structureId);
+
         await this.adminClient
           .from('structures')
           .delete()
@@ -186,6 +231,37 @@ export class ReportRlsFixtureBuilder {
     };
   }
 
+  async createMission(
+    professionalId: string,
+    structureId: string
+  ): Promise<MissionRlsFixture> {
+    await this.createStructureMembership(professionalId, structureId);
+
+    const { data: missionData, error: missionError } = await this.adminClient
+      .from('missions')
+      .insert({
+        description: 'Test mission description',
+        duration_mn: 240,
+        professional_id: professionalId,
+        rrule: 'FREQ=DAILY;COUNT=1',
+        status: 'accepted',
+        structure_id: structureId,
+        title: 'Test Mission',
+      })
+      .select('id')
+      .single();
+
+    if (missionError || !missionData) {
+      throw new Error(`Failed to create mission: ${missionError?.message}`);
+    }
+
+    return {
+      id: missionData.id,
+      professionalId,
+      structureId,
+    };
+  }
+
   async createOnboardedProfessional(): Promise<ReportRlsFixture> {
     const email = `test-professional-rls-${Date.now()}@example.com`;
 
@@ -220,7 +296,6 @@ export class ReportRlsFixtureBuilder {
           intervention_radius_km: 10,
           phone: '+33123456789',
           postal_code: '75001',
-          professional_email: email,
           skills: ['skill1', 'skill2'],
           user_id: userId,
         })
@@ -352,16 +427,20 @@ export class ReportRlsFixtureBuilder {
   }
 
   async createProfessionalWithReport(
-    recipientStructureId: string
+    structureId: string
   ): Promise<ReportRlsFixture> {
     const professional = await this.createOnboardedProfessional();
+    const mission = await this.createMission(
+      professional.professionalId!,
+      structureId
+    );
 
     const { data: reportData, error: reportError } = await this.adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test report content',
-        recipient_id: recipientStructureId,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -375,5 +454,23 @@ export class ReportRlsFixtureBuilder {
       ...professional,
       reportId: reportData.id,
     };
+  }
+
+  async createStructureMembership(
+    professionalId: string,
+    structureId: string
+  ): Promise<void> {
+    const { error: membershipError } = await this.adminClient
+      .from('structure_members')
+      .insert({
+        professional_id: professionalId,
+        structure_id: structureId,
+      });
+
+    if (membershipError) {
+      throw new Error(
+        `Failed to create structure membership: ${membershipError.message}`
+      );
+    }
   }
 }

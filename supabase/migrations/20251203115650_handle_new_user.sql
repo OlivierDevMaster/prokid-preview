@@ -19,14 +19,23 @@ DECLARE
   user_first_name text;
   user_last_name text;
   user_avatar_url text;
+  user_preferred_language text;
 BEGIN
   -- Extract role from raw_user_meta_data only
   user_role := NEW.raw_user_meta_data->>'role';
 
   -- Extract optional fields from metadata, handling NULL and empty strings
-  user_first_name := NULLIF(TRIM(NEW.raw_user_meta_data->>'first_name'), '');
-  user_last_name := NULLIF(TRIM(NEW.raw_user_meta_data->>'last_name'), '');
-  user_avatar_url := NULLIF(TRIM(NEW.raw_user_meta_data->>'avatar_url'), '');
+  -- Use regexp_replace to remove all leading and trailing whitespace (spaces, tabs, newlines, etc.)
+  user_first_name := NULLIF(regexp_replace(NEW.raw_user_meta_data->>'first_name', '^\s+|\s+$', '', 'g'), '');
+  user_last_name := NULLIF(regexp_replace(NEW.raw_user_meta_data->>'last_name', '^\s+|\s+$', '', 'g'), '');
+  user_avatar_url := NULLIF(regexp_replace(NEW.raw_user_meta_data->>'avatar_url', '^\s+|\s+$', '', 'g'), '');
+
+  -- Extract preferred_language from metadata, defaulting to 'fr' if not provided or invalid
+  user_preferred_language := NULLIF(regexp_replace(NEW.raw_user_meta_data->>'preferred_language', '^\s+|\s+$', '', 'g'), '');
+  -- Validate and default to 'fr' if not 'en' or 'fr'
+  IF user_preferred_language IS NULL OR user_preferred_language NOT IN ('en', 'fr') THEN
+    user_preferred_language := 'fr';
+  END IF;
 
   -- Only proceed if role is 'professional' or 'structure'
   IF user_role IN ('professional', 'structure') THEN
@@ -37,7 +46,8 @@ BEGIN
       email,
       first_name,
       last_name,
-      avatar_url
+      avatar_url,
+      preferred_language
     )
     VALUES (
       NEW.id,
@@ -45,7 +55,8 @@ BEGIN
       NEW.email,
       user_first_name,
       user_last_name,
-      user_avatar_url
+      user_avatar_url,
+      user_preferred_language::public.locale
     );
   END IF;
 

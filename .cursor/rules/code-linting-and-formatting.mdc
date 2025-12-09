@@ -1,0 +1,29 @@
+---
+description: Code linting and formatting rules
+alwaysApply: true
+---
+
+## Linting & Formatting Enforcement
+
+- **Never manually fix linting or formatting errors** unless it is technically impossible to use the automated fixer.
+- **Always use the following command to fix linting issues on specific files:**
+
+```bash
+  npm run lint:fix:files -- <file-path1> <file-path2> ...
+```
+
+**Any file that is created or modified during this chat MUST be passed to the lint fix command before the response is considered complete.**
+
+* If linting **cannot be fixed automatically**, clearly explain:
+
+  - Why auto-fix failed
+  - What exact manual change is required
+* Do not commit, suggest, or validate code that has not been lint-fixed according to this rule.
+
+## End-of-Response Requirement
+
+* At the end of every response where files were **created or updated**, explicitly show the exact command that was (or must be) executed, for example:
+
+```bash
+npm run lint:fix:files -- src/app.ts src/utils/helpers.ts
+```

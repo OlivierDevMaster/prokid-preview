@@ -45,12 +45,17 @@ describe('Reports RLS - UPDATE', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -82,12 +87,17 @@ describe('Reports RLS - UPDATE', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -116,12 +126,17 @@ describe('Reports RLS - UPDATE', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional1, professional2, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional2.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional2.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -156,12 +171,17 @@ describe('Reports RLS - UPDATE', () => {
     const admin = await fixtureBuilder.createAdminUser();
     fixtures.push(professional, structure, admin);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')
@@ -189,12 +209,17 @@ describe('Reports RLS - UPDATE', () => {
     const structure = await fixtureBuilder.createOnboardedStructure();
     fixtures.push(professional, structure);
 
+    const mission = await fixtureBuilder.createMission(
+      professional.professionalId!,
+      structure.structureId!
+    );
+
     const { data: report } = await adminClient
       .from('reports')
       .insert({
         author_id: professional.professionalId!,
         content: 'Test content',
-        recipient_id: structure.structureId!,
+        mission_id: mission.id,
         title: 'Test Report',
       })
       .select('id')

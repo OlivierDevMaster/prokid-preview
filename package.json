@@ -6,6 +6,7 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:fix:files": "eslint --fix",
     "typecheck": "npx tsc --noEmit --pretty",
     "functions:serve": "supabase functions serve --env-file .env",
     "db:reset:local": "supabase db reset --local",
