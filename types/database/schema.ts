@@ -270,6 +270,7 @@ export type Database = {
           created_at: string
           id: string
           mission_id: string
+          status: Database["public"]["Enums"]["report_status"]
           title: string
           updated_at: string
         }
@@ -279,6 +280,7 @@ export type Database = {
           created_at?: string
           id?: string
           mission_id: string
+          status?: Database["public"]["Enums"]["report_status"]
           title: string
           updated_at?: string
         }
@@ -288,6 +290,7 @@ export type Database = {
           created_at?: string
           id?: string
           mission_id?: string
+          status?: Database["public"]["Enums"]["report_status"]
           title?: string
           updated_at?: string
         }
@@ -537,6 +540,7 @@ export type Database = {
         | "removed_by_structure"
         | "removed_by_admin"
       mission_status: "pending" | "accepted" | "declined" | "cancelled"
+      report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
     }
     CompositeTypes: {
@@ -677,6 +681,7 @@ export const Constants = {
         "removed_by_admin",
       ],
       mission_status: ["pending", "accepted", "declined", "cancelled"],
+      report_status: ["draft", "sent"],
       role: ["professional", "structure", "admin"],
     },
   },
