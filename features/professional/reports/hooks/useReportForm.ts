@@ -23,7 +23,7 @@ export function useReportForm() {
   const form = useForm<ReportFormData>({
     defaultValues: {
       content: '',
-      recipient_id: '',
+      mission_id: '',
       title: '',
     },
     resolver: zodResolver(reportFormSchema),
@@ -43,7 +43,7 @@ export function useReportForm() {
       if (data.id) {
         return updateUserReport(data.id, {
           content: data.content,
-          recipient_id: data.recipient_id,
+          mission_id: data.mission_id,
           title: data.title,
         });
       }
@@ -52,7 +52,7 @@ export function useReportForm() {
       return createUserReport({
         author_id: session.user.id, // Will be overridden by edge function, but kept for type safety
         content: data.content,
-        recipient_id: data.recipient_id,
+        mission_id: data.mission_id,
         title: data.title,
       });
     },

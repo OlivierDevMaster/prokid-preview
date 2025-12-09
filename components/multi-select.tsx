@@ -307,7 +307,6 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     {
       animation = 0,
       animationConfig,
-      asChild = false,
       autoSize = false,
       className,
       closeOnSelect = false,

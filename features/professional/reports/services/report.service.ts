@@ -12,7 +12,7 @@ type GetReportResponse = {
 type ReportInsert = {
   author_id: string;
   content: string;
-  recipient_id: string;
+  mission_id: string;
   title: string;
 };
 

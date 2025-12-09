@@ -43,7 +43,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
       form.reset({
         content: report.content,
         id: report.id,
-        recipient_id: report.recipient_id,
+        mission_id: report.mission_id,
         title: report.title,
       });
     }
@@ -111,7 +111,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                 {/* Recipient Structure */}
                 <FormField
                   control={form.control}
-                  name='recipient_id'
+                  name='mission_id'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-sm font-semibold text-gray-700'>

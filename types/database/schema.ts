@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -131,6 +136,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "missions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
             referencedColumns: ["user_id"]
           },
           {
@@ -310,6 +322,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "reports_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "reports_mission_id_fkey"
             columns: ["mission_id"]
             isOneToOne: false
@@ -352,6 +371,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "structure_invitations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "structure_invitations_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
@@ -391,6 +417,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_members_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
             referencedColumns: ["user_id"]
           },
           {
@@ -456,6 +489,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "structure_membership_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "structure_membership_history_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
@@ -503,6 +543,7 @@ export type Database = {
           avatar_url: string | null
           city: string | null
           created_at: string | null
+          current_job: string | null
           description: string | null
           experience_years: number | null
           first_name: string | null
@@ -514,7 +555,6 @@ export type Database = {
           last_name: string | null
           phone: string | null
           postal_code: string | null
-          professional_email: string | null
           profile_created_at: string | null
           profile_email: string | null
           profile_role: Database["public"]["Enums"]["role"] | null
@@ -730,4 +770,3 @@ export const Constants = {
     },
   },
 } as const
-
