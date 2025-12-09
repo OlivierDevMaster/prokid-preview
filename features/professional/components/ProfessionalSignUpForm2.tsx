@@ -57,7 +57,6 @@ export default function ProfessionalSignUpForm2() {
       profilePhoto,
       schedule,
     });
-    // TODO: Implement actual submission logic
   };
 
   return (

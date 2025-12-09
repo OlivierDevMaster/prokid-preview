@@ -13,7 +13,8 @@
       "currentPassword": "Current password",
       "newPassword": "New password",
       "confirmPassword": "Confirm password",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "profession": "Profession"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -186,7 +187,9 @@
       "recomandedFormat": "Recommended square format",
       "useDefault": "Use a default photo",
       "profileConfiguration": "Setting up your professional profile",
-      "filters": "Filters"
+      "filters": "Filters",
+      "informations": "Identity & information",
+      "completeProfile": "Complete your professional profile"
     },
     "subtitle": "Discover qualified professionals near your structure",
     "search": {
@@ -259,6 +262,15 @@
       "afternoon": "Afternoon",
       "fullDay": "Full day",
       "weekend": "Weekend"
+    },
+    "jobs": {
+      "health_and_inclusive_care_coordinator": "Health and inclusive care coordinator",
+      "early_childhood_educator": "Early childhood educator",
+      "psychomotor_therapist": "Psychomotor therapist",
+      "pediatric_nurse": "Pediatric nurse",
+      "childhood_education_and_care_assistant_certificate": "Childhood education and care assistant certificate",
+      "childcare_auxiliary_nurse": "Childcare auxiliary nurse",
+      "other_early_childhood_profession": "Other early childhood profession"
     }
   },
   "admin": {

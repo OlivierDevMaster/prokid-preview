@@ -13,7 +13,17 @@
       "currentPassword": "Mot de passe actuel",
       "newPassword": "Nouveau mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "profession": "Profession",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "description": "Description",
+      "yearsExperience": "Années d'expérience",
+      "hourlyRate": "Taux horaire",
+      "interventionZone": "Zone d'intervention",
+      "frameworks": "Frameworks",
+      "certifications": "Certifications",
+      "skills": "Compétences"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -186,7 +196,9 @@
       "recomandedFormat": "Format carré recommandé",
       "useDefault": "Utiliser une photo par défaut",
       "profileConfiguration": "Configuration de votre profil professionnel",
-      "filters": "Filtres"
+      "filters": "Filtres",
+      "informations": "Identité & informations",
+      "completeProfile": "Complétez votre profil professionnel"
     },
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
@@ -259,6 +271,15 @@
       "afternoon": "Après-midi",
       "fullDay": "Journée complète",
       "weekend": "Week-end"
+    },
+    "jobs": {
+      "health_and_inclusive_care_coordinator": "Référent santé et accueil inclusif",
+      "early_childhood_educator": "Éducateur de jeunes enfants",
+      "psychomotor_therapist": "Psychomotricien",
+      "pediatric_nurse": "Infirmière puéricultrice",
+      "childhood_education_and_care_assistant_certificate": "CAP accompagnant éducatif petite enfance",
+      "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
+      "other_early_childhood_profession": "Autre profession de la petite enfance"
     }
   },
   "admin": {
