@@ -33,9 +33,35 @@ COMMENT ON COLUMN "public"."reports"."mission_id" IS 'Reference to the mission t
 -- This function ensures that the professional creating the report is the one
 -- assigned to the mission. This prevents professionals from creating reports
 -- for missions they're not assigned to.
+-- Note: This trigger only validates business logic for authenticated professionals
+-- who have already passed RLS checks. RLS policies handle authorization.
 CREATE OR REPLACE FUNCTION "public"."check_report_author_matches_mission_professional"()
 RETURNS TRIGGER AS $$
+DECLARE
+  current_user_id UUID;
+  user_role TEXT;
 BEGIN
+  -- Get current user ID
+  current_user_id := auth.uid();
+
+  -- If unauthenticated, let RLS handle the rejection (RLS will return 42501)
+  IF current_user_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  -- Check user role - only validate for professionals
+  -- Structures and admins are handled by RLS policies
+  SELECT role INTO user_role
+  FROM public.profiles
+  WHERE user_id = current_user_id;
+
+  -- Skip validation for non-professionals (structures, admins) - let RLS handle them
+  IF user_role IS NULL OR user_role != 'professional' THEN
+    RETURN NEW;
+  END IF;
+
+  -- For authenticated professionals, RLS already ensures author_id = current_user_id
+  -- So we only need to validate that the professional is assigned to the mission
   IF NOT EXISTS (
     SELECT 1 FROM "public"."missions"
     WHERE "missions"."id" = NEW."mission_id"
@@ -43,9 +69,10 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'Professional % is not assigned to mission %. Only the assigned professional can create reports for a mission.', NEW."author_id", NEW."mission_id";
   END IF;
+
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 COMMENT ON FUNCTION "public"."check_report_author_matches_mission_professional"() IS 'Ensures that only the professional assigned to a mission can create reports for that mission';
 
