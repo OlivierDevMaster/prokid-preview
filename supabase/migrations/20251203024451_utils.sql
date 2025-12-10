@@ -1,6 +1,6 @@
 -- Migration: utils
 -- Purpose: Create utility functions for database operations
--- Affected objects: update_updated_at_column function, get_rrule_day function, format_exdate function, get_next_weekday function, extract_rrule_dates function
+-- Affected objects: update_updated_at_column function, seeds_get_rrule_day function, seeds_format_exdate function, seeds_get_next_weekday function, extract_rrule_dates function
 
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER
@@ -14,7 +14,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.get_rrule_day(day_offset INTEGER) RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION public.seeds_get_rrule_day(day_offset INTEGER) RETURNS TEXT AS $$
   SELECT CASE EXTRACT(DOW FROM CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL)
     WHEN 0 THEN 'SU'
     WHEN 1 THEN 'MO'
@@ -27,7 +27,7 @@ CREATE OR REPLACE FUNCTION public.get_rrule_day(day_offset INTEGER) RETURNS TEXT
 $$ LANGUAGE SQL STABLE SET search_path = '';
 
 -- Helper function to get date string for EXDATE (simplifies formatting)
-CREATE OR REPLACE FUNCTION public.format_exdate(date_offset INTEGER) RETURNS TEXT AS $$
+CREATE OR REPLACE FUNCTION public.seeds_format_exdate(date_offset INTEGER) RETURNS TEXT AS $$
 BEGIN
   RETURN TO_CHAR(CURRENT_DATE + (date_offset::TEXT || ' days')::INTERVAL, 'YYYYMMDD') || 'T' ||
          TO_CHAR(CURRENT_DATE + (date_offset::TEXT || ' days')::INTERVAL, 'HH24MI') || '00Z';
@@ -35,7 +35,7 @@ END;
 $$ LANGUAGE plpgsql STABLE SET search_path = '';
 
 -- Function to create recurring availability with optional EXDATE
-CREATE OR REPLACE FUNCTION public.create_recurring_availability(
+CREATE OR REPLACE FUNCTION public.seeds_create_recurring_availability(
   user_id_param UUID,
   day_offset INTEGER,
   hour INTEGER,
@@ -58,7 +58,7 @@ BEGIN
                   'T' || LPAD(hour::TEXT, 2, '0') || '0000Z';
 
   -- Build RRULE (newline-separated format)
-  rrule_text := E'\nRRULE:BYDAY=' || public.get_rrule_day(day_offset) || ';FREQ=WEEKLY';
+  rrule_text := E'\nRRULE:BYDAY=' || public.seeds_get_rrule_day(day_offset) || ';FREQ=WEEKLY';
 
   -- Get the target day of week (0=Sunday, 1=Monday, etc.)
   base_date := CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL;
@@ -95,7 +95,7 @@ END;
 $$ LANGUAGE plpgsql SET search_path = '';
 
 -- Function to create one-time availability
-CREATE OR REPLACE FUNCTION public.create_onetime_availability(
+CREATE OR REPLACE FUNCTION public.seeds_create_onetime_availability(
   user_id_param UUID,
   day_offset INTEGER,
   hour INTEGER,
@@ -139,7 +139,7 @@ $$;
 COMMENT ON FUNCTION public.is_admin() IS 'Checks if the current user is an admin. Uses SECURITY DEFINER to bypass RLS.';
 
 -- Function to get next occurrence of a day of week
-CREATE OR REPLACE FUNCTION public.get_next_weekday(target_dow INTEGER, days_ahead INTEGER DEFAULT 0)
+CREATE OR REPLACE FUNCTION public.seeds_get_next_weekday(target_dow INTEGER, days_ahead INTEGER DEFAULT 0)
 RETURNS DATE AS $$
 DECLARE
   current_dow INTEGER;
@@ -158,10 +158,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE SET search_path = '';
 
-COMMENT ON FUNCTION public.get_next_weekday(INTEGER, INTEGER) IS 'Returns the next occurrence of a specified day of week (0=Sunday, 1=Monday, etc.). days_ahead parameter allows getting occurrences in future weeks.';
+COMMENT ON FUNCTION public.seeds_get_next_weekday(INTEGER, INTEGER) IS 'Returns the next occurrence of a specified day of week (0=Sunday, 1=Monday, etc.). days_ahead parameter allows getting occurrences in future weeks.';
 
 -- Function to create mission RRULE (recurring or one-time)
-CREATE OR REPLACE FUNCTION public.create_mission_rrule(
+CREATE OR REPLACE FUNCTION public.seeds_create_mission_rrule(
   day_offset INTEGER,
   hour INTEGER,
   duration_minutes INTEGER,
@@ -176,7 +176,7 @@ DECLARE
   until_date DATE;
 BEGIN
   -- Calculate target date
-  target_date := public.get_next_weekday(
+  target_date := public.seeds_get_next_weekday(
     EXTRACT(DOW FROM CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL)::INTEGER,
     weeks_ahead * 7
   );
@@ -193,7 +193,7 @@ BEGIN
     rrule_text := E'\nRRULE:COUNT=1;FREQ=DAILY';
   ELSE
     -- Recurring mission
-    rrule_text := E'\nRRULE:BYDAY=' || public.get_rrule_day(day_offset) || ';FREQ=WEEKLY';
+    rrule_text := E'\nRRULE:BYDAY=' || public.seeds_get_rrule_day(day_offset) || ';FREQ=WEEKLY';
 
     -- Add UNTIL if specified
     until_date := target_date + (until_offset::TEXT || ' days')::INTERVAL;
@@ -207,7 +207,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE SET search_path = '';
 
-COMMENT ON FUNCTION public.create_mission_rrule(INTEGER, INTEGER, INTEGER, INTEGER, INTEGER) IS 'Creates RRULE string for missions. If until_offset is NULL, creates one-time mission. Otherwise creates recurring mission with UNTIL date.';
+COMMENT ON FUNCTION public.seeds_create_mission_rrule(INTEGER, INTEGER, INTEGER, INTEGER, INTEGER) IS 'Creates RRULE string for missions. If until_offset is NULL, creates one-time mission. Otherwise creates recurring mission with UNTIL date.';
 
 -- Function to extract DTSTART and UNTIL from RRULE string
 CREATE OR REPLACE FUNCTION "public"."extract_rrule_dates"()
