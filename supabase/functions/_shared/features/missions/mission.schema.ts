@@ -2,13 +2,21 @@ import { z } from 'zod';
 
 export const CreateMissionRequestBodySchema = z
   .object({
-    availability_ids: z
-      .array(z.uuid())
-      .min(1, 'At least one availability must be selected'),
     description: z.string().optional(),
     mission_dtstart: z.string().datetime('Invalid mission start date format'),
     mission_until: z.string().datetime('Invalid mission end date format'),
     professional_id: z.uuid(),
+    schedules: z
+      .array(
+        z.object({
+          duration_mn: z
+            .number()
+            .int()
+            .positive('Duration must be a positive integer'),
+          rrule: z.string().min(1, 'RRULE cannot be empty'),
+        })
+      )
+      .min(1, 'At least one schedule is required'),
     status: z.enum(['pending', 'accepted', 'declined', 'cancelled']).optional(),
     structure_id: z.uuid(),
     title: z.string().min(1),

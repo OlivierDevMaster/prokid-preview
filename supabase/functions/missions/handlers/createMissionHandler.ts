@@ -9,7 +9,7 @@ import {
 } from '../../_shared/features/missions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
-import { generateMissionScheduleRRULE } from '../../_shared/utils/rrule-generator.ts';
+import { constrainRRULEByDates } from '../../_shared/utils/rrule-generator.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
@@ -95,67 +95,30 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      // Fetch selected availabilities
-      const { data: availabilities, error: availabilitiesError } =
-        await supabaseAdminClient
-          .from('availabilities')
-          .select('id, rrule, duration_mn, user_id')
-          .in('id', body.availability_ids);
-
-      if (availabilitiesError) {
-        console.error('Error fetching availabilities:', availabilitiesError);
-        return apiResponse.internalServerError(
-          'Failed to fetch availabilities'
-        );
-      }
-
-      if (
-        !availabilities ||
-        availabilities.length !== body.availability_ids.length
-      ) {
-        return apiResponse.badRequest(
-          'INVALID_AVAILABILITIES',
-          'One or more selected availabilities not found'
-        );
-      }
-
-      // Verify all availabilities belong to the professional
-      for (const availability of availabilities) {
-        if (availability.user_id !== body.professional_id) {
-          return apiResponse.badRequest(
-            'AVAILABILITY_MISMATCH',
-            'One or more availabilities do not belong to the selected professional'
-          );
-        }
-      }
-
-      // Generate RRULEs for each availability
+      // Process and constrain RRULEs for each schedule
       const schedules: Array<{
-        availability_id: string;
         duration_mn: number;
         rrule: string;
       }> = [];
 
-      for (const availability of availabilities) {
+      for (const scheduleInput of body.schedules) {
         try {
-          const generatedRRULE = generateMissionScheduleRRULE(
-            availability.rrule,
+          // Constrain RRULE by mission dates (also validates RRULE format)
+          const constrainedRRULE = constrainRRULEByDates(
+            scheduleInput.rrule,
             missionDtstart,
             missionUntil
           );
+
           schedules.push({
-            availability_id: availability.id,
-            duration_mn: availability.duration_mn,
-            rrule: generatedRRULE,
+            duration_mn: scheduleInput.duration_mn,
+            rrule: constrainedRRULE,
           });
         } catch (rruleError) {
-          console.error(
-            `Error generating RRULE for availability ${availability.id}:`,
-            rruleError
-          );
+          console.error(`Error processing RRULE for schedule:`, rruleError);
           return apiResponse.badRequest(
-            'INVALID_AVAILABILITY_RRULE',
-            `Invalid RRULE format in availability ${availability.id}`,
+            'INVALID_RRULE',
+            'Invalid RRULE format in schedule',
             {
               error: String(rruleError),
             }
@@ -303,7 +266,6 @@ export const createMissionHandler = factory.createHandlers(
         .from('mission_schedules')
         .insert(
           schedules.map(schedule => ({
-            availability_id: schedule.availability_id,
             duration_mn: schedule.duration_mn,
             mission_id: mission.id,
             rrule: schedule.rrule,

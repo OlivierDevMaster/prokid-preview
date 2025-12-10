@@ -2,26 +2,26 @@
 
 ## Overview
 
-The mission system allows structures to create recurring missions for professionals by selecting from their available time slots. Each mission can reference multiple availability patterns, and the system automatically generates RRULE schedules constrained by the mission's date range.
+The mission system allows structures to create recurring missions for professionals by providing RRULE patterns directly. The frontend suggests professional availabilities, but structures can create custom RRULEs for any time slot. The backend constrains all RRULEs by the mission's date range.
 
 ## Architecture
 
 ### Key Concepts
 
-1. **Availabilities**: Professional-defined recurring time slots (e.g., "Every Monday 9am-12pm")
-2. **Missions**: Structure-created assignments that reference one or more availabilities
-3. **Mission Schedules**: Generated RRULE patterns based on availabilities, constrained by mission dates
+1. **Availabilities**: Professional-defined recurring time slots (e.g., "Every Monday 9am-12pm") - used as frontend suggestions only
+2. **Missions**: Structure-created assignments with one or more RRULE schedules
+3. **Mission Schedules**: RRULE patterns provided by frontend, constrained by mission dates
 
 ### Data Flow
 
 ```
-Structure selects availabilities
+Frontend suggests professional availabilities
     ↓
-Structure provides mission dates (start/end)
+Structure selects availabilities OR creates custom RRULEs
     ↓
-System generates RRULEs for each availability
+Frontend sends RRULEs + mission dates to backend
     ↓
-RRULEs are constrained by mission dates
+Backend constrains RRULEs by mission dates
     ↓
 Mission and schedules are created
 ```
@@ -54,14 +54,13 @@ missions
 
 ### `mission_schedules` Table
 
-Stores the generated RRULE patterns for each availability:
+Stores RRULE patterns provided by the frontend:
 
 ```sql
 mission_schedules
 ├── id (UUID)
 ├── mission_id (UUID) - Reference to mission
-├── availability_id (UUID) - Reference to original availability
-├── rrule (TEXT) - Generated RRULE string
+├── rrule (TEXT) - RRULE string (constrained by mission dates)
 ├── duration_mn (INTEGER) - Duration in minutes
 ├── dtstart (TIMESTAMP) - Extracted from rrule
 ├── until (TIMESTAMP) - Extracted from rrule
@@ -72,29 +71,28 @@ mission_schedules
 **Key Points:**
 
 - Each schedule is a complete RRULE (can be queried directly)
-- `rrule` is generated from availability pattern + mission dates
-- `duration_mn` is copied from the original availability
-- `availability_id` tracks the source availability
+- `rrule` is provided by frontend and constrained by mission dates
+- `duration_mn` is provided by frontend
+- No reference to availabilities (frontend-only suggestions)
 
-## RRULE Generation
+## RRULE Constraint Process
 
 ### Process
 
 When a mission is created, the system:
 
-1. **Fetches selected availabilities** from the `availabilities` table
-2. **For each availability:**
-   - Parses the availability's RRULE using `rrulestr()`
-   - Extracts the recurrence pattern (FREQ, BYDAY, etc.)
-   - Extracts the time from availability DTSTART
-   - Creates new DTSTART: `mission_dtstart` date + availability time
-   - Creates new UNTIL: `mission_until` date + availability time
-   - Preserves EXDATE exceptions from availability
-   - Combines into new RRULE string
+1. **Receives RRULEs** directly from the frontend (in `schedules` array)
+2. **For each RRULE:**
+   - Validates RRULE format using `rrulestr()`
+   - Extracts the time from RRULE's DTSTART
+   - Creates new DTSTART: `mission_dtstart` date + original time
+   - Creates new UNTIL: `mission_until` date + original time
+   - Preserves EXDATE exceptions from original RRULE
+   - Combines into constrained RRULE string
 
 ### Example
 
-**Availability:**
+**Frontend sends:**
 
 ```
 DTSTART:20240101T090000Z
@@ -106,7 +104,7 @@ RRULE:FREQ=WEEKLY;BYDAY=MO
 - Start: 2024-06-01
 - End: 2024-12-31
 
-**Generated Schedule:**
+**Constrained Schedule:**
 
 ```
 DTSTART:20240601T090000Z
@@ -130,7 +128,16 @@ The schedule will generate occurrences every Monday at 9am between June 1 and De
   "professional_id": "uuid",
   "title": "Weekly Care Session",
   "description": "Regular care sessions",
-  "availability_ids": ["availability-uuid-1", "availability-uuid-2"],
+  "schedules": [
+    {
+      "rrule": "DTSTART:20240601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO",
+      "duration_mn": 120
+    },
+    {
+      "rrule": "DTSTART:20240601T140000Z\nRRULE:FREQ=WEEKLY;BYDAY=WE",
+      "duration_mn": 180
+    }
+  ],
   "mission_dtstart": "2024-06-01T00:00:00Z",
   "mission_until": "2024-12-31T23:59:59Z",
   "status": "pending"
@@ -140,12 +147,11 @@ The schedule will generate occurrences every Monday at 9am between June 1 and De
 **Process:**
 
 1. Validates structure and professional membership
-2. Fetches selected availabilities
-3. Verifies all availabilities belong to the professional
-4. Generates RRULEs for each availability
-5. Checks for overlaps with accepted missions
-6. Creates mission record
-7. Creates mission_schedules records
+2. Validates RRULE format for each schedule
+3. Constrains each RRULE by mission dates
+4. Checks for overlaps with accepted missions
+5. Creates mission record
+6. Creates mission_schedules records
 
 **Response:**
 
@@ -175,7 +181,6 @@ The schedule will generate occurrences every Monday at 9am between June 1 and De
 3. Gets all mission schedules
 4. Checks for overlaps with other accepted missions
 5. Updates mission status to 'accepted'
-6. Updates related availabilities with UNTIL dates
 
 ## Querying Mission Occurrences
 
@@ -292,9 +297,10 @@ Where:
 
 ### 1. Flexibility
 
-- One mission can use multiple availability patterns
-- Each pattern can have different times and durations
-- Mission dates constrain all patterns uniformly
+- Structures can create missions with any RRULE pattern
+- Frontend suggests availabilities but allows custom times
+- Mission dates constrain all schedules uniformly
+- Professionals can accept missions outside their stated availability
 
 ### 2. Query Performance
 
@@ -305,13 +311,14 @@ Where:
 ### 3. Maintainability
 
 - Clear separation: mission metadata vs. schedule patterns
-- Tracks source availability for auditing
+- Backend focuses on data integrity (validation, constraints, conflicts)
+- Frontend handles UX (suggestions, warnings, RRULE building)
 - Easy to add day-offs (EXDATE) in the future
 
 ### 4. Data Integrity
 
-- Mission must have at least one schedule
-- Schedules reference valid availabilities
+- Mission must have at least one schedule (enforced at application level)
+- RRULEs are validated before storage
 - RLS policies ensure proper access control
 
 ## Future Enhancements
@@ -340,8 +347,9 @@ Allow structures to modify generated RRULEs (currently read-only after creation)
 
 - `missions.rrule` and `missions.duration_mn` removed
 - `missions.dtstart` and `missions.until` removed
+- `mission_schedules.availability_id` removed
 - New required fields: `mission_dtstart`, `mission_until`
-- API now requires `availability_ids` instead of `rrule`
+- API now requires `schedules` array with `rrule` and `duration_mn` instead of `availability_ids`
 
 ### Data Migration
 
@@ -354,7 +362,7 @@ If migrating existing missions:
 ## Related Files
 
 - **Migration**: `supabase/migrations/20251209025545_create_missions.sql`
-- **RRULE Generator**: `supabase/functions/_shared/utils/rrule-generator.ts`
+- **RRULE Constraint Utility**: `supabase/functions/_shared/utils/rrule-generator.ts` (constrainRRULEByDates function)
 - **Create Handler**: `supabase/functions/missions/handlers/createMissionHandler.ts`
 - **Accept Handler**: `supabase/functions/missions/handlers/acceptMissionHandler.ts`
 - **Schema**: `supabase/functions/_shared/features/missions/mission.schema.ts`

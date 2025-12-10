@@ -1,7 +1,7 @@
 import { createFactory } from '@hono/hono/factory';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import RRulePkg from 'rrule';
-const { RRule, rrulestr } = RRulePkg;
+const { rrulestr } = RRulePkg;
 
 import { Mission } from '../../_shared/features/missions/index.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
@@ -56,7 +56,7 @@ export const acceptMissionHandler = factory.createHandlers(
       const { data: missionSchedules, error: schedulesError } =
         await supabaseAdminClient
           .from('mission_schedules')
-          .select('rrule, duration_mn, dtstart, until, availability_id')
+          .select('rrule, duration_mn, dtstart, until')
           .eq('mission_id', missionId);
 
       if (
@@ -189,66 +189,6 @@ export const acceptMissionHandler = factory.createHandlers(
       if (updateError) {
         console.error('Error updating mission:', updateError);
         return apiResponse.internalServerError('Failed to accept mission');
-      }
-
-      // Update availability: match each schedule to its availability and add UNTIL
-      for (const schedule of missionSchedules) {
-        try {
-          if (!schedule.availability_id) {
-            console.error('Schedule missing availability_id');
-            continue;
-          }
-
-          const scheduleRule = rrulestr(schedule.rrule);
-          const missionUntil =
-            scheduleRule.options.until ||
-            (schedule.until
-              ? new Date(schedule.until)
-              : new Date(mission.mission_until));
-
-          // Get the availability
-          const { data: availability, error: availError } =
-            await supabaseAdminClient
-              .from('availabilities')
-              .select('id, rrule')
-              .eq('id', schedule.availability_id)
-              .single();
-
-          if (availError || !availability) {
-            console.error('Error fetching availability:', availError);
-            continue;
-          }
-
-          // Update availability with UNTIL
-          try {
-            const availRule = rrulestr(availability.rrule);
-            const untilDate = missionUntil;
-
-            // Create new RRULE with UNTIL
-            const newRule = new RRule({
-              ...availRule.options,
-              until: untilDate,
-            });
-
-            const updatedRrule = `DTSTART:${
-              availRule.options.dtstart
-                ?.toISOString()
-                .replace(/[-:]/g, '')
-                .split('.')[0] || ''
-            }Z\nRRULE:${newRule.toString()}`;
-
-            await supabaseAdminClient
-              .from('availabilities')
-              .update({ rrule: updatedRrule })
-              .eq('id', availability.id);
-          } catch (updateError) {
-            console.error('Error updating availability:', updateError);
-            // Continue even if availability update fails
-          }
-        } catch (error) {
-          console.error('Error processing schedule:', error);
-          // Continue with next schedule
-        }
       }
 
       return apiResponse.ok(updatedMission as Mission);

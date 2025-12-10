@@ -52,32 +52,26 @@ CREATE TRIGGER update_missions_updated_at BEFORE UPDATE ON "public"."missions"
 CREATE TABLE IF NOT EXISTS "public"."mission_schedules" (
   "id" UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
   "mission_id" UUID NOT NULL REFERENCES "public"."missions"("id") ON DELETE CASCADE,
-  "availability_id" UUID NOT NULL REFERENCES "public"."availabilities"("id") ON DELETE RESTRICT,
   "rrule" TEXT NOT NULL,
   "duration_mn" INTEGER NOT NULL,
   "dtstart" TIMESTAMP WITH TIME ZONE,
   "until" TIMESTAMP WITH TIME ZONE,
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  CONSTRAINT "mission_schedules_duration_positive" CHECK ("duration_mn" > 0),
-  CONSTRAINT "mission_schedules_unique" UNIQUE ("mission_id", "availability_id")
+  CONSTRAINT "mission_schedules_duration_positive" CHECK ("duration_mn" > 0)
 );
 
 -- Comments
-COMMENT ON TABLE "public"."mission_schedules" IS 'Mission schedule patterns. Each entry contains a generated RRULE based on the professional''s availability pattern, constrained by the mission''s date range. The RRULE is generated when the schedule is created and can be modified later (e.g., adding EXDATE for day-offs).';
+COMMENT ON TABLE "public"."mission_schedules" IS 'Mission schedule patterns. Each entry contains an RRULE string provided by the frontend, constrained by the mission''s date range. The RRULE can be modified later (e.g., adding EXDATE for day-offs).';
 COMMENT ON COLUMN "public"."mission_schedules"."mission_id" IS 'Reference to the parent mission';
-COMMENT ON COLUMN "public"."mission_schedules"."availability_id" IS 'Reference to the original availability pattern this schedule is based on';
-COMMENT ON COLUMN "public"."mission_schedules"."rrule" IS 'Generated RRULE string. Based on availability pattern but constrained by mission_dtstart and mission_until. Format: DTSTART, RRULE, UNTIL, and optionally EXDATE (RFC 5545 format, newline-separated)';
-COMMENT ON COLUMN "public"."mission_schedules"."duration_mn" IS 'Duration in minutes (copied from availability)';
+COMMENT ON COLUMN "public"."mission_schedules"."rrule" IS 'RRULE string provided by frontend, constrained by mission_dtstart and mission_until. Format: DTSTART, RRULE, UNTIL, and optionally EXDATE (RFC 5545 format, newline-separated)';
+COMMENT ON COLUMN "public"."mission_schedules"."duration_mn" IS 'Duration in minutes for this schedule';
 COMMENT ON COLUMN "public"."mission_schedules"."dtstart" IS 'Extracted DTSTART from rrule (automatically populated via trigger)';
 COMMENT ON COLUMN "public"."mission_schedules"."until" IS 'Extracted UNTIL from rrule (automatically populated via trigger)';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_mission_schedules_mission_id"
   ON "public"."mission_schedules" ("mission_id");
-
-CREATE INDEX IF NOT EXISTS "idx_mission_schedules_availability_id"
-  ON "public"."mission_schedules" ("availability_id");
 
 CREATE INDEX IF NOT EXISTS "idx_mission_schedules_dtstart"
   ON "public"."mission_schedules" ("dtstart");
@@ -283,14 +277,6 @@ CREATE POLICY "Structures can create mission schedules"
       SELECT 1 FROM "public"."missions"
       WHERE "missions"."id" = "mission_schedules"."mission_id"
       AND "missions"."structure_id" = (SELECT auth.uid())
-    )
-    AND EXISTS (
-      SELECT 1 FROM "public"."availabilities"
-      WHERE "availabilities"."id" = "mission_schedules"."availability_id"
-      AND "availabilities"."user_id" = (
-        SELECT "professional_id" FROM "public"."missions"
-        WHERE "missions"."id" = "mission_schedules"."mission_id"
-      )
     )
   );
 
