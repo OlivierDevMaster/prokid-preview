@@ -23,20 +23,26 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
+import { useGetAvailabilities } from '../hooks/useGetAvailabilities';
+
 export default function AvailabilitiesPage() {
   const t = useTranslations('admin.planning');
-  // Initialiser avec une date fixe pour éviter les problèmes d'hydratation
-  // Utiliser useState avec une fonction pour garantir la même valeur entre serveur et client
-  const [currentWeek, setCurrentWeek] = useState(() => new Date(2025, 10, 24)); // 24 novembre 2025
+  // Initialiser avec la date actuelle après le montage pour éviter les problèmes d'hydratation
+  const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [mounted, setMounted] = useState(false);
 
   // S'assurer que le composant est monté côté client avant d'utiliser des valeurs dynamiques
   useEffect(() => {
     setMounted(true);
+    // Mettre à jour avec la date actuelle une fois monté
+    setCurrentWeek(new Date());
   }, []);
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Lundi
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  // Fetch availabilities for the current week
+  const { groupedSlots, isLoading, slots } = useGetAvailabilities(weekStart);
 
   const goToPreviousWeek = () => {
     setCurrentWeek(subWeeks(currentWeek, 1));
@@ -56,12 +62,22 @@ export default function AvailabilitiesPage() {
     'Dimanche',
   ];
 
-  // Mock data - À remplacer par des données réelles
+  // Calculate stats from real data
   const stats = {
-    availableSlots: 0,
-    bookedHours: 0,
-    estimatedRevenue: 0,
-    fillRate: 0,
+    availableSlots: slots.filter(slot => slot.isAvailable).length,
+    bookedHours: slots
+      .filter(slot => !slot.isAvailable && slot.mission)
+      .reduce((total, slot) => total + slot.durationMn / 60, 0),
+    estimatedRevenue: slots
+      .filter(slot => !slot.isAvailable && slot.mission)
+      .reduce((total, slot) => total + (slot.durationMn / 60) * 0, 0), // TODO: Add hourly rate
+    fillRate:
+      slots.length > 0
+        ? Math.round(
+            (slots.filter(slot => !slot.isAvailable).length / slots.length) *
+              100
+          )
+        : 0,
   };
 
   return (
@@ -195,9 +211,41 @@ export default function AvailabilitiesPage() {
                 <div className='mb-4 text-sm text-blue-900'>
                   {dayNumber} {month}
                 </div>
-                {/* Ici on peut ajouter les créneaux/réservations */}
+                {/* Display availability slots for this day */}
                 <div className='space-y-2'>
-                  {/* Les créneaux seront ajoutés ici */}
+                  {isLoading ? (
+                    <div className='text-xs text-gray-500'>Chargement...</div>
+                  ) : (
+                    groupedSlots.getSlotsByDay(day).map((slot, slotIndex) => {
+                      const startTime = format(new Date(slot.startAt), 'HH:mm');
+                      const endTime = format(new Date(slot.endAt), 'HH:mm');
+                      const isBooked = !slot.isAvailable;
+
+                      return (
+                        <div
+                          className={`rounded border p-2 text-xs ${
+                            isBooked
+                              ? 'border-red-300 bg-red-50 text-red-700'
+                              : 'border-green-300 bg-green-50 text-green-700'
+                          }`}
+                          key={slotIndex}
+                        >
+                          <div className='font-medium'>
+                            {startTime} - {endTime}
+                          </div>
+                          {isBooked && slot.mission && (
+                            <div className='mt-1 text-xs opacity-75'>
+                              Réservé
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                  {!isLoading &&
+                    groupedSlots.getSlotsByDay(day).length === 0 && (
+                      <div className='text-xs text-gray-400'>Aucun créneau</div>
+                    )}
                 </div>
               </div>
             </Card>
