@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -578,7 +573,8 @@ export type Database = {
       }
     }
     Functions: {
-      create_mission_rrule: {
+      is_admin: { Args: never; Returns: boolean }
+      seeds_create_mission_rrule: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -588,7 +584,7 @@ export type Database = {
         }
         Returns: string
       }
-      create_onetime_availability: {
+      seeds_create_onetime_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -597,7 +593,7 @@ export type Database = {
         }
         Returns: string
       }
-      create_recurring_availability: {
+      seeds_create_recurring_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -607,13 +603,12 @@ export type Database = {
         }
         Returns: string
       }
-      format_exdate: { Args: { date_offset: number }; Returns: string }
-      get_next_weekday: {
+      seeds_format_exdate: { Args: { date_offset: number }; Returns: string }
+      seeds_get_next_weekday: {
         Args: { days_ahead?: number; target_dow: number }
         Returns: string
       }
-      get_rrule_day: { Args: { day_offset: number }; Returns: string }
-      is_admin: { Args: never; Returns: boolean }
+      seeds_get_rrule_day: { Args: { day_offset: number }; Returns: string }
     }
     Enums: {
       invitation_status: "pending" | "accepted" | "declined"
@@ -770,3 +765,4 @@ export const Constants = {
     },
   },
 } as const
+
