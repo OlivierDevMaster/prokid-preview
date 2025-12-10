@@ -8,7 +8,6 @@ interface ProgressBarProps {
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
   const percentage = (currentStep / totalSteps) * 100;
   const completedPercentage = (currentStep / totalSteps) * 100;
-  const currentStepPercentage = (1 / totalSteps) * 100;
 
   return (
     <div className='w-full space-y-2'>
@@ -23,10 +22,6 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
           <div
             className='h-full bg-blue-500 transition-all duration-300'
             style={{ width: `${completedPercentage}%` }}
-          />
-          <div
-            className='h-full bg-green-500 transition-all duration-300'
-            style={{ width: `${currentStepPercentage}%` }}
           />
         </div>
       </div>

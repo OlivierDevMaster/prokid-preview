@@ -99,19 +99,17 @@ export function Step4Finalization({
           </h6>
           <div className='flex flex-wrap gap-2'>
             {Object.entries(availabilities).map(([day, schedule]) => (
-              <Badge
-                className='flex bg-blue-500 text-white hover:bg-blue-600'
+              <div
+                className='flex rounded-full border border-blue-200 bg-blue-50 p-2 text-xs text-blue-700 hover:bg-blue-100'
                 key={day}
               >
-                <p className='mr-2 text-sm text-white'>
-                  {tCommon(`days.${day}`)} :
-                </p>
+                <p className='mr-2 text-sm'>{tCommon(`days.${day}`)} :</p>
                 {schedule.slots.map(slot => (
-                  <div className='text-sm text-white' key={slot.start}>
+                  <div className='text-sm' key={slot.start}>
                     {slot.start} - {slot.end}
                   </div>
                 ))}
-              </Badge>
+              </div>
             ))}
           </div>
         </div>
