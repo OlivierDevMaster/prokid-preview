@@ -65,6 +65,7 @@ export default function ProfessionalSignUpForm2() {
           throw new Error('User not found. Please sign in again.');
         }
 
+        console.info({ user: user.user });
         setUserId(user.user.id);
       } catch (error) {
         console.error('Error getting user:', error);
@@ -102,12 +103,18 @@ export default function ProfessionalSignUpForm2() {
 
   const { isPending, mutate: registerProfessionalProfile } =
     useRegisterProfessionalProfile();
-  const handleSubmit = form.handleSubmit(data => {
-    if (!userId) {
-      throw new Error('User ID is required. Please sign in again.');
+  const handleSubmit = form.handleSubmit(
+    data => {
+      if (!userId) {
+        console.error('User ID is required');
+        return;
+      }
+      registerProfessionalProfile({ formData: data, userId });
+    },
+    errors => {
+      console.error('Form validation errors:', errors);
     }
-    registerProfessionalProfile({ formData: data, userId });
-  });
+  );
 
   if (isLoadingUser) {
     return (

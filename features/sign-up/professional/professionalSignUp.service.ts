@@ -94,6 +94,9 @@ export async function registerProfessionalProfile(
   }
 }
 
+const PROFILE_PICTURES_BUCKET =
+  process.env.NEXT_PUBLIC_PROFILE_PICTURES_BUCKET || 'profile_pictures';
+
 export async function uploadProfilePhoto(
   file: File,
   userId: string
@@ -105,7 +108,7 @@ export async function uploadProfilePhoto(
   const filePath = `${fileName}`;
 
   const { error: uploadError } = await supabase.storage
-    .from('profiles')
+    .from(PROFILE_PICTURES_BUCKET)
     .upload(filePath, file, {
       cacheControl: '3600',
       upsert: false,
@@ -117,7 +120,7 @@ export async function uploadProfilePhoto(
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from('profiles').getPublicUrl(filePath);
+  } = supabase.storage.from(PROFILE_PICTURES_BUCKET).getPublicUrl(filePath);
 
   return publicUrl;
 }
