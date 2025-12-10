@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -42,25 +37,31 @@ export type Database = {
       availabilities: {
         Row: {
           created_at: string
+          dtstart: string | null
           duration_mn: number
           id: string
           rrule: string
+          until: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          dtstart?: string | null
           duration_mn: number
           id?: string
           rrule: string
+          until?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          dtstart?: string | null
           duration_mn?: number
           id?: string
           rrule?: string
+          until?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -70,6 +71,115 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "availabilities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      mission_schedules: {
+        Row: {
+          created_at: string
+          dtstart: string | null
+          duration_mn: number
+          id: string
+          mission_id: string
+          rrule: string
+          until: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dtstart?: string | null
+          duration_mn: number
+          id?: string
+          mission_id: string
+          rrule: string
+          until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dtstart?: string | null
+          duration_mn?: number
+          id?: string
+          mission_id?: string
+          rrule?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_schedules_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart?: string
+          mission_until?: string
+          professional_id?: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "missions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "missions_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
             referencedColumns: ["user_id"]
           },
         ]
@@ -99,6 +209,7 @@ export type Database = {
         Row: {
           city: string
           created_at: string
+          current_job: string | null
           description: string | null
           experience_years: number
           hourly_rate: number
@@ -107,7 +218,6 @@ export type Database = {
           is_certified: boolean
           phone: string | null
           postal_code: string | null
-          professional_email: string
           rating: number | null
           reviews_count: number
           skills: string[] | null
@@ -119,6 +229,7 @@ export type Database = {
         Insert: {
           city: string
           created_at?: string
+          current_job?: string | null
           description?: string | null
           experience_years: number
           hourly_rate: number
@@ -127,7 +238,6 @@ export type Database = {
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
-          professional_email: string
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
@@ -139,6 +249,7 @@ export type Database = {
         Update: {
           city?: string
           created_at?: string
+          current_job?: string | null
           description?: string | null
           experience_years?: number
           hourly_rate?: number
@@ -147,7 +258,6 @@ export type Database = {
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
-          professional_email?: string
           rating?: number | null
           reviews_count?: number
           skills?: string[] | null
@@ -174,6 +284,7 @@ export type Database = {
           first_name: string | null
           is_onboarded: boolean
           last_name: string | null
+          preferred_language: Database["public"]["Enums"]["locale"]
           role: Database["public"]["Enums"]["role"]
           user_id: string
         }
@@ -184,6 +295,7 @@ export type Database = {
           first_name?: string | null
           is_onboarded?: boolean
           last_name?: string | null
+          preferred_language?: Database["public"]["Enums"]["locale"]
           role: Database["public"]["Enums"]["role"]
           user_id: string
         }
@@ -194,6 +306,7 @@ export type Database = {
           first_name?: string | null
           is_onboarded?: boolean
           last_name?: string | null
+          preferred_language?: Database["public"]["Enums"]["locale"]
           role?: Database["public"]["Enums"]["role"]
           user_id?: string
         }
@@ -205,7 +318,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          recipient_id: string
+          mission_id: string
+          status: Database["public"]["Enums"]["report_status"]
           title: string
           updated_at: string
         }
@@ -214,7 +328,8 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
-          recipient_id: string
+          mission_id: string
+          status?: Database["public"]["Enums"]["report_status"]
           title: string
           updated_at?: string
         }
@@ -223,7 +338,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
-          recipient_id?: string
+          mission_id?: string
+          status?: Database["public"]["Enums"]["report_status"]
           title?: string
           updated_at?: string
         }
@@ -236,8 +352,182 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "reports_recipient_id_fkey"
-            columns: ["recipient_id"]
+            foreignKeyName: "reports_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "reports_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      structure_invitations: {
+        Row: {
+          created_at: string
+          id: string
+          professional_id: string
+          status: Database["public"]["Enums"]["invitation_status"]
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          professional_id: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          professional_id?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_invitations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_invitations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_invitations_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_members: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          professional_id: string
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          professional_id: string
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          professional_id?: string
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_members_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_members_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_members_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_membership_history: {
+        Row: {
+          action: Database["public"]["Enums"]["membership_action"]
+          created_at: string
+          id: string
+          initiated_by: string
+          initiated_by_role: Database["public"]["Enums"]["role"]
+          membership_id: string
+          professional_id: string
+          structure_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["membership_action"]
+          created_at?: string
+          id?: string
+          initiated_by: string
+          initiated_by_role: Database["public"]["Enums"]["role"]
+          membership_id: string
+          professional_id: string
+          structure_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["membership_action"]
+          created_at?: string
+          id?: string
+          initiated_by?: string
+          initiated_by_role?: Database["public"]["Enums"]["role"]
+          membership_id?: string
+          professional_id?: string
+          structure_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_membership_history_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "structure_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_membership_history_structure_id_fkey"
+            columns: ["structure_id"]
             isOneToOne: false
             referencedRelation: "structures"
             referencedColumns: ["user_id"]
@@ -278,10 +568,88 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      professionals_with_profiles_search: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          created_at: string | null
+          current_job: string | null
+          description: string | null
+          experience_years: number | null
+          first_name: string | null
+          hourly_rate: number | null
+          intervention_radius_km: number | null
+          is_available: boolean | null
+          is_certified: boolean | null
+          is_onboarded: boolean | null
+          last_name: string | null
+          phone: string | null
+          postal_code: string | null
+          profile_created_at: string | null
+          profile_email: string | null
+          profile_role: Database["public"]["Enums"]["role"] | null
+          rating: number | null
+          reviews_count: number | null
+          skills: string[] | null
+          stripe_customer_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Functions: {
-      create_onetime_availability: {
+      is_admin: { Args: never; Returns: boolean }
+      seeds_create_mission_from_availability: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_mission_rrule: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          hour: number
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_mission_with_custom_rrule: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_onetime_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -290,7 +658,7 @@ export type Database = {
         }
         Returns: string
       }
-      create_recurring_availability: {
+      seeds_create_recurring_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -300,11 +668,23 @@ export type Database = {
         }
         Returns: string
       }
-      format_exdate: { Args: { date_offset: number }; Returns: string }
-      get_rrule_day: { Args: { day_offset: number }; Returns: string }
-      is_admin: { Args: never; Returns: boolean }
+      seeds_format_exdate: { Args: { date_offset: number }; Returns: string }
+      seeds_get_next_weekday: {
+        Args: { days_ahead?: number; target_dow: number }
+        Returns: string
+      }
+      seeds_get_rrule_day: { Args: { day_offset: number }; Returns: string }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "declined"
+      locale: "en" | "fr"
+      membership_action:
+        | "joined"
+        | "left"
+        | "removed_by_structure"
+        | "removed_by_admin"
+      mission_status: "pending" | "accepted" | "declined" | "cancelled"
+      report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
     }
     CompositeTypes: {
@@ -436,7 +816,18 @@ export const Constants = {
   },
   public: {
     Enums: {
+      invitation_status: ["pending", "accepted", "declined"],
+      locale: ["en", "fr"],
+      membership_action: [
+        "joined",
+        "left",
+        "removed_by_structure",
+        "removed_by_admin",
+      ],
+      mission_status: ["pending", "accepted", "declined", "cancelled"],
+      report_status: ["draft", "sent"],
       role: ["professional", "structure", "admin"],
     },
   },
 } as const
+
