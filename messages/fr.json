@@ -12,12 +12,31 @@
       "phone": "Numéro de téléphone",
       "currentPassword": "Mot de passe actuel",
       "newPassword": "Nouveau mot de passe",
-      "confirmPassword": "Confirmer le mot de passe"
+      "confirmPassword": "Confirmer le mot de passe",
+      "dashboard": "Tableau de bord",
+      "profession": "Profession",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "description": "Description",
+      "yearsExperience": "Années d'expérience",
+      "hourlyRate": "Taux horaire",
+      "interventionZone": "Zone d'intervention",
+      "frameworks": "Frameworks",
+      "certifications": "Certifications",
+      "skills": "Compétences"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
       "newPassword": "Saisissez votre nouveau mot de passe",
       "confirmPassword": "Confirmez votre nouveau mot de passe"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "signOut": "Déconnexion"
+    },
+    "messages": {
+      "loading": "Chargement...",
+      "notFound": "Non trouvé"
     }
   },
   "navigation": {
@@ -176,7 +195,10 @@
       "submit": "Soumettre",
       "recomandedFormat": "Format carré recommandé",
       "useDefault": "Utiliser une photo par défaut",
-      "profileConfiguration": "Configuration de votre profil professionnel"
+      "profileConfiguration": "Configuration de votre profil professionnel",
+      "filters": "Filtres",
+      "informations": "Identité & informations",
+      "completeProfile": "Complétez votre profil professionnel"
     },
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
@@ -195,7 +217,9 @@
       "hourlyRate": "/h",
       "reviews": "avis",
       "upTo": "Jusqu'à",
-      "km": "km"
+      "km": "km",
+      "available": "Disponible",
+      "unavailable": "Indisponible"
     },
     "profile": {
       "notFound": "Professionnel non trouvé",
@@ -247,6 +271,15 @@
       "afternoon": "Après-midi",
       "fullDay": "Journée complète",
       "weekend": "Week-end"
+    },
+    "jobs": {
+      "health_and_inclusive_care_coordinator": "Référent santé et accueil inclusif",
+      "early_childhood_educator": "Éducateur de jeunes enfants",
+      "psychomotor_therapist": "Psychomotricien",
+      "pediatric_nurse": "Infirmière puéricultrice",
+      "childhood_education_and_care_assistant_certificate": "CAP accompagnant éducatif petite enfance",
+      "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
+      "other_early_childhood_profession": "Autre profession de la petite enfance"
     }
   },
   "admin": {
@@ -292,6 +325,94 @@
       "suspend": "Suspendre",
       "view": "Voir"
     },
+    "professionals": {
+      "title": "Professionnels",
+      "subtitle": "Gérez tous les professionnels de votre application.",
+      "tableTitle": "Liste des professionnels",
+      "addProfessional": "Ajouter un Professionnel",
+      "addProfessionalDescription": "Créer un nouveau profil professionnel.",
+      "editProfessional": "Modifier le Professionnel",
+      "editProfessionalDescription": "Mettre à jour les informations du professionnel.",
+      "deleteProfessional": "Supprimer le Professionnel",
+      "deleteProfessionalDescription": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteConfirmation": "Cette action ne peut pas être annulée.",
+      "name": "Nom",
+      "email": "Email",
+      "city": "Ville",
+      "postalCode": "Code Postal",
+      "postalCodePlaceholder": "Entrez le code postal",
+      "description": "Description",
+      "descriptionPlaceholder": "Entrez la description",
+      "skills": "Compétences",
+      "createdAt": "Date de création",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat.",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "creating": "Création...",
+      "update": "Mettre à jour",
+      "updating": "Mise à jour...",
+      "deleting": "Suppression...",
+      "userId": "ID Utilisateur",
+      "userIdPlaceholder": "Entrez l'ID utilisateur",
+      "cityPlaceholder": "Entrez la ville",
+      "details": "Détails du Professionnel",
+      "backToList": "Retour à la liste",
+      "notFound": "Professionnel non trouvé",
+      "personalInformation": "Informations Personnelles",
+      "professionalInformation": "Informations Professionnelles",
+      "phone": "Téléphone",
+      "updatedAt": "Date de mise à jour",
+      "additionalInformation": "Informations Supplémentaires"
+    },
+    "structures": {
+      "title": "Structures",
+      "subtitle": "Gérez toutes les structures de votre application.",
+      "tableTitle": "Liste des structures",
+      "addStructure": "Ajouter une Structure",
+      "addStructureDescription": "Créer un nouveau profil de structure.",
+      "editStructure": "Modifier la Structure",
+      "editStructureDescription": "Mettre à jour les informations de la structure.",
+      "deleteStructure": "Supprimer la Structure",
+      "deleteStructureDescription": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteConfirmation": "Cette action ne peut pas être annulée.",
+      "name": "Nom",
+      "email": "Email",
+      "createdAt": "Date de création",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat.",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "creating": "Création...",
+      "update": "Mettre à jour",
+      "updating": "Mise à jour...",
+      "deleting": "Suppression...",
+      "userId": "ID Utilisateur",
+      "userIdPlaceholder": "Entrez l'ID utilisateur",
+      "namePlaceholder": "Entrez le nom de la structure",
+      "details": "Détails de la Structure",
+      "backToList": "Retour à la liste",
+      "notFound": "Structure non trouvée",
+      "personalInformation": "Informations Personnelles",
+      "phone": "Téléphone",
+      "updatedAt": "Date de mise à jour",
+      "additionalInformation": "Informations Supplémentaires",
+      "stripeCustomerId": "ID Client Stripe"
+    },
     "planning": {
       "title": "Mon Planning",
       "modifyAvailabilities": "Modifier mes disponibilités",
@@ -307,9 +428,11 @@
     },
     "report": {
       "title": "Créer un rapport",
+      "details": "Détail du rapport",
       "saveDraft": "Enregistrer brouillon",
       "sendEmail": "Envoyer par e-mail",
       "newReport": "Nouveau rapport",
+      "editReport": "Modifier le rapport",
       "reportTitle": "Titre du rapport",
       "selectTemplate": "Sélectionner un modèle ou saisir",
       "customTitlePlaceholder": "Ou saisir un titre personnalisé",
@@ -332,7 +455,21 @@
       "template3": "Rapport de suivi",
       "structure2": "Structure 2",
       "structure3": "Structure 3",
-      "createReport": "Créer un rapport"
+      "createReport": "Créer un rapport",
+      "label": {
+        "title": "Titre",
+        "structure": "Structure",
+        "content": "Description"
+      },
+      "messages": {
+        "unauthenticated": "Utilisateur non authentifié",
+        "errorCreatingReport": "Une erreur est survenue lors de la création du rapport",
+        "reportCreatedSuccessfully": "Rapport créé avec succès",
+        "reportSavedSuccessfully": "Rapport enregistré avec succès",
+        "impossibleToCreateReport": "Impossible de créer le rapport",
+        "data": "Données",
+        "dataDescription": "Données du rapport"
+      }
     },
     "reports": {
       "title": "Mes Rapports",
@@ -394,7 +531,10 @@
       "planning": "Mon Planning",
       "reports": "Mes Rapports",
       "structure": "Structure",
-      "users": "Utilisateurs,"
+      "users": "Utilisateurs",
+      "professionals": "Professionnels",
+      "structures": "Structures",
+      "availabilities": "Disponibilités"
     }
   }
 }

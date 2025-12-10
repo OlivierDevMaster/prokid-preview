@@ -12,12 +12,22 @@
       "phone": "Phone number",
       "currentPassword": "Current password",
       "newPassword": "New password",
-      "confirmPassword": "Confirm password"
+      "confirmPassword": "Confirm password",
+      "dashboard": "Dashboard",
+      "profession": "Profession"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
       "newPassword": "Enter your new password",
       "confirmPassword": "Confirm your new password"
+    },
+    "actions": {
+      "edit": "Edit",
+      "signOut": "Sign out"
+    },
+    "messages": {
+      "loading": "Loading...",
+      "notFound": "Not found"
     }
   },
   "navigation": {
@@ -176,7 +186,10 @@
       "submit": "Submit",
       "recomandedFormat": "Recommended square format",
       "useDefault": "Use a default photo",
-      "profileConfiguration": "Setting up your professional profile"
+      "profileConfiguration": "Setting up your professional profile",
+      "filters": "Filters",
+      "informations": "Identity & information",
+      "completeProfile": "Complete your professional profile"
     },
     "subtitle": "Discover qualified professionals near your structure",
     "search": {
@@ -195,7 +208,9 @@
       "hourlyRate": "/h",
       "reviews": "reviews",
       "upTo": "Up to",
-      "km": "km"
+      "km": "km",
+      "available": "Available",
+      "unavailable": "Unavailable"
     },
     "profile": {
       "notFound": "Professional not found",
@@ -247,6 +262,15 @@
       "afternoon": "Afternoon",
       "fullDay": "Full day",
       "weekend": "Weekend"
+    },
+    "jobs": {
+      "health_and_inclusive_care_coordinator": "Health and inclusive care coordinator",
+      "early_childhood_educator": "Early childhood educator",
+      "psychomotor_therapist": "Psychomotor therapist",
+      "pediatric_nurse": "Pediatric nurse",
+      "childhood_education_and_care_assistant_certificate": "Childhood education and care assistant certificate",
+      "childcare_auxiliary_nurse": "Childcare auxiliary nurse",
+      "other_early_childhood_profession": "Other early childhood profession"
     }
   },
   "admin": {
@@ -292,6 +316,94 @@
       "suspend": "Suspend",
       "view": "View"
     },
+    "professionals": {
+      "title": "Professionals",
+      "subtitle": "Manage all professionals in your application.",
+      "tableTitle": "Professionals List",
+      "addProfessional": "Add Professional",
+      "addProfessionalDescription": "Create a new professional profile.",
+      "editProfessional": "Edit Professional",
+      "editProfessionalDescription": "Update professional information.",
+      "deleteProfessional": "Delete Professional",
+      "deleteProfessionalDescription": "Are you sure you want to delete {name}?",
+      "deleteConfirmation": "This action cannot be undone.",
+      "name": "Name",
+      "email": "Email",
+      "city": "City",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "Enter postal code",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter description",
+      "skills": "Skills",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of",
+      "noResults": "No results.",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating...",
+      "update": "Update",
+      "updating": "Updating...",
+      "deleting": "Deleting...",
+      "userId": "User ID",
+      "userIdPlaceholder": "Enter user ID",
+      "cityPlaceholder": "Enter city",
+      "details": "Professional Details",
+      "backToList": "Back to List",
+      "notFound": "Professional not found",
+      "personalInformation": "Personal Information",
+      "professionalInformation": "Professional Information",
+      "phone": "Phone",
+      "updatedAt": "Updated At",
+      "additionalInformation": "Additional Information"
+    },
+    "structures": {
+      "title": "Structures",
+      "subtitle": "Manage all structures in your application.",
+      "tableTitle": "Structures List",
+      "addStructure": "Add Structure",
+      "addStructureDescription": "Create a new structure profile.",
+      "editStructure": "Edit Structure",
+      "editStructureDescription": "Update structure information.",
+      "deleteStructure": "Delete Structure",
+      "deleteStructureDescription": "Are you sure you want to delete {name}?",
+      "deleteConfirmation": "This action cannot be undone.",
+      "name": "Name",
+      "email": "Email",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of",
+      "noResults": "No results.",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating...",
+      "update": "Update",
+      "updating": "Updating...",
+      "deleting": "Deleting...",
+      "userId": "User ID",
+      "userIdPlaceholder": "Enter user ID",
+      "namePlaceholder": "Enter structure name",
+      "details": "Structure Details",
+      "backToList": "Back to List",
+      "notFound": "Structure not found",
+      "personalInformation": "Personal Information",
+      "phone": "Phone",
+      "updatedAt": "Updated At",
+      "additionalInformation": "Additional Information",
+      "stripeCustomerId": "Stripe Customer ID"
+    },
     "planning": {
       "title": "My Schedule",
       "modifyAvailabilities": "Modify my availabilities",
@@ -307,9 +419,11 @@
     },
     "report": {
       "title": "Create a report",
+      "details": "Report details",
       "saveDraft": "Save draft",
       "sendEmail": "Send by e-mail",
       "newReport": "New report",
+      "editReport": "Edit report",
       "reportTitle": "Report title",
       "selectTemplate": "Select a template or enter",
       "customTitlePlaceholder": "Or enter a custom title",
@@ -332,7 +446,21 @@
       "template3": "Follow-up report",
       "structure2": "Structure 2",
       "structure3": "Structure 3",
-      "createReport": "Create a report"
+      "createReport": "Create a report",
+      "label": {
+        "title": "Tiele",
+        "structure": "Structure",
+        "content": "Description"
+      },
+      "messages": {
+        "unauthenticated": "Unauthenticated user",
+        "errorCreatingReport": "An error occurred while creating the report",
+        "reportCreatedSuccessfully": "Report created successfully",
+        "reportSavedSuccessfully": "Report saved successfully",
+        "impossibleToCreateReport": "Impossible to create the report",
+        "data": "Data",
+        "dataDescription": "Report data"
+      }
     },
     "reports": {
       "title": "My Reports",
@@ -394,7 +522,10 @@
       "planning": "My Schedule",
       "reports": "My Reports",
       "structure": "Structure",
-      "users": "Users"
+      "users": "Users",
+      "professionals": "Professionals",
+      "structures": "Structures",
+      "availabilities": "Availabilities"
     }
   }
 }

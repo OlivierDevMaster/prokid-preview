@@ -17,8 +17,11 @@ export const useUpdateStructure = () => {
     }) => {
       return updateStructure(userId, updateData);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['structures'] });
+      queryClient.invalidateQueries({
+        queryKey: ['structure', variables.userId],
+      });
     },
   });
 };

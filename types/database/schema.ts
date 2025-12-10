@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -73,6 +78,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "availabilities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       missions: {
@@ -124,6 +136,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "missions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
             referencedColumns: ["user_id"]
           },
           {
@@ -303,6 +322,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "reports_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "reports_mission_id_fkey"
             columns: ["mission_id"]
             isOneToOne: false
@@ -345,6 +371,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "structure_invitations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "structure_invitations_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
@@ -384,6 +417,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "structure_members_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
             referencedColumns: ["user_id"]
           },
           {
@@ -449,6 +489,13 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "structure_membership_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "structure_membership_history_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
@@ -491,7 +538,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      professionals_with_profiles_search: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          created_at: string | null
+          current_job: string | null
+          description: string | null
+          experience_years: number | null
+          first_name: string | null
+          hourly_rate: number | null
+          intervention_radius_km: number | null
+          is_available: boolean | null
+          is_certified: boolean | null
+          is_onboarded: boolean | null
+          last_name: string | null
+          phone: string | null
+          postal_code: string | null
+          profile_created_at: string | null
+          profile_email: string | null
+          profile_role: Database["public"]["Enums"]["role"] | null
+          rating: number | null
+          reviews_count: number | null
+          skills: string[] | null
+          stripe_customer_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_mission_rrule: {
@@ -686,4 +770,3 @@ export const Constants = {
     },
   },
 } as const
-
