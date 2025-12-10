@@ -4,6 +4,7 @@ export interface SignUpData {
   email: string;
   password: string;
   preferredLanguage?: 'en' | 'fr';
+  role: 'professional' | 'structure';
 }
 
 export async function createAccount(
@@ -13,6 +14,11 @@ export async function createAccount(
 
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
+    options: {
+      data: {
+        role: data.role,
+      },
+    },
     password: data.password,
   });
 

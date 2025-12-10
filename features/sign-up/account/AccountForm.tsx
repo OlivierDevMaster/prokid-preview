@@ -12,10 +12,11 @@ import { cn } from '@/lib/utils';
 
 import { createAccount } from '../signUp.service';
 
-export function AccountForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
+type AccountFormProps = {
+  role: 'professional' | 'structure';
+} & React.ComponentPropsWithoutRef<'div'>;
+
+export function AccountForm({ className, role, ...props }: AccountFormProps) {
   const t = useTranslations('auth.signUp');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,6 +47,7 @@ export function AccountForm({
       await createAccount({
         email,
         password,
+        role,
       });
 
       // Redirect to login page after successful signup
