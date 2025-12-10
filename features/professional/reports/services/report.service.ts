@@ -34,6 +34,13 @@ export async function createUserReport(
         recipient:structures(
           *,
           profile:profiles(*)
+        ),
+        mission:missions(
+          *,
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
       )
@@ -72,6 +79,13 @@ export async function getReport(reportId: string): Promise<GetReportResponse> {
         recipient:structures(
           *,
           profile:profiles(*)
+        ),
+        mission:missions(
+          *,
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
       )
@@ -98,7 +112,7 @@ export async function getReport(reportId: string): Promise<GetReportResponse> {
         profile:profiles(*)
       `
       )
-      .eq('user_id', report.recipient_id)
+      .eq('author_id', report.author_id)
       .maybeSingle();
 
     if (structureError) {
@@ -158,6 +172,13 @@ export async function getUserReports2(): Promise<Report[]> {
         recipient:structures(
           *,
           profile:profiles(*)
+        ),
+        mission:missions(
+          *,
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
       )
@@ -194,6 +215,13 @@ export async function updateUserReport(
         recipient:structures(
           *,
           profile:profiles(*)
+        ),
+        mission:missions(
+          *,
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
         )
       `
       )

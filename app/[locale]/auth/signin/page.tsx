@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
-import { SignInForm } from '@/features/auth/SigninForm';
+import { SignInForm } from '@/features/auth/components/SignInForm';
 import { authOptions } from '@/lib/auth';
 
 export default async function SignInPage() {

@@ -14,7 +14,12 @@
       "newPassword": "New password",
       "confirmPassword": "Confirm password",
       "dashboard": "Dashboard",
-      "profession": "Profession"
+      "profession": "Profession",
+      "previous": "Previous",
+      "next": "Next",
+      "contact": "Contact",
+      "availability": "Availability",
+      "km": "km"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -23,11 +28,21 @@
     },
     "actions": {
       "edit": "Edit",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "submit": "Submit"
     },
     "messages": {
       "loading": "Loading...",
       "notFound": "Not found"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   },
   "navigation": {
@@ -90,7 +105,28 @@
         "passwordMismatch": "Passwords do not match",
         "passwordTooShort": "Password must be at least 8 characters",
         "emailAlreadyExists": "This email is already in use",
-        "hasAccount": "Already have an account? Log in"
+        "hasAccount": "Already have an account? Log in",
+        "finalization": "Finalisation",
+        "defaultProfilePicture": "Use the default picture",
+        "recommendedFormat": "Recommended square format",
+        "next": "Next",
+        "interventionZone": "Intervention zone",
+        "job": "Job",
+        "city": "City",
+        "postalCode": "Postal code",
+        "description": "Description",
+        "yearsExperience": "Years of experience",
+        "hourlyRate": "Hourly rate",
+        "certifications": "Certifications",
+        "skills": "Skills",
+        "contact": "Contact",
+        "availability": "Availability",
+        "km": "km",
+        "email": "Email",
+        "phone": "Phone",
+        "planningAndAvailability": "Planning & availability",
+        "configureYourDaysAndSlots": "Configure your days and slots",
+        "validationInformation": "Please review the information below before finalizing your registration."
       },
       "structureForm": {
         "title": "Create my structure account",

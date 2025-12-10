@@ -21,6 +21,8 @@ export function Step1ProfilePhoto({
   const [preview, setPreview] = useState<null | string>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('professional.label');
+  const tSignUp = useTranslations('auth.signUp');
+  const tCommon = useTranslations('common.label');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,7 +58,7 @@ export function Step1ProfilePhoto({
 
       <div className='flex justify-center'>
         <div className='relative'>
-          <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 shadow-lg ring-2 ring-white'>
+          <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-white'>
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -90,14 +92,16 @@ export function Step1ProfilePhoto({
       </div>
 
       <div className='space-y-4 text-center'>
-        <p className='text-sm text-gray-500'>Format carré recommandé</p>
+        <p className='text-sm text-gray-500'>
+          {tSignUp('professionalForm.recommendedFormat')}
+        </p>
         <Button
           className='border-gray-300 text-gray-600 hover:bg-gray-50'
           onClick={handleUseDefault}
           type='button'
           variant='outline'
         >
-          Utiliser une photo par défaut
+          {tSignUp('professionalForm.defaultProfilePicture')}
         </Button>
       </div>
 
@@ -107,7 +111,7 @@ export function Step1ProfilePhoto({
           onClick={onNext}
           type='button'
         >
-          Suivant →
+          {tCommon('next')} →
         </Button>
       </div>
     </div>
