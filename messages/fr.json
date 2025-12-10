@@ -135,7 +135,8 @@
         "email": "Email",
         "phone": "Téléphone",
         "planningAndAvailability": "Planning & disponibilités",
-        "configureYourDaysAndSlots": "Configurez vos jours et créneaux disponibles"
+        "configureYourDaysAndSlots": "Configurez vos jours et créneaux disponibles",
+        "copyMondaySchedule": "Copier les horaires du lundi à tous les jours"
       },
       "structureForm": {
         "title": "Créer mon compte structure",

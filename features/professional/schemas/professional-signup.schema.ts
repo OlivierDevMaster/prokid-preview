@@ -9,6 +9,7 @@ const timeSlotSchema = z.object({
 
 const dayScheduleSchema: z.ZodType<DaySchedule> = z.object({
   enabled: z.boolean(),
+  recurring: z.boolean(),
   slots: z.array(timeSlotSchema),
 });
 

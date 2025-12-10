@@ -15,6 +15,7 @@ import { ProgressBar } from '../ProgressBar';
 
 export interface DaySchedule {
   enabled: boolean;
+  recurring: boolean;
   slots: TimeSlot[];
 }
 
@@ -87,6 +88,17 @@ export function Step3Availability({
     form.setValue('availabilities', newSchedule);
   };
 
+  const handleRecurringToggle = (dayKey: string) => {
+    const newSchedule = {
+      ...schedule,
+      [dayKey]: {
+        ...schedule[dayKey],
+        recurring: !schedule[dayKey].recurring,
+      },
+    };
+    form.setValue('availabilities', newSchedule);
+  };
+
   const handleCopyMonday = () => {
     const mondaySchedule = schedule.monday;
     const newSchedule = { ...schedule };
@@ -94,6 +106,7 @@ export function Step3Availability({
       if (day.key !== 'monday') {
         newSchedule[day.key] = {
           enabled: mondaySchedule.enabled,
+          recurring: mondaySchedule.recurring,
           slots: [...mondaySchedule.slots],
         };
       }
@@ -120,7 +133,7 @@ export function Step3Availability({
         type='button'
         variant='outline'
       >
-        Copier les horaires du lundi à tous les jours
+        {tAuthProfessional('copyMondaySchedule')}
       </Button>
 
       <Controller
@@ -147,9 +160,28 @@ export function Step3Availability({
                       {day.label}
                     </Label>
                   </div>
-                  {!schedule[day.key].enabled && (
-                    <span className='text-sm text-gray-500'>Non travaillé</span>
-                  )}
+                  <div className='flex items-center gap-4'>
+                    {schedule[day.key].enabled && (
+                      <div className='flex items-center gap-2'>
+                        <Checkbox
+                          checked={schedule[day.key].recurring}
+                          id={`${day.key}-recurring`}
+                          onCheckedChange={() => handleRecurringToggle(day.key)}
+                        />
+                        <Label
+                          className='cursor-pointer text-sm text-gray-700'
+                          htmlFor={`${day.key}-recurring`}
+                        >
+                          Récurrent
+                        </Label>
+                      </div>
+                    )}
+                    {!schedule[day.key].enabled && (
+                      <span className='text-sm text-gray-500'>
+                        Non travaillé
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {schedule[day.key].enabled && (

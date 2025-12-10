@@ -20,13 +20,33 @@ import { createClient } from '@/lib/supabase/client';
 import { useRegisterProfessionalProfile } from '../hooks/useRegisterProfessionalProfile';
 
 const initialSchedule: Record<string, DaySchedule> = {
-  friday: { enabled: true, slots: [{ end: '17:00', start: '09:00' }] },
-  monday: { enabled: true, slots: [{ end: '17:00', start: '09:00' }] },
-  saturday: { enabled: false, slots: [] },
-  sunday: { enabled: false, slots: [] },
-  thursday: { enabled: true, slots: [{ end: '17:00', start: '09:00' }] },
-  tuesday: { enabled: true, slots: [{ end: '17:00', start: '09:00' }] },
-  wednesday: { enabled: true, slots: [{ end: '17:00', start: '09:00' }] },
+  friday: {
+    enabled: true,
+    recurring: true,
+    slots: [{ end: '17:00', start: '09:00' }],
+  },
+  monday: {
+    enabled: true,
+    recurring: true,
+    slots: [{ end: '17:00', start: '09:00' }],
+  },
+  saturday: { enabled: false, recurring: true, slots: [] },
+  sunday: { enabled: false, recurring: true, slots: [] },
+  thursday: {
+    enabled: true,
+    recurring: true,
+    slots: [{ end: '17:00', start: '09:00' }],
+  },
+  tuesday: {
+    enabled: true,
+    recurring: true,
+    slots: [{ end: '17:00', start: '09:00' }],
+  },
+  wednesday: {
+    enabled: true,
+    recurring: true,
+    slots: [{ end: '17:00', start: '09:00' }],
+  },
 };
 
 export default function ProfessionalSignUpForm2() {

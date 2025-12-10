@@ -126,7 +126,8 @@
         "phone": "Phone",
         "planningAndAvailability": "Planning & availability",
         "configureYourDaysAndSlots": "Configure your days and slots",
-        "validationInformation": "Please review the information below before finalizing your registration."
+        "validationInformation": "Please review the information below before finalizing your registration.",
+        "copyMondaySchedule": "Copy the hours of Monday to all days"
       },
       "structureForm": {
         "title": "Create my structure account",

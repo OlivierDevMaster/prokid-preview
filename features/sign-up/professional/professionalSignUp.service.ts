@@ -85,7 +85,11 @@ export async function registerProfessionalProfile(
 
     for (const slot of daySchedule.slots) {
       try {
-        await createAvailabilityRrule(userId, dayName as DayName, slot);
+        if (daySchedule.recurring) {
+          await createAvailabilityRrule(userId, dayName as DayName, slot);
+        } else {
+          await createOnetimeAvailability(userId, dayName as DayName, slot);
+        }
       } catch (error) {
         console.error(`Error creating availability for ${dayName}:`, error);
         throw error;
@@ -154,7 +158,32 @@ async function createAvailabilityRrule(
 
   if (error) {
     throw new Error(
-      `Failed to create availability for ${dayName}: ${error.message}`
+      `Failed to create recurring availability for ${dayName}: ${error.message}`
+    );
+  }
+}
+
+async function createOnetimeAvailability(
+  userId: string,
+  dayName: DayName,
+  slot: { end: string; start: string }
+): Promise<void> {
+  const supabase = createClient();
+  const targetDow = DAY_NAME_TO_DOW[dayName];
+  const dayOffset = getDaysUntilNextDayOfWeek(targetDow);
+  const hour = parseTimeToHour(slot.start);
+  const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
+
+  const { error } = await supabase.rpc('create_onetime_availability', {
+    day_offset: dayOffset,
+    duration_minutes: durationMinutes,
+    hour,
+    user_id_param: userId,
+  });
+
+  if (error) {
+    throw new Error(
+      `Failed to create one-time availability for ${dayName}: ${error.message}`
     );
   }
 }
