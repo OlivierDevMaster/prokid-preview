@@ -28,8 +28,14 @@ export function Step4Finalization({
   const tAuthProfessional = useTranslations('auth.signUp.professionalForm');
   const { getValues } = form;
 
-  const { availabilities, email, interventionZone, phone, profession } =
-    getValues();
+  const {
+    availabilities,
+    firstName,
+    interventionZone,
+    lastName,
+    phone,
+    profession,
+  } = getValues();
 
   return (
     <div className='space-y-6'>
@@ -43,7 +49,7 @@ export function Step4Finalization({
       </div>
 
       <div className='space-y-2 rounded-lg border border-blue-200 p-4'>
-        <div className='flex items-center'>
+        <div className='flex items-start'>
           <div className='h-xl w-xl relative flex items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-white'>
             {false ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -58,12 +64,15 @@ export function Step4Finalization({
               </span>
             )}
           </div>
-          <div className='pl-8 text-lg text-gray-700'>{email}</div>
+          <div className='pl-8 text-lg text-gray-700'>
+            <div className='font-bold'>{firstName}</div>
+            <div>{lastName}</div>
+          </div>
         </div>
 
         <div className='space-2 pt-4'>
           <h6 className='text-sm font-semibold text-gray-700'>
-            {tCommon('label.firstName')}
+            {tCommon('label.profession')}
           </h6>
           <p className='text-sm text-gray-700'>
             {tProfessional(`jobs.${profession}`)}

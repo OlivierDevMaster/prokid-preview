@@ -5,13 +5,20 @@ import type { ProfessionalSignUpFormData } from '@/features/professional/schemas
 
 import { registerProfessionalProfile } from '../professionalSignUp.service';
 
+interface RegisterProfessionalProfileParams {
+  formData: ProfessionalSignUpFormData;
+  userId: string;
+}
+
 export const useRegisterProfessionalProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: ProfessionalSignUpFormData) => {
-      console.info('mutation fn called');
-      return registerProfessionalProfile(formData);
+    mutationFn: async ({
+      formData,
+      userId,
+    }: RegisterProfessionalProfileParams) => {
+      return registerProfessionalProfile(userId, formData);
     },
     onSuccess: () => {
       // Invalider les queries pour rafraîchir les données

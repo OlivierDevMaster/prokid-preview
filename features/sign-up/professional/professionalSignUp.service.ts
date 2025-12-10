@@ -22,25 +22,29 @@ const DAY_NAME_TO_DOW: Record<DayName, number> = {
 };
 
 export async function registerProfessionalProfile(
+  userId: string,
   formData: ProfessionalSignUpFormData
 ): Promise<void> {
   const supabase = createClient();
 
-  const avatarUrl: null | string = null;
+  let avatarUrl: null | string = null;
 
-  const { data: user } = await supabase.auth.getUser();
-
-  if (!user || !user.user) {
-    throw new Error('User not found');
+  if (formData.profilePhoto) {
+    try {
+      avatarUrl = await uploadProfilePhoto(formData.profilePhoto, userId);
+    } catch (error) {
+      throw new Error(
+        `Failed to upload profile photo: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
+    }
   }
-
-  const userId = user.user.id;
 
   const { error: profileUpdateError } = await supabase
     .from('profiles')
     .update({
       avatar_url: avatarUrl,
-      email: formData.email,
       first_name: formData.firstName,
       last_name: formData.lastName,
     })

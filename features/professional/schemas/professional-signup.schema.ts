@@ -16,7 +16,6 @@ export const professionalSignUpSchema = z.object({
   availabilities: z.record(z.string(), dayScheduleSchema),
   city: z.string().min(1, 'City is required'),
   description: z.string().optional(),
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
   firstName: z.string().min(1, 'First name is required'),
   hourlyRate: z.string().optional(),
   interventionZone: z.number().min(5).max(100),

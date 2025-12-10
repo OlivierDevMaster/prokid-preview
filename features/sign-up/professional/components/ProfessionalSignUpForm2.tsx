@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 
 import type { DaySchedule } from '@/features/sign-up/professional/components/steps/Step3Availability';
@@ -15,6 +15,7 @@ import { Step1ProfilePhoto } from '@/features/sign-up/professional/components/st
 import { Step2IdentityInfo } from '@/features/sign-up/professional/components/steps/Step2IdentityInfo';
 import { Step3Availability } from '@/features/sign-up/professional/components/steps/Step3Availability';
 import { Step4Finalization } from '@/features/sign-up/professional/components/steps/Step4Finalization';
+import { createClient } from '@/lib/supabase/client';
 
 import { useRegisterProfessionalProfile } from '../hooks/useRegisterProfessionalProfile';
 
@@ -30,13 +31,14 @@ const initialSchedule: Record<string, DaySchedule> = {
 
 export default function ProfessionalSignUpForm2() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [userId, setUserId] = useState<null | string>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const form = useForm<ProfessionalSignUpFormData>({
     defaultValues: {
       availabilities: initialSchedule,
       city: '',
       description: '',
-      email: '',
       firstName: '',
       hourlyRate: '',
       interventionZone: 25,
@@ -53,6 +55,28 @@ export default function ProfessionalSignUpForm2() {
     ) as Resolver<ProfessionalSignUpFormData>,
   });
 
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const supabase = createClient();
+        const { data: user, error } = await supabase.auth.getUser();
+
+        if (error || !user?.user) {
+          throw new Error('User not found. Please sign in again.');
+        }
+
+        setUserId(user.user.id);
+      } catch (error) {
+        console.error('Error getting user:', error);
+        throw error;
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+
+    getUserId();
+  }, []);
+
   const handleNext = async () => {
     if (currentStep === 2) {
       const isValid = await form.trigger([
@@ -60,7 +84,6 @@ export default function ProfessionalSignUpForm2() {
         'lastName',
         'profession',
         'city',
-        'email',
       ]);
       if (!isValid) {
         return;
@@ -71,7 +94,6 @@ export default function ProfessionalSignUpForm2() {
     }
   };
 
-  console.info({ errors: form.formState.errors });
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -81,8 +103,33 @@ export default function ProfessionalSignUpForm2() {
   const { isPending, mutate: registerProfessionalProfile } =
     useRegisterProfessionalProfile();
   const handleSubmit = form.handleSubmit(data => {
-    registerProfessionalProfile(data);
+    if (!userId) {
+      throw new Error('User ID is required. Please sign in again.');
+    }
+    registerProfessionalProfile({ formData: data, userId });
   });
+
+  if (isLoadingUser) {
+    return (
+      <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
+        <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
+          <div className='text-center'>Loading...</div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
+        <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
+          <div className='text-center text-red-600'>
+            User not found. Please sign in again.
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>

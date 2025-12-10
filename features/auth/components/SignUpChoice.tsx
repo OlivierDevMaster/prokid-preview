@@ -15,11 +15,11 @@ export function SignUpChoice({
   const router = useRouter();
 
   const handleProfessionalSignUp = () => {
-    router.push('/auth/sign-up/professional');
+    router.push('/auth/sign-up/professional/account');
   };
 
   const handleStructureSignUp = () => {
-    router.push('/auth/sign-up/structure');
+    router.push('/auth/sign-up/structure/account');
   };
 
   return (

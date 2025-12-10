@@ -50,8 +50,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
         role,
       });
 
-      // Redirect to login page after successful signup
-      router.push('/auth/sign-up/professional/on-boarding');
+      if (role === 'professional') {
+        router.push('/auth/sign-up/professional/on-boarding');
+      } else if (role === 'structure') {
+        router.push('/auth/login');
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

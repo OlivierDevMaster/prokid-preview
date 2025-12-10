@@ -233,30 +233,7 @@ export function Step2IdentityInfo({
         />
       </div>
 
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-2'>
-          <Label className='text-gray-700' htmlFor='email'>
-            {tProfessional('email')} *
-          </Label>
-          <Controller
-            control={control}
-            name='email'
-            render={({ field }) => (
-              <Input
-                className='border-gray-300'
-                id='email'
-                onChange={field.onChange}
-                required
-                type='email'
-                value={field.value}
-              />
-            )}
-          />
-          {errors.email && (
-            <p className='text-sm text-red-500'>{errors.email.message}</p>
-          )}
-        </div>
-
+      <div className='grid grid-cols-1 gap-4'>
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='phone'>
             {tProfessional('phone')}
