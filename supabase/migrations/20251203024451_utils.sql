@@ -312,3 +312,152 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 COMMENT ON FUNCTION "public"."extract_rrule_dates"() IS 'Extracts DTSTART and UNTIL timestamps from RRULE string and populates dtstart and until columns';
+
+-- Function to create mission with schedule from availability (for seeding)
+-- Finds matching availability and creates mission with generated schedule
+CREATE OR REPLACE FUNCTION public.seeds_create_mission_from_availability(
+  structure_id_param UUID,
+  professional_id_param UUID,
+  day_offset INTEGER,
+  hour INTEGER,
+  duration_minutes INTEGER,
+  weeks_ahead INTEGER DEFAULT 0,
+  until_offset INTEGER DEFAULT NULL,
+  status_param TEXT DEFAULT 'pending',
+  title_param TEXT DEFAULT 'Mission',
+  description_param TEXT DEFAULT NULL
+) RETURNS UUID AS $$
+DECLARE
+  target_date DATE;
+  mission_dtstart_ts TIMESTAMP WITH TIME ZONE;
+  mission_until_ts TIMESTAMP WITH TIME ZONE;
+  target_dow INTEGER;
+  availability_record RECORD;
+  mission_id_result UUID;
+  generated_rrule TEXT;
+  availability_dtstart_str TEXT;
+  availability_rrule_str TEXT;
+  availability_until_str TEXT;
+  exdate_lines TEXT[];
+  rrule_lines TEXT[];
+  line TEXT;
+  hour_val INTEGER;
+  minute_val INTEGER;
+BEGIN
+  -- Calculate target date
+  target_date := public.seeds_get_next_weekday(
+    EXTRACT(DOW FROM CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL)::INTEGER,
+    weeks_ahead * 7
+  );
+
+  -- Set mission dates
+  mission_dtstart_ts := target_date::TIMESTAMP WITH TIME ZONE + (hour::TEXT || ' hours')::INTERVAL;
+
+  IF until_offset IS NULL THEN
+    -- One-time mission: end same day
+    mission_until_ts := target_date::TIMESTAMP WITH TIME ZONE + (hour::TEXT || ' hours')::INTERVAL + (duration_minutes::TEXT || ' minutes')::INTERVAL;
+  ELSE
+    -- Recurring mission: calculate until date
+    mission_until_ts := (target_date + (until_offset::TEXT || ' days')::INTERVAL)::TIMESTAMP WITH TIME ZONE + (hour::TEXT || ' hours')::INTERVAL;
+  END IF;
+
+  -- Find matching availability
+  target_dow := EXTRACT(DOW FROM target_date)::INTEGER;
+
+  SELECT id, rrule, duration_mn INTO availability_record
+  FROM public.availabilities
+  WHERE user_id = professional_id_param
+    AND duration_mn = duration_minutes
+    AND rrule ~* ('BYDAY=' || public.seeds_get_rrule_day(day_offset))
+    AND rrule ~* ('T' || LPAD(hour::TEXT, 2, '0'))
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No matching availability found for professional %, day_offset %, hour %, duration %',
+      professional_id_param, day_offset, hour, duration_minutes;
+  END IF;
+
+  -- Parse availability RRULE to extract pattern and time
+  rrule_lines := string_to_array(availability_record.rrule, E'\n');
+  availability_dtstart_str := NULL;
+  availability_rrule_str := NULL;
+  availability_until_str := NULL;
+  exdate_lines := ARRAY[]::TEXT[];
+
+  FOREACH line IN ARRAY rrule_lines
+  LOOP
+    IF line ~* '^DTSTART:' THEN
+      availability_dtstart_str := substring(line from '^DTSTART:(.+)$');
+      -- Extract hour and minute
+      hour_val := substring(availability_dtstart_str from 'T(\d{2})\d{4}')::INTEGER;
+      minute_val := substring(availability_dtstart_str from 'T\d{2}(\d{2})\d{2}')::INTEGER;
+    ELSIF line ~* '^RRULE:' THEN
+      availability_rrule_str := substring(line from '^RRULE:(.+)$');
+    ELSIF line ~* '^UNTIL:' THEN
+      availability_until_str := substring(line from '^UNTIL:(.+)$');
+    ELSIF line ~* '^EXDATE:' THEN
+      exdate_lines := array_append(exdate_lines, line);
+    END IF;
+  END LOOP;
+
+  -- Generate mission schedule RRULE
+  -- DTSTART: mission_dtstart with availability time
+  generated_rrule := 'DTSTART:' ||
+    TO_CHAR(mission_dtstart_ts, 'YYYYMMDD') ||
+    'T' || LPAD(hour_val::TEXT, 2, '0') ||
+    LPAD(minute_val::TEXT, 2, '0') || '00Z';
+
+  -- Add RRULE pattern
+  IF availability_rrule_str IS NOT NULL THEN
+    generated_rrule := generated_rrule || E'\nRRULE:' || availability_rrule_str;
+  END IF;
+
+  -- Add UNTIL
+  generated_rrule := generated_rrule || E'\nUNTIL:' ||
+    TO_CHAR(mission_until_ts, 'YYYYMMDD') ||
+    'T' || LPAD(hour_val::TEXT, 2, '0') ||
+    LPAD(minute_val::TEXT, 2, '0') || '00Z';
+
+  -- Add EXDATE if present
+  IF array_length(exdate_lines, 1) > 0 THEN
+    generated_rrule := generated_rrule || E'\n' || array_to_string(exdate_lines, E'\n');
+  END IF;
+
+  -- Create mission
+  INSERT INTO public.missions (
+    structure_id,
+    professional_id,
+    title,
+    description,
+    status,
+    mission_dtstart,
+    mission_until
+  ) VALUES (
+    structure_id_param,
+    professional_id_param,
+    title_param,
+    description_param,
+    status_param::mission_status,
+    mission_dtstart_ts,
+    mission_until_ts
+  )
+  RETURNING id INTO mission_id_result;
+
+  -- Create mission schedule
+  INSERT INTO public.mission_schedules (
+    mission_id,
+    availability_id,
+    rrule,
+    duration_mn
+  ) VALUES (
+    mission_id_result,
+    availability_record.id,
+    generated_rrule,
+    availability_record.duration_mn
+  );
+
+  RETURN mission_id_result;
+END;
+$$ LANGUAGE plpgsql SET search_path = '';
+
+COMMENT ON FUNCTION public.seeds_create_mission_from_availability(UUID, UUID, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, TEXT, TEXT, TEXT) IS 'Creates a mission with schedule from matching availability. Used for seeding. Finds availability by day/hour/duration and generates schedule RRULE with mission date constraints.';

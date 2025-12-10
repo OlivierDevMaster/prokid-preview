@@ -44,4 +44,10 @@ export interface MissionFilters {
 
 export type MissionInsert = TablesInsert<'missions'>;
 
+export type MissionSchedule = Tables<'mission_schedules'>;
+
+export type MissionScheduleInsert = TablesInsert<'mission_schedules'>;
+
+export type MissionScheduleUpdate = TablesUpdate<'mission_schedules'>;
+
 export type MissionUpdate = TablesUpdate<'missions'>;
