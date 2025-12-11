@@ -73,6 +73,6 @@ CREATE POLICY "Admins can read all notification broadcasts" ON "realtime"."messa
 
 -- Index to optimize topic parsing in RLS policies
 -- Note: This index may already exist, but creating it ensures optimal performance
-CREATE INDEX IF NOT EXISTS "idx_realtime_messages_topic_pattern" ON "realtime"."messages" 
+CREATE INDEX IF NOT EXISTS "idx_realtime_messages_topic_pattern" ON "realtime"."messages"
   USING btree (topic text_pattern_ops)
   WHERE topic LIKE 'user:%:notifications';
