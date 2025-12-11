@@ -315,7 +315,7 @@ export const createMissionHandler = factory.createHandlers(
 
       // Return mission with overlap information in data if any overlaps were found
       return apiResponse.created({
-        ...mission,
+        mission,
         overlaps: overlaps.length > 0 ? overlaps : undefined,
       });
     } catch (error) {

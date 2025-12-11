@@ -1,7 +1,5 @@
-// deno-lint-ignore-file no-explicit-any
-
 import '@std/dotenv/load';
-import { assertEquals } from '@std/assert';
+import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
 import { ApiTestHelper } from '../../../helpers/ApiHelper.ts';
@@ -56,21 +54,23 @@ describe('Mission creation business logic errors', () => {
       title: 'Accepted Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create overlapping mission: Monday 10am-12pm (overlaps with 9am-11am)
     const overlappingRequest = {
@@ -97,14 +97,27 @@ describe('Mission creation business logic errors', () => {
       token: fixture.structureToken!,
     });
 
-    // Assert
-    MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
+    // Assert - Mission should be created successfully with overlap warnings
+    assertExists(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+    assertEquals(mission.title, overlappingRequest.title);
+
+    // Verify overlap information is present
+    assertExists(data.overlaps);
+    assertEquals(Array.isArray(data.overlaps), true);
+    assertEquals(data.overlaps.length > 0, true);
+
+    // Verify overlap structure
+    data.overlaps.forEach(
+      (overlap: { mission_id: string; overlapping_date: string }) => {
+        MissionAssertions.assertOverlapStructure(overlap);
+        assertEquals(overlap.mission_id, acceptedMission.id);
+      }
+    );
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id];
-    if (data?.id) {
-      fixture.missionIds.push(data.id);
-    }
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should handle partial overlap correctly (end time overlaps)', async () => {
@@ -127,21 +140,23 @@ describe('Mission creation business logic errors', () => {
       title: 'Accepted Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create overlapping mission: Monday 9am-11am (overlaps with 10am-12pm)
     const overlappingRequest = {
@@ -168,14 +183,27 @@ describe('Mission creation business logic errors', () => {
       token: fixture.structureToken!,
     });
 
-    // Assert
-    MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
+    // Assert - Mission should be created successfully with overlap warnings
+    assertExists(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+    assertEquals(mission.title, overlappingRequest.title);
+
+    // Verify overlap information is present
+    assertExists(data.overlaps);
+    assertEquals(Array.isArray(data.overlaps), true);
+    assertEquals(data.overlaps.length > 0, true);
+
+    // Verify overlap structure
+    data.overlaps.forEach(
+      (overlap: { mission_id: string; overlapping_date: string }) => {
+        MissionAssertions.assertOverlapStructure(overlap);
+        assertEquals(overlap.mission_id, acceptedMission.id);
+      }
+    );
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id];
-    if (data?.id) {
-      fixture.missionIds.push(data.id);
-    }
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should allow adjacent missions (no overlap)', async () => {
@@ -198,21 +226,23 @@ describe('Mission creation business logic errors', () => {
       title: 'Accepted Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create adjacent mission: Monday 11am-1pm (starts exactly when first ends)
     const adjacentRequest = {
@@ -241,9 +271,10 @@ describe('Mission creation business logic errors', () => {
 
     // Assert - Should succeed (adjacent, not overlapping)
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id, data.id];
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should handle multiple schedules with one overlapping', async () => {
@@ -266,21 +297,23 @@ describe('Mission creation business logic errors', () => {
       title: 'Accepted Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create mission with multiple schedules, one overlapping
     const overlappingRequest = {
@@ -311,14 +344,28 @@ describe('Mission creation business logic errors', () => {
       token: fixture.structureToken!,
     });
 
-    // Assert - Should reject because one schedule overlaps
-    MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
+    // Assert - Mission should be created successfully with overlap warnings
+    // Even if only one schedule overlaps, the mission is still created
+    assertExists(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+    assertEquals(mission.title, overlappingRequest.title);
+
+    // Verify overlap information is present
+    assertExists(data.overlaps);
+    assertEquals(Array.isArray(data.overlaps), true);
+    assertEquals(data.overlaps.length > 0, true);
+
+    // Verify overlap structure
+    data.overlaps.forEach(
+      (overlap: { mission_id: string; overlapping_date: string }) => {
+        MissionAssertions.assertOverlapStructure(overlap);
+        assertEquals(overlap.mission_id, acceptedMission.id);
+      }
+    );
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id];
-    if (data?.id) {
-      fixture.missionIds.push(data.id);
-    }
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should handle RRULE with invalid DTSTART gracefully', async () => {
@@ -378,9 +425,10 @@ describe('Mission creation business logic errors', () => {
     // Assert - Should succeed by using mission_dtstart as fallback for missing DTSTART
     // The constrainRRULEByDates function handles this by using mission_dtstart
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Track mission for cleanup
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should handle very short duration (1 minute)', async () => {
@@ -410,16 +458,17 @@ describe('Mission creation business logic errors', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('duration_mn')
-      .eq('mission_id', data.id)
+      .eq('mission_id', mission.id)
       .single();
 
     assertEquals(schedules?.duration_mn, 1);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should handle very long duration (480 minutes = 8 hours)', async () => {
@@ -449,15 +498,16 @@ describe('Mission creation business logic errors', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('duration_mn')
-      .eq('mission_id', data.id)
+      .eq('mission_id', mission.id)
       .single();
 
     assertEquals(schedules?.duration_mn, 480);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 });

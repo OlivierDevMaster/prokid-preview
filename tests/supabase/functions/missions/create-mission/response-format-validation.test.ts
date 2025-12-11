@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-
 import '@std/dotenv/load';
 import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
@@ -10,6 +8,7 @@ import { MissionAssertions } from '../missions.assertion.ts';
 import { MissionTestData } from '../missions.data.ts';
 import {
   MissionCleanupHelper,
+  MissionEdgeFunctionLatencyHelper,
   MissionFixtureBuilder,
   MissionTestFixture,
 } from '../missions.fixture.ts';
@@ -19,6 +18,7 @@ describe('Mission creation response format validation', () => {
   let apiHelper: ApiTestHelper;
   let fixtureBuilder: MissionFixtureBuilder;
   let cleanupHelper: MissionCleanupHelper;
+  let latencyHelper: MissionEdgeFunctionLatencyHelper;
   let fixture: MissionTestFixture | null = null;
 
   beforeEach(() => {
@@ -27,6 +27,7 @@ describe('Mission creation response format validation', () => {
     apiHelper = new ApiTestHelper(supabaseClient);
     fixtureBuilder = new MissionFixtureBuilder(adminClient, supabaseClient);
     cleanupHelper = new MissionCleanupHelper(adminClient);
+    latencyHelper = new MissionEdgeFunctionLatencyHelper(adminClient);
   });
 
   afterEach(async () => {
@@ -57,9 +58,10 @@ describe('Mission creation response format validation', () => {
     // Assert
     MissionAssertions.assertResponseStructure(data);
     MissionAssertions.assertContentType(response);
-    MissionAssertions.assertMissionStructure(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertMissionStructure(mission);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with all required fields', async () => {
@@ -82,17 +84,18 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(typeof data.id, 'string');
-    assertEquals(typeof data.title, 'string');
-    assertEquals(typeof data.structure_id, 'string');
-    assertEquals(typeof data.professional_id, 'string');
-    assertEquals(typeof data.status, 'string');
-    assertEquals(typeof data.mission_dtstart, 'string');
-    assertEquals(typeof data.mission_until, 'string');
-    assertEquals(typeof data.created_at, 'string');
-    assertEquals(typeof data.updated_at, 'string');
+    const mission = data.mission || data;
+    assertEquals(typeof mission.id, 'string');
+    assertEquals(typeof mission.title, 'string');
+    assertEquals(typeof mission.structure_id, 'string');
+    assertEquals(typeof mission.professional_id, 'string');
+    assertEquals(typeof mission.status, 'string');
+    assertEquals(typeof mission.mission_dtstart, 'string');
+    assertEquals(typeof mission.mission_until, 'string');
+    assertEquals(typeof mission.created_at, 'string');
+    assertEquals(typeof mission.updated_at, 'string');
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with correct date formats (ISO 8601)', async () => {
@@ -115,12 +118,13 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Verify dates are valid ISO 8601 strings
-    const missionDtstart = new Date(data.mission_dtstart);
-    const missionUntil = new Date(data.mission_until);
-    const createdAt = new Date(data.created_at);
-    const updatedAt = new Date(data.updated_at);
+    const missionDtstart = new Date(mission.mission_dtstart);
+    const missionUntil = new Date(mission.mission_until);
+    const createdAt = new Date(mission.created_at);
+    const updatedAt = new Date(mission.updated_at);
 
     assertEquals(isNaN(missionDtstart.getTime()), false);
     assertEquals(isNaN(missionUntil.getTime()), false);
@@ -130,7 +134,7 @@ describe('Mission creation response format validation', () => {
     // Verify mission_until is after mission_dtstart
     assertEquals(missionUntil > missionDtstart, true);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission schedules with correct structure', async () => {
@@ -153,22 +157,36 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Fetch schedules separately to verify structure
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('*')
-      .eq('mission_id', data.id);
+      .eq('mission_id', mission.id);
 
     assertExists(schedules);
     assertEquals(schedules.length, 1);
 
-    schedules.forEach(schedule => {
+    // Wait for the async trigger to populate dtstart and until
+    const scheduleId = schedules[0].id;
+    await latencyHelper.waitForEdgeFunction(scheduleId);
+
+    // Fetch schedules again after trigger completes
+    const { data: updatedSchedules } = await fixture.adminClient
+      .from('mission_schedules')
+      .select('*')
+      .eq('mission_id', mission.id);
+
+    assertExists(updatedSchedules);
+    assertEquals(updatedSchedules.length, 1);
+
+    updatedSchedules.forEach(schedule => {
       MissionAssertions.assertMissionScheduleStructure(schedule);
-      assertEquals(schedule.mission_id, data.id);
+      assertEquals(schedule.mission_id, mission.id);
     });
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with correct status enum value', async () => {
@@ -192,12 +210,13 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
     assertEquals(
-      ['accepted', 'cancelled', 'declined', 'pending'].includes(data.status),
+      ['accepted', 'cancelled', 'declined', 'pending'].includes(mission.status),
       true
     );
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with UUIDs in correct format', async () => {
@@ -220,15 +239,16 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Verify UUID format (basic check)
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    assertEquals(uuidRegex.test(data.id), true);
-    assertEquals(uuidRegex.test(data.structure_id), true);
-    assertEquals(uuidRegex.test(data.professional_id), true);
+    assertEquals(uuidRegex.test(mission.id), true);
+    assertEquals(uuidRegex.test(mission.structure_id), true);
+    assertEquals(uuidRegex.test(mission.professional_id), true);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with description when provided', async () => {
@@ -252,10 +272,11 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.description, requestBody.description);
-    assertEquals(typeof data.description, 'string');
+    const mission = data.mission || data;
+    assertEquals(mission.description, requestBody.description);
+    assertEquals(typeof mission.description, 'string');
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should return mission with null description when not provided', async () => {
@@ -286,8 +307,9 @@ describe('Mission creation response format validation', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.description, null);
+    const mission = data.mission || data;
+    assertEquals(mission.description, null);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 });

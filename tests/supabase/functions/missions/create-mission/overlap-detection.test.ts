@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-
 import '@std/dotenv/load';
 import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
@@ -36,7 +34,7 @@ describe('Mission creation overlap detection', () => {
     }
   });
 
-  it('should reject mission that overlaps with accepted mission', async () => {
+  it('should create mission with overlap warnings when overlapping with accepted mission', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
@@ -56,27 +54,23 @@ describe('Mission creation overlap detection', () => {
       title: 'First Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
-
-    console.log('Created mission:', createdMission);
-    console.log('Response status:', createdMission ? 'success' : 'failed');
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
-
-    console.log('Accepted mission:', acceptedMission);
-    console.log('Accepted mission status:', acceptedMission?.status);
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create overlapping mission request (same time slot)
     const overlappingRequest = {
@@ -103,18 +97,27 @@ describe('Mission creation overlap detection', () => {
       token: fixture.structureToken!,
     });
 
-    console.log('Overlapping request response status:', response.status);
-    console.log('Overlapping request data:', JSON.stringify(data, null, 2));
+    // Assert - Mission should be created successfully with overlap warnings
+    assertExists(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+    assertEquals(mission.title, overlappingRequest.title);
 
-    // Assert
-    MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
-    assertExists(data.error?.overlapping_date);
+    // Verify overlap information is present
+    assertExists(data.overlaps);
+    assertEquals(Array.isArray(data.overlaps), true);
+    assertEquals(data.overlaps.length > 0, true);
+
+    // Verify overlap structure
+    data.overlaps.forEach(
+      (overlap: { mission_id: string; overlapping_date: string }) => {
+        MissionAssertions.assertOverlapStructure(overlap);
+        assertEquals(overlap.mission_id, acceptedMission.id);
+      }
+    );
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id];
-    if (data?.id) {
-      fixture.missionIds.push(data.id);
-    }
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should allow mission that does not overlap with accepted mission', async () => {
@@ -137,25 +140,23 @@ describe('Mission creation overlap detection', () => {
       title: 'Accepted Monday Mission',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
-
-    console.log('Created mission:', createdMission);
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Accept the mission
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+    const { data: acceptedMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdMission.id}/accept`,
       token: fixture.professionalToken!,
     });
-
-    console.log('Accepted mission:', acceptedMission);
+    const acceptedMission = acceptedMissionData.mission || acceptedMissionData;
 
     // Create non-overlapping mission on Wednesday
     const nonOverlappingRequest = {
@@ -182,15 +183,18 @@ describe('Mission creation overlap detection', () => {
       token: fixture.structureToken!,
     });
 
-    console.log('Non-overlapping request response status:', response.status);
-    console.log('Non-overlapping request data:', JSON.stringify(data, null, 2));
-
     // Assert
-    MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.title, nonOverlappingRequest.title);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+    assertEquals(mission.title, nonOverlappingRequest.title);
+
+    // Verify no overlap information when there are no overlaps
+    if (data.overlaps !== undefined) {
+      assertEquals(data.overlaps.length, 0);
+    }
 
     // Track all missions for cleanup
-    fixture.missionIds = [acceptedMission.id, data.id];
+    fixture.missionIds = [acceptedMission.id, mission.id];
   });
 
   it('should allow mission that overlaps with pending mission', async () => {
@@ -205,13 +209,14 @@ describe('Mission creation overlap detection', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: pendingMission } = await apiHelper.invokeEndpoint({
+    const { data: pendingMissionData } = await apiHelper.invokeEndpoint({
       body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const pendingMission = pendingMissionData.mission || pendingMissionData;
 
     // Create overlapping mission request (same time slot)
     const overlappingRequest = {
@@ -231,9 +236,15 @@ describe('Mission creation overlap detection', () => {
     });
 
     // Assert - Should succeed because pending missions don't block
-    MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulCreation(response, mission);
+
+    // Verify no overlap information when overlapping with pending mission
+    if (data.overlaps !== undefined) {
+      assertEquals(data.overlaps.length, 0);
+    }
 
     // Track all missions for cleanup
-    fixture.missionIds = [pendingMission.id, data.id];
+    fixture.missionIds = [pendingMission.id, mission.id];
   });
 });

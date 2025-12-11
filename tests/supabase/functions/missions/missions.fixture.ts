@@ -135,6 +135,86 @@ export class MissionCleanupHelper {
   }
 }
 
+/**
+ * Helper to wait for async edge functions to complete
+ * Used for waiting on triggers that populate fields asynchronously
+ */
+export class MissionEdgeFunctionLatencyHelper {
+  constructor(private adminClient: ReturnType<typeof createClient<Database>>) {}
+
+  /**
+   * Waits for the edge function to complete by polling the database.
+   * The edge function updates dtstart and until fields asynchronously.
+   * Since the trigger initially sets both to NULL and the edge function updates them,
+   * we poll until enough time has passed for the edge function to complete.
+   *
+   * @param missionScheduleId - The ID of the mission schedule to check
+   * @param options - Options for polling behavior
+   * @returns The mission schedule record with updated dtstart and until
+   */
+  async waitForEdgeFunction(
+    missionScheduleId: string,
+    options: {
+      pollIntervalMs?: number;
+      timeoutMs?: number;
+    } = {}
+  ) {
+    const {
+      pollIntervalMs = 200, // Poll every 200ms
+      timeoutMs = 10000, // 10 seconds default timeout
+    } = options;
+
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeoutMs) {
+      const { data: schedule, error } = await this.adminClient
+        .from('mission_schedules')
+        .select('dtstart, until')
+        .eq('id', missionScheduleId)
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to fetch mission schedule: ${error.message}`);
+      }
+
+      if (!schedule) {
+        throw new Error('Mission schedule not found');
+      }
+
+      // The edge function always updates the record, even if values remain NULL.
+      // We wait a minimum amount of time (1.5 seconds) to allow the edge function
+      // to complete, then return the current state. This accounts for:
+      // - Network latency to call the edge function
+      // - Edge function processing time
+      // - Database update time
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= 1500) {
+        // Give the edge function at least 1.5 seconds to complete
+        return schedule;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+    }
+
+    // Final check before timeout
+    const { data: schedule, error } = await this.adminClient
+      .from('mission_schedules')
+      .select('dtstart, until')
+      .eq('id', missionScheduleId)
+      .single();
+
+    if (error) {
+      throw new Error(`Timeout waiting for edge function: ${error.message}`);
+    }
+
+    if (!schedule) {
+      throw new Error('Timeout: Mission schedule not found');
+    }
+
+    return schedule;
+  }
+}
+
 export class MissionFixtureBuilder {
   private adminClient: ReturnType<typeof createClient<Database>>;
   private supabaseClient: SupabaseTestClient;

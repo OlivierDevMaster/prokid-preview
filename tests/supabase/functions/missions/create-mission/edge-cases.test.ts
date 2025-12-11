@@ -10,6 +10,7 @@ import { MissionAssertions } from '../missions.assertion.ts';
 import { MissionTestData } from '../missions.data.ts';
 import {
   MissionCleanupHelper,
+  MissionEdgeFunctionLatencyHelper,
   MissionFixtureBuilder,
   MissionTestFixture,
 } from '../missions.fixture.ts';
@@ -19,6 +20,7 @@ describe('Mission creation edge cases', () => {
   let apiHelper: ApiTestHelper;
   let fixtureBuilder: MissionFixtureBuilder;
   let cleanupHelper: MissionCleanupHelper;
+  let latencyHelper: MissionEdgeFunctionLatencyHelper;
   let fixture: MissionTestFixture | null = null;
 
   beforeEach(() => {
@@ -27,6 +29,7 @@ describe('Mission creation edge cases', () => {
     apiHelper = new ApiTestHelper(supabaseClient);
     fixtureBuilder = new MissionFixtureBuilder(adminClient, supabaseClient);
     cleanupHelper = new MissionCleanupHelper(adminClient);
+    latencyHelper = new MissionEdgeFunctionLatencyHelper(adminClient);
   });
 
   afterEach(async () => {
@@ -66,18 +69,19 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Verify EXDATE is preserved in schedule
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('rrule')
-      .eq('mission_id', data.id)
+      .eq('mission_id', mission.id)
       .single();
 
     assertExists(schedules);
     assertEquals(schedules.rrule.includes('EXDATE:'), true);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with multiple schedules on different days', async () => {
@@ -117,19 +121,66 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
     // Verify all schedules were created
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('*')
-      .eq('mission_id', data.id);
+      .eq('mission_id', mission.id);
 
     assertEquals(schedules?.length, 3);
-    schedules?.forEach(schedule => {
+
+    // Wait for the async triggers to populate dtstart and until for all schedules
+    for (const schedule of schedules || []) {
+      await latencyHelper.waitForEdgeFunction(schedule.id, {
+        timeoutMs: 15000, // 15 seconds
+      });
+    }
+
+    // Poll until all schedules have dtstart populated (with retry)
+    const scheduleIds = schedules!.map(s => s.id);
+    const updatedSchedules: Array<{
+      created_at: string;
+      dtstart: null | string;
+      duration_mn: number;
+      id: string;
+      mission_id: string;
+      rrule: string;
+      until: null | string;
+      updated_at: string;
+    }> = [];
+
+    for (const scheduleId of scheduleIds) {
+      let retries = 0;
+      while (retries < 10) {
+        const { data: fetched } = await fixture.adminClient
+          .from('mission_schedules')
+          .select('*')
+          .eq('id', scheduleId)
+          .single();
+
+        if (fetched && fetched.dtstart) {
+          updatedSchedules.push(fetched);
+          break;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+        retries++;
+      }
+    }
+
+    assertEquals(
+      updatedSchedules.length,
+      3,
+      'Not all schedules had dtstart populated'
+    );
+
+    updatedSchedules.forEach(schedule => {
       MissionAssertions.assertMissionScheduleStructure(schedule);
     });
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with very long title', async () => {
@@ -154,9 +205,10 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.title, longTitle);
+    const mission = data.mission || data;
+    assertEquals(mission.title, longTitle);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with very long description', async () => {
@@ -181,9 +233,10 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.description, longDescription);
+    const mission = data.mission || data;
+    assertEquals(mission.description, longDescription);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with minimal date range (same day)', async () => {
@@ -215,8 +268,9 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with very long date range', async () => {
@@ -242,8 +296,9 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with daily frequency RRULE', async () => {
@@ -275,8 +330,9 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission with multiple BYDAY values', async () => {
@@ -308,8 +364,9 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
+    const mission = data.mission || data;
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 
   it('should create mission without description', async () => {
@@ -340,8 +397,9 @@ describe('Mission creation edge cases', () => {
 
     // Assert
     MissionAssertions.assertSuccessfulCreation(response, data);
-    assertEquals(data.description, null);
+    const mission = data.mission || data;
+    assertEquals(mission.description, null);
 
-    fixture.missionId = data.id;
+    fixture.missionId = mission.id;
   });
 });
