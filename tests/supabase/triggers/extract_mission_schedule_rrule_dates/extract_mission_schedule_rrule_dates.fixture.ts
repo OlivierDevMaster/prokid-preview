@@ -6,9 +6,86 @@ import { SupabaseTestClient } from '../../helpers/SupabaseTestClient.ts';
 export interface TriggerTestFixture {
   adminClient: ReturnType<typeof createClient<Database>>;
   missionId: string;
+  missionScheduleId: string;
   professionalId: string;
   structureId: string;
   supabaseClient: SupabaseTestClient;
+}
+
+export class EdgeFunctionLatencyHelper {
+  constructor(private adminClient: ReturnType<typeof createClient<Database>>) {}
+
+  /**
+   * Waits for the edge function to complete by polling the database.
+   * The edge function updates dtstart and until fields asynchronously.
+   * Since the trigger initially sets both to NULL and the edge function updates them,
+   * we poll until the values are no longer in the initial NULL state (or timeout).
+   *
+   * @param missionScheduleId - The ID of the mission schedule to check
+   * @param options - Options for polling behavior
+   * @returns The mission schedule record with updated dtstart and until
+   */
+  async waitForEdgeFunction(
+    missionScheduleId: string,
+    options: {
+      pollIntervalMs?: number;
+      timeoutMs?: number;
+    } = {}
+  ) {
+    const {
+      pollIntervalMs = 200, // Poll every 200ms
+      timeoutMs = 10000, // 10 seconds default timeout
+    } = options;
+
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeoutMs) {
+      const { data: schedule, error } = await this.adminClient
+        .from('mission_schedules')
+        .select('dtstart, until')
+        .eq('id', missionScheduleId)
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to fetch mission schedule: ${error.message}`);
+      }
+
+      if (!schedule) {
+        throw new Error('Mission schedule not found');
+      }
+
+      // The edge function always updates the record, even if values remain NULL.
+      // We wait a minimum amount of time (1.5 seconds) to allow the edge function
+      // to complete, then return the current state. This accounts for:
+      // - Network latency to call the edge function
+      // - Edge function processing time
+      // - Database update time
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= 1500) {
+        // Give the edge function at least 1.5 seconds to complete
+        return schedule;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+    }
+
+    // Final check before timeout
+    const { data: schedule, error } = await this.adminClient
+      .from('mission_schedules')
+      .select('dtstart, until')
+      .eq('id', missionScheduleId)
+      .single();
+
+    if (error) {
+      throw new Error(`Timeout waiting for edge function: ${error.message}`);
+    }
+
+    if (!schedule) {
+      throw new Error('Timeout: Mission schedule not found');
+    }
+
+    return schedule;
+  }
 }
 
 export class TriggerTestCleanupHelper {
@@ -16,6 +93,11 @@ export class TriggerTestCleanupHelper {
 
   async cleanupFixture(fixture: TriggerTestFixture): Promise<void> {
     try {
+      await this.adminClient
+        .from('mission_schedules')
+        .delete()
+        .eq('id', fixture.missionScheduleId);
+
       await this.adminClient
         .from('missions')
         .delete()
@@ -158,13 +240,14 @@ export class TriggerTestFixtureBuilder {
       );
     }
 
+    // Create mission with date range
     const { data: missionData, error: missionError } = await this.adminClient
       .from('missions')
       .insert({
         description: 'Test mission description',
-        duration_mn: 240,
+        mission_dtstart: '2024-01-01T00:00:00Z',
+        mission_until: '2024-12-31T23:59:59Z',
         professional_id: professionalId,
-        rrule: rrule,
         status: 'pending',
         structure_id: structureId,
         title: 'Test Mission',
@@ -176,9 +259,27 @@ export class TriggerTestFixtureBuilder {
       throw new Error(`Failed to create mission: ${missionError?.message}`);
     }
 
+    // Create mission_schedule with rrule
+    const { data: scheduleData, error: scheduleError } = await this.adminClient
+      .from('mission_schedules')
+      .insert({
+        duration_mn: 240,
+        mission_id: missionData.id,
+        rrule: rrule,
+      })
+      .select('id')
+      .single();
+
+    if (scheduleError || !scheduleData) {
+      throw new Error(
+        `Failed to create mission schedule: ${scheduleError?.message}`
+      );
+    }
+
     return {
       adminClient: this.adminClient,
       missionId: missionData.id,
+      missionScheduleId: scheduleData.id,
       professionalId,
       structureId,
       supabaseClient: this.supabaseClient,

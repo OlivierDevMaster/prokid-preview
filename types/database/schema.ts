@@ -82,47 +82,82 @@ export type Database = {
           },
         ]
       }
-      missions: {
+      mission_schedules: {
         Row: {
           created_at: string
-          description: string | null
           dtstart: string | null
           duration_mn: number
           id: string
-          professional_id: string
+          mission_id: string
           rrule: string
-          status: Database["public"]["Enums"]["mission_status"]
-          structure_id: string
-          title: string
           until: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
           dtstart?: string | null
           duration_mn: number
           id?: string
-          professional_id: string
+          mission_id: string
           rrule: string
-          status?: Database["public"]["Enums"]["mission_status"]
-          structure_id: string
-          title: string
           until?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string | null
           dtstart?: string | null
           duration_mn?: number
           id?: string
-          professional_id?: string
+          mission_id?: string
           rrule?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_schedules_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart?: string
+          mission_until?: string
+          professional_id?: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id?: string
           title?: string
-          until?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -573,12 +608,43 @@ export type Database = {
       }
     }
     Functions: {
+      get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
+      seeds_create_mission_from_availability: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
       seeds_create_mission_rrule: {
         Args: {
           day_offset: number
           duration_minutes: number
           hour: number
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_mission_with_custom_rrule: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
           until_offset?: number
           weeks_ahead?: number
         }
