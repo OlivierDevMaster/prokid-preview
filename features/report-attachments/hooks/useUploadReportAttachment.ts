@@ -2,17 +2,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import {
-  type UploadAttachmentParams,
-  uploadReportAttachment,
-} from '../services/attachment.service';
+import type { UploadReportAttachmentParams } from '../report-attachment.model';
 
-export function useUploadAttachment() {
+import { uploadReportAttachment } from '../report-attachment.service';
+
+export function useUploadReportAttachment() {
   const queryClient = useQueryClient();
   const t = useTranslations('admin.report');
 
   return useMutation({
-    mutationFn: async (params: UploadAttachmentParams) => {
+    mutationFn: async (params: UploadReportAttachmentParams) => {
       return uploadReportAttachment(params);
     },
     onError: error => {

@@ -2,45 +2,27 @@ import sanitizeFilename from 'sanitize-filename';
 
 import { createClient } from '@/lib/supabase/client';
 
-export interface ReportAttachment {
-  created_at: string;
-  file_name: string;
-  file_path: string;
-  file_size: number;
-  id: string;
-  mime_type: string;
-  report_id: string;
-  updated_at: string;
-}
-
-export interface UpdateAttachmentParams {
-  attachmentId: string;
-  file_name?: string;
-}
-
-export interface UploadAttachmentParams {
-  file: File;
-  reportId: string;
-}
+import type {
+  CreateReportAttachmentParams,
+  ReportAttachment,
+  UpdateReportAttachmentParams,
+  UploadReportAttachmentParams,
+} from './report-attachment.model';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 const MAX_ATTACHMENTS_PER_REPORT = 10;
 
 /**
- * Creates an attachment record in the database
+ * Creates a report attachment record in the database
  * Note: This only creates the DB record. Use uploadReportAttachment to upload a file.
  */
-export async function createAttachment(params: {
-  file_name: string;
-  file_path: string;
-  file_size: number;
-  mime_type: string;
-  report_id: string;
-}): Promise<ReportAttachment> {
+export async function createReportAttachment(
+  params: CreateReportAttachmentParams
+): Promise<ReportAttachment> {
   const supabase = createClient();
 
   // Check attachment limit
-  await checkAttachmentLimit(params.report_id);
+  await checkReportAttachmentLimit(params.report_id);
 
   const { data, error } = await supabase
     .from('report_attachments')
@@ -55,7 +37,7 @@ export async function createAttachment(params: {
     .single();
 
   if (error) {
-    throw new Error(`Failed to create attachment: ${error.message}`);
+    throw new Error(`Failed to create report attachment: ${error.message}`);
   }
 
   return data;
@@ -78,7 +60,7 @@ export async function deleteReportAttachment(
 
   if (fetchError || !attachment) {
     throw new Error(
-      `Failed to fetch attachment: ${fetchError?.message || 'Attachment not found'}`
+      `Failed to fetch report attachment: ${fetchError?.message || 'Report attachment not found'}`
     );
   }
 
@@ -99,14 +81,14 @@ export async function deleteReportAttachment(
     .eq('id', attachmentId);
 
   if (dbError) {
-    throw new Error(`Failed to delete attachment: ${dbError.message}`);
+    throw new Error(`Failed to delete report attachment: ${dbError.message}`);
   }
 }
 
 /**
- * Gets a single attachment by ID
+ * Gets a single report attachment by ID
  */
-export async function getAttachmentById(
+export async function getReportAttachment(
   attachmentId: string
 ): Promise<null | ReportAttachment> {
   const supabase = createClient();
@@ -122,16 +104,16 @@ export async function getAttachmentById(
       // No rows returned
       return null;
     }
-    throw new Error(`Failed to fetch attachment: ${error.message}`);
+    throw new Error(`Failed to fetch report attachment: ${error.message}`);
   }
 
   return data;
 }
 
 /**
- * Gets a signed URL for downloading an attachment
+ * Gets a signed URL for downloading a report attachment
  */
-export async function getAttachmentDownloadUrl(
+export async function getReportAttachmentDownloadUrl(
   attachmentId: string,
   expiresIn: number = 3600
 ): Promise<string> {
@@ -146,7 +128,7 @@ export async function getAttachmentDownloadUrl(
 
   if (fetchError || !attachment) {
     throw new Error(
-      `Failed to fetch attachment: ${fetchError?.message || 'Attachment not found'}`
+      `Failed to fetch report attachment: ${fetchError?.message || 'Report attachment not found'}`
     );
   }
 
@@ -165,7 +147,7 @@ export async function getAttachmentDownloadUrl(
 }
 
 /**
- * Gets all attachments for a report
+ * Gets all report attachments for a report
  */
 export async function getReportAttachments(
   reportId: string
@@ -179,18 +161,18 @@ export async function getReportAttachments(
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw new Error(`Failed to fetch attachments: ${error.message}`);
+    throw new Error(`Failed to fetch report attachments: ${error.message}`);
   }
 
   return data || [];
 }
 
 /**
- * Updates attachment metadata in the database
+ * Updates report attachment metadata in the database
  * Note: This only updates metadata, not the actual file. To replace a file, delete and re-upload.
  */
-export async function updateAttachment(
-  params: UpdateAttachmentParams
+export async function updateReportAttachment(
+  params: UpdateReportAttachmentParams
 ): Promise<ReportAttachment> {
   const supabase = createClient();
   const { attachmentId, file_name } = params;
@@ -208,11 +190,11 @@ export async function updateAttachment(
     .single();
 
   if (error) {
-    throw new Error(`Failed to update attachment: ${error.message}`);
+    throw new Error(`Failed to update report attachment: ${error.message}`);
   }
 
   if (!data) {
-    throw new Error('Attachment not found');
+    throw new Error('Report attachment not found');
   }
 
   return data;
@@ -222,7 +204,7 @@ export async function updateAttachment(
  * Uploads a file attachment to a report
  */
 export async function uploadReportAttachment(
-  params: UploadAttachmentParams
+  params: UploadReportAttachmentParams
 ): Promise<ReportAttachment> {
   const { file, reportId } = params;
 
@@ -230,7 +212,7 @@ export async function uploadReportAttachment(
   validateFileSize(file);
 
   // Check attachment limit
-  await checkAttachmentLimit(reportId);
+  await checkReportAttachmentLimit(reportId);
 
   const supabase = createClient();
 
@@ -265,7 +247,9 @@ export async function uploadReportAttachment(
   if (dbError) {
     // If database insert fails, try to delete the uploaded file
     await supabase.storage.from('report-attachments').remove([filePath]);
-    throw new Error(`Failed to create attachment record: ${dbError.message}`);
+    throw new Error(
+      `Failed to create report attachment record: ${dbError.message}`
+    );
   }
 
   return attachment;
@@ -274,7 +258,7 @@ export async function uploadReportAttachment(
 /**
  * Checks if report has reached the maximum number of attachments
  */
-async function checkAttachmentLimit(reportId: string): Promise<void> {
+async function checkReportAttachmentLimit(reportId: string): Promise<void> {
   const supabase = createClient();
   const { count, error } = await supabase
     .from('report_attachments')
@@ -282,7 +266,9 @@ async function checkAttachmentLimit(reportId: string): Promise<void> {
     .eq('report_id', reportId);
 
   if (error) {
-    throw new Error(`Failed to check attachment limit: ${error.message}`);
+    throw new Error(
+      `Failed to check report attachment limit: ${error.message}`
+    );
   }
 
   if ((count ?? 0) >= MAX_ATTACHMENTS_PER_REPORT) {

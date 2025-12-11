@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getAttachmentDownloadUrl } from '../services/attachment.service';
+import { getReportAttachmentDownloadUrl } from '../report-attachment.service';
 
-export function useGetAttachmentDownloadUrl(
+export function useGetReportAttachmentDownloadUrl(
   attachmentId: null | string,
   expiresIn: number = 3600
 ) {
@@ -11,9 +11,9 @@ export function useGetAttachmentDownloadUrl(
     gcTime: expiresIn * 1000, // Garbage collect after expiration
     queryFn: async () => {
       if (!attachmentId) return null;
-      return getAttachmentDownloadUrl(attachmentId, expiresIn);
+      return getReportAttachmentDownloadUrl(attachmentId, expiresIn);
     },
-    queryKey: ['attachment-download-url', attachmentId, expiresIn],
+    queryKey: ['report-attachment-download-url', attachmentId, expiresIn],
     staleTime: expiresIn * 1000 - 60000, // Consider stale 1 minute before expiration
   });
 }

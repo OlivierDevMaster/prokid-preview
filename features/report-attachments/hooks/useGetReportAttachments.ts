@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getReportAttachments } from '../services/attachment.service';
+import { getReportAttachments } from '../report-attachment.service';
 
 export function useGetReportAttachments(reportId: null | string) {
   return useQuery({

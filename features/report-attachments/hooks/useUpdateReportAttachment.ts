@@ -2,21 +2,23 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import { deleteReportAttachment } from '../services/attachment.service';
+import type { UpdateReportAttachmentParams } from '../report-attachment.model';
 
-export function useDeleteAttachment() {
+import { updateReportAttachment } from '../report-attachment.service';
+
+export function useUpdateReportAttachment() {
   const queryClient = useQueryClient();
   const t = useTranslations('admin.report');
 
   return useMutation({
-    mutationFn: async (attachmentId: string) => {
-      return deleteReportAttachment(attachmentId);
+    mutationFn: async (params: UpdateReportAttachmentParams) => {
+      return updateReportAttachment(params);
     },
     onError: error => {
       toast.error(
         error instanceof Error
           ? error.message
-          : t('messages.errorDeletingAttachment') || 'Error deleting attachment'
+          : t('messages.errorUpdatingAttachment') || 'Error updating attachment'
       );
     },
     onSuccess: () => {
@@ -25,8 +27,8 @@ export function useDeleteAttachment() {
       queryClient.invalidateQueries({ queryKey: ['report-attachments'] });
       queryClient.invalidateQueries({ queryKey: ['get-report'] });
       toast.success(
-        t('messages.attachmentDeletedSuccessfully') ||
-          'Attachment deleted successfully'
+        t('messages.attachmentUpdatedSuccessfully') ||
+          'Attachment updated successfully'
       );
     },
   });

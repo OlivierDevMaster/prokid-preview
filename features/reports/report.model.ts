@@ -1,3 +1,4 @@
+import type { ReportAttachment } from '@/features/report-attachments/report-attachment.model';
 import type {
   Tables,
   TablesInsert,
@@ -15,8 +16,6 @@ export type Report = {
     } & Tables<'structures'>;
   } & Tables<'missions'>;
 } & Tables<'reports'>;
-
-export type ReportAttachment = Tables<'report_attachments'>;
 
 export interface ReportFilters {
   authorId?: string;
