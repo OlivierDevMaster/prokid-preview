@@ -68,7 +68,7 @@ describe('Mission decline authorization errors', () => {
     fixture.missionId = createdMission.id;
   });
 
-  it('should reject decline when mission is not pending', async () => {
+  it('should reject decline when mission is already accepted', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 

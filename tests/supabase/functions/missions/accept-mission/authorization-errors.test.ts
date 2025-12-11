@@ -46,13 +46,14 @@ describe('Mission acceptance authorization errors', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act - Try to accept using structure token (not professional)
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -68,7 +69,7 @@ describe('Mission acceptance authorization errors', () => {
     fixture.missionId = createdMission.id;
   });
 
-  it('should reject acceptance when mission is not pending', async () => {
+  it('should reject acceptance when mission is already accepted', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
@@ -80,13 +81,14 @@ describe('Mission acceptance authorization errors', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act - Try to accept an already accepted mission
     const { data, response } = await apiHelper.invokeEndpoint({

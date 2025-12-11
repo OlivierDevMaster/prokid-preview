@@ -160,16 +160,16 @@ export class TriggerTestFixtureBuilder {
       );
     }
 
-    const rrule = `DTSTART:20240101T100000Z
-RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
+    const missionDtstart = new Date('2024-01-01T10:00:00Z');
+    const missionUntil = new Date('2024-12-31T18:00:00Z');
 
     const { data: missionData, error: missionError } = await this.adminClient
       .from('missions')
       .insert({
         description: 'Test mission description',
-        duration_mn: 240,
+        mission_dtstart: missionDtstart.toISOString(),
+        mission_until: missionUntil.toISOString(),
         professional_id: professionalId,
-        rrule: rrule,
         status: status,
         structure_id: structureId,
         title: 'Test Mission',

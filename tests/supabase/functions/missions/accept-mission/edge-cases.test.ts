@@ -47,13 +47,14 @@ describe('Mission acceptance edge cases', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -64,14 +65,15 @@ describe('Mission acceptance edge cases', () => {
     });
 
     // Assert
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'accepted');
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'accepted');
 
     // Verify all schedules are still present
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('*')
-      .eq('mission_id', data.id);
+      .eq('mission_id', mission.id);
 
     assertEquals(schedules?.length, 2);
 
@@ -99,13 +101,14 @@ describe('Mission acceptance edge cases', () => {
       title: 'Mission with EXDATE',
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -116,13 +119,14 @@ describe('Mission acceptance edge cases', () => {
     });
 
     // Assert
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'accepted');
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'accepted');
 
     fixture.missionId = createdMission.id;
   });
 
-  it('should handle accepting mission that was previously declined', async () => {
+  it('should prevent accepting mission that was previously declined', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
@@ -133,13 +137,14 @@ describe('Mission acceptance edge cases', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Decline it first
     await apiHelper.invokeEndpoint({

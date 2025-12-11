@@ -90,7 +90,7 @@ describe('Trigger: trigger_prevent_mission_status_rollback', () => {
     assertEquals(updateError, null);
   });
 
-  it('should allow changing status from accepted to declined', async () => {
+  it('should prevent changing status from accepted to declined', async () => {
     const fixture = await fixtureBuilder.createMissionWithStatus('accepted');
     fixtures.push(fixture);
 
@@ -99,10 +99,16 @@ describe('Trigger: trigger_prevent_mission_status_rollback', () => {
       .update({ status: TriggerTestData.missionStatuses.declined })
       .eq('id', fixture.missionId);
 
-    assertEquals(updateError, null);
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes(
+        'Cannot change mission status from accepted to declined'
+      ),
+      true
+    );
   });
 
-  it('should allow changing status from declined to accepted', async () => {
+  it('should prevent changing status from declined to accepted', async () => {
     const fixture = await fixtureBuilder.createMissionWithStatus('declined');
     fixtures.push(fixture);
 
@@ -111,7 +117,13 @@ describe('Trigger: trigger_prevent_mission_status_rollback', () => {
       .update({ status: TriggerTestData.missionStatuses.accepted })
       .eq('id', fixture.missionId);
 
-    assertEquals(updateError, null);
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes(
+        'Cannot change mission status from declined to accepted'
+      ),
+      true
+    );
   });
 
   it('should allow updating other fields without changing status', async () => {

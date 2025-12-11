@@ -101,6 +101,7 @@ CREATE TRIGGER extract_mission_schedule_rrule_dates
 -- ============================================================================
 
 -- Function to prevent status changes from accepted/declined back to pending
+-- AND prevent changing between accepted and declined (once a choice is made, it's final)
 CREATE OR REPLACE FUNCTION "public"."prevent_mission_status_rollback"()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -109,11 +110,21 @@ BEGIN
     RAISE EXCEPTION 'Cannot change mission status from % to pending. Once a mission is accepted or declined, it cannot be reverted to pending.', OLD."status";
   END IF;
 
+  -- Prevent changing from 'accepted' to 'declined' (once accepted, cannot be declined)
+  IF OLD."status" = 'accepted' AND NEW."status" = 'declined' THEN
+    RAISE EXCEPTION 'Cannot change mission status from accepted to declined. Once a mission is accepted, the choice is final.';
+  END IF;
+
+  -- Prevent changing from 'declined' to 'accepted' (once declined, cannot be accepted)
+  IF OLD."status" = 'declined' AND NEW."status" = 'accepted' THEN
+    RAISE EXCEPTION 'Cannot change mission status from declined to accepted. Once a mission is declined, the choice is final.';
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
-COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status from accepted or declined back to pending';
+COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status: cannot revert accepted/declined to pending, and cannot change between accepted and declined (choices are final)';
 
 -- Trigger to prevent status rollback
 CREATE TRIGGER "trigger_prevent_mission_status_rollback"

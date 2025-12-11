@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-
 import '@std/dotenv/load';
 import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
@@ -47,13 +45,14 @@ describe('Successful mission acceptance', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -64,9 +63,15 @@ describe('Successful mission acceptance', () => {
     });
 
     // Assert
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'accepted');
-    assertEquals(data.id, createdMission.id);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'accepted');
+    assertEquals(mission.id, createdMission.id);
+
+    // Verify no overlap information when there are no overlaps
+    if (data.overlaps !== undefined) {
+      assertEquals(data.overlaps.length, 0);
+    }
 
     fixture.missionId = createdMission.id;
   });
@@ -91,21 +96,24 @@ describe('Successful mission acceptance', () => {
       title: 'First Accepted Mission',
     };
 
-    const { data: createdFirstMission } = await apiHelper.invokeEndpoint({
+    const { data: createdFirstMissionData } = await apiHelper.invokeEndpoint({
       body: firstMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdFirstMission =
+      createdFirstMissionData.mission || createdFirstMissionData;
 
     // Accept the first mission
-    const { data: firstMission } = await apiHelper.invokeEndpoint({
+    const { data: firstMissionData } = await apiHelper.invokeEndpoint({
       method: 'POST',
       name: 'missions',
       path: `/${createdFirstMission.id}/accept`,
       token: fixture.professionalToken!,
     });
+    const firstMission = firstMissionData.mission || firstMissionData;
 
     // Create overlapping pending mission
     const overlappingRequest = {
@@ -123,7 +131,7 @@ describe('Successful mission acceptance', () => {
       title: 'Overlapping Pending Mission',
     };
 
-    const { data: pendingMission, response: createResponse } =
+    const { data: pendingMissionData, response: createResponse } =
       await apiHelper.invokeEndpoint({
         body: overlappingRequest,
         method: 'POST',
@@ -131,6 +139,7 @@ describe('Successful mission acceptance', () => {
         path: '/',
         token: fixture.structureToken!,
       });
+    const pendingMission = pendingMissionData.mission || pendingMissionData;
 
     // Verify mission was created successfully
     MissionAssertions.assertSuccessfulCreation(createResponse, pendingMission);
@@ -146,15 +155,24 @@ describe('Successful mission acceptance', () => {
     });
 
     // Assert - Should succeed with overlap warnings
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'accepted');
-    assertEquals(data.id, pendingMission.id);
+    assertExists(data);
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'accepted');
+    assertEquals(mission.id, pendingMission.id);
 
-    // Check that overlap information is present in meta
-    assertEquals(response.status, 200);
-    // Note: The overlap information is in the response meta, but we need to check the actual response
-    // Since the test helper might not expose meta, we verify the mission was accepted successfully
-    // The frontend will receive the overlap warnings in the meta field
+    // Verify overlap information is present
+    assertExists(data.overlaps);
+    assertEquals(Array.isArray(data.overlaps), true);
+    assertEquals(data.overlaps.length > 0, true);
+
+    // Verify overlap structure
+    data.overlaps.forEach(
+      (overlap: { mission_id: string; overlapping_date: string }) => {
+        MissionAssertions.assertOverlapStructure(overlap);
+        assertEquals(overlap.mission_id, firstMission.id);
+      }
+    );
 
     // Track all missions for cleanup
     fixture.missionIds = [firstMission.id, pendingMission.id];
@@ -181,13 +199,14 @@ describe('Successful mission acceptance', () => {
       title: 'Accepted Monday Mission',
     };
 
-    const { data: firstMission } = await apiHelper.invokeEndpoint({
+    const { data: firstMissionData } = await apiHelper.invokeEndpoint({
       body: firstMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const firstMission = firstMissionData.mission || firstMissionData;
 
     // Create non-overlapping pending mission on Wednesday
     const nonOverlappingRequest = {
@@ -205,13 +224,14 @@ describe('Successful mission acceptance', () => {
       title: 'Pending Wednesday Mission',
     };
 
-    const { data: pendingMission } = await apiHelper.invokeEndpoint({
+    const { data: pendingMissionData } = await apiHelper.invokeEndpoint({
       body: nonOverlappingRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const pendingMission = pendingMissionData.mission || pendingMissionData;
 
     // Act - Accept the non-overlapping mission
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -222,10 +242,16 @@ describe('Successful mission acceptance', () => {
     });
 
     // Assert
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'accepted');
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'accepted');
+
+    // Verify no overlap information when there are no overlaps
+    if (data.overlaps !== undefined) {
+      assertEquals(data.overlaps.length, 0);
+    }
 
     // Cleanup
-    fixture.missionId = firstMission.id;
+    fixture.missionIds = [firstMission.id, mission.id];
   });
 });

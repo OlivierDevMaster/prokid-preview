@@ -47,13 +47,14 @@ describe('Mission decline edge cases', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
@@ -64,21 +65,22 @@ describe('Mission decline edge cases', () => {
     });
 
     // Assert
-    MissionAssertions.assertSuccessfulUpdate(response, data);
-    assertEquals(data.status, 'declined');
+    const mission = data.mission || data;
+    MissionAssertions.assertSuccessfulUpdate(response, mission);
+    assertEquals(mission.status, 'declined');
 
     // Verify all schedules are still present
     const { data: schedules } = await fixture.adminClient
       .from('mission_schedules')
       .select('*')
-      .eq('mission_id', data.id);
+      .eq('mission_id', mission.id);
 
     assertEquals(schedules?.length, 2);
 
     fixture.missionId = createdMission.id;
   });
 
-  it('should handle declining mission that was previously accepted', async () => {
+  it('should prevent declining mission that was previously accepted', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
@@ -90,13 +92,14 @@ describe('Mission decline edge cases', () => {
       structure_id: fixture.structureId!,
     };
 
-    const { data: createdMission } = await apiHelper.invokeEndpoint({
+    const { data: createdMissionData } = await apiHelper.invokeEndpoint({
       body: createRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
     });
+    const createdMission = createdMissionData.mission || createdMissionData;
 
     // Act - Try to decline an accepted mission
     const { data, response } = await apiHelper.invokeEndpoint({

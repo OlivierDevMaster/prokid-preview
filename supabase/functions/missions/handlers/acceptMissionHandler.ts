@@ -3,7 +3,6 @@ import { SupabaseClient, User } from '@supabase/supabase-js';
 import RRulePkg from 'rrule';
 const { rrulestr } = RRulePkg;
 
-import { Mission } from '../../_shared/features/missions/index.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
@@ -46,6 +45,18 @@ export const acceptMissionHandler = factory.createHandlers(
 
       // Verify mission is pending
       if (mission.status !== 'pending') {
+        if (mission.status === 'declined') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept a declined mission. Once a mission is declined, the choice is final.'
+          );
+        }
+        if (mission.status === 'accepted') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Mission is already accepted.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be accepted'
@@ -205,7 +216,7 @@ export const acceptMissionHandler = factory.createHandlers(
 
       // Return mission with overlap information in data if any overlaps were found
       return apiResponse.ok({
-        ...(updatedMission as Mission),
+        mission: updatedMission,
         overlaps: overlaps.length > 0 ? overlaps : undefined,
       });
     } catch (error) {
