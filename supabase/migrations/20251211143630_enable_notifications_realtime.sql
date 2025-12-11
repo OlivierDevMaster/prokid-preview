@@ -10,9 +10,9 @@
 -- Broadcast notification changes to user-specific channels
 -- Topic format: user:{recipient_id}:notifications
 CREATE OR REPLACE FUNCTION "public"."notifications_broadcast_trigger"()
-RETURNS TRIGGER AS $$
-SECURITY DEFINER
+RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN

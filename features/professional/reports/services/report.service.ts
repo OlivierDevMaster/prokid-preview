@@ -190,6 +190,7 @@ export async function updateUserReport(
           *,
           profile:profiles(*)
         ),
+
         mission:missions(
           *,
           structure:structures(
