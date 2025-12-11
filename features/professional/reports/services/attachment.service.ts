@@ -13,6 +13,11 @@ export interface ReportAttachment {
   updated_at: string;
 }
 
+export interface UpdateAttachmentParams {
+  attachmentId: string;
+  file_name?: string;
+}
+
 export interface UploadAttachmentParams {
   file: File;
   reportId: string;
@@ -20,6 +25,41 @@ export interface UploadAttachmentParams {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 const MAX_ATTACHMENTS_PER_REPORT = 10;
+
+/**
+ * Creates an attachment record in the database
+ * Note: This only creates the DB record. Use uploadReportAttachment to upload a file.
+ */
+export async function createAttachment(params: {
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  mime_type: string;
+  report_id: string;
+}): Promise<ReportAttachment> {
+  const supabase = createClient();
+
+  // Check attachment limit
+  await checkAttachmentLimit(params.report_id);
+
+  const { data, error } = await supabase
+    .from('report_attachments')
+    .insert({
+      file_name: params.file_name,
+      file_path: params.file_path,
+      file_size: params.file_size,
+      mime_type: params.mime_type,
+      report_id: params.report_id,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create attachment: ${error.message}`);
+  }
+
+  return data;
+}
 
 /**
  * Deletes a report attachment
@@ -61,6 +101,31 @@ export async function deleteReportAttachment(
   if (dbError) {
     throw new Error(`Failed to delete attachment: ${dbError.message}`);
   }
+}
+
+/**
+ * Gets a single attachment by ID
+ */
+export async function getAttachmentById(
+  attachmentId: string
+): Promise<null | ReportAttachment> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('report_attachments')
+    .select('*')
+    .eq('id', attachmentId)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No rows returned
+      return null;
+    }
+    throw new Error(`Failed to fetch attachment: ${error.message}`);
+  }
+
+  return data;
 }
 
 /**
@@ -118,6 +183,39 @@ export async function getReportAttachments(
   }
 
   return data || [];
+}
+
+/**
+ * Updates attachment metadata in the database
+ * Note: This only updates metadata, not the actual file. To replace a file, delete and re-upload.
+ */
+export async function updateAttachment(
+  params: UpdateAttachmentParams
+): Promise<ReportAttachment> {
+  const supabase = createClient();
+  const { attachmentId, file_name } = params;
+
+  const updateData: { file_name?: string } = {};
+  if (file_name !== undefined) {
+    updateData.file_name = file_name;
+  }
+
+  const { data, error } = await supabase
+    .from('report_attachments')
+    .update(updateData)
+    .eq('id', attachmentId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update attachment: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error('Attachment not found');
+  }
+
+  return data;
 }
 
 /**
