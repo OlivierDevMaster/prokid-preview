@@ -19,7 +19,9 @@
       "next": "Next",
       "contact": "Contact",
       "availability": "Availability",
-      "km": "km"
+      "km": "km",
+      "start": "Start",
+      "end": "End"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -29,11 +31,16 @@
     "actions": {
       "edit": "Edit",
       "signOut": "Sign out",
-      "submit": "Submit"
+      "submit": "Submit",
+      "addSlot": "Add a slot",
+      "add": "Add",
+      "cancel": "Cancel",
+      "save": "Save"
     },
     "messages": {
       "loading": "Loading...",
-      "notFound": "Not found"
+      "notFound": "Not found",
+      "saving": "Saving..."
     },
     "days": {
       "monday": "Monday",
@@ -127,7 +134,10 @@
         "planningAndAvailability": "Planning & availability",
         "configureYourDaysAndSlots": "Configure your days and slots",
         "validationInformation": "Please review the information below before finalizing your registration.",
-        "copyMondaySchedule": "Copy the hours of Monday to all days"
+        "copyMondaySchedule": "Copy the hours of Monday to all days",
+        "addSlot": "Add a slot",
+        "recurring": "Recurring",
+        "nonWorking": "Non working"
       },
       "structureForm": {
         "title": "Create my structure account",
@@ -441,7 +451,7 @@
       "additionalInformation": "Additional Information",
       "stripeCustomerId": "Stripe Customer ID"
     },
-    "planning": {
+    "availabilities": {
       "title": "My Schedule",
       "modifyAvailabilities": "Modify my availabilities",
       "fillRate": "Fill rate",
@@ -452,7 +462,20 @@
       "toBook": "to book",
       "weekOf": "Week of",
       "previousWeek": "Previous week",
-      "nextWeek": "Next week"
+      "nextWeek": "Next week",
+      "notWorking": "Not working",
+      "noSlots": "No slots available",
+      "stopRecurrence": "Stop recurrence",
+      "stopRecurrenceConfirm": "Are you sure you want to stop the recurrence for this slot? This action will exclude only this date from the recurrence.",
+      "stopRecurrenceError": "An error occurred while stopping the recurrence",
+      "stopRecurrenceSuccess": "Recurrence stopped successfully for this slot",
+      "notRecurring": "This slot does not come from a recurrence",
+      "booked": "Booked",
+      "deleteSlot": "Delete this slot",
+      "deleteSlotConfirm": "Are you sure you want to delete this availability slot?",
+      "cannotDeleteBooked": "Cannot delete a booked slot",
+      "deleteError": "An error occurred while deleting the slot",
+      "deleteSuccess": "Slot deleted successfully"
     },
     "report": {
       "title": "Create a report",

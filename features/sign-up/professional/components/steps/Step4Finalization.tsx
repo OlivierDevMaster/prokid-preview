@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
 
@@ -105,8 +104,8 @@ export function Step4Finalization({
               >
                 <p className='mr-2 text-sm'>{tCommon(`days.${day}`)} :</p>
                 {schedule.slots.map(slot => (
-                  <div className='text-sm' key={slot.start}>
-                    {slot.start} - {slot.end}
+                  <div className='pr-2 text-sm' key={slot.start}>
+                    {slot.start} - {slot.end} /
                   </div>
                 ))}
               </div>

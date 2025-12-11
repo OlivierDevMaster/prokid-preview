@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
@@ -83,6 +83,17 @@ export function Step3Availability({
         slots: schedule[dayKey].slots.map((slot, idx) =>
           idx === slotIndex ? { ...slot, [field]: value } : slot
         ),
+      },
+    };
+    form.setValue('availabilities', newSchedule);
+  };
+
+  const handleRemoveSlot = (dayKey: string, slotIndex: number) => {
+    const newSchedule = {
+      ...schedule,
+      [dayKey]: {
+        ...schedule[dayKey],
+        slots: schedule[dayKey].slots.filter((_, idx) => idx !== slotIndex),
       },
     };
     form.setValue('availabilities', newSchedule);
@@ -172,13 +183,13 @@ export function Step3Availability({
                           className='cursor-pointer text-sm text-gray-700'
                           htmlFor={`${day.key}-recurring`}
                         >
-                          Récurrent
+                          {tAuthProfessional('recurring')}
                         </Label>
                       </div>
                     )}
                     {!schedule[day.key].enabled && (
                       <span className='text-sm text-gray-500'>
-                        Non travaillé
+                        {tAuthProfessional('nonWorking')}
                       </span>
                     )}
                   </div>
@@ -188,14 +199,14 @@ export function Step3Availability({
                   <div className='space-y-3 pl-8'>
                     {schedule[day.key].slots.map((slot, slotIndex) => (
                       <div
-                        className='grid grid-cols-2 items-end gap-4'
+                        className='grid grid-cols-[1fr_1fr_auto] items-end gap-4'
                         key={slotIndex}
                       >
                         <div className='space-y-2'>
                           <Label className='text-sm text-gray-700'>Début</Label>
                           <div className='relative'>
                             <Input
-                              className='border-gray-300 pr-10'
+                              className='w-full border-gray-300'
                               onChange={e =>
                                 handleSlotChange(
                                   day.key,
@@ -207,14 +218,14 @@ export function Step3Availability({
                               type='time'
                               value={slot.start}
                             />
-                            <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                            {/* <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' /> */}
                           </div>
                         </div>
                         <div className='space-y-2'>
                           <Label className='text-sm text-gray-700'>Fin</Label>
                           <div className='relative'>
                             <Input
-                              className='border-gray-300 pr-10'
+                              className='border-gray-300'
                               onChange={e =>
                                 handleSlotChange(
                                   day.key,
@@ -226,9 +237,17 @@ export function Step3Availability({
                               type='time'
                               value={slot.end}
                             />
-                            <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                            {/* <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' /> */}
                           </div>
                         </div>
+                        <Button
+                          className='mb-0 h-10 w-10 p-0 text-gray-500 hover:bg-red-50 hover:text-red-600'
+                          onClick={() => handleRemoveSlot(day.key, slotIndex)}
+                          type='button'
+                          variant='ghost'
+                        >
+                          <Trash2 className='h-4 w-4 text-red-500' />
+                        </Button>
                       </div>
                     ))}
                     <button
@@ -236,7 +255,7 @@ export function Step3Availability({
                       onClick={() => handleAddSlot(day.key)}
                       type='button'
                     >
-                      + Ajouter un créneau
+                      {tAuthProfessional('addSlot')}
                     </button>
                   </div>
                 )}
@@ -253,14 +272,14 @@ export function Step3Availability({
           type='button'
           variant='outline'
         >
-          ← Précédent
+          ← {tCommon('label.previous')}
         </Button>
         <Button
           className='bg-blue-500 text-white hover:bg-blue-600'
           onClick={onNext}
           type='button'
         >
-          Suivant →
+          {tCommon('label.next')} →
         </Button>
       </div>
     </div>

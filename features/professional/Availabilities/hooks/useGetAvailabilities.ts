@@ -24,6 +24,7 @@ export const useGetAvailabilities = (weekStart: Date) => {
   const {
     data: slots = [],
     error,
+    isFetched,
     isLoading,
   } = useFindAvailabilitySlots({
     endAt,
@@ -37,6 +38,7 @@ export const useGetAvailabilities = (weekStart: Date) => {
   return {
     error,
     groupedSlots,
+    isFetched,
     isLoading,
     slots,
     weekEnd: weekEndDate,

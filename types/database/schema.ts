@@ -578,6 +578,10 @@ export type Database = {
       }
     }
     Functions: {
+      add_exdate_to_recurring_availability: {
+        Args: { availability_id_param: string; date_to_exclude: string }
+        Returns: string
+      }
       create_mission_rrule: {
         Args: {
           day_offset: number

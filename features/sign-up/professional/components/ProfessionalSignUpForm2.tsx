@@ -85,7 +85,6 @@ export default function ProfessionalSignUpForm2() {
           throw new Error('User not found. Please sign in again.');
         }
 
-        console.info({ user: user.user });
         setUserId(user.user.id);
       } catch (error) {
         console.error('Error getting user:', error);

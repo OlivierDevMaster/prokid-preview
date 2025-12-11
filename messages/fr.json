@@ -27,7 +27,9 @@
       "availability": "Disponibilitées",
       "km": "km",
       "previous": "Précédent",
-      "next": "Suivant"
+      "next": "Suivant",
+      "start": "Début",
+      "end": "Fin"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -37,11 +39,16 @@
     "actions": {
       "edit": "Modifier",
       "signOut": "Déconnexion",
-      "submit": "Soumettre"
+      "submit": "Soumettre",
+      "addSlot": "Ajouter un créneau",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
     },
     "messages": {
       "loading": "Chargement...",
-      "notFound": "Non trouvé"
+      "notFound": "Non trouvé",
+      "saving": "Enregistrement..."
     },
     "days": {
       "monday": "Lundi",
@@ -136,7 +143,10 @@
         "phone": "Téléphone",
         "planningAndAvailability": "Planning & disponibilités",
         "configureYourDaysAndSlots": "Configurez vos jours et créneaux disponibles",
-        "copyMondaySchedule": "Copier les horaires du lundi à tous les jours"
+        "copyMondaySchedule": "Copier les horaires du lundi à tous les jours",
+        "addSlot": "Ajouter un créneau",
+        "recurring": "Récurrent",
+        "nonWorking": "Non travaillé"
       },
       "structureForm": {
         "title": "Créer mon compte structure",
@@ -450,7 +460,7 @@
       "additionalInformation": "Informations Supplémentaires",
       "stripeCustomerId": "ID Client Stripe"
     },
-    "planning": {
+    "availabilities": {
       "title": "Mon Planning",
       "modifyAvailabilities": "Modifier mes disponibilités",
       "fillRate": "Taux de remplissage",
@@ -461,7 +471,20 @@
       "toBook": "à réserver",
       "weekOf": "Semaine du",
       "previousWeek": "Semaine précédente",
-      "nextWeek": "Semaine suivante"
+      "nextWeek": "Semaine suivante",
+      "notWorking": "Non travaillé",
+      "noSlots": "Aucun créneau",
+      "stopRecurrence": "Arrêter la récurrence",
+      "stopRecurrenceConfirm": "Êtes-vous sûr de vouloir arrêter la récurrence pour ce créneau ? Cette action exclura uniquement cette date de la récurrence.",
+      "stopRecurrenceError": "Une erreur est survenue lors de l'arrêt de la récurrence",
+      "stopRecurrenceSuccess": "Récurrence arrêtée avec succès pour ce créneau",
+      "notRecurring": "Ce créneau ne provient pas d'une récurrence",
+      "booked": "Réservé",
+      "deleteSlot": "Supprimer ce créneau",
+      "deleteSlotConfirm": "Êtes-vous sûr de vouloir supprimer ce créneau de disponibilité ?",
+      "cannotDeleteBooked": "Impossible de supprimer un créneau réservé",
+      "deleteError": "Une erreur est survenue lors de la suppression du créneau",
+      "deleteSuccess": "Créneau supprimé avec succès"
     },
     "report": {
       "title": "Créer un rapport",
