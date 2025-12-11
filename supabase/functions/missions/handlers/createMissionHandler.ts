@@ -3,10 +3,7 @@ import { SupabaseClient, User } from '@supabase/supabase-js';
 import RRulePkg from 'rrule';
 const { rrulestr } = RRulePkg;
 
-import {
-  CreateMissionRequestBodySchema,
-  Mission,
-} from '../../_shared/features/missions/index.ts';
+import { CreateMissionRequestBodySchema } from '../../_shared/features/missions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { constrainRRULEByDates } from '../../_shared/utils/rrule-generator.ts';
@@ -152,7 +149,14 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      // Check for overlaps with accepted missions
+      // Check for overlaps with accepted missions (collect information instead of rejecting)
+      // Use a Set to track unique overlaps (mission_id + overlapping_date)
+      const overlapSet = new Set<string>();
+      const overlaps: Array<{
+        mission_id: string;
+        overlapping_date: string;
+      }> = [];
+
       if (acceptedMissions && acceptedMissions.length > 0) {
         for (const newSchedule of schedules) {
           try {
@@ -225,13 +229,16 @@ export const createMissionHandler = factory.createHandlers(
                         newOcc.getTime() < acceptedOccEnd.getTime() &&
                         newOccEnd.getTime() > acceptedOcc.getTime()
                       ) {
-                        return apiResponse.conflict(
-                          'MISSION_OVERLAP',
-                          'Mission overlaps with an accepted mission',
-                          {
+                        // Collect overlap information instead of rejecting
+                        // Use a unique key to avoid duplicates
+                        const overlapKey = `${acceptedMission.id}:${newOcc.toISOString()}`;
+                        if (!overlapSet.has(overlapKey)) {
+                          overlapSet.add(overlapKey);
+                          overlaps.push({
+                            mission_id: acceptedMission.id,
                             overlapping_date: newOcc.toISOString(),
-                          }
-                        );
+                          });
+                        }
                       }
                     }
                   }
@@ -306,7 +313,11 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      return apiResponse.created(mission as Mission);
+      // Return mission with overlap information in data if any overlaps were found
+      return apiResponse.created({
+        ...mission,
+        overlaps: overlaps.length > 0 ? overlaps : undefined,
+      });
     } catch (error) {
       console.error('Error in createMissionHandler:', error);
       return apiResponse.internalServerError();

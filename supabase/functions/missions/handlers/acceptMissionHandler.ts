@@ -96,7 +96,14 @@ export const acceptMissionHandler = factory.createHandlers(
         );
       }
 
-      // Check for overlaps
+      // Check for overlaps (collect information instead of rejecting)
+      // Use a Set to track unique overlaps (mission_id + overlapping_date)
+      const overlapSet = new Set<string>();
+      const overlaps: Array<{
+        mission_id: string;
+        overlapping_date: string;
+      }> = [];
+
       if (acceptedMissions && acceptedMissions.length > 0) {
         for (const newSchedule of missionSchedules) {
           try {
@@ -158,13 +165,16 @@ export const acceptMissionHandler = factory.createHandlers(
                         newOcc.getTime() < acceptedOccEnd.getTime() &&
                         newOccEnd.getTime() > acceptedOcc.getTime()
                       ) {
-                        return apiResponse.conflict(
-                          'MISSION_OVERLAP',
-                          'Mission overlaps with an accepted mission',
-                          {
+                        // Collect overlap information instead of rejecting
+                        // Use a unique key to avoid duplicates
+                        const overlapKey = `${acceptedMission.id}:${newOcc.toISOString()}`;
+                        if (!overlapSet.has(overlapKey)) {
+                          overlapSet.add(overlapKey);
+                          overlaps.push({
+                            mission_id: acceptedMission.id,
                             overlapping_date: newOcc.toISOString(),
-                          }
-                        );
+                          });
+                        }
                       }
                     }
                   }
@@ -193,7 +203,11 @@ export const acceptMissionHandler = factory.createHandlers(
         return apiResponse.internalServerError('Failed to accept mission');
       }
 
-      return apiResponse.ok(updatedMission as Mission);
+      // Return mission with overlap information in data if any overlaps were found
+      return apiResponse.ok({
+        ...(updatedMission as Mission),
+        overlaps: overlaps.length > 0 ? overlaps : undefined,
+      });
     } catch (error) {
       console.error('Error in acceptMissionHandler:', error);
       return apiResponse.internalServerError();
