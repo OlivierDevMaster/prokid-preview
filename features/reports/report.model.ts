@@ -5,6 +5,7 @@ import type {
 } from '@/types/database/schema';
 
 export type Report = {
+  attachments: ReportAttachment[];
   author: {
     profile: Tables<'profiles'>;
   } & Tables<'professionals'>;
@@ -14,6 +15,8 @@ export type Report = {
     } & Tables<'structures'>;
   } & Tables<'missions'>;
 } & Tables<'reports'>;
+
+export type ReportAttachment = Tables<'report_attachments'>;
 
 export interface ReportFilters {
   authorId?: string;

@@ -205,6 +205,44 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          read_at: string | null
+          recipient_id: string
+          recipient_role: Database["public"]["Enums"]["role"]
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          recipient_role: Database["public"]["Enums"]["role"]
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          recipient_role?: Database["public"]["Enums"]["role"]
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           city: string
@@ -311,6 +349,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      report_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_attachments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -685,6 +764,17 @@ export type Database = {
         | "removed_by_structure"
         | "removed_by_admin"
       mission_status: "pending" | "accepted" | "declined" | "cancelled"
+      notification_type:
+        | "invitation_received"
+        | "invitation_accepted"
+        | "invitation_declined"
+        | "member_quit"
+        | "member_fired"
+        | "mission_received"
+        | "mission_accepted"
+        | "mission_declined"
+        | "mission_cancelled"
+        | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
     }
@@ -826,6 +916,18 @@ export const Constants = {
         "removed_by_admin",
       ],
       mission_status: ["pending", "accepted", "declined", "cancelled"],
+      notification_type: [
+        "invitation_received",
+        "invitation_accepted",
+        "invitation_declined",
+        "member_quit",
+        "member_fired",
+        "mission_received",
+        "mission_accepted",
+        "mission_declined",
+        "mission_cancelled",
+        "report_sent",
+      ],
       report_status: ["draft", "sent"],
       role: ["professional", "structure", "admin"],
     },
