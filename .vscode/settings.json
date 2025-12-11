@@ -70,7 +70,28 @@
     "http",
     "net"
   ],
-  "cSpell.words": ["rrule"],
+  "cSpell.words": [
+    "BYDAY",
+    "byweekday",
+    "dtstart",
+    "DTSTART",
+    "dtstarts",
+    "exdate",
+    "Exdate",
+    "EXDATE",
+    "Exdates",
+    "exrule",
+    "EXRULE",
+    "exrules",
+    "parseable",
+    "rdate",
+    "rrule",
+    "rrules",
+    "Rruleset",
+    "rrulestr",
+    "untils",
+    "WKST"
+  ],
   "[sql]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
   }
