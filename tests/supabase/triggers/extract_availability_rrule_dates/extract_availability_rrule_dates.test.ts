@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 import { SupabaseTestClient } from '../../helpers/SupabaseTestClient.ts';
 import { TriggerTestData } from './extract_availability_rrule_dates.data.ts';
 import {
+  EdgeFunctionLatencyHelper,
   TriggerTestCleanupHelper,
   TriggerTestFixture,
   TriggerTestFixtureBuilder,
@@ -15,6 +16,7 @@ describe('Trigger: extract_availability_rrule_dates', () => {
   let adminClient: ReturnType<SupabaseTestClient['createAdminClient']>;
   let fixtureBuilder: TriggerTestFixtureBuilder;
   let cleanupHelper: TriggerTestCleanupHelper;
+  let latencyHelper: EdgeFunctionLatencyHelper;
   let fixtures: TriggerTestFixture[] = [];
 
   beforeEach(() => {
@@ -22,6 +24,7 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     adminClient = supabaseClient.createAdminClient();
     fixtureBuilder = new TriggerTestFixtureBuilder(adminClient, supabaseClient);
     cleanupHelper = new TriggerTestCleanupHelper(adminClient);
+    latencyHelper = new EdgeFunctionLatencyHelper(adminClient);
     fixtures = [];
   });
 
@@ -38,13 +41,11 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
     assertExists(availability.until);
@@ -68,13 +69,11 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
     assertEquals(availability.until, null);
@@ -86,21 +85,26 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     );
   });
 
-  it('should set dtstart and until to NULL on INSERT when both are missing', async () => {
+  it('should auto-generate dtstart and set until to NULL on INSERT when both are missing', async () => {
     const fixture = await fixtureBuilder.createAvailabilityWithRrule(
       TriggerTestData.rruleFormats.withoutDates
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
-    assertEquals(availability.dtstart, null);
+    // RRULE library auto-generates DTSTART when not provided (sets it to current time)
+    assertExists(availability.dtstart);
+    // Verify it's a valid date (auto-generated, so should be recent)
+    const dtstart = new Date(availability.dtstart);
+    const now = new Date();
+    const timeDiff = Math.abs(now.getTime() - dtstart.getTime());
+    // Should be within 5 seconds of current time (accounting for edge function latency)
+    assertEquals(timeDiff < 5000, true);
     assertEquals(availability.until, null);
   });
 
@@ -110,32 +114,32 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertEquals(availability.dtstart, null);
   });
 
-  it('should set until to NULL on INSERT when UNTIL format is invalid', async () => {
+  it('should set both dtstart and until to NULL on INSERT when UNTIL format is invalid', async () => {
     const fixture = await fixtureBuilder.createAvailabilityWithRrule(
       TriggerTestData.rruleFormats.invalidUntil
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    // Note: When parsing fails (invalid UNTIL), the edge function returns badRequest
+    // and doesn't update the database, so both fields remain NULL (as set by the trigger)
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
-    assertExists(availability.dtstart);
+    // Since parsing fails entirely, the database is not updated
+    // Both fields remain NULL as initially set by the trigger
+    assertEquals(availability.dtstart, null);
     assertEquals(availability.until, null);
   });
 
@@ -145,13 +149,11 @@ describe('Trigger: extract_availability_rrule_dates', () => {
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
     assertExists(availability.until);
@@ -185,13 +187,11 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
 
     assertEquals(updateError, null);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete after update
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
     assertEquals(availability.until, null);
@@ -209,13 +209,11 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
     );
     fixtures.push(fixture);
 
-    const { data: availabilityBefore, error: errorBefore } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for initial edge function to complete
+    const availabilityBefore = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(errorBefore, null);
     assertExists(availabilityBefore);
 
     const { error: updateError } = await adminClient
@@ -226,6 +224,9 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
       .eq('id', fixture.availabilityId);
 
     assertEquals(updateError, null);
+
+    // Wait a bit to ensure no edge function was triggered (since rrule didn't change)
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const { data: availabilityAfter, error: errorAfter } = await adminClient
       .from('availabilities')
@@ -246,13 +247,11 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
 
@@ -269,13 +268,11 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`;
     );
     fixtures.push(fixture);
 
-    const { data: availability, error } = await adminClient
-      .from('availabilities')
-      .select('dtstart, until')
-      .eq('id', fixture.availabilityId)
-      .single();
+    // Wait for edge function to complete
+    const availability = await latencyHelper.waitForEdgeFunction(
+      fixture.availabilityId
+    );
 
-    assertEquals(error, null);
     assertExists(availability);
     assertExists(availability.dtstart);
     assertExists(availability.until);

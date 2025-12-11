@@ -1,3 +1,4 @@
+import type { ReportAttachment } from '@/features/report-attachments/report-attachment.model';
 import type {
   Tables,
   TablesInsert,
@@ -5,6 +6,7 @@ import type {
 } from '@/types/database/schema';
 
 export type Report = {
+  attachments: ReportAttachment[];
   author: {
     profile: Tables<'profiles'>;
   } & Tables<'professionals'>;

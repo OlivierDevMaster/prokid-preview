@@ -34,7 +34,8 @@ export const createReport = async (
             *,
             profile:profiles(*)
           )
-        )
+        ),
+        attachments:report_attachments(*)
       `
     )
     .single();
@@ -62,7 +63,8 @@ export const findReport = async (reportId: string): Promise<null | Report> => {
             *,
             profile:profiles(*)
           )
-        )
+        ),
+        attachments:report_attachments(*)
       `
     )
     .eq('id', reportId)
@@ -96,7 +98,8 @@ export const updateReport = async (
             *,
             profile:profiles(*)
           )
-        )
+        ),
+        attachments:report_attachments(*)
       `
     )
     .eq('id', reportId)
@@ -126,7 +129,8 @@ export const findReports = async (
             *,
             profile:profiles(*)
           )
-        )
+        ),
+        attachments:report_attachments(*)
       `,
     { count: 'exact' }
   );

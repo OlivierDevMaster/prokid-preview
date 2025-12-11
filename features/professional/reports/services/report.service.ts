@@ -31,10 +31,14 @@ export async function createUserReport(
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
-        )
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
+        ),
+        attachments:report_attachments(*)
       `
       )
       .single();
@@ -69,10 +73,14 @@ export async function getReport(reportId: string): Promise<GetReportResponse> {
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
-        )
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
+        ),
+        attachments:report_attachments(*)
       `
       )
       .eq('id', reportId)
@@ -89,25 +97,12 @@ export async function getReport(reportId: string): Promise<GetReportResponse> {
       };
     }
 
-    // Then, fetch the structure separately using recipient_id
-    const { data: structure, error: structureError } = await supabase
-      .from('structures')
-      .select(
-        `
-        *,
-        profile:profiles(*)
-      `
-      )
-      .eq('user_id', report.recipient_id)
-      .maybeSingle();
-
-    if (structureError) {
-      throw structureError;
-    }
+    // Extract structure from mission
+    const structure = report.mission?.structure ?? null;
 
     return {
       report,
-      structure: structure ?? null,
+      structure,
     };
   } catch (error) {
     console.error('Unexpected error fetching reports:', error);
@@ -155,10 +150,14 @@ export async function getUserReports2(): Promise<Report[]> {
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
-        )
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
+        ),
+        attachments:report_attachments(*)
       `
       )
       .eq('author_id', userId);
@@ -191,10 +190,14 @@ export async function updateUserReport(
           *,
           profile:profiles(*)
         ),
-        recipient:structures(
+        mission:missions(
           *,
-          profile:profiles(*)
-        )
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
+        ),
+        attachments:report_attachments(*)
       `
       )
       .eq('id', reportId)

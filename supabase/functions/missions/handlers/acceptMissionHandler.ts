@@ -1,9 +1,8 @@
 import { createFactory } from '@hono/hono/factory';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import RRulePkg from 'rrule';
-const { RRule, rrulestr } = RRulePkg;
+const { rrulestr } = RRulePkg;
 
-import { Mission } from '../../_shared/features/missions/index.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
@@ -46,20 +45,39 @@ export const acceptMissionHandler = factory.createHandlers(
 
       // Verify mission is pending
       if (mission.status !== 'pending') {
+        if (mission.status === 'declined') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept a declined mission. Once a mission is declined, the choice is final.'
+          );
+        }
+        if (mission.status === 'accepted') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Mission is already accepted.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be accepted'
         );
       }
 
-      // Parse mission RRULE
-      let missionRule;
-      try {
-        missionRule = rrulestr(mission.rrule);
-      } catch {
+      // Get mission schedules
+      const { data: missionSchedules, error: schedulesError } =
+        await supabaseAdminClient
+          .from('mission_schedules')
+          .select('rrule, duration_mn, dtstart, until')
+          .eq('mission_id', missionId);
+
+      if (
+        schedulesError ||
+        !missionSchedules ||
+        missionSchedules.length === 0
+      ) {
         return apiResponse.badRequest(
-          'INVALID_RRULE',
-          'Mission has invalid RRULE format'
+          'INVALID_MISSION',
+          'Mission has no schedules'
         );
       }
 
@@ -67,7 +85,17 @@ export const acceptMissionHandler = factory.createHandlers(
       const { data: acceptedMissions, error: missionsError } =
         await supabaseAdminClient
           .from('missions')
-          .select('rrule, duration_mn, dtstart, until')
+          .select(
+            `
+            id,
+            mission_schedules (
+              rrule,
+              duration_mn,
+              dtstart,
+              until
+            )
+          `
+          )
           .eq('professional_id', mission.professional_id)
           .eq('status', 'accepted')
           .neq('id', missionId);
@@ -79,65 +107,95 @@ export const acceptMissionHandler = factory.createHandlers(
         );
       }
 
-      // Check for overlaps
+      // Check for overlaps (collect information instead of rejecting)
+      // Use a Set to track unique overlaps (mission_id + overlapping_date)
+      const overlapSet = new Set<string>();
+      const overlaps: Array<{
+        mission_id: string;
+        overlapping_date: string;
+      }> = [];
+
       if (acceptedMissions && acceptedMissions.length > 0) {
-        const missionStart = missionRule.options.dtstart || new Date();
-        const missionUntil =
-          missionRule.options.until ||
-          new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-        const newOccurrences = missionRule.between(
-          missionStart,
-          missionUntil,
-          true
-        );
-
-        for (const acceptedMission of acceptedMissions) {
+        for (const newSchedule of missionSchedules) {
           try {
-            const acceptedRule = rrulestr(acceptedMission.rrule);
-            const acceptedStart =
-              acceptedRule.options.dtstart ||
-              (acceptedMission.dtstart
-                ? new Date(acceptedMission.dtstart)
-                : new Date());
-            const acceptedUntil =
-              acceptedRule.options.until ||
-              (acceptedMission.until
-                ? new Date(acceptedMission.until)
-                : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
+            // Parse RRULE using rrule library
+            const newRule = rrulestr(newSchedule.rrule);
+            const newStart =
+              newRule.options.dtstart ||
+              (newSchedule.dtstart
+                ? new Date(newSchedule.dtstart)
+                : new Date(mission.mission_dtstart));
+            const newUntil =
+              newRule.options.until ||
+              (newSchedule.until
+                ? new Date(newSchedule.until)
+                : new Date(mission.mission_until));
+            const newOccurrences = newRule.between(newStart, newUntil, true);
 
-            const acceptedOccurrences = acceptedRule.between(
-              acceptedStart,
-              acceptedUntil,
-              true
-            );
+            for (const acceptedMission of acceptedMissions) {
+              if (!acceptedMission.mission_schedules) continue;
 
-            for (const newOcc of newOccurrences) {
-              const newOccEnd = new Date(
-                newOcc.getTime() + mission.duration_mn * 60 * 1000
-              );
+              for (const acceptedSchedule of acceptedMission.mission_schedules as Array<{
+                dtstart: null | string;
+                duration_mn: number;
+                rrule: string;
+                until: null | string;
+              }>) {
+                try {
+                  // Parse RRULE using rrule library
+                  const acceptedRule = rrulestr(acceptedSchedule.rrule);
+                  const acceptedStart =
+                    acceptedRule.options.dtstart ||
+                    (acceptedSchedule.dtstart
+                      ? new Date(acceptedSchedule.dtstart)
+                      : new Date());
+                  const acceptedUntil =
+                    acceptedRule.options.until ||
+                    (acceptedSchedule.until
+                      ? new Date(acceptedSchedule.until)
+                      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
 
-              for (const acceptedOcc of acceptedOccurrences) {
-                const acceptedOccEnd = new Date(
-                  acceptedOcc.getTime() +
-                    acceptedMission.duration_mn * 60 * 1000
-                );
-
-                if (
-                  newOcc.getTime() < acceptedOccEnd.getTime() &&
-                  newOccEnd.getTime() > acceptedOcc.getTime()
-                ) {
-                  return apiResponse.conflict(
-                    'MISSION_OVERLAP',
-                    'Mission overlaps with an accepted mission',
-                    {
-                      overlapping_date: newOcc.toISOString(),
-                    }
+                  const acceptedOccurrences = acceptedRule.between(
+                    acceptedStart,
+                    acceptedUntil,
+                    true
                   );
+
+                  for (const newOcc of newOccurrences) {
+                    const newOccEnd = new Date(
+                      newOcc.getTime() + newSchedule.duration_mn * 60 * 1000
+                    );
+
+                    for (const acceptedOcc of acceptedOccurrences) {
+                      const acceptedOccEnd = new Date(
+                        acceptedOcc.getTime() +
+                          acceptedSchedule.duration_mn * 60 * 1000
+                      );
+
+                      if (
+                        newOcc.getTime() < acceptedOccEnd.getTime() &&
+                        newOccEnd.getTime() > acceptedOcc.getTime()
+                      ) {
+                        // Collect overlap information instead of rejecting
+                        // Use a unique key to avoid duplicates
+                        const overlapKey = `${acceptedMission.id}:${newOcc.toISOString()}`;
+                        if (!overlapSet.has(overlapKey)) {
+                          overlapSet.add(overlapKey);
+                          overlaps.push({
+                            mission_id: acceptedMission.id,
+                            overlapping_date: newOcc.toISOString(),
+                          });
+                        }
+                      }
+                    }
+                  }
+                } catch {
+                  // Skip schedules with invalid RRULE
                 }
               }
             }
           } catch {
-            // Skip missions with invalid RRULE
+            // Skip schedules with invalid RRULE
           }
         }
       }
@@ -156,99 +214,11 @@ export const acceptMissionHandler = factory.createHandlers(
         return apiResponse.internalServerError('Failed to accept mission');
       }
 
-      // Update availability: find matching availability and add UNTIL
-      const missionDtstart = missionRule.options.dtstart;
-      const missionUntil = missionRule.options.until;
-
-      if (missionDtstart) {
-        // Find availabilities for this professional
-        const { data: availabilities, error: availError } =
-          await supabaseAdminClient
-            .from('availabilities')
-            .select('id, rrule, duration_mn')
-            .eq('user_id', mission.professional_id);
-
-        if (!availError && availabilities) {
-          let matchedAvailability = null;
-
-          // Try to find a matching availability
-          for (const availability of availabilities) {
-            try {
-              const availRule = rrulestr(availability.rrule);
-              const availDtstart = availRule.options.dtstart;
-
-              // Check if same day pattern and similar time
-              if (
-                availDtstart &&
-                missionDtstart &&
-                availDtstart.getDay() === missionDtstart.getDay() &&
-                Math.abs(availDtstart.getHours() - missionDtstart.getHours()) <=
-                  1 &&
-                availability.duration_mn === mission.duration_mn
-              ) {
-                matchedAvailability = availability;
-                break;
-              }
-            } catch {
-              // Skip invalid RRULE
-              continue;
-            }
-          }
-
-          if (matchedAvailability) {
-            // Update existing availability with UNTIL
-            try {
-              const availRule = rrulestr(matchedAvailability.rrule);
-              const untilDate = missionUntil || missionDtstart;
-
-              // Create new RRULE with UNTIL
-              const newRule = new RRule({
-                ...availRule.options,
-                until: untilDate,
-              });
-
-              const updatedRrule = `DTSTART:${
-                availRule.options.dtstart
-                  .toISOString()
-                  .replace(/[-:]/g, '')
-                  .split('.')[0]
-              }Z\nRRULE:${newRule.toString()}`;
-
-              await supabaseAdminClient
-                .from('availabilities')
-                .update({ rrule: updatedRrule })
-                .eq('id', matchedAvailability.id);
-            } catch (updateError) {
-              console.error('Error updating availability:', updateError);
-              // Continue even if availability update fails
-            }
-          } else {
-            // Create new availability with UNTIL
-            try {
-              const untilDate = missionUntil || missionDtstart;
-              const newRule = new RRule({
-                ...missionRule.options,
-                until: untilDate,
-              });
-
-              const newRrule = `DTSTART:${
-                missionDtstart.toISOString().replace(/[-:]/g, '').split('.')[0]
-              }Z\nRRULE:${newRule.toString()}`;
-
-              await supabaseAdminClient.from('availabilities').insert({
-                duration_mn: mission.duration_mn,
-                rrule: newRrule,
-                user_id: mission.professional_id,
-              });
-            } catch (insertError) {
-              console.error('Error creating availability:', insertError);
-              // Continue even if availability creation fails
-            }
-          }
-        }
-      }
-
-      return apiResponse.ok(updatedMission as Mission);
+      // Return mission with overlap information in data if any overlaps were found
+      return apiResponse.ok({
+        mission: updatedMission,
+        overlaps: overlaps.length > 0 ? overlaps : undefined,
+      });
     } catch (error) {
       console.error('Error in acceptMissionHandler:', error);
       return apiResponse.internalServerError();
