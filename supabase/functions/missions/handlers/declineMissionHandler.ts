@@ -44,6 +44,18 @@ export const declineMissionHandler = factory.createHandlers(
 
       // Verify mission is pending
       if (mission.status !== 'pending') {
+        if (mission.status === 'accepted') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot decline an accepted mission. Once a mission is accepted, the choice is final.'
+          );
+        }
+        if (mission.status === 'declined') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Mission is already declined.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be declined'

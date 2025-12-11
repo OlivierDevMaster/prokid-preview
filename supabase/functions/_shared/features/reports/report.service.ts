@@ -33,7 +33,23 @@ export const createReport = async (
   const { data, error } = await supabase
     .from('reports')
     .insert(insertData)
-    .select('*')
+    .select(
+      `
+      *,
+      author:professionals(
+        *,
+        profile:profiles(*)
+      ),
+      mission:missions(
+        *,
+        structure:structures(
+          *,
+          profile:profiles(*)
+        )
+      ),
+      attachments:report_attachments(*)
+    `
+    )
     .single();
 
   if (error) throw error;
@@ -52,7 +68,23 @@ export const getUserReports = async (
 
   const { data, error } = await adminClient
     .from('reports')
-    .select('*')
+    .select(
+      `
+      *,
+      author:professionals(
+        *,
+        profile:profiles(*)
+      ),
+      mission:missions(
+        *,
+        structure:structures(
+          *,
+          profile:profiles(*)
+        )
+      ),
+      attachments:report_attachments(*)
+    `
+    )
     .eq('author_id', userId)
     .order('created_at', { ascending: false });
 
@@ -67,7 +99,23 @@ export const getReportById = async (
 ): Promise<null | Report> => {
   const { data, error } = await supabase
     .from('reports')
-    .select('*')
+    .select(
+      `
+      *,
+      author:professionals(
+        *,
+        profile:profiles(*)
+      ),
+      mission:missions(
+        *,
+        structure:structures(
+          *,
+          profile:profiles(*)
+        )
+      ),
+      attachments:report_attachments(*)
+    `
+    )
     .eq('id', reportId)
     .maybeSingle();
 

@@ -87,47 +87,82 @@ export type Database = {
           },
         ]
       }
-      missions: {
+      mission_schedules: {
         Row: {
           created_at: string
-          description: string | null
           dtstart: string | null
           duration_mn: number
           id: string
-          professional_id: string
+          mission_id: string
           rrule: string
-          status: Database["public"]["Enums"]["mission_status"]
-          structure_id: string
-          title: string
           until: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
           dtstart?: string | null
           duration_mn: number
           id?: string
-          professional_id: string
+          mission_id: string
           rrule: string
-          status?: Database["public"]["Enums"]["mission_status"]
-          structure_id: string
-          title: string
           until?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string | null
           dtstart?: string | null
           duration_mn?: number
           id?: string
-          professional_id?: string
+          mission_id?: string
           rrule?: string
+          until?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_schedules_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart: string
+          mission_until: string
+          professional_id: string
+          status?: Database["public"]["Enums"]["mission_status"]
+          structure_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          mission_dtstart?: string
+          mission_until?: string
+          professional_id?: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id?: string
           title?: string
-          until?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -174,6 +209,44 @@ export type Database = {
           name?: string | null
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          read_at: string | null
+          recipient_id: string
+          recipient_role: Database["public"]["Enums"]["role"]
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          recipient_role: Database["public"]["Enums"]["role"]
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          recipient_role?: Database["public"]["Enums"]["role"]
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       professionals: {
         Row: {
@@ -281,6 +354,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      report_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          report_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          report_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          report_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_attachments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -582,7 +696,24 @@ export type Database = {
         Args: { availability_id_param: string; date_to_exclude: string }
         Returns: string
       }
-      create_mission_rrule: {
+      get_vault_secret: { Args: { secret_name: string }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
+      seeds_create_mission_from_availability: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_mission_rrule: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -592,7 +723,22 @@ export type Database = {
         }
         Returns: string
       }
-      create_onetime_availability: {
+      seeds_create_mission_with_custom_rrule: {
+        Args: {
+          day_offset: number
+          description_param?: string
+          duration_minutes: number
+          hour: number
+          professional_id_param: string
+          status_param?: string
+          structure_id_param: string
+          title_param?: string
+          until_offset?: number
+          weeks_ahead?: number
+        }
+        Returns: string
+      }
+      seeds_create_onetime_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -601,7 +747,7 @@ export type Database = {
         }
         Returns: string
       }
-      create_recurring_availability: {
+      seeds_create_recurring_availability: {
         Args: {
           day_offset: number
           duration_minutes: number
@@ -611,13 +757,12 @@ export type Database = {
         }
         Returns: string
       }
-      format_exdate: { Args: { date_offset: number }; Returns: string }
-      get_next_weekday: {
+      seeds_format_exdate: { Args: { date_offset: number }; Returns: string }
+      seeds_get_next_weekday: {
         Args: { days_ahead?: number; target_dow: number }
         Returns: string
       }
-      get_rrule_day: { Args: { day_offset: number }; Returns: string }
-      is_admin: { Args: never; Returns: boolean }
+      seeds_get_rrule_day: { Args: { day_offset: number }; Returns: string }
     }
     Enums: {
       invitation_status: "pending" | "accepted" | "declined"
@@ -628,6 +773,17 @@ export type Database = {
         | "removed_by_structure"
         | "removed_by_admin"
       mission_status: "pending" | "accepted" | "declined" | "cancelled"
+      notification_type:
+        | "invitation_received"
+        | "invitation_accepted"
+        | "invitation_declined"
+        | "member_quit"
+        | "member_fired"
+        | "mission_received"
+        | "mission_accepted"
+        | "mission_declined"
+        | "mission_cancelled"
+        | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
     }
@@ -769,6 +925,18 @@ export const Constants = {
         "removed_by_admin",
       ],
       mission_status: ["pending", "accepted", "declined", "cancelled"],
+      notification_type: [
+        "invitation_received",
+        "invitation_accepted",
+        "invitation_declined",
+        "member_quit",
+        "member_fired",
+        "mission_received",
+        "mission_accepted",
+        "mission_declined",
+        "mission_cancelled",
+        "report_sent",
+      ],
       report_status: ["draft", "sent"],
       role: ["professional", "structure", "admin"],
     },
