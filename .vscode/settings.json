@@ -70,5 +70,8 @@
     "http",
     "net"
   ],
-  "cSpell.words": ["rrule"]
+  "cSpell.words": ["rrule"],
+  "[sql]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }

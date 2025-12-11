@@ -608,6 +608,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       seeds_create_mission_from_availability: {
         Args: {

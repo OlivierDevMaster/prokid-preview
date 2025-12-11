@@ -156,10 +156,28 @@ export const createMissionHandler = factory.createHandlers(
       if (acceptedMissions && acceptedMissions.length > 0) {
         for (const newSchedule of schedules) {
           try {
+            console.log(
+              '[createMissionHandler] Parsing newSchedule.rrule:',
+              newSchedule.rrule
+            );
+
+            // Parse RRULE using rrule library - it can handle UNTIL when it's in the RRULE line
             const newRule = rrulestr(newSchedule.rrule);
+            console.log(
+              '[createMissionHandler] Parsed newRule.options:',
+              JSON.stringify(newRule.options, null, 2)
+            );
+
             const newStart = newRule.options.dtstart || missionDtstart;
             const newUntil = newRule.options.until || missionUntil;
+            console.log('[createMissionHandler] newStart:', newStart);
+            console.log('[createMissionHandler] newUntil:', newUntil);
+
             const newOccurrences = newRule.between(newStart, newUntil, true);
+            console.log(
+              '[createMissionHandler] newOccurrences count:',
+              newOccurrences.length
+            );
 
             for (const acceptedMission of acceptedMissions) {
               if (!acceptedMission.mission_schedules) continue;
@@ -171,6 +189,7 @@ export const createMissionHandler = factory.createHandlers(
                 until: null | string;
               }>) {
                 try {
+                  // Parse RRULE using rrule library
                   const acceptedRule = rrulestr(acceptedSchedule.rrule);
                   const acceptedStart =
                     acceptedRule.options.dtstart ||

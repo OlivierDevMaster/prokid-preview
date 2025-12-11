@@ -16,8 +16,10 @@ export function constrainRRULEByDates(
   missionDtstart: Date,
   missionUntil: Date
 ): string {
-  // Parse the RRULE
-  const rule = rrulestr(rrule);
+  // Parse the RRULE - extract only parseable parts (DTSTART and RRULE lines)
+  // Remove EXDATE lines for parsing, we'll add them back later
+  const parseableRRULE = extractParseableRRULE(rrule);
+  const rule = rrulestr(parseableRRULE);
 
   // Extract time components from RRULE's DTSTART
   const originalDtstart = rule.options.dtstart || new Date();
@@ -34,6 +36,7 @@ export function constrainRRULEByDates(
   newUntil.setUTCHours(hour, minute, second, 0);
 
   // Build RRULE options from original pattern
+  // Include 'until' in options - the rrule library supports it and formats it correctly
   const rruleOptions: RRulePkg.Options = {
     bymonth: rule.options.bymonth,
     bymonthday: rule.options.bymonthday,
@@ -51,28 +54,25 @@ export function constrainRRULEByDates(
   // Remove bysetpos if present (can conflict with UNTIL when modifying DTSTART)
   delete rruleOptions.bysetpos;
 
-  // Create new RRULE with mission date constraints
+  // Create new RRULE with mission date constraints (including UNTIL in options)
   const newRRule = new RRule(rruleOptions);
 
-  // Build the complete RRULE string
-  // Format: DTSTART:YYYYMMDDTHHMMSSZ\nRRULE:...\nUNTIL:YYYYMMDDTHHMMSSZ
-  const dtstartStr = formatDateForRRULE(newDtstart);
-  const rruleStr = newRRule.toString();
-  const untilStr = formatDateForRRULE(newUntil);
+  // Get the formatted RRULE string from the library
+  // The library formats it as: DTSTART:...\nRRULE:...;UNTIL=...
+  const formattedRRULE = newRRule.toString();
 
   // Get EXDATE from original RRULE if present
   const exdateLines: string[] = [];
   const rruleLines = rrule.split('\n');
   for (const line of rruleLines) {
-    if (line.startsWith('EXDATE:')) {
-      exdateLines.push(line);
+    const trimmed = line.trim();
+    if (trimmed.startsWith('EXDATE:')) {
+      exdateLines.push(trimmed);
     }
   }
 
-  // Combine all parts
-  let result = `DTSTART:${dtstartStr}\n${rruleStr}`;
-  // Always add UNTIL to ensure the RRULE is bounded by mission dates
-  result += `\nUNTIL:${untilStr}`;
+  // Combine all parts - the library already includes DTSTART and RRULE with UNTIL
+  let result = formattedRRULE;
   if (exdateLines.length > 0) {
     result += '\n' + exdateLines.join('\n');
   }
@@ -94,14 +94,22 @@ export function generateMissionScheduleRRULE(
 }
 
 /**
- * Formats a Date object to RRULE DTSTART/UNTIL format (YYYYMMDDTHHMMSSZ)
+ * Extracts just the parseable parts of an RRULE string (DTSTART and RRULE lines)
+ * Removes EXDATE lines for parsing (they'll be added back later)
+ * @param rruleString - Full RRULE string with DTSTART, RRULE, UNTIL, EXDATE lines
+ * @returns String with only DTSTART and RRULE lines (parseable by rrulestr)
  */
-function formatDateForRRULE(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const hour = String(date.getUTCHours()).padStart(2, '0');
-  const minute = String(date.getUTCMinutes()).padStart(2, '0');
-  const second = String(date.getUTCSeconds()).padStart(2, '0');
-  return `${year}${month}${day}T${hour}${minute}${second}Z`;
+function extractParseableRRULE(rruleString: string): string {
+  const lines = rruleString.split('\n');
+  const parseableLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('DTSTART:') || trimmed.startsWith('RRULE:')) {
+      parseableLines.push(trimmed);
+    }
+    // Skip UNTIL and EXDATE lines - they can't be parsed by rrulestr()
+  }
+
+  return parseableLines.join('\n');
 }

@@ -100,6 +100,7 @@ export const acceptMissionHandler = factory.createHandlers(
       if (acceptedMissions && acceptedMissions.length > 0) {
         for (const newSchedule of missionSchedules) {
           try {
+            // Parse RRULE using rrule library
             const newRule = rrulestr(newSchedule.rrule);
             const newStart =
               newRule.options.dtstart ||
@@ -123,6 +124,7 @@ export const acceptMissionHandler = factory.createHandlers(
                 until: null | string;
               }>) {
                 try {
+                  // Parse RRULE using rrule library
                   const acceptedRule = rrulestr(acceptedSchedule.rrule);
                   const acceptedStart =
                     acceptedRule.options.dtstart ||
