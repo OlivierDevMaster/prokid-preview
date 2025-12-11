@@ -8,6 +8,7 @@ rruleSet.rrule(
     count: 5,
     dtstart: datetime(2012, 2, 1, 10, 30),
     freq: RRule.MONTHLY,
+    until: datetime(2012, 5, 1, 10, 30),
   })
 );
 

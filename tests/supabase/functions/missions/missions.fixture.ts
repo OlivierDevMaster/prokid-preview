@@ -7,6 +7,7 @@ export interface MissionTestFixture {
   adminClient: ReturnType<typeof createClient<Database>>;
   email: string;
   missionId?: string;
+  missionIds?: string[]; // Track multiple missions for cleanup
   professionalId?: string;
   professionalToken?: string;
   structureId?: string;
@@ -26,23 +27,28 @@ export class MissionCleanupHelper {
    */
   async cleanupFixture(fixture: MissionTestFixture): Promise<void> {
     try {
-      // Delete mission schedules
+      // Collect all mission IDs to clean up
+      const missionIdsToCleanup = new Set<string>();
+
       if (fixture.missionId) {
+        missionIdsToCleanup.add(fixture.missionId);
+      }
+
+      if (fixture.missionIds) {
+        fixture.missionIds.forEach(id => missionIdsToCleanup.add(id));
+      }
+
+      // Delete mission schedules for tracked missions
+      for (const missionId of missionIdsToCleanup) {
         await this.adminClient
           .from('mission_schedules')
           .delete()
-          .eq('mission_id', fixture.missionId);
+          .eq('mission_id', missionId);
+
+        await this.adminClient.from('missions').delete().eq('id', missionId);
       }
 
-      // Delete missions
-      if (fixture.missionId) {
-        await this.adminClient
-          .from('missions')
-          .delete()
-          .eq('id', fixture.missionId);
-      }
-
-      // Delete all missions for the professional
+      // Delete all missions for the professional (fallback cleanup)
       if (fixture.professionalId) {
         const { data: missions } = await this.adminClient
           .from('missions')

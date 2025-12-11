@@ -110,8 +110,11 @@ describe('Mission creation overlap detection', () => {
     MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
     assertExists(data.error?.overlapping_date);
 
-    // Cleanup
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id];
+    if (data?.id) {
+      fixture.missionIds.push(data.id);
+    }
   });
 
   it('should allow mission that does not overlap with accepted mission', async () => {
@@ -186,8 +189,8 @@ describe('Mission creation overlap detection', () => {
     MissionAssertions.assertSuccessfulCreation(response, data);
     assertEquals(data.title, nonOverlappingRequest.title);
 
-    // Cleanup
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id, data.id];
   });
 
   it('should allow mission that overlaps with pending mission', async () => {
@@ -230,7 +233,7 @@ describe('Mission creation overlap detection', () => {
     // Assert - Should succeed because pending missions don't block
     MissionAssertions.assertSuccessfulCreation(response, data);
 
-    // Cleanup
-    fixture.missionId = pendingMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [pendingMission.id, data.id];
   });
 });

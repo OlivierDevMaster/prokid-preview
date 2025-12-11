@@ -40,8 +40,8 @@ describe('Mission creation business logic errors', () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
-    // Create accepted mission: Monday 9am-11am (120 min)
-    const acceptedMissionRequest = {
+    // Create pending mission: Monday 9am-11am (120 min)
+    const pendingMissionRequest = {
       ...MissionTestData.validMissionRequest,
       mission_dtstart: '2025-06-01T09:00:00Z',
       mission_until: '2025-12-31T18:00:00Z',
@@ -52,17 +52,24 @@ describe('Mission creation business logic errors', () => {
           rrule: 'DTSTART:20250601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO',
         },
       ],
-      status: 'accepted',
       structure_id: fixture.structureId!,
       title: 'Accepted Mission',
     };
 
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
-      body: acceptedMissionRequest,
+    const { data: createdMission } = await apiHelper.invokeEndpoint({
+      body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
+    });
+
+    // Accept the mission
+    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+      method: 'POST',
+      name: 'missions',
+      path: `/${createdMission.id}/accept`,
+      token: fixture.professionalToken!,
     });
 
     // Create overlapping mission: Monday 10am-12pm (overlaps with 9am-11am)
@@ -93,15 +100,19 @@ describe('Mission creation business logic errors', () => {
     // Assert
     MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
 
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id];
+    if (data?.id) {
+      fixture.missionIds.push(data.id);
+    }
   });
 
   it('should handle partial overlap correctly (end time overlaps)', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
-    // Create accepted mission: Monday 10am-12pm (120 min)
-    const acceptedMissionRequest = {
+    // Create pending mission: Monday 10am-12pm (120 min)
+    const pendingMissionRequest = {
       ...MissionTestData.validMissionRequest,
       mission_dtstart: '2025-06-01T10:00:00Z',
       mission_until: '2025-12-31T18:00:00Z',
@@ -112,17 +123,24 @@ describe('Mission creation business logic errors', () => {
           rrule: 'DTSTART:20250601T100000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO',
         },
       ],
-      status: 'accepted',
       structure_id: fixture.structureId!,
       title: 'Accepted Mission',
     };
 
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
-      body: acceptedMissionRequest,
+    const { data: createdMission } = await apiHelper.invokeEndpoint({
+      body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
+    });
+
+    // Accept the mission
+    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+      method: 'POST',
+      name: 'missions',
+      path: `/${createdMission.id}/accept`,
+      token: fixture.professionalToken!,
     });
 
     // Create overlapping mission: Monday 9am-11am (overlaps with 10am-12pm)
@@ -153,15 +171,19 @@ describe('Mission creation business logic errors', () => {
     // Assert
     MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
 
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id];
+    if (data?.id) {
+      fixture.missionIds.push(data.id);
+    }
   });
 
   it('should allow adjacent missions (no overlap)', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
-    // Create accepted mission: Monday 9am-11am (120 min)
-    const acceptedMissionRequest = {
+    // Create pending mission: Monday 9am-11am (120 min)
+    const pendingMissionRequest = {
       ...MissionTestData.validMissionRequest,
       mission_dtstart: '2025-06-01T09:00:00Z',
       mission_until: '2025-12-31T18:00:00Z',
@@ -172,17 +194,24 @@ describe('Mission creation business logic errors', () => {
           rrule: 'DTSTART:20250601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO',
         },
       ],
-      status: 'accepted',
       structure_id: fixture.structureId!,
       title: 'Accepted Mission',
     };
 
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
-      body: acceptedMissionRequest,
+    const { data: createdMission } = await apiHelper.invokeEndpoint({
+      body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
+    });
+
+    // Accept the mission
+    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+      method: 'POST',
+      name: 'missions',
+      path: `/${createdMission.id}/accept`,
+      token: fixture.professionalToken!,
     });
 
     // Create adjacent mission: Monday 11am-1pm (starts exactly when first ends)
@@ -213,15 +242,16 @@ describe('Mission creation business logic errors', () => {
     // Assert - Should succeed (adjacent, not overlapping)
     MissionAssertions.assertSuccessfulCreation(response, data);
 
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id, data.id];
   });
 
   it('should handle multiple schedules with one overlapping', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
-    // Create accepted mission: Monday 9am-11am
-    const acceptedMissionRequest = {
+    // Create pending mission: Monday 9am-11am
+    const pendingMissionRequest = {
       ...MissionTestData.validMissionRequest,
       mission_dtstart: '2025-06-01T09:00:00Z',
       mission_until: '2025-12-31T18:00:00Z',
@@ -232,17 +262,24 @@ describe('Mission creation business logic errors', () => {
           rrule: 'DTSTART:20250601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO',
         },
       ],
-      status: 'accepted',
       structure_id: fixture.structureId!,
       title: 'Accepted Mission',
     };
 
-    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
-      body: acceptedMissionRequest,
+    const { data: createdMission } = await apiHelper.invokeEndpoint({
+      body: pendingMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
+    });
+
+    // Accept the mission
+    const { data: acceptedMission } = await apiHelper.invokeEndpoint({
+      method: 'POST',
+      name: 'missions',
+      path: `/${createdMission.id}/accept`,
+      token: fixture.professionalToken!,
     });
 
     // Create mission with multiple schedules, one overlapping
@@ -277,7 +314,11 @@ describe('Mission creation business logic errors', () => {
     // Assert - Should reject because one schedule overlaps
     MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
 
-    fixture.missionId = acceptedMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [acceptedMission.id];
+    if (data?.id) {
+      fixture.missionIds.push(data.id);
+    }
   });
 
   it('should handle RRULE with invalid DTSTART gracefully', async () => {
@@ -334,9 +375,12 @@ describe('Mission creation business logic errors', () => {
       token: fixture.structureToken!,
     });
 
-    // Assert - Should either fail validation or use mission_dtstart as fallback
-    // The constrainRRULEByDates function should handle this
-    MissionAssertions.assertBadRequest(response, data, 'INVALID_RRULE');
+    // Assert - Should succeed by using mission_dtstart as fallback for missing DTSTART
+    // The constrainRRULEByDates function handles this by using mission_dtstart
+    MissionAssertions.assertSuccessfulCreation(response, data);
+
+    // Track mission for cleanup
+    fixture.missionId = data.id;
   });
 
   it('should handle very short duration (1 minute)', async () => {

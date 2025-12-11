@@ -11,9 +11,5 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 -- Required for extract_rrule_dates trigger to call Edge Functions
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 
--- Enable vault extension for storing secrets
--- CREATE EXTENSION IF NOT EXISTS vault;
-
 COMMENT ON EXTENSION pgcrypto IS 'PostgreSQL extension for cryptographic functions';
 COMMENT ON EXTENSION pg_net IS 'PostgreSQL extension for making HTTP requests from the database';
--- COMMENT ON EXTENSION vault IS 'PostgreSQL extension for storing secrets';

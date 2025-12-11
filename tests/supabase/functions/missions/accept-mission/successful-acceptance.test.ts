@@ -87,17 +87,24 @@ describe('Successful mission acceptance', () => {
           rrule: 'DTSTART:20250601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO',
         },
       ],
-      status: 'accepted',
       structure_id: fixture.structureId!,
       title: 'First Accepted Mission',
     };
 
-    const { data: firstMission } = await apiHelper.invokeEndpoint({
+    const { data: createdFirstMission } = await apiHelper.invokeEndpoint({
       body: firstMissionRequest,
       method: 'POST',
       name: 'missions',
       path: '/',
       token: fixture.structureToken!,
+    });
+
+    // Accept the first mission
+    const { data: firstMission } = await apiHelper.invokeEndpoint({
+      method: 'POST',
+      name: 'missions',
+      path: `/${createdFirstMission.id}/accept`,
+      token: fixture.professionalToken!,
     });
 
     // Create overlapping pending mission
@@ -135,8 +142,8 @@ describe('Successful mission acceptance', () => {
     // Assert
     MissionAssertions.assertConflict(response, data, 'MISSION_OVERLAP');
 
-    // Cleanup
-    fixture.missionId = firstMission.id;
+    // Track all missions for cleanup
+    fixture.missionIds = [firstMission.id, pendingMission.id];
   });
 
   it('should allow acceptance when mission does not overlap', async () => {
