@@ -3,12 +3,7 @@ import {
   ProfessionalAvailability,
   validateMissionAvailability,
 } from '../validateMissionAvailability.ts';
-import {
-  assert,
-  assertEqual,
-  createWeeklyRRULE,
-  test,
-} from './test-utils.ts';
+import { assert, assertEqual, test } from './test-utils.ts';
 
 test('should validate one-time mission with COUNT=1', () => {
   // One-time mission: June 1st, 2025, 9am-11am (120 minutes)
@@ -47,7 +42,8 @@ test('should reject one-time mission outside availability', () => {
   // Availability: Monday only, 9am-12pm - doesn't cover June 1st (which is a Sunday)
   const availability: ProfessionalAvailability = {
     duration_mn: 180,
-    rrule: 'DTSTART:20250602T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20251231T180000Z',
+    rrule:
+      'DTSTART:20250602T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20251231T180000Z',
   };
 
   const missionStart = new Date('2025-06-01T09:00:00Z');
@@ -114,7 +110,10 @@ test('should validate one-time mission with partial time coverage', () => {
     [availability]
   );
 
-  assert(result.isValid === false, 'One-time mission should be invalid (duration too short)');
+  assert(
+    result.isValid === false,
+    'One-time mission should be invalid (duration too short)'
+  );
   assert(result.violations.length > 0, 'Should have violations');
 });
 
@@ -148,7 +147,9 @@ test('should validate one-time mission with multiple availabilities covering it'
     [availability1, availability2]
   );
 
-  assert(result.isValid === true, 'One-time mission should be valid (covered by multiple availabilities)');
+  assert(
+    result.isValid === true,
+    'One-time mission should be valid (covered by multiple availabilities)'
+  );
   assertEqual(result.violations.length, 0, 'Should have no violations');
 });
-
