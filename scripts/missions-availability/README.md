@@ -150,7 +150,29 @@ The test suite includes 21 comprehensive test cases covering various scenarios:
 To run the test suite:
 
 ```bash
-npx tsx scripts/missions-availability/validateMissionAvailability.test.ts
+npx tsx scripts/missions-availability/tests/test-runner.ts
+```
+
+### Test Organization
+
+Tests are organized into multiple files by topic in the `tests/` directory:
+
+- **`test-utils.ts`** - Shared test utilities, assertions, and helper functions
+- **`basic-validation.test.ts`** - Basic validation cases (4 tests)
+- **`multiple-schedules.test.ts`** - Multiple schedules and availabilities (2 tests)
+- **`overlapping-availabilities.test.ts`** - Overlapping availabilities (1 test)
+- **`date-range-constraints.test.ts`** - Date range constraints (2 tests)
+- **`edge-cases.test.ts`** - Edge cases and error handling (5 tests)
+- **`rrule-frequencies.test.ts`** - Different RRULE frequencies (2 tests)
+- **`time-boundaries.test.ts`** - Time boundary cases (3 tests)
+- **`violation-details.test.ts`** - Violation details (1 test)
+- **`constraint-behavior.test.ts`** - RRULE constraint behavior (1 test)
+- **`test-runner.ts`** - Main test runner that executes all tests
+
+You can also run individual test files if needed:
+
+```bash
+npx tsx scripts/missions-availability/tests/basic-validation.test.ts
 ```
 
 ## Usage Example
