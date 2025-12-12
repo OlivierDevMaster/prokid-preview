@@ -16,6 +16,7 @@ import {
   Clock,
   DollarSign,
   Pencil,
+  Repeat2,
   Trash2,
   TrendingUp,
 } from 'lucide-react';
@@ -376,7 +377,10 @@ export default function AvailabilitiesPage() {
                                         {tCommon('messages.saving')}
                                       </>
                                     ) : (
-                                      t('stopRecurrence')
+                                      <>
+                                        <Repeat2 className='mr-2 h-3 w-3' />
+                                        {t('stopRecurrence')}
+                                      </>
                                     )}
                                   </Button>
                                   <Button
