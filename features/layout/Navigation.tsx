@@ -12,9 +12,10 @@ import { useRole } from '@/hooks/useRole';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
+import ProkidLogo from './ProkidLogo';
+
 export function Navigation() {
   const t = useTranslations('navigation');
-  const title = useTranslations('title');
   const tCommon = useTranslations('common');
   const pathname = usePathname();
   const router = useRouter();
@@ -48,7 +49,7 @@ export function Navigation() {
         <div className='flex h-16 items-center justify-between'>
           <div className='flex items-center gap-8'>
             <Link className='flex items-center space-x-2' href='/'>
-              <span className='text-xl font-bold'>{title('project')}</span>
+              <ProkidLogo />
             </Link>
           </div>
 

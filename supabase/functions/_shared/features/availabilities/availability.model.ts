@@ -1,4 +1,4 @@
-import { Mission } from '../missions/mission.model.ts';
+import type { Mission } from '../missions/mission.model.ts';
 
 export interface AvailabilitySlot {
   durationMn: number;
