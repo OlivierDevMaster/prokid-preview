@@ -128,3 +128,87 @@ test('should validate mission at exact availability boundaries', () => {
   assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });
+
+test('should validate mission schedule at start of availability window', () => {
+  // Availability: Every Monday 7am-11am (4 hours)
+  const availability: ProfessionalAvailability = {
+    duration_mn: 240, // 4 hours
+    rrule: createWeeklyRRULE(new Date('2024-01-01T07:00:00Z'), null, 'MO'),
+  };
+
+  // Mission: Every Monday 7am-9am (2 hours, at start of availability)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 120, // 2 hours
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T07:00:00Z'),
+      new Date('2024-01-29T07:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart,
+    missionEnd,
+    [availability]
+  );
+
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should validate mission schedule in middle of availability window', () => {
+  // Availability: Every Monday 7am-11am (4 hours)
+  const availability: ProfessionalAvailability = {
+    duration_mn: 240, // 4 hours
+    rrule: createWeeklyRRULE(new Date('2024-01-01T07:00:00Z'), null, 'MO'),
+  };
+
+  // Mission: Every Monday 8am-9am (1 hour, in middle of availability)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60, // 1 hour
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T08:00:00Z'),
+      new Date('2024-01-29T08:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart,
+    missionEnd,
+    [availability]
+  );
+
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should validate mission schedule at end of availability window', () => {
+  // Availability: Every Monday 7am-11am (4 hours)
+  const availability: ProfessionalAvailability = {
+    duration_mn: 240, // 4 hours
+    rrule: createWeeklyRRULE(new Date('2024-01-01T07:00:00Z'), null, 'MO'),
+  };
+
+  // Mission: Every Monday 9am-11am (2 hours, at end of availability)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 120, // 2 hours
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T09:00:00Z'),
+      new Date('2024-01-29T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart,
+    missionEnd,
+    [availability]
+  );
+
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
