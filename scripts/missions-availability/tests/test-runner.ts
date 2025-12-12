@@ -1,3 +1,4 @@
+import './availability-exceptions.test.ts';
 import './basic-validation.test.ts';
 import './complex-multi-availability.test.ts';
 import './constraint-behavior.test.ts';

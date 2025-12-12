@@ -1,4 +1,4 @@
-import { RRule, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 
 /**
  * Represents a mission schedule with RRULE and duration
@@ -291,7 +291,8 @@ function extractParseableRRULE(rruleString: string): string {
 }
 
 /**
- * Generates all occurrences for a professional availability
+ * Generates all occurrences for a professional availability.
+ * Handles both RRule and RRuleSet (when EXDATE is present).
  */
 function generateAvailabilityOccurrences(
   availability: ProfessionalAvailability,
@@ -300,22 +301,48 @@ function generateAvailabilityOccurrences(
 ): Date[] {
   const availabilityRule = rrulestr(availability.rrule);
 
-  const availabilityStart = availabilityRule.options.dtstart || missionDtstart;
-  const availabilityUntil =
-    availabilityRule.options.until ||
-    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+  // Check if it's an RRuleSet (when EXDATE is present, rrulestr returns RRuleSet)
+  let availabilityStart: Date | null = null;
+  let availabilityUntil: Date | null = null;
 
+  if (
+    availabilityRule instanceof RRuleSet ||
+    typeof (availabilityRule as RRuleSet).rrules === 'function'
+  ) {
+    // It's an RRuleSet - get dtstart/until from the first RRule
+    const rruleSet = availabilityRule as RRuleSet;
+    const rules = rruleSet.rrules();
+
+    if (rules.length > 0) {
+      const firstRule = rules[0];
+      availabilityStart = firstRule.options.dtstart || null;
+      availabilityUntil = firstRule.options.until || null;
+    }
+  } else {
+    // It's a regular RRule
+    const rrule = availabilityRule as RRule;
+    availabilityStart = rrule.options.dtstart || null;
+    availabilityUntil = rrule.options.until || null;
+  }
+
+  // Use extracted dates or fallback to defaults
   const effectiveStart =
-    availabilityStart < missionDtstart ? missionDtstart : availabilityStart;
+    availabilityStart && availabilityStart < missionDtstart
+      ? missionDtstart
+      : availabilityStart || missionDtstart;
   const effectiveUntil =
-    availabilityUntil > missionUntil ? missionUntil : availabilityUntil;
+    availabilityUntil && availabilityUntil > missionUntil
+      ? missionUntil
+      : availabilityUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
+  // RRuleSet.between() works the same as RRule.between()
   return availabilityRule.between(effectiveStart, effectiveUntil, true);
 }
 
 /**
  * Generates all occurrences for a mission schedule within the mission date range.
  * First constrains the RRULE by mission dates to ensure consistency with stored data.
+ * Handles both RRule and RRuleSet (when EXDATE is present).
  */
 function generateMissionOccurrences(
   schedule: MissionSchedule,
@@ -332,10 +359,32 @@ function generateMissionOccurrences(
   const missionRule = rrulestr(constrainedRRULE);
 
   // Get the effective date range from the constrained RRULE
-  const scheduleStart = missionRule.options.dtstart || missionDtstart;
-  const scheduleUntil = missionRule.options.until || missionUntil;
+  // Handle both RRule and RRuleSet
+  let scheduleStart: Date = missionDtstart;
+  let scheduleUntil: Date = missionUntil;
+
+  if (
+    missionRule instanceof RRuleSet ||
+    typeof (missionRule as RRuleSet).rrules === 'function'
+  ) {
+    // It's an RRuleSet - get dtstart/until from the first RRule
+    const rruleSet = missionRule as RRuleSet;
+    const rules = rruleSet.rrules();
+
+    if (rules.length > 0) {
+      const firstRule = rules[0];
+      scheduleStart = firstRule.options.dtstart || missionDtstart;
+      scheduleUntil = firstRule.options.until || missionUntil;
+    }
+  } else {
+    // It's a regular RRule
+    const rrule = missionRule as RRule;
+    scheduleStart = rrule.options.dtstart || missionDtstart;
+    scheduleUntil = rrule.options.until || missionUntil;
+  }
 
   // Generate occurrences - the RRULE is already constrained, so we can use the full range
+  // RRuleSet.between() works the same as RRule.between()
   return missionRule.between(scheduleStart, scheduleUntil, true);
 }
 
