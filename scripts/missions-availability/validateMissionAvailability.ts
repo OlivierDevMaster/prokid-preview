@@ -76,6 +76,18 @@ export function validateMissionAvailability(
     scheduleIndex++
   ) {
     const schedule = missionSchedules[scheduleIndex];
+
+    // Validate that duration is positive
+    if (schedule.duration_mn <= 0) {
+      violations.push({
+        mission_occurrence_end: '',
+        mission_occurrence_start: '',
+        mission_schedule_index: scheduleIndex,
+        reason: `Mission schedule at index ${scheduleIndex} has invalid duration: ${schedule.duration_mn} minutes. Duration must be greater than 0.`,
+      });
+      continue;
+    }
+
     const scheduleViolations = validateSchedule(
       schedule,
       scheduleIndex,

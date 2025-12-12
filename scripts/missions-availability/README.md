@@ -122,7 +122,7 @@ The test suite includes **43 comprehensive test cases** covering various scenari
 - ✓ **should validate mission that ends exactly at availability end** - Exact boundary at end
 - ✓ **should reject mission that extends 1 minute past availability** - 1 minute over boundary
 - ✗ **Sub-minute boundaries** - Milliseconds, seconds precision
-- ✗ **Zero-duration missions** - Should be rejected
+- ✓ **Zero-duration missions** - Should be rejected
 - ✗ **Very short durations** - 1 minute, 30 seconds
 - ✗ **Mission exactly 1 second before/after availability** - Second-level precision
 
@@ -230,7 +230,7 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`constraint-behavior.test.ts`** - RRULE constraint behavior (1 test)
 - **`test-runner.ts`** - Main test runner that executes all tests
 
-**Total: 43 tests currently implemented**
+**Total: 44 tests currently implemented**
 
 You can also run individual test files if needed:
 

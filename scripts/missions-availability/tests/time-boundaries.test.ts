@@ -89,3 +89,37 @@ test('should reject mission that extends 1 minute past availability', () => {
   assert(result.isValid === false, 'Mission should be invalid');
   assertGreaterThan(result.violations.length, 0, 'Should have violations');
 });
+
+test('should reject zero-duration missions', () => {
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(new Date('2024-01-01T09:00:00Z'), null, 'MO'),
+  };
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 0, // Zero duration - should be rejected
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T09:00:00Z'),
+      new Date('2024-01-29T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart,
+    missionEnd,
+    [availability]
+  );
+
+  assert(result.isValid === false, 'Mission should be invalid');
+  assertGreaterThan(result.violations.length, 0, 'Should have violations');
+  assert(
+    result.violations[0].reason.includes('invalid duration'),
+    'Violation should mention invalid duration'
+  );
+  assert(
+    result.violations[0].reason.includes('0'),
+    'Violation should mention zero duration'
+  );
+});
