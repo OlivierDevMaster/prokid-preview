@@ -1,3 +1,5 @@
+import { RRule } from 'rrule';
+
 import {
   type MissionSchedule,
   ProfessionalAvailability,
@@ -170,5 +172,75 @@ test('should validate mission with multiple schedules where one ends early', () 
     result.isValid === true,
     'Mission should be valid when one schedule ends early'
   );
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should preserve UNTIL when schedule ends exactly at mission end', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, UNTIL exactly matches mission end
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T10:00:00Z'),
+      new Date('2024-01-31T10:00:00Z'), // UNTIL equals mission end
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - UNTIL at mission end is preserved
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should constrain UNTIL when schedule has no UNTIL (undefined)', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, no UNTIL (should be constrained to mission end)
+  // We create a weekly RRULE without UNTIL by not setting it
+  const missionRRULE = new RRule({
+    byweekday: [RRule.MO],
+    dtstart: new Date('2024-01-08T10:00:00Z'),
+    freq: RRule.WEEKLY,
+    // No UNTIL - should be constrained to mission end
+  });
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: missionRRULE.toString(),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - UNTIL is set to mission end when not provided
+  assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });

@@ -1,4 +1,4 @@
-import { RRule, RRuleSet, rrulestr, Options } from 'rrule';
+import { Options, RRule, RRuleSet, rrulestr } from 'rrule';
 
 /**
  * Represents a mission schedule with RRULE and duration
@@ -206,6 +206,13 @@ function checkOccurrenceCoverage(
  * Extracts the time from the RRULE's DTSTART and applies it to the mission date range.
  * Preserves EXDATE exceptions and ensures UNTIL is set.
  *
+ * UNTIL constraint behavior:
+ * - If the original UNTIL is before missionUntil: preserves the original UNTIL (schedules can end early)
+ * - If the original UNTIL is after missionUntil or doesn't exist: constrains to missionUntil (prevents schedules from extending beyond mission)
+ *
+ * DTSTART constraint:
+ * - Always set to missionDtstart with the original time components (hour, minute, second) preserved
+ *
  * This ensures the validation uses the same constrained RRULEs that will be stored in the database.
  *
  * @param rrule - RRULE string (RFC 5545 format, newline-separated)
@@ -233,9 +240,21 @@ function constrainRRULEByDates(
   const newDtstart = new Date(missionDtstart);
   newDtstart.setUTCHours(hour, minute, second, 0);
 
-  // Create new UNTIL: mission end date with original time
-  const newUntil = new Date(missionUntil);
-  newUntil.setUTCHours(hour, minute, second, 0);
+  // Get original UNTIL from the rule
+  const originalUntil = rule.options.until;
+
+  // Determine the new UNTIL:
+  // - If original UNTIL is before missionUntil, preserve it (schedule ends early - OK)
+  // - If original UNTIL is after missionUntil or doesn't exist, use missionUntil (constrain to mission end)
+  let newUntil: Date;
+  if (originalUntil && originalUntil < missionUntil) {
+    // Preserve original UNTIL (schedule ends early)
+    newUntil = new Date(originalUntil);
+  } else {
+    // Constrain to mission end (either no UNTIL or UNTIL extends beyond mission)
+    newUntil = new Date(missionUntil);
+    newUntil.setUTCHours(hour, minute, second, 0);
+  }
 
   // Build RRULE options from original pattern
   const rruleOptions: Partial<Options> = {
