@@ -128,10 +128,10 @@ The test suite includes **43 comprehensive test cases** covering various scenari
 
 ### 10. Long-Duration Scenarios
 
-- ✗ **Overnight missions** - e.g., 23:00-01:00 (spans midnight)
-- ✗ **Multi-day missions** - Mission spanning 24+ hours
-- ✗ **Multi-day availabilities** - Availability spanning 24+ hours
-- ✗ **Very long durations** - 8+ hour missions/availabilities
+- ✓ **Overnight missions** - e.g., 23:00-01:00 (spans midnight)
+- ✓ **Multi-day missions** - Mission spanning 24+ hours
+- ✓ **Multi-day availabilities** - Availability spanning 24+ hours
+- ✓ **Very long durations** - 8+ hour missions/availabilities
 
 ### 11. Mission Schedule EXDATE/UNTIL
 
@@ -225,12 +225,13 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`date-range-constraints.test.ts`** - Date range constraints (6 tests)
 - **`edge-cases.test.ts`** - Edge cases and error handling (5 tests)
 - **`rrule-frequencies.test.ts`** - Different RRULE frequencies (2 tests)
-- **`time-boundaries.test.ts`** - Time boundary cases (3 tests)
+- **`time-boundaries.test.ts`** - Time boundary cases (4 tests)
+- **`long-duration.test.ts`** - Long-duration scenarios (9 tests)
 - **`violation-details.test.ts`** - Violation details (1 test)
 - **`constraint-behavior.test.ts`** - RRULE constraint behavior (1 test)
 - **`test-runner.ts`** - Main test runner that executes all tests
 
-**Total: 48 tests currently implemented**
+**Total: 57 tests currently implemented**
 
 You can also run individual test files if needed:
 

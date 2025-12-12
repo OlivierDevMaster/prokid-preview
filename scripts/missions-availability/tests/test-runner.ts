@@ -4,6 +4,7 @@ import './complex-multi-availability.test.ts';
 import './constraint-behavior.test.ts';
 import './date-range-constraints.test.ts';
 import './edge-cases.test.ts';
+import './long-duration.test.ts';
 import './multiple-schedules.test.ts';
 import './overlapping-availabilities.test.ts';
 import './rrule-frequencies.test.ts';
