@@ -1,4 +1,4 @@
-import { rrulestr } from 'rrule';
+import { RRule, rrulestr } from 'rrule';
 
 /**
  * Represents a mission schedule with RRULE and duration
@@ -40,10 +40,11 @@ export interface ValidationViolation {
  * at least one professional availability.
  *
  * The function:
- * 1. Generates all occurrences for each mission schedule within the mission date range
- * 2. Generates all occurrences for each professional availability
- * 3. Checks that each mission occurrence is fully contained within at least one availability occurrence
- * 4. Returns validation result with any violations found
+ * 1. Constrains each mission schedule RRULE by mission date range (ensures consistency with stored data)
+ * 2. Generates all occurrences for each constrained mission schedule
+ * 3. Generates all occurrences for each professional availability
+ * 4. Checks that each mission occurrence is fully contained within at least one availability occurrence
+ * 5. Returns validation result with any violations found
  *
  * @param missionSchedules - Array of mission schedules with RRULE and duration
  * @param missionDtstart - Mission start date
@@ -131,6 +132,107 @@ function checkOccurrenceCoverage(
 }
 
 /**
+ * Constrains an RRULE by mission start and end dates.
+ * Extracts the time from the RRULE's DTSTART and applies it to the mission date range.
+ * Preserves EXDATE exceptions and ensures UNTIL is set.
+ *
+ * This ensures the validation uses the same constrained RRULEs that will be stored in the database.
+ *
+ * @param rrule - RRULE string (RFC 5545 format, newline-separated)
+ * @param missionDtstart - Mission start date
+ * @param missionUntil - Mission end date
+ * @returns Constrained RRULE string with mission date boundaries
+ */
+function constrainRRULEByDates(
+  rrule: string,
+  missionDtstart: Date,
+  missionUntil: Date
+): string {
+  // Parse the RRULE - extract only parseable parts (DTSTART and RRULE lines)
+  // Remove EXDATE lines for parsing, we'll add them back later
+  const parseableRRULE = extractParseableRRULE(rrule);
+  const rule = rrulestr(parseableRRULE);
+
+  // Extract time components from RRULE's DTSTART
+  const originalDtstart = rule.options.dtstart || new Date();
+  const hour = originalDtstart.getUTCHours();
+  const minute = originalDtstart.getUTCMinutes();
+  const second = originalDtstart.getUTCSeconds();
+
+  // Create new DTSTART: mission start date with original time
+  const newDtstart = new Date(missionDtstart);
+  newDtstart.setUTCHours(hour, minute, second, 0);
+
+  // Create new UNTIL: mission end date with original time
+  const newUntil = new Date(missionUntil);
+  newUntil.setUTCHours(hour, minute, second, 0);
+
+  // Build RRULE options from original pattern
+  const rruleOptions: RRule.Options = {
+    bymonth: rule.options.bymonth,
+    bymonthday: rule.options.bymonthday,
+    bysetpos: rule.options.bysetpos,
+    byweekday: rule.options.byweekday,
+    byweekno: rule.options.byweekno,
+    byyearday: rule.options.byyearday,
+    dtstart: newDtstart,
+    freq: rule.options.freq,
+    interval: rule.options.interval,
+    until: newUntil,
+    wkst: rule.options.wkst,
+  };
+
+  // Remove bysetpos if present (can conflict with UNTIL when modifying DTSTART)
+  delete rruleOptions.bysetpos;
+
+  // Create new RRULE with mission date constraints (including UNTIL in options)
+  const newRRule = new RRule(rruleOptions);
+
+  // Get the formatted RRULE string from the library
+  // The library formats it as: DTSTART:...\nRRULE:...;UNTIL=...
+  const formattedRRULE = newRRule.toString();
+
+  // Get EXDATE from original RRULE if present
+  const exdateLines: string[] = [];
+  const rruleLines = rrule.split('\n');
+  for (const line of rruleLines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('EXDATE:')) {
+      exdateLines.push(trimmed);
+    }
+  }
+
+  // Combine all parts - the library already includes DTSTART and RRULE with UNTIL
+  let result = formattedRRULE;
+  if (exdateLines.length > 0) {
+    result += '\n' + exdateLines.join('\n');
+  }
+
+  return result;
+}
+
+/**
+ * Extracts just the parseable parts of an RRULE string (DTSTART and RRULE lines)
+ * Removes EXDATE lines for parsing (they'll be added back later)
+ * @param rruleString - Full RRULE string with DTSTART, RRULE, UNTIL, EXDATE lines
+ * @returns String with only DTSTART and RRULE lines (parseable by rrulestr)
+ */
+function extractParseableRRULE(rruleString: string): string {
+  const lines = rruleString.split('\n');
+  const parseableLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('DTSTART:') || trimmed.startsWith('RRULE:')) {
+      parseableLines.push(trimmed);
+    }
+    // Skip UNTIL and EXDATE lines - they can't be parsed by rrulestr()
+  }
+
+  return parseableLines.join('\n');
+}
+
+/**
  * Generates all occurrences for a professional availability
  */
 function generateAvailabilityOccurrences(
@@ -154,23 +256,29 @@ function generateAvailabilityOccurrences(
 }
 
 /**
- * Generates all occurrences for a mission schedule within the mission date range
+ * Generates all occurrences for a mission schedule within the mission date range.
+ * First constrains the RRULE by mission dates to ensure consistency with stored data.
  */
 function generateMissionOccurrences(
   schedule: MissionSchedule,
   missionDtstart: Date,
   missionUntil: Date
 ): Date[] {
-  const missionRule = rrulestr(schedule.rrule);
+  // Constrain the RRULE by mission dates first (ensures consistency with database)
+  const constrainedRRULE = constrainRRULEByDates(
+    schedule.rrule,
+    missionDtstart,
+    missionUntil
+  );
 
+  const missionRule = rrulestr(constrainedRRULE);
+
+  // Get the effective date range from the constrained RRULE
   const scheduleStart = missionRule.options.dtstart || missionDtstart;
   const scheduleUntil = missionRule.options.until || missionUntil;
 
-  return missionRule.between(
-    scheduleStart < missionDtstart ? missionDtstart : scheduleStart,
-    scheduleUntil > missionUntil ? missionUntil : scheduleUntil,
-    true
-  );
+  // Generate occurrences - the RRULE is already constrained, so we can use the full range
+  return missionRule.between(scheduleStart, scheduleUntil, true);
 }
 
 /**
@@ -246,7 +354,7 @@ function validateSchedule(
       }
     }
   } catch (rruleError) {
-    // If we can't parse the mission schedule RRULE, that's a critical error
+    // If we can't parse or constrain the mission schedule RRULE, that's a critical error
     throw new Error(
       `Invalid RRULE in mission schedule at index ${scheduleIndex}: ${String(rruleError)}`
     );

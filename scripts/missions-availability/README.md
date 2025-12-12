@@ -6,11 +6,21 @@ This module provides validation functionality to ensure that mission schedules f
 
 The `validateMissionAvailability` function validates that all occurrences generated from mission schedules are completely covered by at least one professional availability. This prevents creating missions that would conflict with a professional's stated availability.
 
+**Important:** The function automatically constrains each mission schedule RRULE by the mission date range before validation. This ensures consistency with how RRULEs are stored in the database (via `constrainRRULEByDates` in `createMissionHandler`). The time from the original RRULE's DTSTART is preserved, but the date boundaries are set to match the mission's start and end dates.
+
 ## Function
 
 ### `validateMissionAvailability`
 
 Validates that all mission schedule occurrences fall within at least one professional availability.
+
+**Process:**
+
+1. Constrains each mission schedule RRULE by mission date range (ensures consistency with stored data)
+2. Generates all occurrences for each constrained mission schedule
+3. Generates all occurrences for each professional availability
+4. Checks that each mission occurrence is fully contained within at least one availability occurrence
+5. Returns validation result with any violations found
 
 **Parameters:**
 
@@ -25,7 +35,7 @@ Validates that all mission schedule occurrences fall within at least one profess
 
 ## Test Suite
 
-The test suite includes 20 comprehensive test cases covering various scenarios:
+The test suite includes 21 comprehensive test cases covering various scenarios:
 
 ### Basic Validation Cases
 
@@ -130,6 +140,11 @@ The test suite includes 20 comprehensive test cases covering various scenarios:
     - Tests that violations include detailed information
     - Violation includes: schedule index, start time, end time, and reason
 
+21. **should constrain mission schedule RRULE by mission date range**
+    - Tests that RRULEs extending beyond mission date range are properly constrained
+    - Verifies constraint behavior matches database storage logic
+    - Mission RRULE extends to Dec 31, but mission ends Jan 31 - only Jan occurrences are validated
+
 ## Running Tests
 
 To run the test suite:
@@ -171,6 +186,7 @@ if (!result.isValid) {
 
 ## Notes
 
+- **RRULE Constraint:** Mission schedule RRULEs are automatically constrained by the mission date range before validation. The time from the original RRULE's DTSTART is preserved, but the date boundaries are set to match `missionDtstart` and `missionUntil`. This ensures validation matches what will be stored in the database.
 - The validation ensures **no overlapping** - all mission occurrences must be fully contained within at least one availability
 - The function uses the `rrule` library for RRULE parsing and occurrence generation
 - Invalid availability RRULEs are skipped (logged but don't stop validation)
