@@ -266,21 +266,29 @@ function constrainRRULEByDates(
   const minute = originalDtstart.getUTCMinutes();
   const second = originalDtstart.getUTCSeconds();
 
-  // Get original UNTIL from the rule
+  // Get original UNTIL and COUNT from the rule
   const originalUntil = rule.options.until;
+  const originalCount = rule.options.count;
 
-  // Determine the new UNTIL:
-  // - If original UNTIL is before missionUntil, preserve it (schedule ends early - OK)
-  // - If original UNTIL is after missionUntil or doesn't exist, use missionUntil (constrain to mission end)
-  let newUntil: Date;
-  if (originalUntil && originalUntil < missionUntil) {
-    // Preserve original UNTIL (schedule ends early)
-    newUntil = new Date(originalUntil);
-  } else {
-    // Constrain to mission end (either no UNTIL or UNTIL extends beyond mission)
-    newUntil = new Date(missionUntil);
-    newUntil.setUTCHours(hour, minute, second, 0);
+  // If COUNT is present, preserve it and don't set UNTIL (COUNT is the limiting factor)
+  // If COUNT is not present, use UNTIL as the limiting factor
+  let newUntil: Date | undefined;
+  if (originalCount === undefined) {
+    // No COUNT - use UNTIL logic
+    // - If original UNTIL is before missionUntil, preserve it (schedule ends early - OK)
+    //   BUT: if UNTIL is before mission start (after constraining DTSTART), it will result in no occurrences
+    // - If original UNTIL is after missionUntil or doesn't exist, use missionUntil (constrain to mission end)
+    if (originalUntil && originalUntil < missionUntil) {
+      // Preserve original UNTIL (schedule ends early)
+      // Note: This might result in UNTIL < newDtstart, which will be caught in generateMissionOccurrences
+      newUntil = new Date(originalUntil);
+    } else {
+      // Constrain to mission end (either no UNTIL or UNTIL extends beyond mission)
+      newUntil = new Date(missionUntil);
+      newUntil.setUTCHours(hour, minute, second, 0);
+    }
   }
+  // If COUNT is present, leave newUntil undefined (don't set UNTIL)
 
   // Build RRULE options from original pattern
   const rruleOptions: Partial<Options> = {
@@ -290,17 +298,24 @@ function constrainRRULEByDates(
     byweekday: rule.options.byweekday,
     byweekno: rule.options.byweekno,
     byyearday: rule.options.byyearday,
+    count: originalCount, // Preserve COUNT if present
     dtstart: newDtstart,
     freq: rule.options.freq,
     interval: rule.options.interval,
-    until: newUntil,
     wkst: rule.options.wkst,
   };
+
+  // Only set until if it's defined (not set when COUNT is present)
+  if (newUntil !== undefined) {
+    rruleOptions.until = newUntil;
+  }
 
   // Remove bysetpos if present (can conflict with UNTIL when modifying DTSTART)
   delete rruleOptions.bysetpos;
 
   // Create new RRULE with mission date constraints (including UNTIL in options)
+  // Note: If newUntil is before newDtstart, the RRule library will still create the rule,
+  // but it will result in no occurrences when we call between() - this is handled in generateMissionOccurrences
   const newRRule = new RRule(rruleOptions);
 
   // Get the formatted RRULE string from the library
@@ -382,17 +397,24 @@ function generateAvailabilityOccurrences(
     availabilityUntil = rrule.options.until || null;
   }
 
-  // Use extracted dates or fallback to defaults
-  const effectiveStart =
-    availabilityStart && availabilityStart < missionDtstart
-      ? missionDtstart
-      : availabilityStart || missionDtstart;
+  // Use a wider range to include all availability occurrences that could cover the mission
+  // We need to include availabilities that start before the mission (they might still cover it)
+  // Use the availability's DTSTART as the lower bound, or mission start if earlier
+  const effectiveStart = availabilityStart
+    ? availabilityStart < missionDtstart
+      ? availabilityStart
+      : missionDtstart
+    : missionDtstart;
+
+  // Use the availability's UNTIL as the upper bound, or mission until if later
+  // This ensures we capture all availability occurrences that could overlap with the mission
   const effectiveUntil =
     availabilityUntil && availabilityUntil > missionUntil
-      ? missionUntil
+      ? availabilityUntil
       : availabilityUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
   // RRuleSet.between() works the same as RRule.between()
+  // We use a wider range to ensure we capture all availability occurrences that could cover the mission
   return availabilityRule.between(effectiveStart, effectiveUntil, true);
 }
 
@@ -437,11 +459,21 @@ function generateMissionOccurrences(
     // It's a regular RRule
     const rrule = missionRule as RRule;
     scheduleStart = rrule.options.dtstart || missionDtstart;
-    scheduleUntil = rrule.options.until || missionUntil;
+    // If UNTIL is undefined or null, use missionUntil
+    // If UNTIL exists, use it (even if it's before mission start - will be caught below)
+    scheduleUntil =
+      rrule.options.until !== undefined && rrule.options.until !== null
+        ? rrule.options.until
+        : missionUntil;
   }
 
   // Generate occurrences - the RRULE is already constrained, so we can use the full range
   // RRuleSet.between() works the same as RRule.between()
+  // If scheduleUntil is before scheduleStart, there are no occurrences in the valid range
+  // This can happen when UNTIL is preserved but is before the constrained DTSTART
+  if (scheduleUntil < scheduleStart) {
+    return [];
+  }
   return missionRule.between(scheduleStart, scheduleUntil, true);
 }
 

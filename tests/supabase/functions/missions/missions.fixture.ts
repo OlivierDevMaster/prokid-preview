@@ -87,6 +87,14 @@ export class MissionCleanupHelper {
           .eq('professional_id', fixture.professionalId);
       }
 
+      // Delete availabilities
+      if (fixture.professionalId) {
+        await this.adminClient
+          .from('availabilities')
+          .delete()
+          .eq('user_id', fixture.professionalId);
+      }
+
       // Delete structure if exists
       if (fixture.structureId) {
         await this.adminClient
@@ -472,6 +480,45 @@ export class MissionFixtureBuilder {
       if (createMembershipError) {
         throw new Error(
           `Failed to create membership: ${createMembershipError?.message}`
+        );
+      }
+    }
+
+    // Create availabilities to match common test mission schedules
+    // This ensures missions can be created successfully (they must fall within availabilities)
+    const availabilities = [
+      // Monday 9am-12pm (180 min) - covers Monday 9am missions with 120 min duration
+      {
+        duration_mn: 180,
+        rrule:
+          'DTSTART:20250601T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20251231T180000Z',
+      },
+      // Wednesday 2pm-5pm (180 min) - covers Wednesday 2pm missions with 180 min duration
+      {
+        duration_mn: 180,
+        rrule:
+          'DTSTART:20250601T140000Z\nRRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20251231T180000Z',
+      },
+      // Daily availability for one-time missions (covers June 1st, 2025)
+      {
+        duration_mn: 240,
+        rrule:
+          'DTSTART:20250601T080000Z\nRRULE:FREQ=DAILY;UNTIL=20251231T180000Z',
+      },
+    ];
+
+    for (const availability of availabilities) {
+      const { error: availabilityError } = await this.adminClient
+        .from('availabilities')
+        .insert({
+          duration_mn: availability.duration_mn,
+          rrule: availability.rrule,
+          user_id: professional.professionalId,
+        });
+
+      if (availabilityError) {
+        throw new Error(
+          `Failed to create availability: ${availabilityError?.message}`
         );
       }
     }

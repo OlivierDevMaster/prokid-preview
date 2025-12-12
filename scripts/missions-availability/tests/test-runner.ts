@@ -6,6 +6,7 @@ import './date-range-constraints.test.ts';
 import './edge-cases.test.ts';
 import './long-duration.test.ts';
 import './multiple-schedules.test.ts';
+import './one-time-mission.test.ts';
 import './overlapping-availabilities.test.ts';
 import './rrule-frequencies.test.ts';
 import './time-boundaries.test.ts';
