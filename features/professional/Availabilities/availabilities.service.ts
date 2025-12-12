@@ -1,6 +1,6 @@
 import { differenceInDays, format } from 'date-fns';
 import { parseISO } from 'date-fns';
-import { RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
 
@@ -30,24 +30,24 @@ export async function deleteAvailabilityBySlot(
 
   // Parse the slot start date and time
   const slotStartDate = parseISO(slot.startAt);
+  const slotStartMinutes =
+    slotStartDate.getHours() * 60 + slotStartDate.getMinutes();
 
-  // First, check if this slot is from a recurring availability
-  // Find recurring availabilities that match this slot
-  const { data: recurringAvailabilities, error: recurringError } =
-    await supabase
-      .from('availabilities')
-      .select('id, rrule, duration_mn')
-      .eq('user_id', userId)
-      .eq('duration_mn', slot.durationMn)
-      .like('rrule', '%FREQ=WEEKLY%');
+  // Get all availabilities for this user with matching duration
+  const { data: allAvailabilities, error: fetchError } = await supabase
+    .from('availabilities')
+    .select('id, rrule, duration_mn, dtstart')
+    .eq('user_id', userId)
+    .eq('duration_mn', slot.durationMn);
 
-  if (recurringError) {
-    throw new Error(
-      `Failed to find recurring availabilities: ${recurringError.message}`
-    );
+  if (fetchError) {
+    throw new Error(`Failed to fetch availabilities: ${fetchError.message}`);
   }
 
-  // Check if this slot matches a recurring availability
+  if (!allAvailabilities || allAvailabilities.length === 0) {
+    throw new Error('No availability found for this slot');
+  }
+
   const slotDayOfWeek = slotStartDate.getDay();
   const dayMap: Record<string, number> = {
     FR: 5,
@@ -59,14 +59,70 @@ export async function deleteAvailabilityBySlot(
     WE: 3,
   };
 
+  // Case 1: Check if this slot is from a recurring availability (occurrence)
+  // Find recurring availabilities that match this slot
+  const recurringAvailabilities = allAvailabilities.filter(
+    av => av.rrule && av.rrule.includes('FREQ=WEEKLY')
+  );
+
   let matchingRecurring = null;
-  if (recurringAvailabilities && recurringAvailabilities.length > 0) {
-    for (const availability of recurringAvailabilities) {
+  for (const availability of recurringAvailabilities) {
+    try {
+      // Parse RRULE to check if this date is already excluded
+      const rule = rrulestr(availability.rrule);
+
+      // Check if this date is already excluded via EXDATE
+      let isExcluded = false;
+      if (rule instanceof RRuleSet) {
+        const exdates = rule.exdates();
+        const slotDateOnly = new Date(slotStartDate);
+        slotDateOnly.setHours(0, 0, 0, 0);
+        isExcluded = exdates.some(exdate => {
+          const exdateDate = new Date(exdate);
+          exdateDate.setHours(0, 0, 0, 0);
+          return exdateDate.getTime() === slotDateOnly.getTime();
+        });
+      }
+
+      // If already excluded, skip this recurring availability
+      if (isExcluded) continue;
+
+      // Check if day of week matches
       const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
       if (!bydayMatch) continue;
 
       const rruleDay = bydayMatch[1];
       if (dayMap[rruleDay] !== slotDayOfWeek) continue;
+
+      // Check if time matches
+      const ruleDtstart = rule.options.dtstart;
+      if (!ruleDtstart) continue;
+
+      const ruleHour = ruleDtstart.getUTCHours();
+      const ruleMinute = ruleDtstart.getUTCMinutes();
+      const rruleStartMinutes = ruleHour * 60 + ruleMinute;
+
+      const timeDiff = Math.abs(slotStartMinutes - rruleStartMinutes);
+      if (timeDiff <= 15) {
+        matchingRecurring = availability;
+        break;
+      }
+    } catch {
+      // If parsing fails, fallback to regex matching
+      const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
+      if (!bydayMatch) continue;
+
+      const rruleDay = bydayMatch[1];
+      if (dayMap[rruleDay] !== slotDayOfWeek) continue;
+
+      // Check if this date is already excluded
+      const exdateMatch = availability.rrule.match(/EXDATE:([^\n]+)/);
+      if (exdateMatch) {
+        const exdates = exdateMatch[1].split(',');
+        const slotDateStr = format(slotStartDate, 'yyyyMMdd');
+        const isExcluded = exdates.some(exdate => exdate.includes(slotDateStr));
+        if (isExcluded) continue;
+      }
 
       const dtstartMatch = availability.rrule.match(
         /DTSTART:(\d{8})T(\d{2})(\d{2})/
@@ -76,8 +132,6 @@ export async function deleteAvailabilityBySlot(
       const rruleHour = parseInt(dtstartMatch[2], 10);
       const rruleMinute = parseInt(dtstartMatch[3], 10);
       const rruleStartMinutes = rruleHour * 60 + rruleMinute;
-      const slotStartMinutes =
-        slotStartDate.getHours() * 60 + slotStartDate.getMinutes();
 
       const timeDiff = Math.abs(slotStartMinutes - rruleStartMinutes);
       if (timeDiff <= 15) {
@@ -87,7 +141,7 @@ export async function deleteAvailabilityBySlot(
     }
   }
 
-  // If it's a recurring availability, add EXDATE instead of deleting
+  // Case 1: If it's a recurring availability, add EXDATE for this specific date only
   if (matchingRecurring) {
     await addExdateForDay(
       supabase,
@@ -98,48 +152,68 @@ export async function deleteAvailabilityBySlot(
     return;
   }
 
-  // For one-time availabilities, delete them
-  // Create a time window (1 minute before and after) to account for potential timezone/rounding issues
-  const slotStartMinus1Min = new Date(slotStartDate.getTime() - 60 * 1000);
-  const slotStartPlus1Min = new Date(slotStartDate.getTime() + 60 * 1000);
+  // Case 2: Check if this slot is from a one-time availability (single day)
+  // Find one-time availabilities (COUNT=1 in RRULE)
+  const oneTimeAvailabilities = allAvailabilities.filter(
+    av => av.rrule && av.rrule.includes('COUNT=1')
+  );
 
-  // Find availabilities that match this slot
-  // For one-time availabilities, we match by dtstart (within 1 minute window), duration, and user
-  const { data: availabilities, error: findError } = await supabase
-    .from('availabilities')
-    .select('id, dtstart, duration_mn, rrule')
-    .eq('user_id', userId)
-    .eq('duration_mn', slot.durationMn)
-    .gte('dtstart', slotStartMinus1Min.toISOString())
-    .lte('dtstart', slotStartPlus1Min.toISOString());
+  // Find exact matches for one-time availabilities
+  const matchingOneTime = oneTimeAvailabilities.filter(av => {
+    if (!av.rrule) return false;
 
-  if (findError) {
+    let dtstartToCompare: Date | null = null;
+
+    try {
+      // Try to parse the RRULE to extract dtstart
+      const rule = rrulestr(av.rrule);
+      dtstartToCompare = rule.options.dtstart || null;
+    } catch {
+      // If parsing fails, try to extract DTSTART from RRULE string using regex
+      const dtstartMatch = av.rrule.match(
+        /DTSTART:(\d{8})T(\d{2})(\d{2})(\d{2})?/
+      );
+      if (dtstartMatch) {
+        const year = parseInt(dtstartMatch[1].substring(0, 4), 10);
+        const month = parseInt(dtstartMatch[1].substring(4, 6), 10) - 1; // Month is 0-indexed
+        const day = parseInt(dtstartMatch[1].substring(6, 8), 10);
+        const hour = parseInt(dtstartMatch[2], 10);
+        const minute = parseInt(dtstartMatch[3], 10);
+        dtstartToCompare = new Date(
+          Date.UTC(year, month, day, hour, minute, 0)
+        );
+      }
+    }
+
+    // If we still don't have dtstart, try to use dtstart from database as fallback
+    if (!dtstartToCompare && av.dtstart) {
+      try {
+        dtstartToCompare = parseISO(av.dtstart);
+      } catch {
+        return false;
+      }
+    }
+
+    // If we still don't have a valid dtstart, skip this availability
+    if (!dtstartToCompare) {
+      return false;
+    }
+
+    // Compare dates and times (within 15 minutes tolerance)
+    const dateDiff = Math.abs(
+      dtstartToCompare.getTime() - slotStartDate.getTime()
+    );
+    return dateDiff <= 15 * 60 * 1000; // Within 15 minutes
+  });
+
+  if (matchingOneTime.length === 0) {
     throw new Error(
-      `Failed to find availability for slot: ${findError.message}`
+      'No matching availability found for this slot. It may already be deleted or excluded.'
     );
   }
 
-  if (!availabilities || availabilities.length === 0) {
-    throw new Error('No availability found for this slot');
-  }
-
-  // Filter to find exact matches (one-time only, not recurring)
-  const exactMatches = availabilities.filter(av => {
-    // Skip recurring availabilities (they should be handled above)
-    if (av.rrule && av.rrule.includes('FREQ=WEEKLY')) return false;
-
-    if (!av.dtstart) return false;
-    const avDtstart = parseISO(av.dtstart);
-    const timeDiff = Math.abs(avDtstart.getTime() - slotStartDate.getTime());
-    return timeDiff <= 60 * 1000; // Within 1 minute
-  });
-
-  if (exactMatches.length === 0) {
-    throw new Error('No exact availability match found for this slot');
-  }
-
   // Delete all matching one-time availabilities
-  const availabilityIds = exactMatches.map(a => a.id);
+  const availabilityIds = matchingOneTime.map(a => a.id);
 
   const { error: deleteError } = await supabase
     .from('availabilities')
@@ -158,6 +232,12 @@ export async function saveWeekAvailabilities({
 }: SaveWeekAvailabilitiesParams): Promise<void> {
   const supabase = createClient();
 
+  // Calculate week date range
+  const weekStart = weekDays[0];
+  const weekEnd = weekDays[weekDays.length - 1];
+  weekStart.setHours(0, 0, 0, 0);
+  weekEnd.setHours(23, 59, 59, 999);
+
   // Get all recurring availabilities for this user
   const { data: recurringAvailabilities, error: recurringError } =
     await supabase
@@ -169,6 +249,22 @@ export async function saveWeekAvailabilities({
   if (recurringError) {
     throw new Error(
       `Failed to fetch recurring availabilities: ${recurringError.message}`
+    );
+  }
+
+  // Get all one-time availabilities for this user to avoid duplicates
+  // One-time availabilities have COUNT=1 in their RRULE
+  // Note: We don't filter by dtstart here because dtstart may be null in the database
+  // We'll extract dtstart from the RRULE when comparing
+  const { data: oneTimeAvailabilities, error: oneTimeError } = await supabase
+    .from('availabilities')
+    .select('id, rrule, duration_mn, dtstart')
+    .eq('user_id', userId)
+    .like('rrule', '%COUNT=1%');
+
+  if (oneTimeError) {
+    throw new Error(
+      `Failed to fetch one-time availabilities: ${oneTimeError.message}`
     );
   }
 
@@ -229,6 +325,12 @@ export async function saveWeekAvailabilities({
     // Day is enabled: process slots
     // Filter out deleted slots
     const activeSlots = daySchedule.slots.filter(slot => !slot.isDeleted);
+
+    // If no active slots, skip this day (recurrences are already handled above)
+    if (activeSlots.length === 0) {
+      continue;
+    }
+
     const newSlots = activeSlots.map(slot => ({
       durationMn: calculateDurationMinutes(slot.start, slot.end),
       start: slot.start,
@@ -238,33 +340,64 @@ export async function saveWeekAvailabilities({
     // For each recurring availability, check if it should be excluded
     const recurringToExclude: string[] = [];
     for (const recurring of recurringForDay) {
-      // Extract hour and minute from DTSTART
-      const dtstartMatch = recurring.rrule.match(
-        /DTSTART:(\d{8})T(\d{2})(\d{2})/
-      );
-      if (!dtstartMatch) continue;
+      try {
+        // Parse RRULE to get dtstart
+        const rule = rrulestr(recurring.rrule);
+        const ruleDtstart = rule.options.dtstart;
 
-      const rruleHour = parseInt(dtstartMatch[2], 10);
-      const rruleMinute = parseInt(dtstartMatch[3], 10);
-      const rruleStartMinutes = rruleHour * 60 + rruleMinute;
-      const rruleDuration = recurring.duration_mn;
+        let rruleStartMinutes: number;
+        if (ruleDtstart) {
+          const ruleHour = ruleDtstart.getUTCHours();
+          const ruleMinute = ruleDtstart.getUTCMinutes();
+          rruleStartMinutes = ruleHour * 60 + ruleMinute;
+        } else {
+          // Fallback to regex extraction
+          const dtstartMatch = recurring.rrule.match(
+            /DTSTART:(\d{8})T(\d{2})(\d{2})/
+          );
+          if (!dtstartMatch) continue;
+          const rruleHour = parseInt(dtstartMatch[2], 10);
+          const rruleMinute = parseInt(dtstartMatch[3], 10);
+          rruleStartMinutes = rruleHour * 60 + rruleMinute;
+        }
 
-      // Check if this recurring slot exists in the new schedule
-      // Match by start time (within 15 minutes tolerance) and duration
-      const matchingSlot = newSlots.find(slot => {
-        const timeDiff = Math.abs(slot.startMinutes - rruleStartMinutes);
-        return timeDiff <= 15 && slot.durationMn === rruleDuration;
-      });
+        const rruleDuration = recurring.duration_mn;
 
-      if (!matchingSlot) {
-        // Recurring slot is not in new schedule: exclude it for this date
-        recurringToExclude.push(recurring.id);
-        await addExdateForDay(
-          supabase,
-          recurring.id,
-          targetDate,
-          recurring.rrule
-        );
+        // Check if this recurring slot exists in the new schedule
+        // Match by start time (within 15 minutes tolerance) and duration
+        const matchingSlot = newSlots.find(slot => {
+          const timeDiff = Math.abs(slot.startMinutes - rruleStartMinutes);
+          return timeDiff <= 15 && slot.durationMn === rruleDuration;
+        });
+
+        if (!matchingSlot) {
+          // Recurring slot is not in new schedule: exclude it for this date
+          // But first check if it's already excluded
+          let isAlreadyExcluded = false;
+          if (rule instanceof RRuleSet) {
+            const exdates = rule.exdates();
+            const targetDateOnly = new Date(targetDate);
+            targetDateOnly.setHours(0, 0, 0, 0);
+            isAlreadyExcluded = exdates.some(exdate => {
+              const exdateDate = new Date(exdate);
+              exdateDate.setHours(0, 0, 0, 0);
+              return exdateDate.getTime() === targetDateOnly.getTime();
+            });
+          }
+
+          if (!isAlreadyExcluded) {
+            recurringToExclude.push(recurring.id);
+            await addExdateForDay(
+              supabase,
+              recurring.id,
+              targetDate,
+              recurring.rrule
+            );
+          }
+        }
+      } catch {
+        // If parsing fails, skip this recurring
+        continue;
       }
     }
 
@@ -276,37 +409,192 @@ export async function saveWeekAvailabilities({
       const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
 
       // Check if this slot matches a recurring availability that wasn't excluded
+      // Also check if the recurring availability has this date excluded via EXDATE
+      const slotDate = new Date(targetDate);
+      const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
+      slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+      // Check if this slot matches a recurring availability that wasn't excluded
+      // This is critical: if it matches, we should NOT create a one-time availability
       const matchesRecurring = recurringForDay.some(recurring => {
+        // Skip if this recurring was marked for exclusion
         if (recurringToExclude.includes(recurring.id)) return false;
 
-        const dtstartMatch = recurring.rrule.match(
-          /DTSTART:(\d{8})T(\d{2})(\d{2})/
-        );
-        if (!dtstartMatch) return false;
+        try {
+          // Parse the RRULE to check if this date is excluded
+          const rule = rrulestr(recurring.rrule);
 
-        const rruleHour = parseInt(dtstartMatch[2], 10);
-        const rruleMinute = parseInt(dtstartMatch[3], 10);
-        const rruleStartMinutes = rruleHour * 60 + rruleMinute;
-        const rruleDuration = recurring.duration_mn;
+          // Check if this date is excluded via EXDATE
+          // If excluded, this slot should be created as one-time (not part of recurrence)
+          let isExcluded = false;
+          if (rule instanceof RRuleSet) {
+            const exdates = rule.exdates();
+            const slotDateOnly = new Date(slotDate);
+            slotDateOnly.setHours(0, 0, 0, 0);
+            isExcluded = exdates.some(exdate => {
+              const exdateDate = new Date(exdate);
+              exdateDate.setHours(0, 0, 0, 0);
+              return exdateDate.getTime() === slotDateOnly.getTime();
+            });
+          } else {
+            // Check EXDATE in the RRULE string if not a RRuleSet
+            const exdateMatch = recurring.rrule.match(/EXDATE:([^\n]+)/);
+            if (exdateMatch) {
+              const exdates = exdateMatch[1].split(',');
+              const slotDateStr = format(slotDate, 'yyyyMMdd');
+              isExcluded = exdates.some(exdate => exdate.includes(slotDateStr));
+            }
+          }
 
-        const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
-        return timeDiff <= 15 && durationMinutes === rruleDuration;
+          // If excluded, this slot should be created as one-time
+          if (isExcluded) return false;
+
+          // Check if time and duration match
+          const ruleDtstart = rule.options.dtstart;
+          if (!ruleDtstart) {
+            // Try to extract from RRULE string
+            const dtstartMatch = recurring.rrule.match(
+              /DTSTART:(\d{8})T(\d{2})(\d{2})/
+            );
+            if (!dtstartMatch) return false;
+
+            const rruleHour = parseInt(dtstartMatch[2], 10);
+            const rruleMinute = parseInt(dtstartMatch[3], 10);
+            const rruleStartMinutes = rruleHour * 60 + rruleMinute;
+            const rruleDuration = recurring.duration_mn;
+
+            const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+            return timeDiff <= 15 && durationMinutes === rruleDuration;
+          }
+
+          const ruleHour = ruleDtstart.getUTCHours();
+          const ruleMinute = ruleDtstart.getUTCMinutes();
+          const rruleStartMinutes = ruleHour * 60 + ruleMinute;
+          const rruleDuration = recurring.duration_mn;
+
+          const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+          return timeDiff <= 15 && durationMinutes === rruleDuration;
+        } catch {
+          // If parsing fails, fallback to regex matching
+          const dtstartMatch = recurring.rrule.match(
+            /DTSTART:(\d{8})T(\d{2})(\d{2})/
+          );
+          if (!dtstartMatch) return false;
+
+          // Check if this date is in EXDATE
+          const exdateMatch = recurring.rrule.match(/EXDATE:([^\n]+)/);
+          if (exdateMatch) {
+            const exdates = exdateMatch[1].split(',');
+            const slotDateStr = format(slotDate, 'yyyyMMdd');
+            const isExcluded = exdates.some(exdate =>
+              exdate.includes(slotDateStr)
+            );
+            // If excluded, this slot should be created as one-time
+            if (isExcluded) return false;
+          }
+
+          const rruleHour = parseInt(dtstartMatch[2], 10);
+          const rruleMinute = parseInt(dtstartMatch[3], 10);
+          const rruleStartMinutes = rruleHour * 60 + rruleMinute;
+          const rruleDuration = recurring.duration_mn;
+
+          const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+          return timeDiff <= 15 && durationMinutes === rruleDuration;
+        }
       });
 
       // Only create one-time availability if it doesn't match an existing recurrence
+      // and doesn't already exist as a one-time availability
+      // IMPORTANT: If matchesRecurring is true, the slot is already covered by a recurrence
+      // and we should NOT create a one-time availability
       if (!matchesRecurring) {
-        const hour = parseTimeToHour(slot.start);
-        const { error } = await supabase.rpc('create_onetime_availability', {
-          day_offset: dayOffset,
-          duration_minutes: durationMinutes,
-          hour,
-          user_id_param: userId,
+        // Check if this slot already exists as a one-time availability
+        // Use the same logic as deleteAvailabilityBySlot to extract dtstart from RRULE
+        const alreadyExists = oneTimeAvailabilities?.some(oneTime => {
+          if (!oneTime.rrule) return false;
+
+          let dtstartToCompare: Date | null = null;
+
+          try {
+            // Try to parse the RRULE to extract dtstart
+            const rule = rrulestr(oneTime.rrule);
+            dtstartToCompare = rule.options.dtstart || null;
+          } catch {
+            // If parsing fails, try to extract DTSTART from RRULE string using regex
+            const dtstartMatch = oneTime.rrule.match(
+              /DTSTART:(\d{8})T(\d{2})(\d{2})(\d{2})?/
+            );
+            if (dtstartMatch) {
+              const year = parseInt(dtstartMatch[1].substring(0, 4), 10);
+              const month = parseInt(dtstartMatch[1].substring(4, 6), 10) - 1; // Month is 0-indexed
+              const day = parseInt(dtstartMatch[1].substring(6, 8), 10);
+              const hour = parseInt(dtstartMatch[2], 10);
+              const minute = parseInt(dtstartMatch[3], 10);
+              dtstartToCompare = new Date(
+                Date.UTC(year, month, day, hour, minute, 0)
+              );
+            }
+          }
+
+          // If we still don't have dtstart, try to use dtstart from database as fallback
+          if (!dtstartToCompare && oneTime.dtstart) {
+            try {
+              dtstartToCompare = parseISO(oneTime.dtstart);
+            } catch {
+              return false;
+            }
+          }
+
+          // If we still don't have a valid dtstart, skip this availability
+          if (!dtstartToCompare) {
+            return false;
+          }
+
+          // Check if this availability is within the week range
+          const oneTimeDateOnly = new Date(dtstartToCompare);
+          oneTimeDateOnly.setHours(0, 0, 0, 0);
+          const weekStartOnly = new Date(weekStart);
+          weekStartOnly.setHours(0, 0, 0, 0);
+          const weekEndOnly = new Date(weekEnd);
+          weekEndOnly.setHours(23, 59, 59, 999);
+
+          // Skip if outside the week range
+          if (
+            oneTimeDateOnly < weekStartOnly ||
+            oneTimeDateOnly > weekEndOnly
+          ) {
+            return false;
+          }
+
+          // Check if date and time match (within 15 minutes tolerance)
+          const dateDiff = Math.abs(
+            slotDate.getTime() - dtstartToCompare.getTime()
+          );
+          const timeMatch = dateDiff <= 15 * 60 * 1000; // 15 minutes
+          const durationMatch = oneTime.duration_mn === durationMinutes;
+
+          return timeMatch && durationMatch;
         });
 
-        if (error) {
-          throw new Error(
-            `Failed to create availability for ${dayKey}: ${error.message}`
+        // Only create if it doesn't already exist
+        if (!alreadyExists) {
+          const hour = parseTimeToHour(slot.start);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error } = await (supabase.rpc as any)(
+            'create_onetime_availability',
+            {
+              day_offset: dayOffset,
+              duration_minutes: durationMinutes,
+              hour,
+              user_id_param: userId,
+            }
           );
+
+          if (error) {
+            throw new Error(
+              `Failed to create availability for ${dayKey}: ${error.message}`
+            );
+          }
         }
       }
     }
@@ -340,49 +628,72 @@ export async function stopRecurrenceForSlot(
     );
   }
 
+  console.info({ recurringAvailabilities, slot, slotStartDate });
   if (!recurringAvailabilities || recurringAvailabilities.length === 0) {
     throw new Error('No recurring availability found for this slot');
   }
 
   // Find the recurring availability that matches this slot's day and time
   const slotDayOfWeek = slotStartDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const dayMap: Record<string, number> = {
-    FR: 5,
-    MO: 1,
-    SA: 6,
-    SU: 0,
-    TH: 4,
-    TU: 2,
-    WE: 3,
-  };
 
-  // Find matching recurring availability
+  // Find matching recurring availability using RRule
   let matchingAvailability = null;
   for (const availability of recurringAvailabilities) {
-    // Parse RRULE to get BYDAY
-    const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
-    if (!bydayMatch) continue;
+    try {
+      // Parse the RRULE using rrulestr
+      const rule = rrulestr(availability.rrule);
 
-    const rruleDay = bydayMatch[1];
-    if (dayMap[rruleDay] !== slotDayOfWeek) continue;
+      // Check if it's a weekly recurrence
+      if (rule.options.freq !== 2) continue; // 2 = WEEKLY
 
-    // Extract hour from DTSTART
-    const dtstartMatch = availability.rrule.match(
-      /DTSTART:(\d{8})T(\d{2})(\d{2})/
-    );
-    if (!dtstartMatch) continue;
+      // Check if the slot date matches the recurrence pattern
+      // Get the day of week from the rule's byweekday
+      const ruleByWeekday = rule.options.byweekday;
+      if (!ruleByWeekday) continue;
 
-    const rruleHour = parseInt(dtstartMatch[2], 10);
-    const rruleMinute = parseInt(dtstartMatch[3], 10);
-    const rruleStartMinutes = rruleHour * 60 + rruleMinute;
-    const slotStartMinutes =
-      slotStartDate.getHours() * 60 + slotStartDate.getMinutes();
+      // Convert RRule weekday to JavaScript day of week
+      // RRule: MO=0, TU=1, WE=2, TH=3, FR=4, SA=5, SU=6
+      // JavaScript: SU=0, MO=1, TU=2, WE=3, TH=4, FR=5, SA=6
+      let rruleWeekdayNum: number;
+      if (Array.isArray(ruleByWeekday)) {
+        if (ruleByWeekday.length === 0) continue;
+        const firstWeekday = ruleByWeekday[0];
+        rruleWeekdayNum =
+          typeof firstWeekday === 'number'
+            ? firstWeekday
+            : (firstWeekday as { weekday: number }).weekday;
+      } else {
+        rruleWeekdayNum =
+          typeof ruleByWeekday === 'number'
+            ? ruleByWeekday
+            : (ruleByWeekday as { weekday: number }).weekday;
+      }
 
-    // Check if time matches (within 15 minutes tolerance)
-    const timeDiff = Math.abs(slotStartMinutes - rruleStartMinutes);
-    if (timeDiff <= 15) {
-      matchingAvailability = availability;
-      break;
+      // Convert RRule weekday to JS day: RRule MO(0) -> JS MO(1), etc.
+      const jsDayOfWeek = rruleWeekdayNum === 6 ? 0 : rruleWeekdayNum + 1;
+
+      if (jsDayOfWeek !== slotDayOfWeek) continue;
+
+      // Check if time matches (within 15 minutes tolerance)
+      const ruleDtstart = rule.options.dtstart || new Date();
+      const ruleHour = ruleDtstart.getUTCHours();
+      const ruleMinute = ruleDtstart.getUTCMinutes();
+      const ruleStartMinutes = ruleHour * 60 + ruleMinute;
+      const slotStartMinutes =
+        slotStartDate.getHours() * 60 + slotStartDate.getMinutes();
+
+      const timeDiff = Math.abs(slotStartMinutes - ruleStartMinutes);
+      if (timeDiff <= 15) {
+        matchingAvailability = availability;
+        break;
+      }
+    } catch (parseError) {
+      // Skip invalid RRULEs
+      console.error(
+        `Error parsing RRULE for availability ${availability.id}:`,
+        parseError
+      );
+      continue;
     }
   }
 
@@ -390,33 +701,53 @@ export async function stopRecurrenceForSlot(
     throw new Error('No matching recurring availability found for this slot');
   }
 
-  // Check if this date is already excluded
-  const exdateMatch = matchingAvailability.rrule.match(/EXDATE:([^\n]+)/);
-  if (exdateMatch) {
-    const exdates = exdateMatch[1].split(',');
-    const dateStr =
-      slotStartDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const isAlreadyExcluded = exdates.some(exdate =>
-      exdate.includes(dateStr.substring(0, 8))
-    );
-    if (isAlreadyExcluded) {
-      throw new Error('This date is already excluded from the recurrence');
+  // Stop the recurrence by setting UNTIL to the day before the slot date
+  // This ensures the slot date itself is excluded
+  const stopDate = new Date(slotStartDate);
+  stopDate.setDate(stopDate.getDate() - 1);
+  stopDate.setHours(23, 59, 59, 999); // End of the day before
+
+  // Parse the existing RRULE
+  const rule = rrulestr(matchingAvailability.rrule);
+
+  // Create new RRule options with until set to stop date
+  // Preserve all existing options except until
+  const newRuleOptions = {
+    ...rule.options,
+    until: stopDate,
+  };
+
+  // Create new RRule with updated options
+  const newRule = new RRule(newRuleOptions);
+
+  // If the original rule had EXDATE, preserve them using RRuleSet
+  let newRruleString: string;
+  if (matchingAvailability.rrule.includes('EXDATE')) {
+    const rruleSet = new RRuleSet();
+    rruleSet.rrule(newRule);
+
+    // Parse original rule to get EXDATEs
+    const originalRuleSet = rrulestr(matchingAvailability.rrule);
+    if (originalRuleSet instanceof RRuleSet) {
+      const exdates = originalRuleSet.exdates();
+      for (const exdate of exdates) {
+        rruleSet.exdate(exdate);
+      }
     }
+
+    newRruleString = rruleSet.toString();
+  } else {
+    newRruleString = newRule.toString();
   }
 
-  // Add EXDATE using RPC function
-  // Note: TypeScript types may not include this function yet
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: exdateError } = await (supabase.rpc as any)(
-    'add_exdate_to_recurring_availability',
-    {
-      availability_id_param: matchingAvailability.id,
-      date_to_exclude: slotStartDate.toISOString(),
-    }
-  );
+  // Update the availability with the new RRULE
+  const { error: updateError } = await supabase
+    .from('availabilities')
+    .update({ rrule: newRruleString })
+    .eq('id', matchingAvailability.id);
 
-  if (exdateError) {
-    throw new Error(`Failed to stop recurrence: ${exdateError.message}`);
+  if (updateError) {
+    throw new Error(`Failed to stop recurrence: ${updateError.message}`);
   }
 }
 

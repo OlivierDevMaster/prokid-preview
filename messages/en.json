@@ -35,7 +35,8 @@
       "addSlot": "Add a slot",
       "add": "Add",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "ok": "OK"
     },
     "messages": {
       "loading": "Loading...",
@@ -475,7 +476,11 @@
       "deleteSlotConfirm": "Are you sure you want to delete this availability slot?",
       "cannotDeleteBooked": "Cannot delete a booked slot",
       "deleteError": "An error occurred while deleting the slot",
-      "deleteSuccess": "Slot deleted successfully"
+      "deleteSuccess": "Slot deleted successfully",
+      "notRecurrenceTitle": "This slot does not come from a recurrence",
+      "notRecurrenceMessage": "This slot does not come from a recurrence. Only recurring slots can have their recurrence stopped.",
+      "errorTitle": "An error occurred",
+      "errorMessage": "An error occurred while stopping the recurrence"
     },
     "report": {
       "title": "Create a report",

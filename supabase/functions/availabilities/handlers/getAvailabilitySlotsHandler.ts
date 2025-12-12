@@ -247,20 +247,20 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
               isAvailable,
               mission:
                 overlappingMission && overlappingSchedule
-                  ? ({
+                  ? {
                       created_at: overlappingMission.created_at,
                       description: overlappingMission.description,
-                      dtstart: overlappingSchedule.dtstart,
-                      duration_mn: overlappingSchedule.duration_mn,
+                      // duration_mn: overlappingSchedule.duration_mn,
                       id: overlappingMission.id,
+                      mission_dtstart: overlappingSchedule.dtstart ?? '',
+                      mission_until: overlappingSchedule.until ?? '',
                       professional_id: overlappingMission.professional_id,
-                      rrule: overlappingSchedule.rrule,
+                      // rrule: overlappingSchedule.rrule,
                       status: overlappingMission.status,
                       structure_id: overlappingMission.structure_id,
                       title: overlappingMission.title,
-                      until: overlappingSchedule.until,
                       updated_at: overlappingMission.updated_at,
-                    } as any)
+                    }
                   : null,
               startAt: slotStartAt,
             });
