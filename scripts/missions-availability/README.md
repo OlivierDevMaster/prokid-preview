@@ -35,115 +35,174 @@ Validates that all mission schedule occurrences fall within at least one profess
 
 ## Test Suite
 
-The test suite includes 34 comprehensive test cases covering various scenarios:
+The test suite includes **43 comprehensive test cases** covering various scenarios. Below is a detailed breakdown of test coverage, organized by category.
 
-### Basic Validation Cases
+### Test Coverage Status
 
-1. **should validate mission fully within single availability**
-   - Tests that a mission occurrence completely within an availability is valid
-   - Mission: Every Monday 10am-11am within Availability: Every Monday 9am-12pm
+- ✓ = **Covered** - Test case exists and is passing
+- ✗ = **Not Covered** - Test case does not exist yet
 
-2. **should reject mission that starts before availability**
-   - Tests that a mission starting before availability start time is rejected
-   - Mission: Every Monday 9am-11am vs Availability: Every Monday 10am-12pm
+## Test Coverage
 
-3. **should reject mission that ends after availability**
-   - Tests that a mission ending after availability end time is rejected
-   - Mission: Every Monday 9am-12pm vs Availability: Every Monday 9am-11am
+### 1. Basic Validation Cases
 
-4. **should validate mission at exact availability boundaries**
-   - Tests that a mission matching availability exactly is valid
-   - Mission: Every Monday 9am-12pm matches Availability: Every Monday 9am-12pm
+- ✓ **should validate mission fully within single availability** - Mission occurrence completely within an availability
+- ✓ **should reject mission that starts before availability** - Mission starting before availability start time
+- ✓ **should reject mission that ends after availability** - Mission ending after availability end time
+- ✓ **should validate mission at exact availability boundaries** - Mission matching availability exactly
+- ✓ **should validate mission schedule at start of availability window** - Mission at the beginning of availability
+- ✓ **should validate mission schedule in middle of availability window** - Mission in the middle of availability
+- ✓ **should validate mission schedule at end of availability window** - Mission at the end of availability
 
-### Multiple Schedules and Availabilities
+### 2. Multiple Schedules and Availabilities
 
-5. **should validate mission with multiple schedules against multiple availabilities**
-   - Tests validation with multiple mission schedules and multiple availabilities
-   - Schedule 1: Every Monday 10am-11am (covered by Availability 1)
-   - Schedule 2: Every Wednesday 15pm-16pm (covered by Availability 2)
+- ✓ **should validate mission with multiple schedules against multiple availabilities** - Multiple schedules with multiple availabilities
+- ✓ **should reject mission if one schedule is not covered** - Validation fails if any schedule is uncovered
 
-6. **should reject mission if one schedule is not covered**
-   - Tests that if any schedule is not covered, validation fails
-   - Schedule 1: Every Monday 10am-11am (covered)
-   - Schedule 2: Every Tuesday 10am-11am (not covered)
+### 3. Overlapping and Multi-Availability Coverage
 
-### Overlapping Availabilities
+- ✓ **should validate mission covered by overlapping availabilities** - Mission covered by overlapping availabilities
+- ✓ **should validate mission schedule covered by multiple consecutive availabilities** - Mission 7am-10am covered by 7am-8am + 8am-10am
+- ✓ **should validate mission schedule covered by multiple overlapping availabilities** - Mission covered by overlapping time ranges
+- ✓ **should reject mission schedule partially covered by multiple availabilities** - Mission not fully covered by combination
+- ✓ **should validate mission schedule covered by three consecutive availabilities** - Mission covered by three consecutive slots
+- ✓ **should reject mission schedule with partial coverage across availabilities** - Gaps in multi-availability coverage
+- ✓ **should validate mission schedule with gap between availabilities** - Mission fits in one availability despite gaps
+- ✓ **should reject mission schedule spanning gap between availabilities** - Mission spans gap between availabilities
+- ✓ **should validate multiple mission schedules with complex availability patterns** - Multiple schedules with complex patterns
+- ✓ **should validate complex scenario with many schedules and many availabilities** - Large-scale scenario
+- ✓ **should reject when one schedule in complex scenario is not covered** - One failure in complex scenario
 
-7. **should validate mission covered by overlapping availabilities**
-   - Tests that a mission can be covered by overlapping availabilities
-   - Availability 1: Every Monday 9am-12pm
-   - Availability 2: Every Monday 10am-13pm (overlaps)
-   - Mission: Every Monday 11am-12pm (covered by both)
+### 4. Date Range Constraints
 
-### Date Range Constraints
+- ✓ **should validate mission within availability date range** - Mission within availability's date range
+- ✓ **should reject mission outside availability date range** - Mission extending beyond availability date range
 
-8. **should validate mission within availability date range**
-   - Tests validation when availability has a specific date range
-   - Availability: Every Monday 9am-12pm, valid until end of January
-   - Mission: Every Monday 10am-11am, within mission date range
+### 5. Availability Exceptions (UNTIL/EXDATE)
 
-9. **should reject mission outside availability date range**
-   - Tests that missions extending beyond availability date range are rejected
-   - Availability: Every Monday 9am-12pm, valid until Jan 15
-   - Mission: Every Monday 10am-11am, extends to Jan 29
+- ✓ **should reject mission when availability UNTIL stops mid-mission** - Availability stops before mission ends
+- ✓ **should reject mission when availability has EXDATE during mission period** - Availability excludes dates during mission
+- ✓ **should validate mission when availability EXDATE is outside mission period** - EXDATE doesn't affect mission period
+- ✓ **should reject mission when one availability stops early in multi-availability scenario** - One availability stops early
+- ✓ **should reject mission when availability has multiple EXDATEs during mission period** - Multiple excluded dates
+- ✓ **should validate mission when availability UNTIL extends beyond mission period** - Availability extends beyond mission
+- ✓ **should reject mission when availability with EXDATE creates gap in multi-availability coverage** - EXDATE creates coverage gap
+- ✓ **should validate mission when availability has EXDATE but other availabilities cover it** - Other availabilities compensate
+- ✓ **should reject mission when availability UNTIL creates partial coverage** - UNTIL causes partial coverage
 
-### Edge Cases
+### 6. Edge Cases and Error Handling
 
-10. **should reject mission when no availabilities provided**
-    - Tests that missions are rejected when no availabilities exist
-    - Empty availabilities array
+- ✓ **should reject mission when no availabilities provided** - Empty availabilities array
+- ✓ **should handle empty mission schedules array** - Empty schedules array is valid
+- ✓ **should throw error for invalid mission date range** - End date before start date
+- ✓ **should throw error for invalid RRULE in mission schedule** - Invalid RRULE format in schedule
+- ✓ **should skip invalid availability RRULEs and continue validation** - Invalid availability RRULEs are skipped
 
-11. **should handle empty mission schedules array**
-    - Tests that empty mission schedules array is valid
-    - No schedules to validate
+### 7. RRULE Frequencies
 
-12. **should throw error for invalid mission date range**
-    - Tests error handling for invalid date ranges
-    - End date before start date
+- ✓ **should validate daily mission against daily availability** - Daily recurring patterns
+- ✓ **should validate mission with multiple days per week** - Multiple weekdays (MO, WE, FR)
+- ✗ **Monthly frequency (MONTHLY)** - Mission/availability on same day each month
+- ✗ **Yearly frequency (YEARLY)** - Mission/availability on same date each year
+- ✗ **Hourly frequency (HOURLY)** - Recurring hourly patterns
+- ✗ **Different intervals (INTERVAL=2, INTERVAL=3, etc.)** - Bi-weekly, every 3 weeks, etc.
 
-13. **should throw error for invalid RRULE in mission schedule**
-    - Tests error handling for invalid RRULE strings
-    - Invalid RRULE format
+### 8. RRULE BY* Modifiers
 
-14. **should skip invalid availability RRULEs and continue validation**
-    - Tests that invalid availability RRULEs are skipped gracefully
-    - One valid and one invalid availability
+- ✗ **BYMONTH** - Specific months (e.g., only January, March, May)
+- ✗ **BYMONTHDAY** - Specific days of month (e.g., 1st, 15th, last day)
+- ✗ **BYWEEKNO** - Specific week numbers
+- ✗ **BYYEARDAY** - Specific days of year
+- ✗ **BYSETPOS** - Position in set (e.g., first Monday of month, last Friday)
+- ✗ **Complex BY* combinations** - e.g., first Monday of every month, last Friday of quarter
 
-### Different RRULE Frequencies
+### 9. Time Boundary Cases
 
-15. **should validate daily mission against daily availability**
-    - Tests validation with daily recurring patterns
-    - Daily availability and daily mission
+- ✓ **should validate mission that starts exactly at availability start** - Exact boundary at start
+- ✓ **should validate mission that ends exactly at availability end** - Exact boundary at end
+- ✓ **should reject mission that extends 1 minute past availability** - 1 minute over boundary
+- ✗ **Sub-minute boundaries** - Milliseconds, seconds precision
+- ✗ **Zero-duration missions** - Should be rejected
+- ✗ **Very short durations** - 1 minute, 30 seconds
+- ✗ **Mission exactly 1 second before/after availability** - Second-level precision
 
-16. **should validate mission with multiple days per week**
-    - Tests validation with multiple weekdays
-    - Availability: Monday, Wednesday, Friday 9am-12pm
-    - Mission: Monday, Wednesday 10am-11am
+### 10. Long-Duration Scenarios
 
-### Time Boundary Cases
+- ✗ **Overnight missions** - e.g., 23:00-01:00 (spans midnight)
+- ✗ **Multi-day missions** - Mission spanning 24+ hours
+- ✗ **Multi-day availabilities** - Availability spanning 24+ hours
+- ✗ **Very long durations** - 8+ hour missions/availabilities
 
-17. **should validate mission that starts exactly at availability start**
-    - Tests exact boundary condition at start time
-    - Mission start time equals availability start time
+### 11. Mission Schedule EXDATE/UNTIL
 
-18. **should validate mission that ends exactly at availability end**
-    - Tests exact boundary condition at end time
-    - Mission end time equals availability end time
+- ✗ **Mission schedule with EXDATE** - Should it be rejected or handled?
+- ✗ **Mission schedule with UNTIL different from mission until** - Edge case behavior
 
-19. **should reject mission that extends 1 minute past availability**
-    - Tests strict boundary enforcement
-    - Mission duration 1 minute longer than availability
+### 12. RRULESet with Multiple RRULE Lines
 
-### Violation Details
+- ✗ **Availability with multiple RRULE patterns** - e.g., Monday 9am-12pm AND Wednesday 2pm-5pm in one availability
+- ✗ **Mission schedule with multiple RRULE patterns** - If allowed
 
-20. **should provide detailed violation information**
-    - Tests that violations include detailed information
-    - Violation includes: schedule index, start time, end time, and reason
+### 13. Time Zone and DST
 
-21. **should constrain mission schedule RRULE by mission date range**
-    - Tests that RRULEs extending beyond mission date range are properly constrained
-    - Verifies constraint behavior matches database storage logic
-    - Mission RRULE extends to Dec 31, but mission ends Jan 31 - only Jan occurrences are validated
+- ✗ **Different time zones** - Mission in UTC, availability in EST
+- ✗ **Daylight saving transitions** - DST start/end
+- ✗ **Time zone offsets** - +05:30, -08:00, etc.
+
+### 14. Complex Multi-Availability Gaps
+
+- ✗ **Mission spanning 3+ consecutive availabilities with small gaps** - More complex gap scenarios
+- ✗ **Overlapping availabilities with different frequencies** - e.g., daily + weekly
+- ✗ **Partial overlap scenarios** - Mission partially in one availability, partially in another
+
+### 15. Edge Date Scenarios
+
+- ✗ **Mission starting exactly at availability start date** - Date-level boundary
+- ✗ **Mission ending exactly at availability end date** - Date-level boundary
+- ✗ **Availability starting after mission starts but before mission ends** - Partial date overlap
+- ✗ **Availability ending before mission ends but after mission starts** - Partial date overlap
+
+### 16. Performance/Stress Tests
+
+- ✗ **Many schedules (50+) against many availabilities (50+)** - Large-scale performance
+- ✗ **Very long date ranges** - Mission spanning 1+ year
+- ✗ **Many occurrences** - Daily mission for 6 months
+
+### 17. Invalid/Malformed RRULE Handling
+
+- ✓ **Invalid RRULE in mission schedule** - Throws error (covered)
+- ✓ **Invalid RRULE in availability** - Skipped gracefully (covered)
+- ✗ **Missing DTSTART in RRULE string** - Edge case handling
+- ✗ **Invalid BY* combinations** - Conflicting modifiers
+- ✗ **Conflicting RRULE options** - Invalid option combinations
+- ✗ **Malformed EXDATE formats** - Invalid EXDATE strings
+
+### 18. Special Calendar Cases
+
+- ✗ **Leap year dates (Feb 29)** - Leap year handling
+- ✗ **Month-end boundaries** - Mission on 31st when month has 30 days
+- ✗ **Week boundaries** - Mission crossing week boundaries
+
+### 19. Real-World Scenarios
+
+- ✗ **Teacher availability** - Monday-Friday 8am-4pm, mission Monday 9am-3pm
+- ✗ **Shift work** - 12-hour shifts, overnight coverage
+- ✗ **Part-time patterns** - Monday/Wednesday/Friday only
+- ✗ **Holiday exceptions** - Availability with many EXDATEs for holidays
+
+### 20. Validation Error Details
+
+- ✓ **should provide detailed violation information** - Violation details included
+- ✗ **Violation messages for specific failure types** - Different message types
+- ✗ **Multiple violations for same schedule** - All occurrences reported
+- ✗ **Violation ordering** - Chronological or by schedule index
+
+### 21. Constraint Edge Cases
+
+- ✓ **should constrain mission schedule RRULE by mission date range** - Basic constraint (covered)
+- ✗ **Mission schedule RRULE with UNTIL before mission start** - Edge case
+- ✗ **Mission schedule RRULE with DTSTART after mission end** - Edge case
+- ✗ **Constrained RRULE producing zero occurrences** - Edge case
 
 ## Running Tests
 
@@ -161,7 +220,8 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`basic-validation.test.ts`** - Basic validation cases (7 tests)
 - **`multiple-schedules.test.ts`** - Multiple schedules and availabilities (2 tests)
 - **`overlapping-availabilities.test.ts`** - Overlapping availabilities (1 test)
-- **`complex-multi-availability.test.ts`** - Complex real-world scenarios with multiple schedules and multiple availabilities (9 tests)
+- **`complex-multi-availability.test.ts`** - Complex real-world scenarios with multiple schedules and multiple availabilities (10 tests)
+- **`availability-exceptions.test.ts`** - Availability UNTIL/EXDATE scenarios (9 tests)
 - **`date-range-constraints.test.ts`** - Date range constraints (2 tests)
 - **`edge-cases.test.ts`** - Edge cases and error handling (5 tests)
 - **`rrule-frequencies.test.ts`** - Different RRULE frequencies (2 tests)
@@ -169,6 +229,8 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`violation-details.test.ts`** - Violation details (1 test)
 - **`constraint-behavior.test.ts`** - RRULE constraint behavior (1 test)
 - **`test-runner.ts`** - Main test runner that executes all tests
+
+**Total: 43 tests currently implemented**
 
 You can also run individual test files if needed:
 
