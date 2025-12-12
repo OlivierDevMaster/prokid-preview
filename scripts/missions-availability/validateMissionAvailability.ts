@@ -211,6 +211,7 @@ function checkOccurrenceCoverage(
  * - If the original UNTIL is after missionUntil or doesn't exist: constrains to missionUntil (prevents schedules from extending beyond mission)
  *
  * DTSTART constraint:
+ * - If DTSTART is missing from the RRULE string: sets to missionDtstart (rrule library defaults to current date/time, which we override)
  * - If the original DTSTART is before missionDtstart: constrains to missionDtstart with original time preserved (schedules can't start before mission)
  * - If the original DTSTART is after missionDtstart or equals it: preserves the original DTSTART (schedules can start later)
  *
@@ -231,8 +232,17 @@ function constrainRRULEByDates(
   const parseableRRULE = extractParseableRRULE(rrule);
   const rule = rrulestr(parseableRRULE);
 
+  // Check if DTSTART was explicitly provided in the RRULE string
+  // If not, the rrule library defaults it to current date/time, which we should override
+  const hasExplicitDtstart = rrule
+    .split('\n')
+    .some(line => line.trim().startsWith('DTSTART:'));
+
   // Get original DTSTART from the rule
-  const originalDtstart = rule.options.dtstart || new Date();
+  // If DTSTART was missing from the string, use missionDtstart instead of the library's default
+  const originalDtstart = hasExplicitDtstart
+    ? rule.options.dtstart || new Date()
+    : missionDtstart;
 
   // Determine the new DTSTART:
   // - If original DTSTART is before missionDtstart, use missionDtstart (constrain to mission start)

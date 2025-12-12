@@ -345,3 +345,48 @@ test('should preserve DTSTART when schedule starts exactly at mission start', ()
   assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });
+
+test('should set DTSTART to mission start when DTSTART is missing from RRULE string', () => {
+  // Availability: Every Monday 00:00-12:00 (covers midnight to noon)
+  // When DTSTART is missing, it's set to missionDtstart (00:00:00), so availability must cover that time
+  const availability: ProfessionalAvailability = {
+    duration_mn: 720, // 12 hours: 00:00 to 12:00
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T00:00:00Z'),
+      new Date('2024-01-31T00:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 1 hour, no DTSTART in RRULE string
+  // Create RRULE without DTSTART line (only RRULE line)
+  const missionRRULE = new RRule({
+    byweekday: [RRule.MO],
+    freq: RRule.WEEKLY,
+    // No dtstart - rrule library will default to current date, but we should override to mission start
+  });
+
+  // Remove DTSTART from the string to simulate missing DTSTART
+  const rruleString = missionRRULE.toString();
+  const rruleWithoutDtstart = rruleString
+    .split('\n')
+    .filter(line => !line.trim().startsWith('DTSTART:'))
+    .join('\n');
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60, // 1 hour
+    rrule: rruleWithoutDtstart, // RRULE string without DTSTART
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8 00:00:00
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - DTSTART is set to mission start (00:00:00) when missing
+  // Mission occurrences will be at 00:00:00, which is covered by availability 00:00-12:00
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
