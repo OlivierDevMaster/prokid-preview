@@ -1,12 +1,13 @@
 import { createFactory } from '@hono/hono/factory';
 import { SupabaseClient, User } from '@supabase/supabase-js';
-import RRulePkg from 'rrule';
-const { rrulestr } = RRulePkg;
 
 import { CreateMissionRequestBodySchema } from '../../_shared/features/missions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
-import { constrainRRULEByDates } from '../../_shared/utils/rrule-generator.ts';
+import {
+  type ProfessionalAvailability,
+  validateMissionAvailability,
+} from '../../_shared/utils/validateMissionAvailability.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
@@ -92,179 +93,81 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      // Process and constrain RRULEs for each schedule
-      const schedules: Array<{
+      // Fetch professional availabilities for validation
+      const { data: availabilitiesData, error: availabilitiesError } =
+        await supabaseAdminClient
+          .from('availabilities')
+          .select('duration_mn, rrule')
+          .eq('user_id', body.professional_id);
+
+      if (availabilitiesError) {
+        console.error('Error fetching availabilities:', availabilitiesError);
+        return apiResponse.internalServerError(
+          'Failed to fetch professional availabilities'
+        );
+      }
+
+      // Convert availabilities to the format expected by validateMissionAvailability
+      const availabilities: ProfessionalAvailability[] = (
+        availabilitiesData || []
+      ).map(avail => ({
+        duration_mn: avail.duration_mn,
+        rrule: avail.rrule,
+      }));
+
+      // Convert mission schedules to the format expected by validateMissionAvailability
+      const missionSchedules = body.schedules.map(schedule => ({
+        duration_mn: schedule.duration_mn,
+        rrule: schedule.rrule,
+      }));
+
+      // Validate that all mission schedules fall within professional availabilities
+      // This function will constrain RRULEs internally and check coverage
+      // It returns the constrained schedules that should be stored in the database
+      let schedules: Array<{
         duration_mn: number;
         rrule: string;
       }> = [];
 
-      for (const scheduleInput of body.schedules) {
-        try {
-          // Constrain RRULE by mission dates (also validates RRULE format)
-          const constrainedRRULE = constrainRRULEByDates(
-            scheduleInput.rrule,
-            missionDtstart,
-            missionUntil
-          );
-
-          schedules.push({
-            duration_mn: scheduleInput.duration_mn,
-            rrule: constrainedRRULE,
-          });
-        } catch (rruleError) {
-          console.error(`Error processing RRULE for schedule:`, rruleError);
-          return apiResponse.badRequest(
-            'INVALID_RRULE',
-            'Invalid RRULE format in schedule',
-            {
-              error: String(rruleError),
-            }
-          );
-        }
-      }
-
-      // Check for overlapping accepted missions
-      // Get accepted missions and their schedules
-      const { data: acceptedMissions, error: missionsError } =
-        await supabaseAdminClient
-          .from('missions')
-          .select(
-            `
-            id,
-            mission_schedules (
-              rrule,
-              duration_mn,
-              dtstart,
-              until
-            )
-          `
-          )
-          .eq('professional_id', body.professional_id)
-          .eq('status', 'accepted');
-
-      if (missionsError) {
-        console.error('Error fetching accepted missions:', missionsError);
-        return apiResponse.internalServerError(
-          'Failed to check mission overlaps'
+      try {
+        const availabilityValidationResult = validateMissionAvailability(
+          missionSchedules,
+          missionDtstart,
+          missionUntil,
+          availabilities
         );
-      }
 
-      // Check for overlaps with accepted missions (collect information instead of rejecting)
-      // Use a Set to track unique overlaps (mission_id + overlapping_date)
-      const overlapSet = new Set<string>();
-      const overlaps: Array<{
-        mission_id: string;
-        overlapping_date: string;
-      }> = [];
-
-      if (acceptedMissions && acceptedMissions.length > 0) {
-        for (const newSchedule of schedules) {
-          try {
-            console.log(
-              '[createMissionHandler] Parsing newSchedule.rrule:',
-              newSchedule.rrule
-            );
-
-            // Parse RRULE using rrule library - it can handle UNTIL when it's in the RRULE line
-            const newRule = rrulestr(newSchedule.rrule);
-            console.log(
-              '[createMissionHandler] Parsed newRule.options:',
-              JSON.stringify(newRule.options, null, 2)
-            );
-
-            const newStart = newRule.options.dtstart || missionDtstart;
-            const newUntil = newRule.options.until || missionUntil;
-            console.log('[createMissionHandler] newStart:', newStart);
-            console.log('[createMissionHandler] newUntil:', newUntil);
-
-            const newOccurrences = newRule.between(newStart, newUntil, true);
-            console.log(
-              '[createMissionHandler] newOccurrences count:',
-              newOccurrences.length
-            );
-
-            for (const acceptedMission of acceptedMissions) {
-              if (!acceptedMission.mission_schedules) continue;
-
-              for (const acceptedSchedule of acceptedMission.mission_schedules as Array<{
-                dtstart: null | string;
-                duration_mn: number;
-                rrule: string;
-                until: null | string;
-              }>) {
-                try {
-                  // Parse RRULE using rrule library
-                  const acceptedRule = rrulestr(acceptedSchedule.rrule);
-                  const acceptedStart =
-                    acceptedRule.options.dtstart ||
-                    (acceptedSchedule.dtstart
-                      ? new Date(acceptedSchedule.dtstart)
-                      : new Date());
-                  const acceptedUntil =
-                    acceptedRule.options.until ||
-                    (acceptedSchedule.until
-                      ? new Date(acceptedSchedule.until)
-                      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
-
-                  const acceptedOccurrences = acceptedRule.between(
-                    acceptedStart,
-                    acceptedUntil,
-                    true
-                  );
-
-                  // Check if any occurrences overlap
-                  for (const newOcc of newOccurrences) {
-                    const newOccEnd = new Date(
-                      newOcc.getTime() + newSchedule.duration_mn * 60 * 1000
-                    );
-
-                    for (const acceptedOcc of acceptedOccurrences) {
-                      const acceptedOccEnd = new Date(
-                        acceptedOcc.getTime() +
-                          acceptedSchedule.duration_mn * 60 * 1000
-                      );
-
-                      // Check overlap: newOcc < acceptedOccEnd && newOccEnd > acceptedOcc
-                      if (
-                        newOcc.getTime() < acceptedOccEnd.getTime() &&
-                        newOccEnd.getTime() > acceptedOcc.getTime()
-                      ) {
-                        // Collect overlap information instead of rejecting
-                        // Use a unique key to avoid duplicates
-                        const overlapKey = `${acceptedMission.id}:${newOcc.toISOString()}`;
-                        if (!overlapSet.has(overlapKey)) {
-                          overlapSet.add(overlapKey);
-                          overlaps.push({
-                            mission_id: acceptedMission.id,
-                            overlapping_date: newOcc.toISOString(),
-                          });
-                        }
-                      }
-                    }
-                  }
-                } catch (rruleError) {
-                  console.error(
-                    'Error parsing accepted mission schedule RRULE:',
-                    rruleError
-                  );
-                  // Continue checking other schedules
-                }
-              }
+        if (!availabilityValidationResult.isValid) {
+          return apiResponse.badRequest(
+            'MISSION_NOT_WITHIN_AVAILABILITY',
+            'Mission schedules do not fall within professional availability',
+            {
+              violations: availabilityValidationResult.violations,
             }
-          } catch (rruleError) {
-            console.error(
-              'Error parsing new mission schedule RRULE:',
-              rruleError
-            );
-            return apiResponse.badRequest(
-              'INVALID_RRULE',
-              'Invalid RRULE format in generated schedule',
-              {
-                error: String(rruleError),
-              }
-            );
-          }
+          );
         }
+
+        // Use the constrained schedules returned from validation
+        // These are the same schedules that were validated, ensuring consistency
+        if (!availabilityValidationResult.constrainedSchedules) {
+          return apiResponse.internalServerError(
+            'Validation succeeded but no constrained schedules returned'
+          );
+        }
+
+        schedules = availabilityValidationResult.constrainedSchedules;
+      } catch (validationError) {
+        console.error(
+          'Error validating mission availability:',
+          validationError
+        );
+        return apiResponse.badRequest(
+          'INVALID_RRULE',
+          'Invalid RRULE format in schedule',
+          {
+            error: String(validationError),
+          }
+        );
       }
 
       // Create the mission
@@ -313,10 +216,9 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      // Return mission with overlap information in data if any overlaps were found
+      // Return the created mission
       return apiResponse.created({
         mission,
-        overlaps: overlaps.length > 0 ? overlaps : undefined,
       });
     } catch (error) {
       console.error('Error in createMissionHandler:', error);

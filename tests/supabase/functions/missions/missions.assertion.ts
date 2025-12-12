@@ -22,7 +22,7 @@ export class MissionAssertions {
   }
 
   /**
-   * Assert conflict error response (e.g., mission overlap)
+   * Assert conflict error response
    */
   static assertConflict(response: Response, data: any, expectedCode?: string) {
     assertEquals(response.status, 409);
@@ -125,20 +125,6 @@ export class MissionAssertions {
   }
 
   /**
-   * Assert overlap data structure
-   */
-  static assertOverlapStructure(overlap: any) {
-    assertExists(overlap);
-    assertExists(overlap.mission_id);
-    assertExists(overlap.overlapping_date);
-    assertEquals(typeof overlap.mission_id, 'string');
-    assertEquals(typeof overlap.overlapping_date, 'string');
-    // Verify overlapping_date is a valid ISO date string
-    const date = new Date(overlap.overlapping_date);
-    assertEquals(isNaN(date.getTime()), false);
-  }
-
-  /**
    * Assert response has proper JSON structure
    */
   static assertResponseStructure(data: any) {
@@ -148,7 +134,7 @@ export class MissionAssertions {
 
   /**
    * Assert successful mission creation response
-   * Handles both old structure (mission directly) and new structure ({ mission, overlaps? })
+   * Handles both old structure (mission directly) and new structure ({ mission })
    */
   static assertSuccessfulCreation(response: Response, data: any) {
     assertEquals(response.status, 201);
@@ -160,7 +146,7 @@ export class MissionAssertions {
 
   /**
    * Assert successful mission update response
-   * Handles both old structure (mission directly) and new structure ({ mission, overlaps? })
+   * Handles both old structure (mission directly) and new structure ({ mission })
    */
   static assertSuccessfulUpdate(response: Response, data: any) {
     assertEquals(response.status, 200);
