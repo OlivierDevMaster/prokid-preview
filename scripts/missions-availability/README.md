@@ -35,7 +35,7 @@ Validates that all mission schedule occurrences fall within at least one profess
 
 ## Test Suite
 
-The test suite includes 21 comprehensive test cases covering various scenarios:
+The test suite includes 34 comprehensive test cases covering various scenarios:
 
 ### Basic Validation Cases
 
@@ -158,9 +158,10 @@ npx tsx scripts/missions-availability/tests/test-runner.ts
 Tests are organized into multiple files by topic in the `tests/` directory:
 
 - **`test-utils.ts`** - Shared test utilities, assertions, and helper functions
-- **`basic-validation.test.ts`** - Basic validation cases (4 tests)
+- **`basic-validation.test.ts`** - Basic validation cases (7 tests)
 - **`multiple-schedules.test.ts`** - Multiple schedules and availabilities (2 tests)
 - **`overlapping-availabilities.test.ts`** - Overlapping availabilities (1 test)
+- **`complex-multi-availability.test.ts`** - Complex real-world scenarios with multiple schedules and multiple availabilities (9 tests)
 - **`date-range-constraints.test.ts`** - Date range constraints (2 tests)
 - **`edge-cases.test.ts`** - Edge cases and error handling (5 tests)
 - **`rrule-frequencies.test.ts`** - Different RRULE frequencies (2 tests)
@@ -209,8 +210,9 @@ if (!result.isValid) {
 ## Notes
 
 - **RRULE Constraint:** Mission schedule RRULEs are automatically constrained by the mission date range before validation. The time from the original RRULE's DTSTART is preserved, but the date boundaries are set to match `missionDtstart` and `missionUntil`. This ensures validation matches what will be stored in the database.
-- The validation ensures **no overlapping** - all mission occurrences must be fully contained within at least one availability
+- **Multi-Availability Coverage:** A mission schedule can be covered by multiple availabilities. For example, a mission from 7am-10am can be covered by availabilities 7am-8am and 8am-10am. The validation checks if the union of overlapping availability occurrences fully covers the mission occurrence without gaps.
+- The validation ensures **no overlapping** - all mission occurrences must be fully covered by availability occurrences (either a single availability or a combination of multiple availabilities)
 - The function uses the `rrule` library for RRULE parsing and occurrence generation
 - Invalid availability RRULEs are skipped (logged but don't stop validation)
 - Invalid mission schedule RRULEs throw errors (critical failures)
-- The validation checks that mission start >= availability start AND mission end <= availability end
+- The validation checks that the entire mission time range is covered by availability time ranges (can span multiple availabilities)

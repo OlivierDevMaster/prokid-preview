@@ -36,6 +36,14 @@ export interface ValidationViolation {
 }
 
 /**
+ * Represents a time range with start and end times
+ */
+interface TimeRange {
+  end: Date;
+  start: Date;
+}
+
+/**
  * Validates that all mission schedule occurrences fall within
  * at least one professional availability.
  *
@@ -85,7 +93,9 @@ export function validateMissionAvailability(
 }
 
 /**
- * Checks if a mission occurrence is covered by any availability
+ * Checks if a mission occurrence can be fully covered by a combination of availability occurrences.
+ * A mission occurrence is covered if all its time is within at least one availability occurrence,
+ * or if it can be fully covered by multiple consecutive/overlapping availability occurrences.
  */
 function checkOccurrenceCoverage(
   missionOcc: Date,
@@ -97,6 +107,9 @@ function checkOccurrenceCoverage(
   const missionOccEnd = new Date(
     missionOcc.getTime() + missionDurationMn * 60 * 1000
   );
+
+  // Collect all availability occurrences that overlap with the mission occurrence
+  const overlappingAvailRanges: TimeRange[] = [];
 
   for (const availability of availabilities) {
     try {
@@ -111,10 +124,24 @@ function checkOccurrenceCoverage(
           availOcc.getTime() + availability.duration_mn * 60 * 1000
         );
 
+        // Check if this availability occurrence overlaps with the mission occurrence
+        // Overlap: missionOcc < availOccEnd && missionOccEnd > availOcc
         if (
-          isOccurrenceCovered(missionOcc, missionOccEnd, availOcc, availOccEnd)
+          missionOcc.getTime() < availOccEnd.getTime() &&
+          missionOccEnd.getTime() > availOcc.getTime()
         ) {
-          return true;
+          // Extract the overlapping portion
+          const overlapStart = new Date(
+            Math.max(missionOcc.getTime(), availOcc.getTime())
+          );
+          const overlapEnd = new Date(
+            Math.min(missionOccEnd.getTime(), availOccEnd.getTime())
+          );
+
+          overlappingAvailRanges.push({
+            end: overlapEnd,
+            start: overlapStart,
+          });
         }
       }
     } catch (rruleError) {
@@ -128,7 +155,38 @@ function checkOccurrenceCoverage(
     }
   }
 
-  return false;
+  // If no overlapping availabilities, mission is not covered
+  if (overlappingAvailRanges.length === 0) {
+    return false;
+  }
+
+  // Sort by start time
+  overlappingAvailRanges.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+  // Check if the overlapping ranges fully cover the mission occurrence
+  // We need to check if the union of all overlapping ranges covers the entire mission time
+  let coveredStart = missionOcc.getTime();
+  const missionEndTime = missionOccEnd.getTime();
+
+  for (const range of overlappingAvailRanges) {
+    // If this range starts after what we've covered so far, there's a gap
+    if (range.start.getTime() > coveredStart) {
+      return false; // Gap found, mission not fully covered
+    }
+
+    // Update covered start to the end of this range (if it extends further)
+    if (range.end.getTime() > coveredStart) {
+      coveredStart = range.end.getTime();
+    }
+
+    // If we've covered the entire mission, we're done
+    if (coveredStart >= missionEndTime) {
+      return true;
+    }
+  }
+
+  // Check if we've fully covered the mission
+  return coveredStart >= missionEndTime;
 }
 
 /**
@@ -279,21 +337,6 @@ function generateMissionOccurrences(
 
   // Generate occurrences - the RRULE is already constrained, so we can use the full range
   return missionRule.between(scheduleStart, scheduleUntil, true);
-}
-
-/**
- * Checks if a mission occurrence is fully contained within an availability occurrence
- */
-function isOccurrenceCovered(
-  missionOccStart: Date,
-  missionOccEnd: Date,
-  availOccStart: Date,
-  availOccEnd: Date
-): boolean {
-  return (
-    missionOccStart.getTime() >= availOccStart.getTime() &&
-    missionOccEnd.getTime() <= availOccEnd.getTime()
-  );
 }
 
 /**

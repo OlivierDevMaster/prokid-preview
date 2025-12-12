@@ -1,4 +1,5 @@
 import './basic-validation.test.ts';
+import './complex-multi-availability.test.ts';
 import './constraint-behavior.test.ts';
 import './date-range-constraints.test.ts';
 import './edge-cases.test.ts';
