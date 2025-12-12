@@ -157,8 +157,8 @@ The test suite includes **43 comprehensive test cases** covering various scenari
 
 ### 15. Edge Date Scenarios
 
-- ✗ **Mission starting exactly at availability start date** - Date-level boundary
-- ✗ **Mission ending exactly at availability end date** - Date-level boundary
+- ✓ **Mission starting exactly at availability start date** - Date-level boundary
+- ✓ **Mission ending exactly at availability end date** - Date-level boundary
 - ✗ **Availability starting after mission starts but before mission ends** - Partial date overlap
 - ✗ **Availability ending before mission ends but after mission starts** - Partial date overlap
 
@@ -222,7 +222,7 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`overlapping-availabilities.test.ts`** - Overlapping availabilities (1 test)
 - **`complex-multi-availability.test.ts`** - Complex real-world scenarios with multiple schedules and multiple availabilities (10 tests)
 - **`availability-exceptions.test.ts`** - Availability UNTIL/EXDATE scenarios (9 tests)
-- **`date-range-constraints.test.ts`** - Date range constraints (2 tests)
+- **`date-range-constraints.test.ts`** - Date range constraints (4 tests)
 - **`edge-cases.test.ts`** - Edge cases and error handling (5 tests)
 - **`rrule-frequencies.test.ts`** - Different RRULE frequencies (2 tests)
 - **`time-boundaries.test.ts`** - Time boundary cases (3 tests)
@@ -230,7 +230,7 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`constraint-behavior.test.ts`** - RRULE constraint behavior (1 test)
 - **`test-runner.ts`** - Main test runner that executes all tests
 
-**Total: 44 tests currently implemented**
+**Total: 46 tests currently implemented**
 
 You can also run individual test files if needed:
 
