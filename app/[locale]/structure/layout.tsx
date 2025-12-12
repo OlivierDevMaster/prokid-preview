@@ -7,11 +7,13 @@ export default function StructureLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className='flex min-h-screen flex-col'>
+    <div className='flex h-screen flex-col overflow-hidden'>
       <BoNavbar userRole='Structure' />
-      <div className='bg-green flex flex-1 overflow-hidden'>
-        <StructureSidebar />
-        <main className='flex-1 overflow-auto'>
+      <div className='flex flex-1 overflow-hidden'>
+        <div className='flex h-full flex-shrink-0'>
+          <StructureSidebar />
+        </div>
+        <main className='flex-1 overflow-y-auto'>
           <div className='p-8'>{children}</div>
         </main>
       </div>

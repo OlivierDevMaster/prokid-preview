@@ -36,7 +36,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
-    router.push('/auth/signin');
+    router.push('/auth/login');
   };
 
   const isActive = (href: string) => {
@@ -47,9 +47,12 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
   };
 
   return (
-    <aside className='flex w-64 flex-col border-r border-gray-200 bg-white'>
+    <aside className='flex h-full w-64 flex-col border-r border-gray-200 bg-white'>
       {/* Navigation */}
-      <nav className='flex-1 space-y-1 p-4' suppressHydrationWarning>
+      <nav
+        className='flex-1 space-y-1 overflow-y-auto p-4'
+        suppressHydrationWarning
+      >
         {mounted &&
           navItems.map(item => {
             const active = isActive(item.href);
