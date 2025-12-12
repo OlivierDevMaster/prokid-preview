@@ -501,3 +501,131 @@ EXDATE:20240101T100000Z`;
   assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });
+
+test('should reject mission schedule when DTSTART is after mission end', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, but DTSTART is after mission end
+  // Mission runs Jan 8 - Jan 31, but schedule starts Feb 5 (after mission ends)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-02-05T10:00:00Z'), // Starts after mission end (Jan 31)
+      new Date('2024-02-26T10:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be invalid - DTSTART is preserved (after mission start) but it's after mission end
+  // This results in no occurrences within the mission period
+  assert(result.isValid === false, 'Mission should be invalid');
+  assertGreaterThan(
+    result.violations.length,
+    0,
+    'Should have violation for schedule with no occurrences'
+  );
+  assert(
+    result.violations[0].reason.includes('no occurrences'),
+    'Violation should mention no occurrences'
+  );
+});
+
+test('should reject mission schedule when UNTIL is before mission start', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, but UNTIL is before mission start
+  // Mission runs Jan 8 - Jan 31, but schedule ends Jan 1 (before mission starts)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2023-12-25T10:00:00Z'), // Starts before mission
+      new Date('2024-01-01T10:00:00Z'), // Ends before mission start (Jan 8)
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be invalid - UNTIL is preserved (before mission until) but it's before mission start
+  // DTSTART is constrained to mission start, but UNTIL is before that, so no occurrences
+  assert(result.isValid === false, 'Mission should be invalid');
+  assertGreaterThan(
+    result.violations.length,
+    0,
+    'Should have violation for schedule with no occurrences'
+  );
+  assert(
+    result.violations[0].reason.includes('no occurrences'),
+    'Violation should mention no occurrences'
+  );
+});
+
+test('should reject mission schedule when DTSTART after mission end and UNTIL before mission start', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am
+  // Schedule completely outside mission period: starts after mission ends, ends before mission starts
+  // This is an edge case but should be handled
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-02-05T10:00:00Z'), // After mission end (Jan 31)
+      new Date('2024-01-01T10:00:00Z'), // Before mission start (Jan 8) - invalid but should be handled
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be invalid - schedule is completely outside mission period
+  // DTSTART is preserved (after mission start) but after mission end
+  // UNTIL is preserved (before mission until) but before mission start
+  // This results in no occurrences
+  assert(result.isValid === false, 'Mission should be invalid');
+  assertGreaterThan(
+    result.violations.length,
+    0,
+    'Should have violation for schedule with no occurrences'
+  );
+});

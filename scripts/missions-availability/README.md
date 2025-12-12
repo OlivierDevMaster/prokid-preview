@@ -228,10 +228,10 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`time-boundaries.test.ts`** - Time boundary cases (4 tests)
 - **`long-duration.test.ts`** - Long-duration scenarios (9 tests)
 - **`violation-details.test.ts`** - Violation details (1 test)
-- **`constraint-behavior.test.ts`** - RRULE constraint behavior (13 tests)
+- **`constraint-behavior.test.ts`** - RRULE constraint behavior (16 tests)
 - **`test-runner.ts`** - Main test runner that executes all tests
 
-**Total: 69 tests currently implemented**
+**Total: 72 tests currently implemented**
 
 You can also run individual test files if needed:
 

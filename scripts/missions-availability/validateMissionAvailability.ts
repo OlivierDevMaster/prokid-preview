@@ -480,13 +480,13 @@ function validateSchedule(
       missionUntil
     );
 
-    // Check if schedule has any occurrences after EXDATE is applied
+    // Check if schedule has any occurrences after constraints and EXDATE are applied
     if (missionOccurrences.length === 0) {
       violations.push({
         mission_occurrence_end: '',
         mission_occurrence_start: '',
         mission_schedule_index: scheduleIndex,
-        reason: `Mission schedule at index ${scheduleIndex} has no occurrences after applying EXDATE exceptions. The schedule is effectively empty.`,
+        reason: `Mission schedule at index ${scheduleIndex} has no occurrences. This can happen if the schedule's date range is outside the mission period or if EXDATE excludes all occurrences.`,
       });
       return violations;
     }
