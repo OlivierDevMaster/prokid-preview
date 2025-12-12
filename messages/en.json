@@ -321,6 +321,31 @@
       "other_early_childhood_profession": "Other early childhood profession"
     }
   },
+  "structure": {
+    "navigation": {
+      "missions": "Missions",
+      "professionals": "Professionals"
+    },
+    "missions": {
+      "title": "My missions",
+      "description": "Manage your interventions and follow-ups for each establishment.",
+      "addMission": "Add a mission",
+      "noMissions": "No missions found.",
+      "loading": "Loading...",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report",
+      "noReport": "No report",
+      "period": "Period",
+      "viewDetails": "View details",
+      "unknownProfessional": "Unknown professional"
+    },
+    "professionals": {
+      "title": "My professionals",
+      "description": "View and manage all professionals in your structure.",
+      "loading": "Loading...",
+      "noProfessionals": "No professionals found."
+    }
+  },
   "admin": {
     "tagline": "Connecting the right project to the right buyer, that's our job.",
     "affaires": "Business",

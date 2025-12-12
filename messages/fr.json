@@ -330,6 +330,31 @@
       "other_early_childhood_profession": "Autre profession de la petite enfance"
     }
   },
+  "structure": {
+    "navigation": {
+      "missions": "Missions",
+      "professionals": "Professionnels"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Gérez vos interventions et suivis pour chaque établissement.",
+      "addMission": "Ajouter une mission",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "unknownProfessional": "Professionnel inconnu"
+    },
+    "professionals": {
+      "title": "Mes professionnels",
+      "description": "Consultez et gérez tous les professionnels de votre structure.",
+      "loading": "Chargement...",
+      "noProfessionals": "Aucun professionnel trouvé."
+    }
+  },
   "admin": {
     "tagline": "Relier le bon projet au bon repreneur, c'est notre métier.",
     "affaires": "Affaires",

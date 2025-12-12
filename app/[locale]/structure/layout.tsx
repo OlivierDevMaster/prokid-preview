@@ -1,5 +1,5 @@
-import { ProfessionalNavbar } from '@/features/professional/layout/ProfessionalNavbar';
-import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
+import { BoNavbar } from '@/features/layout/BoNavbar';
+import { StructureSidebar } from '@/features/structure/layout/StructureSidebar';
 
 export default function StructureLayout({
   children,
@@ -8,9 +8,9 @@ export default function StructureLayout({
 }) {
   return (
     <div className='flex min-h-screen flex-col'>
-      <ProfessionalNavbar />
+      <BoNavbar userRole='Structure' />
       <div className='bg-green flex flex-1 overflow-hidden'>
-        <ProfessionalSidebar />
+        <StructureSidebar />
         <main className='flex-1 overflow-auto'>
           <div className='p-8'>{children}</div>
         </main>

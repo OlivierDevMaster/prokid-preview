@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 
-import { ProfessionalNavbar } from '@/features/professional/layout/ProfessionalNavbar';
+import { BoNavbar } from '@/features/layout/BoNavbar';
 import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
 import { useRouter } from '@/i18n/routing';
 import { getUser } from '@/services/auth/auth.service';
@@ -64,7 +64,7 @@ export default function ProtectedLayout({
 
   return (
     <div className='flex min-h-screen flex-col'>
-      <ProfessionalNavbar />
+      <BoNavbar userRole='professionnel' />
       <div className='bg-green flex flex-1 overflow-hidden'>
         <ProfessionalSidebar />
         <main className='flex-1 overflow-auto'>
