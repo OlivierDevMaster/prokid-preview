@@ -7,6 +7,7 @@ import {
 } from '../validateMissionAvailability.ts';
 import {
   assert,
+  assertGreaterThan,
   createWeeklyRRULE,
   missionEnd,
   missionStart,
@@ -387,6 +388,116 @@ test('should set DTSTART to mission start when DTSTART is missing from RRULE str
 
   // Should be valid - DTSTART is set to mission start (00:00:00) when missing
   // Mission occurrences will be at 00:00:00, which is covered by availability 00:00-12:00
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should validate mission schedule with EXDATE that still has occurrences', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, but excludes Jan 15 (one Monday)
+  // Should still have occurrences on Jan 8, 22, 29
+  const missionRRULE = `DTSTART:20240108T100000Z
+RRULE:FREQ=WEEKLY;BYWEEKDAY=MO;UNTIL=20240131T100000Z
+EXDATE:20240115T100000Z`;
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: missionRRULE,
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - EXDATE excludes one occurrence but others remain
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should reject mission schedule with EXDATE that excludes all occurrences', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, but excludes all Mondays in the period
+  // Jan 8, 15, 22, 29 are all Mondays - excluding all of them leaves no occurrences
+  const missionRRULE = `DTSTART:20240108T100000Z
+RRULE:FREQ=WEEKLY;BYWEEKDAY=MO;UNTIL=20240131T100000Z
+EXDATE:20240108T100000Z,20240115T100000Z,20240122T100000Z,20240129T100000Z`;
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: missionRRULE,
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be invalid - EXDATE excludes all occurrences, schedule is empty
+  assert(result.isValid === false, 'Mission should be invalid');
+  assertGreaterThan(
+    result.violations.length,
+    0,
+    'Should have violation for empty schedule'
+  );
+  assert(
+    result.violations[0].reason.includes('no occurrences'),
+    'Violation should mention no occurrences'
+  );
+});
+
+test('should validate mission schedule with EXDATE outside mission period', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, but excludes Jan 1 (before mission starts)
+  // EXDATE is outside mission period, so it doesn't affect mission occurrences
+  const missionRRULE = `DTSTART:20240108T100000Z
+RRULE:FREQ=WEEKLY;BYWEEKDAY=MO;UNTIL=20240131T100000Z
+EXDATE:20240101T100000Z`;
+
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: missionRRULE,
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - EXDATE is outside mission period, all mission occurrences remain
   assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });

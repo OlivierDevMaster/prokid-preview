@@ -135,7 +135,7 @@ The test suite includes **43 comprehensive test cases** covering various scenari
 
 ### 11. Mission Schedule EXDATE/UNTIL
 
-- ✗ **Mission schedule with EXDATE** - Should it be rejected or handled?
+- ✓ **Mission schedule with EXDATE** - Should it be rejected or handled?
 - ✓ **Mission schedule with UNTIL different from mission until** - Edge case behavior
 
 ### 12. RRULESet with Multiple RRULE Lines
@@ -228,10 +228,10 @@ Tests are organized into multiple files by topic in the `tests/` directory:
 - **`time-boundaries.test.ts`** - Time boundary cases (4 tests)
 - **`long-duration.test.ts`** - Long-duration scenarios (9 tests)
 - **`violation-details.test.ts`** - Violation details (1 test)
-- **`constraint-behavior.test.ts`** - RRULE constraint behavior (10 tests)
+- **`constraint-behavior.test.ts`** - RRULE constraint behavior (13 tests)
 - **`test-runner.ts`** - Main test runner that executes all tests
 
-**Total: 66 tests currently implemented**
+**Total: 69 tests currently implemented**
 
 You can also run individual test files if needed:
 

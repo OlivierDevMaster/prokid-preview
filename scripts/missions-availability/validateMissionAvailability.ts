@@ -480,6 +480,17 @@ function validateSchedule(
       missionUntil
     );
 
+    // Check if schedule has any occurrences after EXDATE is applied
+    if (missionOccurrences.length === 0) {
+      violations.push({
+        mission_occurrence_end: '',
+        mission_occurrence_start: '',
+        mission_schedule_index: scheduleIndex,
+        reason: `Mission schedule at index ${scheduleIndex} has no occurrences after applying EXDATE exceptions. The schedule is effectively empty.`,
+      });
+      return violations;
+    }
+
     for (const missionOcc of missionOccurrences) {
       const isCovered = checkOccurrenceCoverage(
         missionOcc,
