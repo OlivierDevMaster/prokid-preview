@@ -5,6 +5,7 @@ import {
   addWeeks,
   format,
   isSameDay,
+  parseISO,
   startOfWeek,
   subWeeks,
 } from 'date-fns';
@@ -15,31 +16,64 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useFindAvailabilitySlots } from '@/features/availabilities/hooks/useFindAvailabilitySlots';
+import { useGroupedAvailabilitySlots } from '@/features/availabilities/hooks/useGroupedAvailabilitySlots';
 
 interface AvailabilityCalendarProps {
   professionalId: string;
 }
 
-// Mock data pour les disponibilités
-const MOCK_AVAILABILITIES: Record<string, string[]> = {
-  '2025-11-27': ['09:00', '14:00'],
-  '2025-11-29': ['09:00', '14:00'],
-};
-
 export function AvailabilityCalendar({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   professionalId,
 }: AvailabilityCalendarProps) {
   const t = useTranslations('professional.profile.calendar');
-  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 10, 24)); // 24 novembre 2025
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const tCommon = useTranslations('common');
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Lundi
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  // Fetch real availability data for the professional
+  const { data: slots = [], isLoading } = useFindAvailabilitySlots({
+    endAt: weekEnd.toISOString(),
+    professionalId,
+    startAt: weekStart.toISOString(),
+  });
+
+  // Group slots by day
+  const groupedSlots = useGroupedAvailabilitySlots(slots);
+
+  // Transform availability slots into date -> time slots format
+  const availableSlotsByDate = useMemo(() => {
+    const slotsMap: Record<string, string[]> = {};
+
+    weekDays.forEach(day => {
+      const daySlots = groupedSlots.getSlotsByDay(day);
+      // Filter only available slots and format times
+      const availableTimes = daySlots
+        .filter(slot => slot.isAvailable)
+        .map(slot => {
+          const slotDate = parseISO(slot.startAt);
+          return format(slotDate, 'HH:mm');
+        });
+
+      if (availableTimes.length > 0) {
+        const dateKey = format(day, 'yyyy-MM-dd');
+        slotsMap[dateKey] = availableTimes;
+      }
+    });
+
+    return slotsMap;
+  }, [groupedSlots, weekDays]);
 
   const goToPreviousWeek = () => {
     setCurrentWeek(subWeeks(currentWeek, 1));
@@ -60,7 +94,7 @@ export function AvailabilityCalendar({
 
   const getAvailableSlots = (date: Date): string[] => {
     const dateKey = format(date, 'yyyy-MM-dd');
-    return MOCK_AVAILABILITIES[dateKey] || [];
+    return availableSlotsByDate[dateKey] || [];
   };
 
   const totalAvailableSlots = weekDays.reduce(
@@ -132,49 +166,57 @@ export function AvailabilityCalendar({
         </div>
 
         {/* Calendrier */}
-        <div className='mb-6 grid grid-cols-7 gap-2'>
-          {weekDays.map((day, index) => {
-            const slots = getAvailableSlots(day);
-            const isToday = isSameDay(day, new Date());
-            const dayName = dayNames[index];
-            const dayNumber = format(day, 'd');
-            const month = format(day, 'MMM', { locale: fr });
+        {isLoading ? (
+          <div className='mb-6 flex items-center justify-center py-12'>
+            <p className='text-sm text-gray-500'>
+              {tCommon('messages.loading')}
+            </p>
+          </div>
+        ) : (
+          <div className='mb-6 grid grid-cols-7 gap-2'>
+            {weekDays.map((day, index) => {
+              const slots = getAvailableSlots(day);
+              const isToday = isSameDay(day, new Date());
+              const dayName = dayNames[index];
+              const dayNumber = format(day, 'd');
+              const month = format(day, 'MMM', { locale: fr });
 
-            return (
-              <div
-                className={`min-h-[120px] rounded-lg border p-3 ${
-                  isToday
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white'
-                }`}
-                key={index}
-              >
-                <div className='mb-2 text-xs font-semibold text-gray-700'>
-                  {dayName}
-                </div>
-                <div className='mb-3 text-sm text-gray-600'>
-                  {dayNumber} {month}
-                </div>
-                {slots.length > 0 ? (
-                  <div className='space-y-1'>
-                    {slots.map((slot, slotIndex) => (
-                      <Button
-                        className='w-full border-blue-200 bg-blue-50 text-xs text-blue-700 hover:bg-blue-100'
-                        key={slotIndex}
-                        size='sm'
-                        variant='outline'
-                      >
-                        {slot}
-                      </Button>
-                    ))}
+              return (
+                <div
+                  className={`min-h-[120px] rounded-lg border p-3 ${
+                    isToday
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white'
+                  }`}
+                  key={index}
+                >
+                  <div className='mb-2 text-xs font-semibold text-gray-700'>
+                    {dayName}
                   </div>
-                ) : (
-                  <div className='mt-2 h-px bg-gray-200' />
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  <div className='mb-3 text-sm text-gray-600'>
+                    {dayNumber} {month}
+                  </div>
+                  {slots.length > 0 ? (
+                    <div className='space-y-1'>
+                      {slots.map((slot, slotIndex) => (
+                        <Button
+                          className='w-full border-blue-200 bg-blue-50 text-xs text-blue-700 hover:bg-blue-100'
+                          key={slotIndex}
+                          size='sm'
+                          variant='outline'
+                        >
+                          {slot}
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className='mt-2 h-px bg-gray-200' />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Instructions */}
         <div className='border-t pt-4'>

@@ -153,12 +153,6 @@ export default function ProfessionalProfilePage() {
                   <div className='flex items-center gap-2'>
                     <Euro className='h-5 w-5 text-gray-600' />
                     <span className='text-lg font-semibold text-gray-800'>
-                      {professional.hourly_rate}€/{t('hour')}
-                    </span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Euro className='h-5 w-5 text-gray-600' />
-                    <span className='text-lg font-semibold text-gray-800'>
                       {professional.hourly_rate}€/{t('day')}
                     </span>
                   </div>

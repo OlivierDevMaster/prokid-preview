@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -687,6 +692,10 @@ export type Database = {
       }
     }
     Functions: {
+      add_exdate_to_recurring_availability: {
+        Args: { availability_id_param: string; date_to_exclude: string }
+        Returns: string
+      }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       seeds_create_mission_from_availability: {
@@ -933,4 +942,3 @@ export const Constants = {
     },
   },
 } as const
-

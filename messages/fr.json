@@ -21,9 +21,15 @@
       "yearsExperience": "Années d'expérience",
       "hourlyRate": "Taux horaire",
       "interventionZone": "Zone d'intervention",
-      "frameworks": "Frameworks",
       "certifications": "Certifications",
-      "skills": "Compétences"
+      "skills": "Compétences",
+      "contact": "Contact",
+      "availability": "Disponibilitées",
+      "km": "km",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "start": "Début",
+      "end": "Fin"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -32,11 +38,26 @@
     },
     "actions": {
       "edit": "Modifier",
-      "signOut": "Déconnexion"
+      "signOut": "Déconnexion",
+      "submit": "Soumettre",
+      "addSlot": "Ajouter un créneau",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
     },
     "messages": {
       "loading": "Chargement...",
-      "notFound": "Non trouvé"
+      "notFound": "Non trouvé",
+      "saving": "Enregistrement..."
+    },
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
     }
   },
   "navigation": {
@@ -99,7 +120,33 @@
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
         "emailAlreadyExists": "Cet email est déjà utilisé",
-        "hasAccount": "Déjà un compte ? Connectez-vous"
+        "hasAccount": "Déjà un compte ? Connectez-vous",
+        "previous": "Précédent",
+        "completeTheRegistration": "Finaliser l'inscription",
+        "finalization": "Finalisation",
+        "validationInformation": "Vérifiez vos informations avant de finaliser votre inscription",
+        "defaultProfilePicture": "Utiliser une photo par défault",
+        "recommendedFormat": "Format carré recommandé",
+        "job": "Profession",
+        "city": "Ville",
+        "postalCode": "Code postal",
+        "description": "Description",
+        "yearsExperience": "Années d'expérience",
+        "hourlyRate": "Taux horaire",
+        "certifications": "Certifications",
+        "skills": "Compétences",
+        "contact": "Contact",
+        "availability": "Disponibilitées",
+        "km": "km",
+        "interventionZone": "Zone d'intervention",
+        "email": "Email",
+        "phone": "Téléphone",
+        "planningAndAvailability": "Planning & disponibilités",
+        "configureYourDaysAndSlots": "Configurez vos jours et créneaux disponibles",
+        "copyMondaySchedule": "Copier les horaires du lundi à tous les jours",
+        "addSlot": "Ajouter un créneau",
+        "recurring": "Récurrent",
+        "nonWorking": "Non travaillé"
       },
       "structureForm": {
         "title": "Créer mon compte structure",
@@ -413,7 +460,7 @@
       "additionalInformation": "Informations Supplémentaires",
       "stripeCustomerId": "ID Client Stripe"
     },
-    "planning": {
+    "availabilities": {
       "title": "Mon Planning",
       "modifyAvailabilities": "Modifier mes disponibilités",
       "fillRate": "Taux de remplissage",
@@ -424,7 +471,20 @@
       "toBook": "à réserver",
       "weekOf": "Semaine du",
       "previousWeek": "Semaine précédente",
-      "nextWeek": "Semaine suivante"
+      "nextWeek": "Semaine suivante",
+      "notWorking": "Non travaillé",
+      "noSlots": "Aucun créneau",
+      "stopRecurrence": "Arrêter la récurrence",
+      "stopRecurrenceConfirm": "Êtes-vous sûr de vouloir arrêter la récurrence pour ce créneau ? Cette action exclura uniquement cette date de la récurrence.",
+      "stopRecurrenceError": "Une erreur est survenue lors de l'arrêt de la récurrence",
+      "stopRecurrenceSuccess": "Récurrence arrêtée avec succès pour ce créneau",
+      "notRecurring": "Ce créneau ne provient pas d'une récurrence",
+      "booked": "Réservé",
+      "deleteSlot": "Supprimer ce créneau",
+      "deleteSlotConfirm": "Êtes-vous sûr de vouloir supprimer ce créneau de disponibilité ?",
+      "cannotDeleteBooked": "Impossible de supprimer un créneau réservé",
+      "deleteError": "Une erreur est survenue lors de la suppression du créneau",
+      "deleteSuccess": "Créneau supprimé avec succès"
     },
     "report": {
       "title": "Créer un rapport",

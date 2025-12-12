@@ -24,7 +24,7 @@ export function Navigation() {
 
   const navItems = [
     { href: '/professionals', label: t('professionals') },
-    { href: '/how-it-works', label: t('howItWorks') },
+    { href: '/faq', label: t('howItWorks') },
   ];
 
   const handleSignOut = async () => {
