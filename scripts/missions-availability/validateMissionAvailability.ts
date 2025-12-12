@@ -1,4 +1,4 @@
-import { RRule, RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr, Options } from 'rrule';
 
 /**
  * Represents a mission schedule with RRULE and duration
@@ -238,7 +238,7 @@ function constrainRRULEByDates(
   newUntil.setUTCHours(hour, minute, second, 0);
 
   // Build RRULE options from original pattern
-  const rruleOptions: RRule.Options = {
+  const rruleOptions: Partial<Options> = {
     bymonth: rule.options.bymonth,
     bymonthday: rule.options.bymonthday,
     bysetpos: rule.options.bysetpos,
