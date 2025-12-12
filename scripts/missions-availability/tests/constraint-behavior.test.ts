@@ -244,3 +244,104 @@ test('should constrain UNTIL when schedule has no UNTIL (undefined)', () => {
   assert(result.isValid === true, 'Mission should be valid');
   assert(result.violations.length === 0, 'Should have no violations');
 });
+
+test('should preserve DTSTART when schedule starts after mission start', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, starts Jan 15 (after mission start Jan 8)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-15T10:00:00Z'), // Starts after mission start
+      new Date('2024-01-31T10:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - DTSTART after mission start is preserved
+  // Only occurrences from Jan 15 onwards are generated
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should constrain DTSTART when schedule starts before mission start', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, starts Jan 1 (before mission start Jan 8)
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T10:00:00Z'), // Starts before mission start
+      new Date('2024-01-31T10:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - DTSTART is constrained to mission start (Jan 8)
+  // Only occurrences from Jan 8 onwards are generated
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});
+
+test('should preserve DTSTART when schedule starts exactly at mission start', () => {
+  // Availability: Every Monday 9am-12pm
+  const availability: ProfessionalAvailability = {
+    duration_mn: 180,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-01T09:00:00Z'),
+      new Date('2024-01-31T09:00:00Z'),
+      'MO'
+    ),
+  };
+
+  // Mission: Every Monday 10am-11am, starts exactly at mission start
+  const missionSchedule: MissionSchedule = {
+    duration_mn: 60,
+    rrule: createWeeklyRRULE(
+      new Date('2024-01-08T10:00:00Z'), // Starts exactly at mission start
+      new Date('2024-01-31T10:00:00Z'),
+      'MO'
+    ),
+  };
+
+  const result = validateMissionAvailability(
+    [missionSchedule],
+    missionStart, // Jan 8
+    missionEnd, // Jan 31
+    [availability]
+  );
+
+  // Should be valid - DTSTART at mission start is preserved
+  assert(result.isValid === true, 'Mission should be valid');
+  assert(result.violations.length === 0, 'Should have no violations');
+});

@@ -211,7 +211,8 @@ function checkOccurrenceCoverage(
  * - If the original UNTIL is after missionUntil or doesn't exist: constrains to missionUntil (prevents schedules from extending beyond mission)
  *
  * DTSTART constraint:
- * - Always set to missionDtstart with the original time components (hour, minute, second) preserved
+ * - If the original DTSTART is before missionDtstart: constrains to missionDtstart with original time preserved (schedules can't start before mission)
+ * - If the original DTSTART is after missionDtstart or equals it: preserves the original DTSTART (schedules can start later)
  *
  * This ensures the validation uses the same constrained RRULEs that will be stored in the database.
  *
@@ -230,15 +231,30 @@ function constrainRRULEByDates(
   const parseableRRULE = extractParseableRRULE(rrule);
   const rule = rrulestr(parseableRRULE);
 
-  // Extract time components from RRULE's DTSTART
+  // Get original DTSTART from the rule
   const originalDtstart = rule.options.dtstart || new Date();
+
+  // Determine the new DTSTART:
+  // - If original DTSTART is before missionDtstart, use missionDtstart (constrain to mission start)
+  // - If original DTSTART is after missionDtstart or equals it, preserve it (schedules can start later)
+  let newDtstart: Date;
+  if (originalDtstart < missionDtstart) {
+    // Constrain to mission start (schedule can't start before mission)
+    // Preserve the original time components
+    const hour = originalDtstart.getUTCHours();
+    const minute = originalDtstart.getUTCMinutes();
+    const second = originalDtstart.getUTCSeconds();
+    newDtstart = new Date(missionDtstart);
+    newDtstart.setUTCHours(hour, minute, second, 0);
+  } else {
+    // Preserve original DTSTART (schedule starts at or after mission start - OK)
+    newDtstart = new Date(originalDtstart);
+  }
+
+  // Extract time components for UNTIL constraint (use original DTSTART time)
   const hour = originalDtstart.getUTCHours();
   const minute = originalDtstart.getUTCMinutes();
   const second = originalDtstart.getUTCSeconds();
-
-  // Create new DTSTART: mission start date with original time
-  const newDtstart = new Date(missionDtstart);
-  newDtstart.setUTCHours(hour, minute, second, 0);
 
   // Get original UNTIL from the rule
   const originalUntil = rule.options.until;
