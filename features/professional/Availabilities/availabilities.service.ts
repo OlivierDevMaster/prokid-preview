@@ -1,10 +1,10 @@
 import { differenceInDays, format } from 'date-fns';
 import { parseISO } from 'date-fns';
+import { RRuleSet, rrulestr } from 'rrule';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
 
 import { createClient } from '@/lib/supabase/client';
-
 interface DaySchedule {
   enabled: boolean;
   slots: TimeSlot[];
@@ -454,22 +454,18 @@ async function addExdateForDay(
     }
   }
 
-  // Add EXDATE using RPC function
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: exdateError } = await (supabase.rpc as any)(
-    'add_exdate_to_recurring_availability',
-    {
-      availability_id_param: availabilityId,
-      date_to_exclude: dateToExclude.toISOString(),
-    }
-  );
+  const rruleSet = new RRuleSet();
+  rruleSet.rrule(rrulestr(rrule));
+  rruleSet.exdate(dateToExclude);
+  const newRrule = rruleSet.toString();
 
-  if (exdateError) {
-    console.error(
-      `Error adding EXDATE to availability ${availabilityId}:`,
-      exdateError
-    );
-    // Don't throw - continue with other availabilities
+  const { error: updateError } = await supabase
+    .from('availabilities')
+    .update({ rrule: newRrule })
+    .eq('id', availabilityId);
+
+  if (updateError) {
+    throw new Error(`Failed to update availability: ${updateError.message}`);
   }
 }
 
