@@ -43,7 +43,8 @@
       "addSlot": "Ajouter un créneau",
       "add": "Ajouter",
       "cancel": "Annuler",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "ok": "OK"
     },
     "messages": {
       "loading": "Chargement...",
@@ -484,7 +485,11 @@
       "deleteSlotConfirm": "Êtes-vous sûr de vouloir supprimer ce créneau de disponibilité ?",
       "cannotDeleteBooked": "Impossible de supprimer un créneau réservé",
       "deleteError": "Une erreur est survenue lors de la suppression du créneau",
-      "deleteSuccess": "Créneau supprimé avec succès"
+      "deleteSuccess": "Créneau supprimé avec succès",
+      "notRecurrenceTitle": "Ce créneau ne provient pas d'une récurrence",
+      "notRecurrenceMessage": "Ce créneau ne provient pas d'une récurrence. Seuls les créneaux récurrents peuvent avoir leur récurrence arrêtée.",
+      "errorTitle": "Une erreur est survenue",
+      "errorMessage": "Une erreur est survenue lors de l'arrêt de la récurrence"
     },
     "report": {
       "title": "Créer un rapport",

@@ -16,6 +16,7 @@ import {
   Clock,
   DollarSign,
   Pencil,
+  Repeat2,
   Trash2,
   TrendingUp,
 } from 'lucide-react';
@@ -28,10 +29,19 @@ import type { AvailabilitySlot } from '@/features/availabilities/availability.mo
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import ConfirmModal from '@/features/components/ConfirmModal';
 
 import {
   deleteAvailabilityBySlot,
@@ -55,6 +65,24 @@ export default function AvailabilitiesPage() {
     null | string
   >(null);
   const [openPopoverId, setOpenPopoverId] = useState<null | string>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    slot: AvailabilitySlot | null;
+    type: 'delete' | 'stopRecurrence' | null;
+  }>({
+    open: false,
+    slot: null,
+    type: null,
+  });
+  const [infoModal, setInfoModal] = useState<{
+    message: string;
+    open: boolean;
+    title: string;
+  }>({
+    message: '',
+    open: false,
+    title: '',
+  });
 
   // S'assurer que le composant est monté côté client avant d'utiliser des valeurs dynamiques
   useEffect(() => {
@@ -78,23 +106,28 @@ export default function AvailabilitiesPage() {
     setCurrentWeek(addWeeks(currentWeek, 1));
   };
 
-  const handleDeleteSlot = async (slot: AvailabilitySlot) => {
-    if (!userId) return;
-
+  const handleDeleteSlotClick = (slot: AvailabilitySlot) => {
     // Prevent deletion if slot is booked
     if (!slot.isAvailable && slot.mission) {
       alert(t('cannotDeleteBooked'));
       return;
     }
 
-    // Confirm deletion
-    if (!confirm(t('deleteSlotConfirm'))) {
-      return;
-    }
+    // Open confirmation dialog
+    setConfirmDialog({
+      open: true,
+      slot,
+      type: 'delete',
+    });
+    setOpenPopoverId(null);
+  };
+
+  const handleDeleteSlot = async (slot: AvailabilitySlot) => {
+    if (!userId) return;
 
     const slotId = `${slot.startAt}-${slot.endAt}`;
     setDeletingSlotId(slotId);
-    setOpenPopoverId(null);
+    setConfirmDialog({ open: false, slot: null, type: null });
 
     try {
       await deleteAvailabilityBySlot(slot, userId);
@@ -115,23 +148,28 @@ export default function AvailabilitiesPage() {
     }
   };
 
-  const handleStopRecurrence = async (slot: AvailabilitySlot) => {
-    if (!userId) return;
-
+  const handleStopRecurrenceClick = (slot: AvailabilitySlot) => {
     // Prevent stopping recurrence if slot is booked
     if (!slot.isAvailable && slot.mission) {
       alert(t('cannotDeleteBooked'));
       return;
     }
 
-    // Confirm action
-    if (!confirm(t('stopRecurrenceConfirm'))) {
-      return;
-    }
+    // Open confirmation dialog
+    setConfirmDialog({
+      open: true,
+      slot,
+      type: 'stopRecurrence',
+    });
+    setOpenPopoverId(null);
+  };
+
+  const handleStopRecurrence = async (slot: AvailabilitySlot) => {
+    if (!userId) return;
 
     const slotId = `${slot.startAt}-${slot.endAt}`;
     setStoppingRecurrenceId(slotId);
-    setOpenPopoverId(null);
+    setConfirmDialog({ open: false, slot: null, type: null });
 
     try {
       await stopRecurrenceForSlot(slot, userId);
@@ -146,7 +184,23 @@ export default function AvailabilitiesPage() {
       console.error('Error stopping recurrence:', error);
       const errorMessage =
         error instanceof Error ? error.message : t('stopRecurrenceError');
-      alert(errorMessage);
+
+      // Check if the error indicates the slot is not a recurrence
+      const isNotRecurrenceError =
+        errorMessage.toLowerCase().includes('recurring') ||
+        errorMessage.toLowerCase().includes('recurrence') ||
+        errorMessage.toLowerCase().includes('not a recurring');
+
+      setInfoModal({
+        message: isNotRecurrenceError
+          ? t('notRecurrenceMessage') ||
+            'This slot is not part of a recurring availability. Only recurring slots can have their recurrence stopped.'
+          : errorMessage,
+        open: true,
+        title: isNotRecurrenceError
+          ? t('notRecurrenceTitle') || 'Not a Recurring Slot'
+          : t('errorTitle') || 'Error',
+      });
     } finally {
       setStoppingRecurrenceId(null);
     }
@@ -366,7 +420,9 @@ export default function AvailabilitiesPage() {
                                   <Button
                                     className='w-full justify-start text-sm'
                                     disabled={isStoppingRecurrence}
-                                    onClick={() => handleStopRecurrence(slot)}
+                                    onClick={() =>
+                                      handleStopRecurrenceClick(slot)
+                                    }
                                     size='sm'
                                     variant='ghost'
                                   >
@@ -376,13 +432,16 @@ export default function AvailabilitiesPage() {
                                         {tCommon('messages.saving')}
                                       </>
                                     ) : (
-                                      t('stopRecurrence')
+                                      <>
+                                        <Repeat2 className='mr-2 h-3 w-3' />
+                                        {t('stopRecurrence')}
+                                      </>
                                     )}
                                   </Button>
                                   <Button
                                     className='w-full justify-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700'
                                     disabled={isDeleting}
-                                    onClick={() => handleDeleteSlot(slot)}
+                                    onClick={() => handleDeleteSlotClick(slot)}
                                     size='sm'
                                     variant='ghost'
                                   >
@@ -431,6 +490,67 @@ export default function AvailabilitiesPage() {
         open={isEditModalOpen}
         weekStart={weekStart}
       />
+      <ConfirmModal
+        cancelButtonText={tCommon('actions.cancel')}
+        confirmButtonText={
+          confirmDialog.type === 'delete'
+            ? t('deleteSlot')
+            : t('stopRecurrence')
+        }
+        description={
+          confirmDialog.type === 'delete'
+            ? t('deleteSlotConfirm')
+            : t('stopRecurrenceConfirm')
+        }
+        onCancel={() =>
+          setConfirmDialog({ open: false, slot: null, type: null })
+        }
+        onConfirm={() => {
+          if (confirmDialog.slot) {
+            if (confirmDialog.type === 'delete') {
+              handleDeleteSlot(confirmDialog.slot);
+            } else if (confirmDialog.type === 'stopRecurrence') {
+              handleStopRecurrence(confirmDialog.slot);
+            }
+          }
+        }}
+        onOpenChange={open =>
+          setConfirmDialog({
+            open,
+            slot: confirmDialog.slot,
+            type: confirmDialog.type,
+          })
+        }
+        open={confirmDialog.open}
+        title={
+          confirmDialog.type === 'delete'
+            ? t('deleteSlot')
+            : t('stopRecurrence')
+        }
+        type={confirmDialog.type}
+      />
+
+      {/* Info Modal */}
+      <Dialog
+        onOpenChange={open => setInfoModal({ ...infoModal, open })}
+        open={infoModal.open}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{infoModal.title}</DialogTitle>
+            <DialogDescription>{infoModal.message}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
+              onClick={() => setInfoModal({ ...infoModal, open: false })}
+              variant='default'
+            >
+              {tCommon('actions.ok') || 'OK'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
