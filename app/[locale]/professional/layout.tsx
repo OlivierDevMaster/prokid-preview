@@ -63,11 +63,13 @@ export default function ProtectedLayout({
   }
 
   return (
-    <div className='flex min-h-screen flex-col'>
+    <div className='flex h-screen flex-col overflow-hidden'>
       <BoNavbar userRole='professionnel' />
-      <div className='bg-green flex flex-1 overflow-hidden'>
-        <ProfessionalSidebar />
-        <main className='flex-1 overflow-auto'>
+      <div className='flex flex-1 overflow-hidden'>
+        <div className='flex h-full flex-shrink-0'>
+          <ProfessionalSidebar />
+        </div>
+        <main className='flex-1 overflow-y-auto'>
           <div className='p-8'>{children}</div>
         </main>
       </div>
