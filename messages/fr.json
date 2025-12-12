@@ -350,9 +350,26 @@
     },
     "professionals": {
       "title": "Mes professionnels",
-      "description": "Consultez et gérez tous les professionnels de votre structure.",
+      "description": "Consultez et gérez tous vos professionnels.",
       "loading": "Chargement...",
-      "noProfessionals": "Aucun professionnel trouvé."
+      "noProfessionals": "Aucun professionnel trouvé.",
+      "viewProfile": "Voir le profil",
+      "details": {
+        "loading": "Chargement...",
+        "notFound": "Professionnel non trouvé",
+        "backToList": "Retour à la liste",
+        "certified": "Certifié",
+        "available": "Disponible",
+        "reviews": "avis",
+        "skills": "Compétences",
+        "yearsExperience": "années d'expérience",
+        "hour": "heure",
+        "contact": "Contact",
+        "about": "À propos",
+        "additionalInfo": "Informations supplémentaires",
+        "verifiedAt": "Vérifié le",
+        "memberSince": "Membre depuis"
+      }
     }
   },
   "admin": {

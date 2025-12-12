@@ -341,9 +341,26 @@
     },
     "professionals": {
       "title": "My professionals",
-      "description": "View and manage all professionals in your structure.",
+      "description": "View and manage all your professionals.",
       "loading": "Loading...",
-      "noProfessionals": "No professionals found."
+      "noProfessionals": "No professionals found.",
+      "viewProfile": "View profile",
+      "details": {
+        "loading": "Loading...",
+        "notFound": "Professional not found",
+        "backToList": "Back to list",
+        "certified": "Certified",
+        "available": "Available",
+        "reviews": "reviews",
+        "skills": "Skills",
+        "yearsExperience": "years of experience",
+        "hour": "hour",
+        "contact": "Contact",
+        "about": "About",
+        "additionalInfo": "Additional Information",
+        "verifiedAt": "Verified at",
+        "memberSince": "Member since"
+      }
     }
   },
   "admin": {
