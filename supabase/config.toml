@@ -411,7 +411,6 @@ entrypoint = "./functions/missions/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/missions/*.html" ]
 
-
 [functions.extract-rrule-dates]
 enabled = true
 verify_jwt = true

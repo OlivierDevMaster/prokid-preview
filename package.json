@@ -15,7 +15,8 @@
     "db:generate:remote": "supabase gen types typescript --linked > types/database/schema.ts",
     "db:delete-all": "tsx scripts/delete-all-data.ts",
     "db:delete-all-with-auth": "tsx scripts/delete-all-data-with-auth.ts",
-    "functions:deploy": "supabase functions deploy"
+    "functions:deploy": "supabase functions deploy",
+    "test:send-report": "dotenvx run -- tsx scripts/test-send-report.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -52,6 +53,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.51.2",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
