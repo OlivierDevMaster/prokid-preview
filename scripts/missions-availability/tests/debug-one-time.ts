@@ -1,4 +1,3 @@
-import { rrulestr } from 'rrule';
 import {
   type MissionSchedule,
   ProfessionalAvailability,
@@ -25,9 +24,6 @@ console.log('Mission until:', missionUntil.toISOString());
 console.log('Availability:', availability.rrule);
 
 // Test the constrained RRULE
-import { constrainRRULEByDates } from '../validateMissionAvailability.ts';
-// Actually, constrainRRULEByDates is not exported, let me test the validation directly
-
 const result = validateMissionAvailability(
   [missionSchedule],
   missionStart,
@@ -38,4 +34,3 @@ const result = validateMissionAvailability(
 console.log('\nValidation result:');
 console.log('Is valid:', result.isValid);
 console.log('Violations:', JSON.stringify(result.violations, null, 2));
-

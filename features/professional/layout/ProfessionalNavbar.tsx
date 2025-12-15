@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import ProkidLogo from '@/features/layout/ProkidLogo';
 
 import { type Notification, NotificationPanel } from './NotificationPanel';
 
@@ -60,7 +61,7 @@ export function ProfessionalNavbar({
       <div className='flex items-center justify-between px-3 py-2'>
         <div>
           <Link href='/'>
-            <h1 className='text-lg font-bold text-gray-900'>PROKID</h1>
+            <ProkidLogo />
           </Link>
         </div>
         <div className='flex items-center gap-2'>

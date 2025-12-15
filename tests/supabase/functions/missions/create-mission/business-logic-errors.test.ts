@@ -1,5 +1,5 @@
 import '@std/dotenv/load';
-import { assertEquals, assertExists } from '@std/assert';
+import { assertEquals } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
 import { ApiTestHelper } from '../../../helpers/ApiHelper.ts';
