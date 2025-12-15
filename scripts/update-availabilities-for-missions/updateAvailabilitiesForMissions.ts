@@ -66,13 +66,18 @@ interface AvailabilityModifications {
  * 3. Determines which availabilities need to be split, truncated, or modified
  * 4. Returns availabilities that need to be updated and new ones that need to be created
  *
+ * Important:
+ * - Only the RRULE string is used as the source of truth for availabilities and mission schedules.
+ *   Any dtstart/until columns in the database are ignored - dates are extracted from parsing the RRULE.
+ * - For missions, missionDtstart and missionUntil parameters (from the missions table) are used safely.
+ *
  * Note: This function assumes all mission schedules have been validated and are
  * within professional availabilities (via validateMissionAvailability).
  *
  * @param availabilities - Array of professional availabilities with RRULE and duration
  * @param missionSchedules - Array of mission schedules with RRULE and duration
- * @param missionDtstart - Mission start date
- * @param missionUntil - Mission end date
+ * @param missionDtstart - Mission start date (from missions table)
+ * @param missionUntil - Mission end date (from missions table)
  * @returns Result with availabilities to update and create
  */
 export function updateAvailabilitiesForMissions(
@@ -356,6 +361,7 @@ function createAvailabilityWithUntil(
 
 /**
  * Generates all occurrences for a professional availability.
+ * Only uses the RRULE string - extracts dtstart/until from parsing the RRULE, not from database columns.
  */
 function generateAvailabilityOccurrences(
   availability: ProfessionalAvailability,
@@ -400,6 +406,8 @@ function generateAvailabilityOccurrences(
 
 /**
  * Generates all occurrences for a mission schedule within the mission date range.
+ * Only uses the RRULE string - extracts dtstart/until from parsing the RRULE, not from database columns.
+ * Uses missionDtstart and missionUntil parameters from the missions table.
  */
 function generateMissionOccurrences(
   schedule: MissionSchedule,
