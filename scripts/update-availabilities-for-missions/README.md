@@ -30,16 +30,18 @@ Calculates which availabilities need to be updated or created to block out missi
 
 **Availability Subtraction Pattern:**
 
-All cases follow the same pattern - the mission period is "subtracted" from the availability:
+All cases follow the same pattern - the schedule period is "subtracted" from the availability. The function uses the schedule's dtstart (A) and until (B) extracted from the schedule RRULE itself, not from the mission dates.
 
-1. **Update Original**: Stop the original availability before the mission starts (set UNTIL to just before first mission occurrence)
-2. **During Mission** (if applicable): Create availability for non-blocked parts during the mission period (with UNTIL = mission end)
-3. **After Mission**: Create availability for the full pattern starting after the mission ends, preserving the original UNTIL if it existed
+1. **Update Original**: Stop the original availability before the schedule starts (set UNTIL to just before schedule dtstart A)
+2. **During Schedule Period** (if applicable): Create availabilities for non-blocked parts:
+   - **Before mission part**: If mission doesn't start at availability start, create availability for the part before mission (dtstart = A, until = B)
+   - **After mission part**: If mission doesn't end at availability end, create availability for the part after mission (dtstart = A, until = B)
+3. **After Schedule Period**: Create availability for the full pattern starting after schedule until (B), preserving the original UNTIL if it existed (dtstart = B, until = original until)
 
 This ensures that:
-- **Before mission**: Original availability continues until just before the mission
-- **During mission**: Professional is available only for non-blocked parts (mission period is subtracted)
-- **After mission**: Full availability pattern resumes (continues indefinitely or until original UNTIL)
+- **Before schedule**: Original availability continues until just before schedule dtstart (A)
+- **During schedule period**: Professional is available only for non-blocked parts (schedule period is subtracted, using A and B from schedule RRULE)
+- **After schedule period**: Full availability pattern resumes starting after schedule until (B), continues indefinitely or until original UNTIL
 
 ## Visual Examples
 
@@ -61,19 +63,25 @@ Date:  Jan 1                Jan 8            Jan 8        Jan 8          Jan 8
 
 **Result: Availability Subtraction**
 
-1. **Updated Original** (stops before mission):
+1. **Updated Original** (stops before schedule dtstart A):
 ```
-Time:  |===== 9am-12pm =====|  |== 9am-10am ==|  (stops here)
-Date:  Jan 1                Jan 8            Jan 8 (UNTIL: just before 10am)
+Time:  |===== 9am-12pm =====|  (stops here)
+Date:  Jan 1                Jan 8 (UNTIL: just before schedule dtstart A = Jan 8 10am)
 ```
 
-2. **Created: During Mission** (11am-12pm, only during mission period):
+2. **Created: Before Mission Part** (9am-10am, during schedule period, dtstart = A, until = B):
+```
+Time:  |== 9am-10am ==|  |== 9am-10am ==|  |== 9am-10am ==|  (stops)
+Date:  Jan 8          Jan 15           Jan 22           Jan 29 (UNTIL: B = Jan 29 10am)
+```
+
+3. **Created: After Mission Part** (11am-12pm, during schedule period, dtstart = A, until = B):
 ```
 Time:  |== 11am-12pm ==|  |== 11am-12pm ==|  |== 11am-12pm ==|  (stops)
-Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: Jan 31)
+Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: B = Jan 29 10am)
 ```
 
-3. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+4. **Created: Post-Schedule** (full 9am-12pm, resumes after schedule until B):
 ```
 Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
 Date:  Feb 5               Feb 12              Feb 19              (ongoing)
@@ -81,9 +89,9 @@ Date:  Feb 5               Feb 12              Feb 19              (ongoing)
 
 **Final Result Timeline:**
 ```
-Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
-During Mission:  |== 9am-10am ==|--MISSION--|== 11am-12pm ==|  (split availability)
-After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+Before Schedule:  |===== 9am-12pm =====|  (original, stops before A = Jan 8 10am)
+During Schedule:  |== 9am-10am ==|--MISSION--|== 11am-12pm ==|  (both parts: dtstart = A, until = B)
+After Schedule:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full, dtstart = B)
 ```
 
 ### Example 2: Mission at Start of Availability
@@ -104,19 +112,19 @@ Date:  Jan 1                Jan 8        Jan 8          Jan 8
 
 **Result: Availability Subtraction**
 
-1. **Updated Original** (stops before mission):
+1. **Updated Original** (stops before schedule dtstart A):
 ```
 Time:  |===== 9am-12pm =====|  (stops here)
-Date:  Jan 1                Jan 8 (UNTIL: just before 9am)
+Date:  Jan 1                Jan 8 (UNTIL: just before schedule dtstart A = Jan 8 9am)
 ```
 
-2. **Created: During Mission** (10am-12pm, only during mission period):
+2. **Created: After Mission Part** (10am-12pm, during schedule period, dtstart = A, until = B):
 ```
 Time:  |== 10am-12pm ==|  |== 10am-12pm ==|  |== 10am-12pm ==|  (stops)
-Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: Jan 31)
+Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: B = Jan 29 9am)
 ```
 
-3. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+3. **Created: Post-Schedule** (full 9am-12pm, resumes after schedule until B):
 ```
 Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
 Date:  Feb 5               Feb 12              Feb 19              (ongoing)
@@ -124,9 +132,9 @@ Date:  Feb 5               Feb 12              Feb 19              (ongoing)
 
 **Final Result Timeline:**
 ```
-Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
-During Mission:  |--MISSION--|== 10am-12pm ==|  (partial availability)
-After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+Before Schedule:  |===== 9am-12pm =====|  (original, stops before A = Jan 8 9am)
+During Schedule:  |--MISSION--|== 10am-12pm ==|  (after mission part: dtstart = A, until = B)
+After Schedule:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full, dtstart = B)
 ```
 
 ### Example 3: Mission at End of Availability
@@ -147,13 +155,19 @@ Date:  Jan 1                Jan 8            Jan 8        Jan 8
 
 **Result: Availability Subtraction**
 
-1. **Updated Original** (stops before mission):
+1. **Updated Original** (stops before schedule dtstart A):
 ```
-Time:  |===== 9am-12pm =====|  |== 9am-11am ==|  (stops here)
-Date:  Jan 1                Jan 8            Jan 8 (UNTIL: just before 11am)
+Time:  |===== 9am-12pm =====|  (stops here)
+Date:  Jan 1                Jan 8 (UNTIL: just before schedule dtstart A = Jan 8 11am)
 ```
 
-2. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+2. **Created: Before Mission Part** (9am-11am, during schedule period, dtstart = A, until = B):
+```
+Time:  |== 9am-11am ==|  |== 9am-11am ==|  |== 9am-11am ==|  (stops)
+Date:  Jan 8          Jan 15           Jan 22           Jan 29 (UNTIL: B = Jan 29 11am)
+```
+
+3. **Created: Post-Schedule** (full 9am-12pm, resumes after schedule until B):
 ```
 Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
 Date:  Feb 5               Feb 12              Feb 19              (ongoing)
@@ -161,9 +175,9 @@ Date:  Feb 5               Feb 12              Feb 19              (ongoing)
 
 **Final Result Timeline:**
 ```
-Before Mission:  |===== 9am-12pm =====|  |== 9am-11am ==|  (original, stops before Jan 8)
-During Mission:  |== 9am-11am ==|--MISSION--|  (partial availability during mission)
-After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+Before Schedule:  |===== 9am-12pm =====|  (original, stops before A = Jan 8 11am)
+During Schedule:  |== 9am-11am ==|--MISSION--|  (before mission part: dtstart = A, until = B)
+After Schedule:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full, dtstart = B)
 ```
 
 ### Example 4: Mission Covers Entire Availability
@@ -184,13 +198,13 @@ Date:  Jan 1                Jan 8        Jan 15       Jan 22
 
 **Result: Availability Subtraction**
 
-1. **Updated Original** (stops before mission):
+1. **Updated Original** (stops before schedule dtstart A):
 ```
 Time:  |===== 9am-12pm =====|  (stops here)
-Date:  Jan 1                Jan 8 (UNTIL: just before 9am)
+Date:  Jan 1                Jan 8 (UNTIL: just before schedule dtstart A = Jan 8 9am)
 ```
 
-2. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+2. **Created: Post-Schedule** (full 9am-12pm, resumes after schedule until B):
 ```
 Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
 Date:  Feb 5               Feb 12              Feb 19              (ongoing)
@@ -198,9 +212,9 @@ Date:  Feb 5               Feb 12              Feb 19              (ongoing)
 
 **Final Result Timeline:**
 ```
-Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
-During Mission:  |--MISSION--|  |--MISSION--|  (completely blocked)
-After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+Before Schedule:  |===== 9am-12pm =====|  (original, stops before A = Jan 8 9am)
+During Schedule:  |--MISSION--|  |--MISSION--|  (completely blocked, dtstart = A, until = B)
+After Schedule:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full, dtstart = B)
 ```
 
 ### Legend
@@ -213,8 +227,10 @@ After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes fu
 
 - `availabilities`: Array of professional availabilities with RRULE and duration
 - `missionSchedules`: Array of mission schedules with RRULE and duration
-- `missionDtstart`: Mission start date
-- `missionUntil`: Mission end date
+- `missionDtstart`: Mission start date (from missions table)
+- `missionUntil`: Mission end date (from missions table)
+
+**Note:** The function extracts the schedule's dtstart (A) and until (B) from each schedule's RRULE string itself. These schedule dates (A and B) may differ from the mission dates - the schedule can start after the mission starts or end before the mission ends.
 
 **Returns:**
 
@@ -251,6 +267,116 @@ To run the test suite:
 ```bash
 npx tsx scripts/update-availabilities-for-missions/tests/test-runner.ts
 ```
+
+## Known Limitations & Future Improvements
+
+The current implementation has several limitations that should be addressed in future versions:
+
+### 1. Multiple Schedules Affecting the Same Availability
+
+**Current Issue**: The `processedAvailabilityIndices` set prevents processing the same availability more than once, even if multiple schedules overlap it.
+
+**Problem Scenario**:
+- Availability: 9am-12pm daily
+- Schedule 1: 10am-11am (Jan 8-15)
+- Schedule 2: 10:30am-11:30am (Jan 16-22)
+
+The second schedule won't be processed because the availability is already marked as processed.
+
+**Proposed Solution**: Instead of marking entire availabilities as processed, track which schedule periods have been applied to each availability. Consider merging overlapping schedule periods first, or process all schedules and merge the results.
+
+### 2. Post-Mission Availability Duplication
+
+**Current Issue**: If multiple schedules affect the same availability, you might create multiple post-mission availabilities that should be merged.
+
+**Proposed Solution**: After processing all schedules, merge post-mission availabilities that have the same pattern and are adjacent or overlapping.
+
+### 3. Schedule Period Consolidation
+
+**Current Approach**: Each schedule is processed independently.
+
+**Proposed Solution**: Before processing, consolidate overlapping or adjacent schedule periods:
+```typescript
+// Pseudo-code
+const consolidatedPeriods = consolidateSchedulePeriods(missionSchedules);
+// Then process consolidated periods instead of individual schedules
+```
+
+This would ensure that overlapping schedules are handled correctly and reduce redundant calculations.
+
+### 4. Occurrence-Level vs Schedule-Level Processing
+
+**Current Approach**: Processes each mission occurrence individually.
+
+**Proposed Improvement**: Process at the schedule level (using schedule dtstart/until) rather than occurrence-by-occurrence. This would:
+- Reduce redundant calculations
+- Ensure consistent behavior across all occurrences
+- Simplify the logic
+
+### 5. Edge Case: Overlapping Schedules with Different Patterns
+
+**Scenario**:
+- Availability: 9am-12pm daily
+- Schedule 1: 10am-11am (Mon-Fri)
+- Schedule 2: 10:30am-11:30am (Wed only)
+
+The current logic might not handle this correctly.
+
+**Proposed Solution**: Use a set-based approach:
+1. Generate all availability occurrences
+2. Generate all mission occurrences (from all schedules)
+3. Subtract mission periods from availability periods
+4. Group remaining periods by pattern and create/update accordingly
+
+### 6. Performance Optimization
+
+**Current**: Nested loops: `schedules → occurrences → availabilities → availability occurrences`
+
+**Proposed Improvements**:
+- Pre-generate all occurrences once
+- Use interval trees or sorted arrays for overlap detection
+- Batch process similar patterns
+
+### 7. Validation and Error Handling
+
+**Missing Validations**:
+- Check if schedule until (B) is before schedule dtstart (A)
+- Validate that schedule dates make sense
+- Handle edge cases where schedule period is outside mission period
+
+**Proposed Solution**: Add validation:
+```typescript
+if (scheduleUntil < scheduleDtstart) {
+  // Handle invalid schedule
+}
+```
+
+### 8. Alternative Approach: Interval Subtraction
+
+**Proposed Alternative**: Consider an interval-based subtraction model:
+
+```typescript
+// Pseudo-code
+1. Convert availability to intervals: [9am-12pm, recurring]
+2. Convert mission schedules to intervals: [10am-11am, recurring]
+3. Subtract mission intervals from availability intervals
+4. Group remaining intervals by pattern
+5. Create/update availabilities based on grouped intervals
+```
+
+**Benefits**:
+- Handle multiple overlapping schedules naturally
+- Avoid duplicate post-mission availabilities
+- More mathematically sound
+- Easier to test and reason about
+
+### Priority Recommendations
+
+1. **High Priority**: Fix multiple schedules issue (#1)
+2. **High Priority**: Consolidate post-mission availabilities (#2)
+3. **Medium Priority**: Add validation (#7)
+4. **Medium Priority**: Consider interval-based approach (#8)
+5. **Low Priority**: Performance optimization (#6)
 
 ## Usage Example
 

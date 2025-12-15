@@ -66,65 +66,98 @@ test('should split availability when mission is in the middle', () => {
     'UNTIL should be set to just before first mission occurrence'
   );
 
-  // Should create two availabilities:
-  // 1. During mission period: 11am-12pm (with UNTIL = mission end)
-  // 2. After mission ends: 9am-12pm (full pattern, no UNTIL - resumes after mission)
+  // Should create three availabilities:
+  // 1. Before mission part during schedule period: 9am-10am (dtstart = A, until = B)
+  // 2. After mission part during schedule period: 11am-12pm (dtstart = A, until = B)
+  // 3. Post-mission: 9am-12pm (dtstart = B, until = original until)
   assertEqual(
     result.toCreate.length,
-    2,
-    'Should have two availabilities to create (during mission and after mission)'
+    3,
+    'Should have three availabilities to create (before mission, after mission, post-mission)'
   );
 
-  // First created availability: during mission period (11am-12pm)
-  const duringMissionRule = rrulestr(result.toCreate[0].rrule);
+  // Schedule dates from the mission schedule RRULE
+  const scheduleDtstart = new Date('2024-01-08T10:00:00Z'); // A - first schedule occurrence
+  const scheduleUntil = new Date('2024-01-29T10:00:00Z'); // B - schedule until
+
+  // First created availability: before mission part (9am-10am, dtstart = A, until = B)
+  const beforeMissionRule = rrulestr(result.toCreate[0].rrule);
   assertEqual(
     result.toCreate[0].duration_mn,
     60,
-    'First availability should be 1 hour (11am-12pm during mission)'
+    'First availability should be 1 hour (9am-10am before mission)'
   );
   assert(
-    duringMissionRule.options.dtstart !== undefined,
-    'During-mission availability should have DTSTART'
+    beforeMissionRule.options.dtstart !== undefined,
+    'Before-mission availability should have DTSTART'
   );
-  const expectedStart = new Date('2024-01-08T11:00:00Z');
+  // DTSTART should be at schedule dtstart (A) with time 9am
+  const expectedBeforeStart = new Date(scheduleDtstart);
+  expectedBeforeStart.setUTCHours(9, 0, 0, 0);
   assert(
-    duringMissionRule.options.dtstart &&
+    beforeMissionRule.options.dtstart &&
       Math.abs(
-        duringMissionRule.options.dtstart.getTime() - expectedStart.getTime()
+        beforeMissionRule.options.dtstart.getTime() -
+          expectedBeforeStart.getTime()
       ) < 60000,
-    'DTSTART should be at the end of first mission occurrence (11am)'
-  );
-  // Should have UNTIL set to mission end (only exists during mission period)
-  assert(
-    duringMissionRule.options.until !== null &&
-      duringMissionRule.options.until !== undefined,
-    'During-mission availability should have UNTIL set to mission end'
+    'DTSTART should be at schedule dtstart (A) with time 9am'
   );
   assert(
-    duringMissionRule.options.until !== null &&
-      duringMissionRule.options.until !== undefined &&
+    beforeMissionRule.options.until !== null &&
+      beforeMissionRule.options.until !== undefined &&
       Math.abs(
-        duringMissionRule.options.until.getTime() - missionEnd.getTime()
+        beforeMissionRule.options.until.getTime() - scheduleUntil.getTime()
       ) < 60000,
-    'UNTIL should be set to mission end'
+    'UNTIL should be set to schedule until (B)'
   );
 
-  // Second created availability: after mission ends (9am-12pm, full pattern)
-  const postMissionRule = rrulestr(result.toCreate[1].rrule);
+  // Second created availability: after mission part (11am-12pm, dtstart = A, until = B)
+  const afterMissionRule = rrulestr(result.toCreate[1].rrule);
   assertEqual(
     result.toCreate[1].duration_mn,
+    60,
+    'Second availability should be 1 hour (11am-12pm after mission)'
+  );
+  assert(
+    afterMissionRule.options.dtstart !== undefined,
+    'After-mission availability should have DTSTART'
+  );
+  // DTSTART should be at schedule dtstart (A) with time 11am
+  const expectedAfterStart = new Date(scheduleDtstart);
+  expectedAfterStart.setUTCHours(11, 0, 0, 0);
+  assert(
+    afterMissionRule.options.dtstart &&
+      Math.abs(
+        afterMissionRule.options.dtstart.getTime() -
+          expectedAfterStart.getTime()
+      ) < 60000,
+    'DTSTART should be at schedule dtstart (A) with time 11am'
+  );
+  assert(
+    afterMissionRule.options.until !== null &&
+      afterMissionRule.options.until !== undefined &&
+      Math.abs(
+        afterMissionRule.options.until.getTime() - scheduleUntil.getTime()
+      ) < 60000,
+    'UNTIL should be set to schedule until (B)'
+  );
+
+  // Third created availability: post-mission (9am-12pm, dtstart = B, until = original until)
+  const postMissionRule = rrulestr(result.toCreate[2].rrule);
+  assertEqual(
+    result.toCreate[2].duration_mn,
     180,
     'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
   );
-  // Should start after mission ends (first Monday after Jan 31)
+  // Should start after schedule until (B)
   assert(
     postMissionRule.options.dtstart !== undefined,
     'Post-mission availability should have DTSTART'
   );
   assert(
     postMissionRule.options.dtstart &&
-      postMissionRule.options.dtstart > missionEnd,
-    'Post-mission availability should start after mission ends'
+      postMissionRule.options.dtstart > scheduleUntil,
+    'Post-mission availability should start after schedule until (B)'
   );
   // Since original availability had no UNTIL, post-mission one should also have no UNTIL
   assert(
@@ -173,44 +206,65 @@ test('should truncate availability when mission is at the start', () => {
   );
 
   // Should create two availabilities:
-  // 1. During mission period: 10am-12pm (with UNTIL = mission end)
-  // 2. After mission ends: 9am-12pm (full pattern, no UNTIL - resumes after mission)
+  // 1. After mission part during schedule period: 10am-12pm (dtstart = A, until = B)
+  // 2. Post-mission: 9am-12pm (dtstart = B, until = original until)
   assertEqual(
     result.toCreate.length,
     2,
-    'Should have two availabilities to create (during mission and after mission)'
+    'Should have two availabilities to create (after mission part and post-mission)'
   );
 
-  // First created availability: during mission period (10am-12pm)
-  const duringMissionRule = rrulestr(result.toCreate[0].rrule);
+  // Schedule dates from the mission schedule RRULE
+  const scheduleDtstart = new Date('2024-01-08T09:00:00Z'); // A
+  const scheduleUntil = new Date('2024-01-29T09:00:00Z'); // B
+
+  // First created availability: after mission part (10am-12pm, dtstart = A, until = B)
+  const afterMissionRule = rrulestr(result.toCreate[0].rrule);
   assertEqual(
     result.toCreate[0].duration_mn,
     120,
-    'First availability should be 2 hours (10am-12pm during mission)'
+    'First availability should be 2 hours (10am-12pm after mission)'
   );
-  // Should have UNTIL set to mission end (only exists during mission period)
+  // DTSTART should be at schedule dtstart (A) with time 10am
+  const expectedAfterStart = new Date(scheduleDtstart);
+  expectedAfterStart.setUTCHours(10, 0, 0, 0);
   assert(
-    duringMissionRule.options.until !== null &&
-      duringMissionRule.options.until !== undefined,
-    'During-mission availability should have UNTIL set to mission end'
+    afterMissionRule.options.dtstart !== undefined,
+    'After-mission availability should have DTSTART'
+  );
+  assert(
+    afterMissionRule.options.dtstart &&
+      Math.abs(
+        afterMissionRule.options.dtstart.getTime() -
+          expectedAfterStart.getTime()
+      ) < 60000,
+    'DTSTART should be at schedule dtstart (A) with time 10am'
+  );
+  assert(
+    afterMissionRule.options.until !== null &&
+      afterMissionRule.options.until !== undefined &&
+      Math.abs(
+        afterMissionRule.options.until.getTime() - scheduleUntil.getTime()
+      ) < 60000,
+    'UNTIL should be set to schedule until (B)'
   );
 
-  // Second created availability: after mission ends (9am-12pm, full pattern)
+  // Second created availability: post-mission (9am-12pm, dtstart = B, until = original until)
   const postMissionRule = rrulestr(result.toCreate[1].rrule);
   assertEqual(
     result.toCreate[1].duration_mn,
     180,
     'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
   );
-  // Should start after mission ends
+  // Should start after schedule until (B)
   assert(
     postMissionRule.options.dtstart !== undefined,
     'Post-mission availability should have DTSTART'
   );
   assert(
     postMissionRule.options.dtstart &&
-      postMissionRule.options.dtstart > missionEnd,
-    'Post-mission availability should start after mission ends'
+      postMissionRule.options.dtstart > scheduleUntil,
+    'Post-mission availability should start after schedule until (B)'
   );
   // Since original availability had no UNTIL, post-mission one should also have no UNTIL
   assert(
@@ -268,28 +322,66 @@ test('should truncate availability when mission is at the end', () => {
     'UNTIL should be set to just before first mission occurrence'
   );
 
-  // Should create one availability: full pattern after mission ends (9am-12pm resumes)
+  // Should create two availabilities:
+  // 1. Before mission part during schedule period: 9am-11am (dtstart = A, until = B)
+  // 2. Post-mission: 9am-12pm (dtstart = B, until = original until)
   assertEqual(
     result.toCreate.length,
-    1,
-    'Should have one availability to create (post-mission full pattern)'
+    2,
+    'Should have two availabilities to create (before mission part and post-mission)'
   );
 
-  const postMissionRule = rrulestr(result.toCreate[0].rrule);
+  // Schedule dates from the mission schedule RRULE
+  const scheduleDtstart = new Date('2024-01-08T11:00:00Z'); // A
+  const scheduleUntil = new Date('2024-01-29T11:00:00Z'); // B
+
+  // First created availability: before mission part (9am-11am, dtstart = A, until = B)
+  const beforeMissionRule = rrulestr(result.toCreate[0].rrule);
   assertEqual(
     result.toCreate[0].duration_mn,
+    120,
+    'First availability should be 2 hours (9am-11am before mission)'
+  );
+  // DTSTART should be at schedule dtstart (A) with time 9am
+  const expectedBeforeStart = new Date(scheduleDtstart);
+  expectedBeforeStart.setUTCHours(9, 0, 0, 0);
+  assert(
+    beforeMissionRule.options.dtstart !== undefined,
+    'Before-mission availability should have DTSTART'
+  );
+  assert(
+    beforeMissionRule.options.dtstart &&
+      Math.abs(
+        beforeMissionRule.options.dtstart.getTime() -
+          expectedBeforeStart.getTime()
+      ) < 60000,
+    'DTSTART should be at schedule dtstart (A) with time 9am'
+  );
+  assert(
+    beforeMissionRule.options.until !== null &&
+      beforeMissionRule.options.until !== undefined &&
+      Math.abs(
+        beforeMissionRule.options.until.getTime() - scheduleUntil.getTime()
+      ) < 60000,
+    'UNTIL should be set to schedule until (B)'
+  );
+
+  // Second created availability: post-mission (9am-12pm, dtstart = B, until = original until)
+  const postMissionRule = rrulestr(result.toCreate[1].rrule);
+  assertEqual(
+    result.toCreate[1].duration_mn,
     180,
     'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
   );
-  // Should start after mission ends
+  // Should start after schedule until (B)
   assert(
     postMissionRule.options.dtstart !== undefined,
     'Post-mission availability should have DTSTART'
   );
   assert(
     postMissionRule.options.dtstart &&
-      postMissionRule.options.dtstart > missionEnd,
-    'Post-mission availability should start after mission ends'
+      postMissionRule.options.dtstart > scheduleUntil,
+    'Post-mission availability should start after schedule until (B)'
   );
   // Since original availability had no UNTIL, post-mission one should also have no UNTIL
   assert(
@@ -347,12 +439,15 @@ test('should handle mission covering entire availability', () => {
     'UNTIL should be set to just before first mission occurrence'
   );
 
-  // Should create one availability: full pattern after mission ends (9am-12pm resumes)
+  // Should create one availability: post-mission (9am-12pm, dtstart = B, until = original until)
   assertEqual(
     result.toCreate.length,
     1,
     'Should have one availability to create (post-mission full pattern)'
   );
+
+  // Schedule dates from the mission schedule RRULE
+  const scheduleUntil = new Date('2024-01-29T09:00:00Z'); // B
 
   const postMissionRule = rrulestr(result.toCreate[0].rrule);
   assertEqual(
@@ -360,15 +455,15 @@ test('should handle mission covering entire availability', () => {
     180,
     'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
   );
-  // Should start after mission ends
+  // Should start after schedule until (B)
   assert(
     postMissionRule.options.dtstart !== undefined,
     'Post-mission availability should have DTSTART'
   );
   assert(
     postMissionRule.options.dtstart &&
-      postMissionRule.options.dtstart > missionEnd,
-    'Post-mission availability should start after mission ends'
+      postMissionRule.options.dtstart > scheduleUntil,
+    'Post-mission availability should start after schedule until (B)'
   );
   // Since original availability had no UNTIL, post-mission one should also have no UNTIL
   assert(
@@ -402,15 +497,15 @@ test('should verify created availability continues after mission ends', () => {
     missionEnd
   );
 
-  // Should create two availabilities (during mission and after mission)
+  // Should create three availabilities (before mission, after mission, post-mission)
   assertEqual(
     result.toCreate.length,
-    2,
-    'Should have two availabilities to create (during mission and after mission)'
+    3,
+    'Should have three availabilities to create (before mission, after mission, post-mission)'
   );
 
-  // Check the post-mission availability (second one) - should continue after mission ends
-  const postMissionRule = rrulestr(result.toCreate[1].rrule);
+  // Check the post-mission availability (third one) - should continue after mission ends
+  const postMissionRule = rrulestr(result.toCreate[2].rrule);
 
   // Since original availability had no UNTIL, post-mission one should also have no UNTIL
   assert(
@@ -460,15 +555,15 @@ test('should preserve UNTIL when original availability had one', () => {
     missionEnd
   );
 
-  // Should create two availabilities (during mission and after mission)
+  // Should create three availabilities (before mission, after mission, post-mission)
   assertEqual(
     result.toCreate.length,
-    2,
-    'Should have two availabilities to create (during mission and after mission)'
+    3,
+    'Should have three availabilities to create (before mission, after mission, post-mission)'
   );
 
-  // Check the post-mission availability (second one) - should preserve original UNTIL
-  const postMissionRule = rrulestr(result.toCreate[1].rrule);
+  // Check the post-mission availability (third one) - should preserve original UNTIL
+  const postMissionRule = rrulestr(result.toCreate[2].rrule);
 
   // Verify it preserves the original UNTIL
   assert(
