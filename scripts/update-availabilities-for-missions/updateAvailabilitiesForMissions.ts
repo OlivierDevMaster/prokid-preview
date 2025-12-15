@@ -221,7 +221,11 @@ function calculateAvailabilityModifications(
     missionEndTime < availEndTime
   ) {
     const newDurationMn = (availEndTime - missionEndTime) / (60 * 1000);
-    const newRrule = createAvailabilityAfterMission(options, missionEnd);
+    const newRrule = createAvailabilityAfterMission(
+      options,
+      missionEnd,
+      options.until
+    );
 
     result.needsCreate = true;
     result.newRrule = newRrule;
@@ -259,7 +263,11 @@ function calculateAvailabilityModifications(
   else if (missionStartTime > availStartTime && missionEndTime < availEndTime) {
     // Create availability after mission
     const newDurationMn = (availEndTime - missionEndTime) / (60 * 1000);
-    const newRrule = createAvailabilityAfterMission(options, missionEnd);
+    const newRrule = createAvailabilityAfterMission(
+      options,
+      missionEnd,
+      options.until
+    );
 
     result.needsCreate = true;
     result.newRrule = newRrule;
@@ -298,15 +306,14 @@ function calculateAvailabilityModifications(
 
 /**
  * Creates a new availability RRULE that starts after a mission ends.
- * The availability continues indefinitely (no UNTIL) so the professional
- * is available again after the mission period ends.
+ * Preserves the original availability's UNTIL if it had one, otherwise continues indefinitely.
  */
 function createAvailabilityAfterMission(
   originalOptions: Partial<Options>,
-  missionEnd: Date
+  missionEnd: Date,
+  originalUntil: Date | null | undefined
 ): string {
-  // Create new options without until and count
-  // The availability should continue indefinitely after the mission ends
+  // Create new options, preserving the original UNTIL if it existed
   const newOptions: Partial<Options> = {
     bymonth: originalOptions.bymonth,
     bymonthday: originalOptions.bymonthday,
@@ -317,8 +324,12 @@ function createAvailabilityAfterMission(
     dtstart: missionEnd,
     freq: originalOptions.freq,
     interval: originalOptions.interval,
-    // Explicitly don't set until or count - availability continues indefinitely
+    // Preserve original UNTIL if it existed, otherwise continue indefinitely
+    until: originalUntil || undefined,
   };
+
+  // Remove count if present (we're using UNTIL if it exists)
+  delete newOptions.count;
 
   const newRule = new RRule(newOptions);
   return newRule.toString();
