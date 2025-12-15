@@ -51,6 +51,15 @@ interface TimeInterval {
     duration_mn: number;
     rrule: string;
   };
+  // Schedule information for intervals during schedule period
+  scheduleInfo?: {
+    // Whether this interval is "after mission" or "before mission"
+    isAfterMission?: boolean;
+    isBeforeMission?: boolean;
+    schedule: MissionSchedule;
+    scheduleDtstart: Date;
+    scheduleUntil: Date;
+  };
   start: Date;
 }
 
@@ -80,9 +89,22 @@ export function updateAvailabilitiesForMissions(
   const toUpdate: AvailabilityToUpdate[] = [];
   const toCreate: AvailabilityToCreate[] = [];
 
-  // Step 1: Convert all mission schedules to intervals
-  const missionIntervals: TimeInterval[] = [];
+  // Step 1: Convert all mission schedules to intervals with schedule info
+  const missionIntervalsWithSchedule: Array<{
+    interval: TimeInterval;
+    schedule: MissionSchedule;
+    scheduleDtstart: Date;
+    scheduleUntil: Date;
+  }> = [];
   for (const schedule of missionSchedules) {
+    const scheduleDates = extractScheduleDates(
+      schedule.rrule,
+      missionDtstart,
+      missionUntil
+    );
+    const scheduleDtstart = scheduleDates.dtstart;
+    const scheduleUntil = scheduleDates.until;
+
     // Generate all mission occurrences for this schedule
     const missionOccurrences = generateMissionOccurrences(
       schedule,
@@ -95,15 +117,22 @@ export function updateAvailabilitiesForMissions(
       const missionEnd = new Date(
         missionOcc.getTime() + schedule.duration_mn * 60 * 1000
       );
-      missionIntervals.push({
-        end: missionEnd,
-        start: missionOcc,
+      missionIntervalsWithSchedule.push({
+        interval: {
+          end: missionEnd,
+          start: missionOcc,
+        },
+        schedule,
+        scheduleDtstart,
+        scheduleUntil,
       });
     }
   }
 
   // Sort mission intervals by start time for efficient processing
-  missionIntervals.sort((a, b) => a.start.getTime() - b.start.getTime());
+  missionIntervalsWithSchedule.sort(
+    (a, b) => a.interval.start.getTime() - b.interval.start.getTime()
+  );
 
   // Step 2: Process each availability
   for (let availIndex = 0; availIndex < availabilities.length; availIndex++) {
@@ -120,11 +149,105 @@ export function updateAvailabilitiesForMissions(
       continue; // No occurrences in the mission period
     }
 
-    // Step 3: Subtract mission intervals from availability intervals
-    const remainingIntervals = subtractIntervals(
+    // Step 3: For each schedule, create "before mission" and "after mission" intervals
+    // This ensures we create separate parts for each schedule, even when they overlap
+    const scheduleSpecificIntervals: TimeInterval[] = [];
+
+    // Group mission intervals by schedule
+    const missionsBySchedule = new Map<
+      string,
+      Array<{
+        interval: TimeInterval;
+        schedule: MissionSchedule;
+        scheduleDtstart: Date;
+        scheduleUntil: Date;
+      }>
+    >();
+
+    for (const missionData of missionIntervalsWithSchedule) {
+      const scheduleKey = missionData.schedule.rrule;
+      if (!missionsBySchedule.has(scheduleKey)) {
+        missionsBySchedule.set(scheduleKey, []);
+      }
+      missionsBySchedule.get(scheduleKey)!.push(missionData);
+    }
+
+    // For each schedule, create "before" and "after" intervals
+    for (const [, scheduleMissions] of missionsBySchedule.entries()) {
+      const { schedule, scheduleDtstart, scheduleUntil } = scheduleMissions[0];
+
+      // Find availability intervals that overlap with this schedule's missions
+      for (const availInterval of availabilityIntervals) {
+        const overlappingMissions = scheduleMissions.filter(
+          ({ interval: mission }) =>
+            mission.start.getTime() < availInterval.end.getTime() &&
+            mission.end.getTime() > availInterval.start.getTime()
+        );
+
+        if (overlappingMissions.length > 0) {
+          // Sort by start time
+          overlappingMissions.sort(
+            (a, b) => a.interval.start.getTime() - b.interval.start.getTime()
+          );
+
+          const firstMission = overlappingMissions[0];
+          const lastMission =
+            overlappingMissions[overlappingMissions.length - 1];
+
+          // Create "before mission" interval if mission doesn't start at availability start
+          if (
+            firstMission.interval.start.getTime() >
+            availInterval.start.getTime()
+          ) {
+            scheduleSpecificIntervals.push({
+              end: firstMission.interval.start,
+              originalPattern: availInterval.originalPattern,
+              scheduleInfo: {
+                isBeforeMission: true,
+                schedule,
+                scheduleDtstart,
+                scheduleUntil,
+              },
+              start: availInterval.start,
+            });
+          }
+
+          // Create "after mission" interval if mission doesn't end at availability end
+          if (
+            lastMission.interval.end.getTime() < availInterval.end.getTime()
+          ) {
+            scheduleSpecificIntervals.push({
+              end: availInterval.end,
+              originalPattern: availInterval.originalPattern,
+              scheduleInfo: {
+                isAfterMission: true,
+                schedule,
+                scheduleDtstart,
+                scheduleUntil,
+              },
+              start: lastMission.interval.end,
+            });
+          }
+        }
+      }
+    }
+
+    // Step 4: Also subtract all missions to get remaining intervals (for post-mission)
+    const remainingIntervals = subtractIntervalsWithScheduleInfo(
       availabilityIntervals,
-      missionIntervals
+      missionIntervalsWithSchedule
     );
+
+    // Combine schedule-specific intervals with remaining intervals
+    // Remove duplicates (intervals that appear in both)
+    const allIntervals = [...scheduleSpecificIntervals];
+    for (const remaining of remainingIntervals) {
+      // Only add if it doesn't have scheduleInfo (post-mission intervals)
+      // or if it's not already covered by schedule-specific intervals
+      if (!remaining.scheduleInfo) {
+        allIntervals.push(remaining);
+      }
+    }
 
     if (remainingIntervals.length === 0) {
       // All availability is blocked - just update original to stop before schedule
@@ -151,9 +274,9 @@ export function updateAvailabilitiesForMissions(
       continue;
     }
 
-    // Step 4: Group remaining intervals and create/update availabilities
+    // Step 5: Group all intervals and create/update availabilities
     const groupedIntervals = groupIntervalsByPeriod(
-      remainingIntervals,
+      allIntervals,
       missionSchedules,
       missionDtstart,
       missionUntil
@@ -541,8 +664,12 @@ function groupIntervalsByPeriod(
   const afterSchedule: TimeInterval[] = [];
 
   for (const interval of intervals) {
+    // An interval is "during schedule" if it has scheduleInfo (it was created from a mission overlap)
+    if (interval.scheduleInfo) {
+      duringSchedule.push(interval);
+    }
     // An interval is "before schedule" if it ends before the earliest schedule dtstart
-    if (
+    else if (
       earliestScheduleDtstart &&
       interval.end.getTime() < earliestScheduleDtstart.getTime()
     ) {
@@ -640,40 +767,164 @@ function processGroupedIntervals(
     grouped.earliestScheduleDtstart &&
     grouped.latestScheduleUntil
   ) {
-    // Group by time pattern (hour/minute) to create RRULEs
-    const intervalsByTime = groupIntervalsByTimePattern(grouped.duringSchedule);
-
-    // Sort by time pattern to ensure consistent ordering (earlier times first)
-    const sortedTimePatterns = Array.from(intervalsByTime.entries()).sort(
-      ([a], [b]) => {
-        const [aHour, aMin] = a.split(':').map(Number);
-        const [bHour, bMin] = b.split(':').map(Number);
-        if (aHour !== bHour) return aHour - bHour;
-        return aMin - bMin;
+    // Group intervals by schedule (for "before mission" and "after mission" parts)
+    // Use schedule rrule as key since object comparison doesn't work
+    const intervalsBySchedule = new Map<
+      string,
+      {
+        after: TimeInterval[];
+        before: TimeInterval[];
+        schedule: MissionSchedule;
+        scheduleDates: { dtstart: Date; until: Date };
       }
-    );
+    >();
 
-    for (const [, intervals] of sortedTimePatterns) {
-      const durationMn = intervals[0]
-        ? Math.round(
-            (intervals[0].end.getTime() - intervals[0].start.getTime()) /
-              (60 * 1000)
-          )
-        : originalAvailability.duration_mn;
+    for (const interval of grouped.duringSchedule) {
+      if (interval.scheduleInfo) {
+        const { schedule, scheduleDtstart, scheduleUntil } =
+          interval.scheduleInfo;
+        const scheduleKey = schedule.rrule;
+        if (!intervalsBySchedule.has(scheduleKey)) {
+          intervalsBySchedule.set(scheduleKey, {
+            after: [],
+            before: [],
+            schedule,
+            scheduleDates: { dtstart: scheduleDtstart, until: scheduleUntil },
+          });
+        }
+        const scheduleIntervals = intervalsBySchedule.get(scheduleKey)!;
 
-      // Create RRULE for this time pattern during schedule period
-      const rrule = createRRULEForIntervals(
-        intervals,
-        grouped.earliestScheduleDtstart,
-        grouped.latestScheduleUntil,
-        options
+        // Use the flags set when creating the interval
+        if (interval.scheduleInfo?.isBeforeMission) {
+          scheduleIntervals.before.push(interval);
+        } else if (interval.scheduleInfo?.isAfterMission) {
+          scheduleIntervals.after.push(interval);
+        }
+      }
+    }
+
+    // Create "before mission" and "after mission" parts for each schedule
+    for (const [, scheduleIntervals] of intervalsBySchedule.entries()) {
+      const scheduleDates = scheduleIntervals.scheduleDates;
+
+      // Create "before mission" parts
+      if (scheduleIntervals.before.length > 0) {
+        const intervalsByTime = groupIntervalsByTimePattern(
+          scheduleIntervals.before
+        );
+        const sortedTimePatterns = Array.from(intervalsByTime.entries()).sort(
+          ([a], [b]) => {
+            const [aHour, aMin] = a.split(':').map(Number);
+            const [bHour, bMin] = b.split(':').map(Number);
+            if (aHour !== bHour) return aHour - bHour;
+            return aMin - bMin;
+          }
+        );
+
+        for (const [, intervals] of sortedTimePatterns) {
+          const durationMn = intervals[0]
+            ? Math.round(
+                (intervals[0].end.getTime() - intervals[0].start.getTime()) /
+                  (60 * 1000)
+              )
+            : originalAvailability.duration_mn;
+
+          const rrule = createRRULEForIntervals(
+            intervals,
+            scheduleDates.dtstart,
+            scheduleDates.until,
+            options
+          );
+
+          if (rrule) {
+            toCreate.push({
+              duration_mn: durationMn,
+              rrule,
+            });
+          }
+        }
+      }
+
+      // Create "after mission" parts
+      if (scheduleIntervals.after.length > 0) {
+        const intervalsByTime = groupIntervalsByTimePattern(
+          scheduleIntervals.after
+        );
+        const sortedTimePatterns = Array.from(intervalsByTime.entries()).sort(
+          ([a], [b]) => {
+            const [aHour, aMin] = a.split(':').map(Number);
+            const [bHour, bMin] = b.split(':').map(Number);
+            if (aHour !== bHour) return aHour - bHour;
+            return aMin - bMin;
+          }
+        );
+
+        for (const [, intervals] of sortedTimePatterns) {
+          const durationMn = intervals[0]
+            ? Math.round(
+                (intervals[0].end.getTime() - intervals[0].start.getTime()) /
+                  (60 * 1000)
+              )
+            : originalAvailability.duration_mn;
+
+          const rrule = createRRULEForIntervals(
+            intervals,
+            scheduleDates.dtstart,
+            scheduleDates.until,
+            options
+          );
+
+          if (rrule) {
+            toCreate.push({
+              duration_mn: durationMn,
+              rrule,
+            });
+          }
+        }
+      }
+    }
+
+    // Also handle intervals without schedule info (fallback - should be rare)
+    // Only process if we didn't process any intervals with scheduleInfo
+    if (intervalsBySchedule.size === 0) {
+      const intervalsWithoutSchedule = grouped.duringSchedule.filter(
+        i => !i.scheduleInfo
       );
+      if (intervalsWithoutSchedule.length > 0) {
+        const intervalsByTime = groupIntervalsByTimePattern(
+          intervalsWithoutSchedule
+        );
+        const sortedTimePatterns = Array.from(intervalsByTime.entries()).sort(
+          ([a], [b]) => {
+            const [aHour, aMin] = a.split(':').map(Number);
+            const [bHour, bMin] = b.split(':').map(Number);
+            if (aHour !== bHour) return aHour - bHour;
+            return aMin - bMin;
+          }
+        );
 
-      if (rrule) {
-        toCreate.push({
-          duration_mn: durationMn,
-          rrule,
-        });
+        for (const [, intervals] of sortedTimePatterns) {
+          const durationMn = intervals[0]
+            ? Math.round(
+                (intervals[0].end.getTime() - intervals[0].start.getTime()) /
+                  (60 * 1000)
+              )
+            : originalAvailability.duration_mn;
+
+          const rrule = createRRULEForIntervals(
+            intervals,
+            grouped.earliestScheduleDtstart!,
+            grouped.latestScheduleUntil!,
+            options
+          );
+
+          if (rrule) {
+            toCreate.push({
+              duration_mn: durationMn,
+              rrule,
+            });
+          }
+        }
       }
     }
   }
@@ -697,12 +948,17 @@ function processGroupedIntervals(
 }
 
 /**
- * Subtracts mission intervals from availability intervals
- * Returns the remaining intervals after subtraction
+ * Subtracts mission intervals from availability intervals, tracking schedule info
+ * Returns the remaining intervals after subtraction with schedule information
  */
-function subtractIntervals(
+function subtractIntervalsWithScheduleInfo(
   availabilityIntervals: TimeInterval[],
-  missionIntervals: TimeInterval[]
+  missionIntervalsWithSchedule: Array<{
+    interval: TimeInterval;
+    schedule: MissionSchedule;
+    scheduleDtstart: Date;
+    scheduleUntil: Date;
+  }>
 ): TimeInterval[] {
   const remaining: TimeInterval[] = [];
 
@@ -711,8 +967,8 @@ function subtractIntervals(
     const availEnd = availInterval.end;
 
     // Find all mission intervals that overlap with this availability interval
-    const overlappingMissions = missionIntervals.filter(
-      mission =>
+    const overlappingMissions = missionIntervalsWithSchedule.filter(
+      ({ interval: mission }) =>
         mission.start.getTime() < availEnd.getTime() &&
         mission.end.getTime() > currentStart.getTime()
     );
@@ -728,15 +984,28 @@ function subtractIntervals(
     }
 
     // Sort overlapping missions by start time
-    overlappingMissions.sort((a, b) => a.start.getTime() - b.start.getTime());
+    overlappingMissions.sort(
+      (a, b) => a.interval.start.getTime() - b.interval.start.getTime()
+    );
 
     // Process each mission, creating intervals for the gaps
-    for (const mission of overlappingMissions) {
-      // If there's a gap before the mission, add it
+    for (const {
+      interval: mission,
+      schedule,
+      scheduleDtstart,
+      scheduleUntil,
+    } of overlappingMissions) {
+      // If there's a gap before the mission, add it with schedule info (marked as "before mission")
       if (mission.start.getTime() > currentStart.getTime()) {
         remaining.push({
           end: mission.start,
           originalPattern: availInterval.originalPattern,
+          scheduleInfo: {
+            isBeforeMission: true,
+            schedule,
+            scheduleDtstart,
+            scheduleUntil,
+          },
           start: currentStart,
         });
       }
@@ -745,6 +1014,24 @@ function subtractIntervals(
       currentStart = new Date(
         Math.max(currentStart.getTime(), mission.end.getTime())
       );
+
+      // If there's a gap after the mission (within the same availability), add it with schedule info (marked as "after mission")
+      if (
+        mission.end.getTime() < availEnd.getTime() &&
+        currentStart.getTime() < availEnd.getTime()
+      ) {
+        remaining.push({
+          end: availEnd,
+          originalPattern: availInterval.originalPattern,
+          scheduleInfo: {
+            isAfterMission: true,
+            schedule,
+            scheduleDtstart,
+            scheduleUntil,
+          },
+          start: currentStart,
+        });
+      }
     }
 
     // If there's a gap after the last mission, add it
