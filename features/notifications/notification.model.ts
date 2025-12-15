@@ -115,7 +115,7 @@ export type NotificationData =
 export interface NotificationFilters {
   read?: boolean;
   recipient_id?: string;
-  type?: NotificationType;
+  type?: NotificationType | NotificationType[];
 }
 
 export type NotificationInsert = TablesInsert<'notifications'>;

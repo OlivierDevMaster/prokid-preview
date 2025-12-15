@@ -198,6 +198,10 @@
     "newsletterDescription": "Restez informé des actualités de la petite enfance",
     "emailPlaceholder": "Votre adresse e-mail",
     "subscribe": "S'abonner",
+    "subscribing": "Abonnement en cours...",
+    "subscriptionSuccess": "Abonnement réussi !",
+    "subscriptionError": "Une erreur est survenue. Veuillez réessayer.",
+    "emailAlreadySubscribed": "Cette adresse e-mail est déjà abonnée à la newsletter",
     "copyright": "© ProKid 2025 — Tous droits réservés"
   },
   "faq": {
@@ -642,6 +646,44 @@
       "professionals": "Professionnels",
       "structures": "Structures",
       "availabilities": "Disponibilités"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "{total} notification(s), {unread} non lue(s)",
+      "loading": "Chargement...",
+      "noNotifications": "Aucune notification",
+      "notFound": "Notification non trouvée",
+      "back": "Retour",
+      "unread": "Non lue",
+      "read": "Lue",
+      "from": "De",
+      "description": "Description",
+      "readAt": "Lue le",
+      "accept": "Accepter",
+      "decline": "Décliner",
+      "filter": "Filtrer",
+      "filterAll": "Toutes",
+      "filterUnread": "Non lues",
+      "filterRead": "Lues",
+      "unreadCount": "{count} notification(s) non lue(s)",
+      "viewAll": "Voir toutes les notifications"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} notification(s) non lue(s)",
+    "viewAll": "Toutes les notifications",
+    "unread": "Non lue(s)",
+    "read": "Lue(s)",
+    "filterAll": "Toutes",
+    "filterUnread": "Non lues",
+    "filterRead": "Lues",
+    "loading": "Chargement...",
+    "description": "Description",
+    "from": "De",
+    "readAt": "Lue le",
+    "back": "Retour",
+    "accept": "Accepter",
+    "decline": "Décliner"
   }
 }

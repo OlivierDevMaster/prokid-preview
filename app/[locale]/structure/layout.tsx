@@ -14,7 +14,7 @@ export default function StructureLayout({
           <StructureSidebar />
         </div>
         <main className='flex-1 overflow-y-auto'>
-          <div className='p-8'>{children}</div>
+          <div>{children}</div>
         </main>
       </div>
     </div>

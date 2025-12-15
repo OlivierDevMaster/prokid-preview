@@ -21,7 +21,11 @@ export const findNotifications = async (
   }
 
   if (filters.type) {
-    query = query.eq('type', filters.type);
+    if (Array.isArray(filters.type)) {
+      query = query.in('type', filters.type);
+    } else {
+      query = query.eq('type', filters.type);
+    }
   }
 
   if (filters.read !== undefined) {
@@ -45,9 +49,14 @@ export const findNotifications = async (
 
   if (error) throw error;
 
+  const parsedNotifications: Notification[] = (data ?? []).map(item => ({
+    ...item,
+    data: typeof item.data === 'string' ? JSON.parse(item.data) : item.data,
+  })) as Notification[];
+
   return {
     count: count ?? 0,
-    data: (data ?? []) as unknown as Notification[],
+    data: parsedNotifications,
   };
 };
 
@@ -64,7 +73,12 @@ export const findNotification = async (
 
   if (error) throw error;
 
-  return data as Notification | null;
+  if (!data) return null;
+
+  return {
+    ...data,
+    data: typeof data.data === 'string' ? JSON.parse(data.data) : data.data,
+  } as Notification;
 };
 
 export const markNotificationAsRead = async (
@@ -81,7 +95,10 @@ export const markNotificationAsRead = async (
 
   if (error) throw error;
 
-  return data as unknown as Notification;
+  return {
+    ...data,
+    data: typeof data.data === 'string' ? JSON.parse(data.data) : data.data,
+  } as Notification;
 };
 
 export const markAllNotificationsAsRead = async (

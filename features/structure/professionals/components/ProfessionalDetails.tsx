@@ -16,6 +16,7 @@ import { useParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { Link } from '@/i18n/routing';
 
@@ -126,7 +127,7 @@ export function ProfessionalDetails() {
                     </div>
 
                     {/* Rating */}
-                    {professional.rating > 0 && (
+                    {professional.rating && professional.rating > 0 && (
                       <div className='mb-4 flex items-center justify-center gap-1'>
                         <Star className='h-5 w-5 fill-yellow-400 text-yellow-400' />
                         <span className='text-lg font-semibold text-gray-800'>
@@ -239,39 +240,9 @@ export function ProfessionalDetails() {
             </Card>
           </div>
 
-          {/* Right Column - Additional Information */}
+          {/* Right Column - Availability Calendar */}
           <div className='lg:col-span-2'>
-            <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-              <div className='p-8'>
-                <h2 className='mb-4 text-xl font-bold text-gray-800'>
-                  {t('additionalInfo')}
-                </h2>
-                <div className='space-y-4'>
-                  {professional.verified_at && (
-                    <div>
-                      <p className='text-sm font-medium text-gray-700'>
-                        {t('verifiedAt')}
-                      </p>
-                      <p className='text-sm text-gray-600'>
-                        {new Date(
-                          professional.verified_at
-                        ).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                  {professional.created_at && (
-                    <div>
-                      <p className='text-sm font-medium text-gray-700'>
-                        {t('memberSince')}
-                      </p>
-                      <p className='text-sm text-gray-600'>
-                        {new Date(professional.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
+            <AvailabilityCalendar professionalId={id as string} />
           </div>
         </div>
       </div>

@@ -72,7 +72,7 @@
       "emailPlaceholder": "your@email.com",
       "passwordLabel": "Password",
       "forgotPassword": "Forgot password?",
-      "submitButton": "Log in (Demo)",
+      "submitButton": "Log in",
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
       "error": "Invalid email or password"
@@ -189,6 +189,10 @@
     "newsletterDescription": "Stay informed about early childhood news",
     "emailPlaceholder": "Your email address",
     "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "subscriptionSuccess": "Successfully subscribed!",
+    "subscriptionError": "An error occurred. Please try again.",
+    "emailAlreadySubscribed": "This email is already subscribed to the newsletter",
     "copyright": "© ProKid 2025 — All rights reserved"
   },
   "faq": {
@@ -633,6 +637,44 @@
       "professionals": "Professionals",
       "structures": "Structures",
       "availabilities": "Availabilities"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "{total} notification(s), {unread} unread",
+      "loading": "Loading...",
+      "noNotifications": "No notifications",
+      "notFound": "Notification not found",
+      "back": "Back",
+      "unread": "Unread",
+      "read": "Read",
+      "from": "From",
+      "description": "Description",
+      "readAt": "Read at",
+      "accept": "Accept",
+      "decline": "Decline",
+      "filter": "Filter",
+      "filterAll": "All",
+      "filterUnread": "Unread",
+      "filterRead": "Read",
+      "unreadCount": "{count} unread notification(s)",
+      "viewAll": "View all notifications"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} unread notification(s)",
+    "viewAll": "View all notifications",
+    "unread": "Unread",
+    "read": "Read",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "filterRead": "Read",
+    "loading": "Loading...",
+    "description": "Description",
+    "from": "From",
+    "readAt": "Read at",
+    "back": "Back",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }
