@@ -242,23 +242,15 @@ function calculateAvailabilityModifications(
   const availEndTime = availEnd.getTime();
 
   // Case 1: Mission is at the start of availability
-  // Create new availability starting after mission
+  // Pattern: Subtract mission period, resume full availability after mission ends
+  // 1. Update original to stop before mission
+  // 2. Create availability for "after mission" part during mission period (with UNTIL = mission end)
+  // 3. Create availability for full pattern after mission ends (resumes full availability)
   if (
     Math.abs(missionStartTime - availStartTime) < 60000 &&
     missionEndTime < availEndTime
   ) {
-    const newDurationMn = (availEndTime - missionEndTime) / (60 * 1000);
-    const newRrule = createAvailabilityAfterMission(
-      options,
-      missionEnd,
-      options.until
-    );
-
-    result.needsCreate = true;
-    result.newRrule = newRrule;
-    result.newDurationMn = newDurationMn;
-
-    // Update original to end before mission (set UNTIL to just before mission start)
+    // 1. Update original to end before mission
     const untilBeforeMission = new Date(missionStart);
     untilBeforeMission.setSeconds(untilBeforeMission.getSeconds() - 1);
     const updatedRrule = createAvailabilityWithUntil(
@@ -268,13 +260,40 @@ function calculateAvailabilityModifications(
 
     result.needsUpdate = true;
     result.updatedRrule = updatedRrule;
+
+    // 2. Create availability for "after mission" part during mission period
+    const duringMissionDurationMn =
+      (availEndTime - missionEndTime) / (60 * 1000);
+    const duringMissionRrule = createAvailabilityDuringMission(
+      options,
+      missionEnd,
+      missionUntil
+    );
+
+    result.needsCreate = true;
+    result.newRrule = duringMissionRrule;
+    result.newDurationMn = duringMissionDurationMn;
+
+    // 3. Create availability for full pattern after mission ends
+    const postMissionRrule = createAvailabilityAfterMissionPeriod(
+      options,
+      availStart,
+      missionUntil,
+      options.until
+    );
+
+    result.postMissionRrule = postMissionRrule;
+    result.postMissionDurationMn = availability.duration_mn;
   }
   // Case 2: Mission is at the end of availability
-  // Update availability to end before mission
+  // Pattern: Subtract mission period, resume full availability after mission ends
+  // 1. Update original to stop before mission
+  // 2. Create availability for full pattern after mission ends (resumes full availability)
   else if (
     missionStartTime > availStartTime &&
     Math.abs(missionEndTime - availEndTime) < 60000
   ) {
+    // 1. Update original to end before mission
     const untilBeforeMission = new Date(missionStart);
     untilBeforeMission.setSeconds(untilBeforeMission.getSeconds() - 1);
     const updatedRrule = createAvailabilityWithUntil(
@@ -284,6 +303,17 @@ function calculateAvailabilityModifications(
 
     result.needsUpdate = true;
     result.updatedRrule = updatedRrule;
+
+    // 2. Create availability for full pattern after mission ends
+    const postMissionRrule = createAvailabilityAfterMissionPeriod(
+      options,
+      availStart,
+      missionUntil,
+      options.until
+    );
+
+    result.postMissionRrule = postMissionRrule;
+    result.postMissionDurationMn = availability.duration_mn;
   }
   // Case 3: Mission is in the middle of availability
   // Split into three parts:
@@ -329,11 +359,14 @@ function calculateAvailabilityModifications(
     result.postMissionDurationMn = availability.duration_mn;
   }
   // Case 4: Mission covers entire availability
-  // Set UNTIL to just before mission start
+  // Pattern: Subtract mission period, resume full availability after mission ends
+  // 1. Update original to stop before mission
+  // 2. Create availability for full pattern after mission ends (resumes full availability)
   else if (
     Math.abs(missionStartTime - availStartTime) < 60000 &&
     Math.abs(missionEndTime - availEndTime) < 60000
   ) {
+    // 1. Update original to end before mission
     const untilBeforeMission = new Date(missionStart);
     untilBeforeMission.setSeconds(untilBeforeMission.getSeconds() - 1);
     const updatedRrule = createAvailabilityWithUntil(
@@ -343,40 +376,20 @@ function calculateAvailabilityModifications(
 
     result.needsUpdate = true;
     result.updatedRrule = updatedRrule;
+
+    // 2. Create availability for full pattern after mission ends
+    const postMissionRrule = createAvailabilityAfterMissionPeriod(
+      options,
+      availStart,
+      missionUntil,
+      options.until
+    );
+
+    result.postMissionRrule = postMissionRrule;
+    result.postMissionDurationMn = availability.duration_mn;
   }
 
   return result;
-}
-
-/**
- * Creates a new availability RRULE that starts after a mission ends.
- * Preserves the original availability's UNTIL if it had one, otherwise continues indefinitely.
- */
-function createAvailabilityAfterMission(
-  originalOptions: Partial<Options>,
-  missionEnd: Date,
-  originalUntil: Date | null | undefined
-): string {
-  // Create new options, preserving the original UNTIL if it existed
-  const newOptions: Partial<Options> = {
-    bymonth: originalOptions.bymonth,
-    bymonthday: originalOptions.bymonthday,
-    bysetpos: originalOptions.bysetpos,
-    byweekday: originalOptions.byweekday,
-    byweekno: originalOptions.byweekno,
-    byyearday: originalOptions.byyearday,
-    dtstart: missionEnd,
-    freq: originalOptions.freq,
-    interval: originalOptions.interval,
-    // Preserve original UNTIL if it existed, otherwise continue indefinitely
-    until: originalUntil || undefined,
-  };
-
-  // Remove count if present (we're using UNTIL if it exists)
-  delete newOptions.count;
-
-  const newRule = new RRule(newOptions);
-  return newRule.toString();
 }
 
 /**

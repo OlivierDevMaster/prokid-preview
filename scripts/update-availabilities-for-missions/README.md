@@ -28,16 +28,186 @@ Calculates which availabilities need to be updated or created to block out missi
    - Availabilities that need to be updated (with their new RRULE configurations)
    - Availabilities that need to be created (new blocked periods)
 
-**Post-Mission Period Handling:**
+**Availability Subtraction Pattern:**
 
-When a mission is in the middle of an availability, the function creates **two** new availabilities:
+All cases follow the same pattern - the mission period is "subtracted" from the availability:
 
-1. **During Mission Period**: Covers the "after mission" part (e.g., 11am-12pm) but only during the mission period (with UNTIL = mission end)
-2. **After Mission Ends**: Resumes the full availability pattern (e.g., 9am-12pm) starting after the mission period ends, preserving the original UNTIL if it existed
+1. **Update Original**: Stop the original availability before the mission starts (set UNTIL to just before first mission occurrence)
+2. **During Mission** (if applicable): Create availability for non-blocked parts during the mission period (with UNTIL = mission end)
+3. **After Mission**: Create availability for the full pattern starting after the mission ends, preserving the original UNTIL if it existed
 
 This ensures that:
-- During the mission: Professional is available for the non-blocked parts (e.g., 9am-10am and 11am-12pm)
-- After the mission: Full availability pattern resumes (e.g., 9am-12pm continues indefinitely or until original UNTIL)
+- **Before mission**: Original availability continues until just before the mission
+- **During mission**: Professional is available only for non-blocked parts (mission period is subtracted)
+- **After mission**: Full availability pattern resumes (continues indefinitely or until original UNTIL)
+
+## Visual Examples
+
+### Example 1: Mission in the Middle of Availability
+
+**Original Availability:**
+```
+Every Monday 9am-12pm (ongoing)
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|
+Date:  Jan 1                Jan 8                Jan 15               Jan 22
+```
+
+**Mission Scheduled:**
+```
+Every Monday 10am-11am (Jan 8 - Jan 31)
+Time:  |===== 9am-12pm =====|  |== 9am-10am ==|--MISSION--|== 11am-12pm ==|  ...
+Date:  Jan 1                Jan 8            Jan 8        Jan 8          Jan 8
+```
+
+**Result: Availability Subtraction**
+
+1. **Updated Original** (stops before mission):
+```
+Time:  |===== 9am-12pm =====|  |== 9am-10am ==|  (stops here)
+Date:  Jan 1                Jan 8            Jan 8 (UNTIL: just before 10am)
+```
+
+2. **Created: During Mission** (11am-12pm, only during mission period):
+```
+Time:  |== 11am-12pm ==|  |== 11am-12pm ==|  |== 11am-12pm ==|  (stops)
+Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: Jan 31)
+```
+
+3. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+```
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
+Date:  Feb 5               Feb 12              Feb 19              (ongoing)
+```
+
+**Final Result Timeline:**
+```
+Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
+During Mission:  |== 9am-10am ==|--MISSION--|== 11am-12pm ==|  (split availability)
+After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+```
+
+### Example 2: Mission at Start of Availability
+
+**Original Availability:**
+```
+Every Monday 9am-12pm (ongoing)
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|
+Date:  Jan 1                Jan 8                Jan 15               Jan 22
+```
+
+**Mission Scheduled:**
+```
+Every Monday 9am-10am (Jan 8 - Jan 31)
+Time:  |===== 9am-12pm =====|  |--MISSION--|== 10am-12pm ==|  ...
+Date:  Jan 1                Jan 8        Jan 8          Jan 8
+```
+
+**Result: Availability Subtraction**
+
+1. **Updated Original** (stops before mission):
+```
+Time:  |===== 9am-12pm =====|  (stops here)
+Date:  Jan 1                Jan 8 (UNTIL: just before 9am)
+```
+
+2. **Created: During Mission** (10am-12pm, only during mission period):
+```
+Time:  |== 10am-12pm ==|  |== 10am-12pm ==|  |== 10am-12pm ==|  (stops)
+Date:  Jan 8           Jan 15            Jan 22           Jan 29 (UNTIL: Jan 31)
+```
+
+3. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+```
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
+Date:  Feb 5               Feb 12              Feb 19              (ongoing)
+```
+
+**Final Result Timeline:**
+```
+Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
+During Mission:  |--MISSION--|== 10am-12pm ==|  (partial availability)
+After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+```
+
+### Example 3: Mission at End of Availability
+
+**Original Availability:**
+```
+Every Monday 9am-12pm (ongoing)
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|
+Date:  Jan 1                Jan 8                Jan 15               Jan 22
+```
+
+**Mission Scheduled:**
+```
+Every Monday 11am-12pm (Jan 8 - Jan 31)
+Time:  |===== 9am-12pm =====|  |== 9am-11am ==|--MISSION--|  ...
+Date:  Jan 1                Jan 8            Jan 8        Jan 8
+```
+
+**Result: Availability Subtraction**
+
+1. **Updated Original** (stops before mission):
+```
+Time:  |===== 9am-12pm =====|  |== 9am-11am ==|  (stops here)
+Date:  Jan 1                Jan 8            Jan 8 (UNTIL: just before 11am)
+```
+
+2. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+```
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
+Date:  Feb 5               Feb 12              Feb 19              (ongoing)
+```
+
+**Final Result Timeline:**
+```
+Before Mission:  |===== 9am-12pm =====|  |== 9am-11am ==|  (original, stops before Jan 8)
+During Mission:  |== 9am-11am ==|--MISSION--|  (partial availability during mission)
+After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+```
+
+### Example 4: Mission Covers Entire Availability
+
+**Original Availability:**
+```
+Every Monday 9am-12pm (ongoing)
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|
+Date:  Jan 1                Jan 8                Jan 15               Jan 22
+```
+
+**Mission Scheduled:**
+```
+Every Monday 9am-12pm (Jan 8 - Jan 31) - covers entire availability
+Time:  |===== 9am-12pm =====|  |--MISSION--|  |--MISSION--|  ...
+Date:  Jan 1                Jan 8        Jan 15       Jan 22
+```
+
+**Result: Availability Subtraction**
+
+1. **Updated Original** (stops before mission):
+```
+Time:  |===== 9am-12pm =====|  (stops here)
+Date:  Jan 1                Jan 8 (UNTIL: just before 9am)
+```
+
+2. **Created: After Mission** (full 9am-12pm, resumes after mission ends):
+```
+Time:  |===== 9am-12pm =====|  |===== 9am-12pm =====|  |===== 9am-12pm =====|  ...
+Date:  Feb 5               Feb 12              Feb 19              (ongoing)
+```
+
+**Final Result Timeline:**
+```
+Before Mission:  |===== 9am-12pm =====|  (original, stops before Jan 8)
+During Mission:  |--MISSION--|  |--MISSION--|  (completely blocked)
+After Mission:   |===== 9am-12pm =====|  |===== 9am-12pm =====|  ... (resumes full)
+```
+
+### Legend
+
+- `=====` = Available time
+- `--MISSION--` = Blocked time (mission period)
+- `==` = Partial availability (split periods)
 
 **Parameters:**
 

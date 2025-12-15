@@ -172,25 +172,51 @@ test('should truncate availability when mission is at the start', () => {
     'Updated availability should have UNTIL set'
   );
 
-  // Should create a new availability after mission (10am-12pm)
+  // Should create two availabilities:
+  // 1. During mission period: 10am-12pm (with UNTIL = mission end)
+  // 2. After mission ends: 9am-12pm (full pattern, no UNTIL - resumes after mission)
   assertEqual(
     result.toCreate.length,
-    1,
-    'Should have one availability to create'
+    2,
+    'Should have two availabilities to create (during mission and after mission)'
   );
+
+  // First created availability: during mission period (10am-12pm)
+  const duringMissionRule = rrulestr(result.toCreate[0].rrule);
   assertEqual(
     result.toCreate[0].duration_mn,
     120,
-    'New availability should be 2 hours (10am-12pm)'
+    'First availability should be 2 hours (10am-12pm during mission)'
+  );
+  // Should have UNTIL set to mission end (only exists during mission period)
+  assert(
+    duringMissionRule.options.until !== null &&
+      duringMissionRule.options.until !== undefined,
+    'During-mission availability should have UNTIL set to mission end'
   );
 
-  // Verify the created availability continues after mission ends
-  const createdRule = rrulestr(result.toCreate[0].rrule);
-  // Since original availability had no UNTIL, created one should also have no UNTIL
+  // Second created availability: after mission ends (9am-12pm, full pattern)
+  const postMissionRule = rrulestr(result.toCreate[1].rrule);
+  assertEqual(
+    result.toCreate[1].duration_mn,
+    180,
+    'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
+  );
+  // Should start after mission ends
   assert(
-    createdRule.options.until === null ||
-      createdRule.options.until === undefined,
-    'Created availability should NOT have UNTIL when original had none (continues indefinitely)'
+    postMissionRule.options.dtstart !== undefined,
+    'Post-mission availability should have DTSTART'
+  );
+  assert(
+    postMissionRule.options.dtstart &&
+      postMissionRule.options.dtstart > missionEnd,
+    'Post-mission availability should start after mission ends'
+  );
+  // Since original availability had no UNTIL, post-mission one should also have no UNTIL
+  assert(
+    postMissionRule.options.until === null ||
+      postMissionRule.options.until === undefined,
+    'Post-mission availability should NOT have UNTIL when original had none (continues indefinitely)'
   );
 });
 
@@ -242,11 +268,34 @@ test('should truncate availability when mission is at the end', () => {
     'UNTIL should be set to just before first mission occurrence'
   );
 
-  // Should not create new availability (mission is at the end)
+  // Should create one availability: full pattern after mission ends (9am-12pm resumes)
   assertEqual(
     result.toCreate.length,
-    0,
-    'Should not create new availability when mission is at the end'
+    1,
+    'Should have one availability to create (post-mission full pattern)'
+  );
+
+  const postMissionRule = rrulestr(result.toCreate[0].rrule);
+  assertEqual(
+    result.toCreate[0].duration_mn,
+    180,
+    'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
+  );
+  // Should start after mission ends
+  assert(
+    postMissionRule.options.dtstart !== undefined,
+    'Post-mission availability should have DTSTART'
+  );
+  assert(
+    postMissionRule.options.dtstart &&
+      postMissionRule.options.dtstart > missionEnd,
+    'Post-mission availability should start after mission ends'
+  );
+  // Since original availability had no UNTIL, post-mission one should also have no UNTIL
+  assert(
+    postMissionRule.options.until === null ||
+      postMissionRule.options.until === undefined,
+    'Post-mission availability should NOT have UNTIL when original had none (continues indefinitely)'
   );
 });
 
@@ -298,11 +347,34 @@ test('should handle mission covering entire availability', () => {
     'UNTIL should be set to just before first mission occurrence'
   );
 
-  // Should not create new availability (mission covers everything)
+  // Should create one availability: full pattern after mission ends (9am-12pm resumes)
   assertEqual(
     result.toCreate.length,
-    0,
-    'Should not create new availability when mission covers entire availability'
+    1,
+    'Should have one availability to create (post-mission full pattern)'
+  );
+
+  const postMissionRule = rrulestr(result.toCreate[0].rrule);
+  assertEqual(
+    result.toCreate[0].duration_mn,
+    180,
+    'Post-mission availability should be 3 hours (9am-12pm, full pattern)'
+  );
+  // Should start after mission ends
+  assert(
+    postMissionRule.options.dtstart !== undefined,
+    'Post-mission availability should have DTSTART'
+  );
+  assert(
+    postMissionRule.options.dtstart &&
+      postMissionRule.options.dtstart > missionEnd,
+    'Post-mission availability should start after mission ends'
+  );
+  // Since original availability had no UNTIL, post-mission one should also have no UNTIL
+  assert(
+    postMissionRule.options.until === null ||
+      postMissionRule.options.until === undefined,
+    'Post-mission availability should NOT have UNTIL when original had none (continues indefinitely)'
   );
 });
 
