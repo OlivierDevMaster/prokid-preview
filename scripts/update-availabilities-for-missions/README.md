@@ -23,10 +23,21 @@ Calculates which availabilities need to be updated or created to block out missi
    - Finds the corresponding availability occurrences that cover it
    - Determines if the availability needs to be split (mission in the middle)
    - Determines if the availability needs to be truncated (mission at start/end)
-   - Determines if a new availability needs to be created (to represent the blocked period)
+   - Determines if new availabilities need to be created (to represent blocked periods)
 3. Returns a result with:
    - Availabilities that need to be updated (with their new RRULE configurations)
    - Availabilities that need to be created (new blocked periods)
+
+**Post-Mission Period Handling:**
+
+When a mission is in the middle of an availability, the function creates **two** new availabilities:
+
+1. **During Mission Period**: Covers the "after mission" part (e.g., 11am-12pm) but only during the mission period (with UNTIL = mission end)
+2. **After Mission Ends**: Resumes the full availability pattern (e.g., 9am-12pm) starting after the mission period ends, preserving the original UNTIL if it existed
+
+This ensures that:
+- During the mission: Professional is available for the non-blocked parts (e.g., 9am-10am and 11am-12pm)
+- After the mission: Full availability pattern resumes (e.g., 9am-12pm continues indefinitely or until original UNTIL)
 
 **Parameters:**
 
