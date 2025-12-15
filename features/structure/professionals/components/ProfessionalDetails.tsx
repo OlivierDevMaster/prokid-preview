@@ -29,7 +29,7 @@ export function ProfessionalDetails() {
 
   if (isLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-white'>
+      <div className='flex min-h-screen items-center justify-center bg-blue-50/30'>
         <p className='text-gray-600'>{t('loading')}</p>
       </div>
     );
@@ -37,7 +37,7 @@ export function ProfessionalDetails() {
 
   if (!professional) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-white'>
+      <div className='flex min-h-screen items-center justify-center bg-blue-50/30'>
         <Card className='p-8'>
           <h1 className='mb-4 text-2xl font-bold text-gray-800'>
             {t('notFound')}
@@ -65,7 +65,7 @@ export function ProfessionalDetails() {
     .slice(0, 2);
 
   return (
-    <div className='min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-blue-50/30 px-4 py-8 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-7xl'>
         <div className='mb-6'>
           <Link href='/structure/professionals'>

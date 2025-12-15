@@ -684,6 +684,10 @@
     "readAt": "Lue le",
     "back": "Retour",
     "accept": "Accepter",
-    "decline": "Décliner"
+    "decline": "Décliner",
+    "accepted": "Accepté",
+    "declined": "Décliné",
+    "cancelled": "Annulé",
+    "pending": "En attente"
   }
 }

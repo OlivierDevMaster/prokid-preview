@@ -13,14 +13,14 @@ export function ProfessionalsPage() {
 
   if (isLoading) {
     return (
-      <div className='-m-8 flex min-h-screen items-center justify-center bg-white p-8'>
+      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
         <p className='text-gray-600'>{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className='-m-8 min-h-screen space-y-6 bg-white p-8'>
+    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='mb-6'>
         <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>

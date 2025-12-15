@@ -675,6 +675,10 @@
     "readAt": "Read at",
     "back": "Back",
     "accept": "Accept",
-    "decline": "Decline"
+    "decline": "Decline",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "cancelled": "Cancelled",
+    "pending": "Pending"
   }
 }

@@ -70,7 +70,7 @@ export default function ProtectedLayout({
           <ProfessionalSidebar />
         </div>
         <main className='flex-1 overflow-y-auto'>
-          <div className='p-8'>{children}</div>
+          <div>{children}</div>
         </main>
       </div>
     </div>

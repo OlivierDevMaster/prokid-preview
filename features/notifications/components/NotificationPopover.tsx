@@ -131,7 +131,7 @@ export function NotificationPopover({
                   <div className='border-t border-gray-100 bg-gray-50 px-4 py-3'>
                     <div className='flex items-center gap-2'>
                       <Button
-                        className='h-auto flex-1 bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700'
+                        className='h-auto flex-1 bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700'
                         onClick={e => {
                           e.preventDefault();
                           e.stopPropagation();

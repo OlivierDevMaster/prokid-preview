@@ -4,11 +4,12 @@ import { format } from 'date-fns';
 import { Bell, Check, Clock, FileText, UserPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { MissionStatus } from '@/features/missions/mission.model';
 
 import type { Notification } from '../notification.model';
 
@@ -31,6 +32,19 @@ export function NotificationDetails() {
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
+
+  const notificationMission = useMemo(() => {
+    if (!notification) return null;
+    if (notification.type === 'mission_received') {
+      return notification.data.mission;
+    }
+    return null;
+  }, [notification]);
+
+  const notificationMissionStatus = useMemo(() => {
+    if (!notificationMission) return undefined;
+    return notificationMission.status;
+  }, [notificationMission]);
 
   // Mark as read when viewing
   useEffect(() => {
@@ -93,8 +107,8 @@ export function NotificationDetails() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8'>
-      <div className='mx-auto max-w-3xl'>
+    <div className='min-h-screen bg-blue-50/30 p-8'>
+      <div className='mx-auto'>
         <div className='mb-6'>
           <Button onClick={() => router.back()} variant='ghost'>
             ← {t('back')}
@@ -126,6 +140,26 @@ export function NotificationDetails() {
                     variant='secondary'
                   >
                     {t('read')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.pending && (
+                  <Badge className='bg-yellow-500 text-white' variant='default'>
+                    {t('pending')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.accepted && (
+                  <Badge className='bg-green-500 text-white' variant='default'>
+                    {t('accepted')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.declined && (
+                  <Badge className='bg-red-500 text-white' variant='default'>
+                    {t('declined')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.cancelled && (
+                  <Badge className='bg-gray-500 text-white' variant='default'>
+                    {t('cancelled')}
                   </Badge>
                 )}
               </div>
@@ -166,25 +200,26 @@ export function NotificationDetails() {
             )}
           </div>
 
-          {canAcceptOrDecline(typedNotification) && (
-            <div className='flex items-center gap-3 border-t pt-6'>
-              <Button
-                className='bg-green-600 text-white hover:bg-green-700'
-                onClick={handleAccept}
-              >
-                <Check className='mr-2 h-4 w-4' />
-                {t('accept')}
-              </Button>
-              <Button
-                className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                onClick={handleDecline}
-                variant='outline'
-              >
-                <X className='mr-2 h-4 w-4' />
-                {t('decline')}
-              </Button>
-            </div>
-          )}
+          {canAcceptOrDecline(typedNotification) &&
+            notificationMissionStatus === MissionStatus.pending && (
+              <div className='flex items-center gap-3 border-t pt-6'>
+                <Button
+                  className='bg-blue-600 text-white hover:bg-blue-700'
+                  onClick={handleAccept}
+                >
+                  <Check className='mr-2 h-4 w-4' />
+                  {t('accept')}
+                </Button>
+                <Button
+                  className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                  onClick={handleDecline}
+                  variant='outline'
+                >
+                  <X className='mr-2 h-4 w-4' />
+                  {t('decline')}
+                </Button>
+              </div>
+            )}
         </Card>
       </div>
     </div>

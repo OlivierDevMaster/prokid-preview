@@ -3,4 +3,3 @@ import { NotificationDetails } from '@/features/notifications/components/Notific
 export default function Page() {
   return <NotificationDetails />;
 }
-

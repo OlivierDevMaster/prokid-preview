@@ -21,7 +21,7 @@ export default function StructuresPage() {
   };
 
   return (
-    <div className='-m-8 min-h-screen space-y-6 bg-blue-50/30 p-8'>
+    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-start justify-between'>
         <div>

@@ -235,7 +235,7 @@ export default function AvailabilitiesPage() {
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold text-blue-900'>{t('title')}</h1>

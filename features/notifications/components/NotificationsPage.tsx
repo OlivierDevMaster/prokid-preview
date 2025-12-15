@@ -64,7 +64,7 @@ export function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-white'>
+      <div className='flex min-h-screen items-center justify-center bg-blue-50/30'>
         <p className='text-gray-600'>{t('loading')}</p>
       </div>
     );
@@ -73,7 +73,7 @@ export function NotificationsPage() {
   const unreadCount = notifications.filter(n => !n.read_at).length;
 
   return (
-    <div className='min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-blue-50/30 p-8 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-4xl'>
         {/* Header */}
         <div className='mb-6 flex items-center justify-between'>
