@@ -59,7 +59,8 @@ test('should split availability when mission is in the middle', () => {
   const expectedUntil = new Date(firstMissionOcc);
   expectedUntil.setSeconds(expectedUntil.getSeconds() - 1);
   assert(
-    updatedRule.options.until &&
+    updatedRule.options.until !== null &&
+      updatedRule.options.until !== undefined &&
       Math.abs(updatedRule.options.until.getTime() - expectedUntil.getTime()) <
         60000,
     'UNTIL should be set to just before first mission occurrence'
@@ -200,7 +201,8 @@ test('should truncate availability when mission is at the end', () => {
   const expectedUntil = new Date(firstMissionOcc);
   expectedUntil.setSeconds(expectedUntil.getSeconds() - 1);
   assert(
-    updatedRule.options.until &&
+    updatedRule.options.until !== null &&
+      updatedRule.options.until !== undefined &&
       Math.abs(updatedRule.options.until.getTime() - expectedUntil.getTime()) <
         60000,
     'UNTIL should be set to just before first mission occurrence'
@@ -255,7 +257,8 @@ test('should handle mission covering entire availability', () => {
   const expectedUntil = new Date(firstMissionOcc);
   expectedUntil.setSeconds(expectedUntil.getSeconds() - 1);
   assert(
-    updatedRule.options.until &&
+    updatedRule.options.until !== null &&
+      updatedRule.options.until !== undefined &&
       Math.abs(updatedRule.options.until.getTime() - expectedUntil.getTime()) <
         60000,
     'UNTIL should be set to just before first mission occurrence'
@@ -366,7 +369,8 @@ test('should preserve UNTIL when original availability had one', () => {
     'Created availability should preserve original UNTIL'
   );
   assert(
-    createdRule.options.until &&
+    createdRule.options.until !== null &&
+      createdRule.options.until !== undefined &&
       Math.abs(
         createdRule.options.until.getTime() - availabilityUntil.getTime()
       ) < 60000,
