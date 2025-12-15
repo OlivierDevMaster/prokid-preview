@@ -1,6 +1,9 @@
 import { stats, tests } from './test-utils.ts';
 // Import test files here as they are created
 import './basic-updates.test.ts';
+import './multiple-schedules.test.ts';
+import './multiple-availabilities.test.ts';
+import './different-patterns-overlap.test.ts';
 
 // Run all tests
 console.log('Running updateAvailabilitiesForMissions (Interval Approach) tests...\n');

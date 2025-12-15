@@ -580,4 +580,3 @@ test('should preserve UNTIL when original availability had one', () => {
     'Post-mission availability should have the same UNTIL as original'
   );
 });
-
