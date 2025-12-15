@@ -325,20 +325,24 @@ This would ensure that overlapping schedules are handled correctly and reduce re
 - Ensure consistent behavior across all occurrences
 - Simplify the logic
 
-### 5. Edge Case: Overlapping Schedules with Different Patterns
+### 5. Edge Case: Overlapping Schedules with Different Patterns ✅ HANDLED
 
 **Scenario**:
-- Availability: 9am-12pm daily
+- Availability: 9am-12pm (Mon-Fri)
 - Schedule 1: 10am-11am (Mon-Fri)
 - Schedule 2: 10:30am-11:30am (Wed only)
 
-The current logic might not handle this correctly.
+**Current Implementation**: The function handles this correctly by:
+- Processing each schedule independently
+- Creating "before mission" and "after mission" parts for each schedule pattern during the schedule period
+- Using the schedule's own pattern (Mon-Fri vs Wed only) for the created parts
+- Consolidating post-mission availability using the latest schedule until
 
-**Proposed Solution**: Use a set-based approach:
-1. Generate all availability occurrences
-2. Generate all mission occurrences (from all schedules)
-3. Subtract mission periods from availability periods
-4. Group remaining periods by pattern and create/update accordingly
+**Test Coverage**: Added test cases covering:
+- Mon-Fri schedule overlapping with Wed-only schedule
+- Different time patterns on the same day
+
+**Note**: The current approach works correctly, but could potentially be optimized by consolidating overlapping schedule periods before processing (see #3).
 
 ### 6. Performance Optimization
 
@@ -384,11 +388,13 @@ if (scheduleUntil < scheduleDtstart) {
 
 ### Priority Recommendations
 
-1. **High Priority**: Fix multiple schedules issue (#1)
-2. **High Priority**: Consolidate post-mission availabilities (#2)
-3. **Medium Priority**: Add validation (#7)
-4. **Medium Priority**: Consider interval-based approach (#8)
-5. **Low Priority**: Performance optimization (#6)
+1. ✅ **Fixed**: Multiple schedules affecting same availability (#1)
+2. ✅ **Fixed**: Post-mission availability duplication (#2)
+3. ✅ **Handled**: Overlapping schedules with different patterns (#5)
+4. **Medium Priority**: Add validation (#7)
+5. **Medium Priority**: Consider interval-based approach (#8)
+6. **Low Priority**: Performance optimization (#6)
+7. **Low Priority**: Schedule period consolidation (#3)
 
 ## Usage Example
 
