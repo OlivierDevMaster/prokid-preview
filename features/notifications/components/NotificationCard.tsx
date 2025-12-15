@@ -84,9 +84,7 @@ export function NotificationCard({
 
   return (
     <Card
-      className={`cursor-pointer transition-all hover:shadow-md ${
-        isRead ? 'bg-white' : 'bg-blue-50/50'
-      }`}
+      className={`cursor-pointer bg-white transition-all hover:shadow-md`}
       onClick={handleClick}
     >
       <div className='p-4'>

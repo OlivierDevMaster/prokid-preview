@@ -4,18 +4,20 @@ import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { useRouter } from '@/i18n/routing';
 
 import { useGetMissions } from '../hooks/useGetMissions';
 import { MissionCard } from './MissionCard';
 
 export function MissionsPage() {
   const t = useTranslations('structure.missions');
+  const router = useRouter();
   const { data: missionsData, isLoading } = useGetMissions();
 
   const missions = missionsData?.data ?? [];
 
   const handleAddMission = () => {
-    console.log('Add mission');
+    router.push('/structure/invitations/new');
   };
 
   const handleViewDetails = (id: string) => {

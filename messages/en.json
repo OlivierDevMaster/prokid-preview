@@ -299,6 +299,19 @@
         "bookingInstructions": "Click on an available slot to select the reason for consultation and confirm your appointment. You can also send a message for a personalized request."
       }
     },
+    "structures": {
+      "details": {
+        "loading": "Loading structure...",
+        "notFound": "Structure not found",
+        "backToList": "Back to list",
+        "sendMessage": "Send a message",
+        "additionalInformation": "Additional Information",
+        "structureId": "Structure ID",
+        "stripeCustomerId": "Stripe Customer ID",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At"
+      }
+    },
     "roles": {
       "all": "All roles",
       "rsai": "RSAI",
@@ -364,6 +377,28 @@
         "additionalInfo": "Additional Information",
         "verifiedAt": "Verified at",
         "memberSince": "Member since"
+      }
+    },
+    "invitations": {
+      "title": "Invite a Professional",
+      "description": "Search for and invite a professional to join your structure.",
+      "back": "Back",
+      "cancel": "Cancel",
+      "sendInvitation": "Send Invitation",
+      "sending": "Sending...",
+      "search": {
+        "label": "Search for a professional",
+        "placeholder": "Search by name, email, or description...",
+        "startSearching": "Start typing to search for professionals",
+        "noResults": "No professionals found matching your search.",
+        "results": "Found {count} professional(s)"
+      },
+      "success": {
+        "invitationSent": "Invitation sent successfully!"
+      },
+      "errors": {
+        "selectProfessional": "Please select a professional to invite",
+        "failedToSend": "Failed to send invitation. Please try again."
       }
     }
   },

@@ -1,6 +1,7 @@
 'use client';
 
 import { Building2, Clock, FileText, MapPin, Phone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -38,6 +39,7 @@ export function StructureCard({
   };
 
   const status = statusConfig['on_time'];
+  const router = useRouter();
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -111,7 +113,9 @@ export function StructureCard({
         {/* Action Button */}
         <Button
           className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={() => onViewDetails?.(structure.user_id)}
+          onClick={() =>
+            router.push(`/professional/structures/${structure.user_id}`)
+          }
           variant='outline'
         >
           Voir les détails
