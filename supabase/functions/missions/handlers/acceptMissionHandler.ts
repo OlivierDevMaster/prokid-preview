@@ -5,6 +5,11 @@ const { rrulestr } = RRulePkg;
 
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
+import {
+  type MissionSchedule,
+  type ProfessionalAvailability,
+  updateAvailabilitiesForMissions,
+} from '../utils/updateAvailabilitiesForMissions.ts';
 
 type Variables = {
   supabaseAdminClient: SupabaseClient<Database>;
@@ -197,6 +202,89 @@ export const acceptMissionHandler = factory.createHandlers(
           } catch {
             // Skip schedules with invalid RRULE
           }
+        }
+      }
+
+      // Get professional availabilities
+      const { data: availabilities, error: availabilitiesError } =
+        await supabaseAdminClient
+          .from('availabilities')
+          .select('id, rrule, duration_mn')
+          .eq('user_id', mission.professional_id);
+
+      if (availabilitiesError) {
+        console.error('Error fetching availabilities:', availabilitiesError);
+        return apiResponse.internalServerError(
+          'Failed to fetch professional availabilities'
+        );
+      }
+
+      // Convert mission schedules to the format expected by updateAvailabilitiesForMissions
+      const missionSchedulesForUpdate: MissionSchedule[] = missionSchedules.map(
+        schedule => ({
+          duration_mn: schedule.duration_mn,
+          rrule: schedule.rrule,
+        })
+      );
+
+      // Convert availabilities to the format expected by updateAvailabilitiesForMissions
+      const professionalAvailabilities: ProfessionalAvailability[] = (
+        availabilities || []
+      ).map(availability => ({
+        duration_mn: availability.duration_mn,
+        rrule: availability.rrule,
+      }));
+
+      // Calculate which availabilities need to be updated or created
+      const availabilityUpdates = updateAvailabilitiesForMissions(
+        professionalAvailabilities,
+        missionSchedulesForUpdate,
+        new Date(mission.mission_dtstart),
+        new Date(mission.mission_until)
+      );
+
+      // Update existing availabilities
+      for (const update of availabilityUpdates.toUpdate) {
+        // Find the original availability by matching rrule and duration
+        // since update.originalAvailability doesn't have id
+        const originalAvailability = (availabilities || []).find(
+          a =>
+            a.rrule === update.originalAvailability.rrule &&
+            a.duration_mn === update.originalAvailability.duration_mn
+        );
+        if (!originalAvailability) continue;
+
+        const { error: updateError } = await supabaseAdminClient
+          .from('availabilities')
+          .update({
+            duration_mn:
+              update.newDurationMn || originalAvailability.duration_mn,
+            rrule: update.newRrule,
+          })
+          .eq('id', originalAvailability.id);
+
+        if (updateError) {
+          console.error(
+            `Error updating availability ${originalAvailability.id}:`,
+            updateError
+          );
+          // Continue with other updates even if one fails
+        }
+      }
+
+      // Create new availabilities
+      for (const create of availabilityUpdates.toCreate) {
+        const { error: createError } = await supabaseAdminClient
+          .from('availabilities')
+          .insert({
+            duration_mn: create.duration_mn,
+            rrule: create.rrule,
+            user_id: mission.professional_id,
+          });
+
+        if (createError) {
+          console.error('Error creating availability:', createError);
+          // Continue with other creates even if one fails
         }
       }
 
