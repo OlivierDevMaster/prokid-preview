@@ -1,6 +1,7 @@
 import { stats, tests } from './test-utils.ts';
 // Import test files here as they are created
 import './basic-updates.test.ts';
+import './multiple-schedules.test.ts';
 // import './complex-scenarios.test.ts';
 // import './edge-cases.test.ts';
 

@@ -272,24 +272,36 @@ npx tsx scripts/update-availabilities-for-missions/tests/test-runner.ts
 
 The current implementation has several limitations that should be addressed in future versions:
 
-### 1. Multiple Schedules Affecting the Same Availability
+### 1. Multiple Schedules Affecting the Same Availability ✅ FIXED
 
-**Current Issue**: The `processedAvailabilityIndices` set prevents processing the same availability more than once, even if multiple schedules overlap it.
+**Previous Issue**: The `processedAvailabilityIndices` set prevented processing the same availability more than once, even if multiple schedules overlapped it.
 
-**Problem Scenario**:
-- Availability: 9am-12pm daily
-- Schedule 1: 10am-11am (Jan 8-15)
-- Schedule 2: 10:30am-11:30am (Jan 16-22)
+**Solution Implemented**:
+- Removed the `processedAvailabilityIndices` check
+- Implemented a two-pass approach:
+  1. **First pass**: Collect all schedule periods that affect each availability, tracking the earliest schedule dtstart (A) and latest schedule until (B) across all schedules
+  2. **Second pass**: Process each affected availability using consolidated schedule dates:
+     - Original availability UNTIL is set to just before the **earliest** schedule dtstart (A)
+     - Post-mission availability starts after the **latest** schedule until (B)
+     - Each schedule creates its own "before mission" and "after mission" parts during its schedule period
+     - Only one post-mission availability is created per availability (using the latest schedule until)
 
-The second schedule won't be processed because the availability is already marked as processed.
+**Test Coverage**: Added 6 comprehensive test cases covering:
+- Two schedules with different time periods
+- Two overlapping schedules
+- Schedule starting before another ends
+- Three schedules affecting same availability
+- Schedules with different patterns (different days)
+- Schedule at start and schedule at end
 
-**Proposed Solution**: Instead of marking entire availabilities as processed, track which schedule periods have been applied to each availability. Consider merging overlapping schedule periods first, or process all schedules and merge the results.
+### 2. Post-Mission Availability Duplication ✅ FIXED
 
-### 2. Post-Mission Availability Duplication
+**Previous Issue**: If multiple schedules affected the same availability, multiple post-mission availabilities could be created that should be merged.
 
-**Current Issue**: If multiple schedules affect the same availability, you might create multiple post-mission availabilities that should be merged.
-
-**Proposed Solution**: After processing all schedules, merge post-mission availabilities that have the same pattern and are adjacent or overlapping.
+**Solution Implemented**:
+- Post-mission availability is now created only once per availability
+- Uses the **latest** schedule until (B) across all schedules affecting the availability
+- Deduplication check ensures only one post-mission availability is created per availability
 
 ### 3. Schedule Period Consolidation
 

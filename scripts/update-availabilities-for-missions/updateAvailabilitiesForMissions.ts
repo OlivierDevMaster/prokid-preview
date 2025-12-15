@@ -100,10 +100,26 @@ export function updateAvailabilitiesForMissions(
   const toUpdate: AvailabilityToUpdate[] = [];
   const toCreate: AvailabilityToCreate[] = [];
 
-  // Track which availabilities have been processed to avoid duplicates
-  const processedAvailabilityIndices = new Set<number>();
+  // Track schedule periods per availability to consolidate them
+  // Map: availability index -> { earliestScheduleDtstart, latestScheduleUntil, schedules }
+  const availabilityScheduleInfo = new Map<
+    number,
+    {
+      earliestScheduleDtstart: Date;
+      latestScheduleUntil: Date;
+      schedules: Array<{
+        availEnd: Date;
+        availOcc: Date;
+        missionEnd: Date;
+        missionOcc: Date;
+        schedule: MissionSchedule;
+        scheduleDtstart: Date;
+        scheduleUntil: Date;
+      }>;
+    }
+  >();
 
-  // Generate all mission occurrences
+  // First pass: collect all schedule periods that affect each availability
   for (const schedule of missionSchedules) {
     // Extract schedule's dtstart (A) and until (B) from the schedule RRULE
     const scheduleDates = extractScheduleDates(
@@ -132,10 +148,6 @@ export function updateAvailabilitiesForMissions(
         availIndex < availabilities.length;
         availIndex++
       ) {
-        if (processedAvailabilityIndices.has(availIndex)) {
-          continue;
-        }
-
         const availability = availabilities[availIndex];
         const availabilityOccurrences = generateAvailabilityOccurrences(
           availability,
@@ -155,70 +167,187 @@ export function updateAvailabilitiesForMissions(
             missionEnd.getTime() > availOcc.getTime()
           ) {
             // Mission overlaps with this availability occurrence
-            // Determine how to modify the availability
-            const modifications = calculateAvailabilityModifications(
-              availability,
-              missionOcc,
-              missionEnd,
-              availOcc,
-              availEnd,
-              scheduleDtstart,
-              scheduleUntil
+            // Track this schedule period for the availability
+            if (!availabilityScheduleInfo.has(availIndex)) {
+              availabilityScheduleInfo.set(availIndex, {
+                earliestScheduleDtstart: scheduleDtstart,
+                latestScheduleUntil: scheduleUntil,
+                schedules: [],
+              });
+            }
+
+            const info = availabilityScheduleInfo.get(availIndex)!;
+            // Update earliest schedule dtstart (A)
+            if (scheduleDtstart < info.earliestScheduleDtstart) {
+              info.earliestScheduleDtstart = scheduleDtstart;
+            }
+            // Update latest schedule until (B)
+            if (scheduleUntil > info.latestScheduleUntil) {
+              info.latestScheduleUntil = scheduleUntil;
+            }
+
+            // Only add this schedule once per availability (use first occurrence)
+            const scheduleAlreadyAdded = info.schedules.some(
+              s => s.schedule === schedule
             );
-
-            if (modifications.needsUpdate && modifications.updatedRrule) {
-              // Check if we already have an update for this availability
-              const existingUpdate = toUpdate.find(
-                u => u.originalAvailability === availability
-              );
-
-              if (!existingUpdate) {
-                toUpdate.push({
-                  newDurationMn: modifications.updatedDurationMn,
-                  newRrule: modifications.updatedRrule,
-                  originalAvailability: availability,
-                });
-              }
-            }
-
-            // Handle "before mission" part during mission period
-            if (
-              modifications.beforeMissionRrule &&
-              modifications.beforeMissionDurationMn !== undefined
-            ) {
-              toCreate.push({
-                duration_mn: modifications.beforeMissionDurationMn,
-                rrule: modifications.beforeMissionRrule,
+            if (!scheduleAlreadyAdded) {
+              info.schedules.push({
+                availEnd,
+                availOcc,
+                missionEnd,
+                missionOcc,
+                schedule,
+                scheduleDtstart,
+                scheduleUntil,
               });
             }
 
-            // Handle "after mission" part during mission period
-            if (
-              modifications.afterMissionRrule &&
-              modifications.afterMissionDurationMn !== undefined
-            ) {
-              toCreate.push({
-                duration_mn: modifications.afterMissionDurationMn,
-                rrule: modifications.afterMissionRrule,
-              });
-            }
-
-            // Handle post-mission availability (full pattern resumes after mission)
-            if (
-              modifications.postMissionRrule &&
-              modifications.postMissionDurationMn !== undefined
-            ) {
-              toCreate.push({
-                duration_mn: modifications.postMissionDurationMn,
-                rrule: modifications.postMissionRrule,
-              });
-            }
-
-            processedAvailabilityIndices.add(availIndex);
-            break; // Process each availability only once per mission occurrence
+            break; // Process each availability occurrence only once per mission occurrence
           }
         }
       }
+    }
+  }
+
+  // Second pass: process each affected availability with consolidated schedule periods
+  for (const [availIndex, scheduleInfo] of availabilityScheduleInfo.entries()) {
+    const availability = availabilities[availIndex];
+    const consolidatedScheduleDtstart = scheduleInfo.earliestScheduleDtstart;
+    const consolidatedScheduleUntil = scheduleInfo.latestScheduleUntil;
+
+    // Process each schedule that affects this availability
+    // Use the consolidated dates (earliest A, latest B) for the main update
+    // But process each schedule's specific parts individually
+    for (const scheduleData of scheduleInfo.schedules) {
+      const modifications = calculateAvailabilityModifications(
+        availability,
+        scheduleData.missionOcc,
+        scheduleData.missionEnd,
+        scheduleData.availOcc,
+        scheduleData.availEnd,
+        scheduleData.scheduleDtstart,
+        scheduleData.scheduleUntil
+      );
+
+      // For the original update, use consolidated dates (earliest A)
+      if (modifications.needsUpdate && modifications.updatedRrule) {
+        // Check if we already have an update for this availability
+        const existingUpdate = toUpdate.find(
+          u => u.originalAvailability === availability
+        );
+
+        if (!existingUpdate) {
+          // Use consolidated earliest schedule dtstart for the UNTIL
+          const untilBeforeSchedule = new Date(consolidatedScheduleDtstart);
+          untilBeforeSchedule.setSeconds(untilBeforeSchedule.getSeconds() - 1);
+
+          // Parse the original availability RRULE to get options
+          const originalRule = rrulestr(availability.rrule);
+          const isRRuleSet =
+            originalRule instanceof RRuleSet ||
+            typeof (originalRule as RRuleSet).rrules === 'function';
+
+          let baseRule: RRule;
+          if (isRRuleSet) {
+            const rruleSet = originalRule as RRuleSet;
+            const rules = rruleSet.rrules();
+            baseRule = rules[0] || new RRule();
+          } else {
+            baseRule = originalRule as RRule;
+          }
+
+          const updatedRrule = createAvailabilityWithUntil(
+            baseRule.options,
+            untilBeforeSchedule
+          );
+
+          toUpdate.push({
+            newDurationMn: modifications.updatedDurationMn,
+            newRrule: updatedRrule,
+            originalAvailability: availability,
+          });
+        }
+      }
+
+      // Handle "before mission" part during schedule period
+      if (
+        modifications.beforeMissionRrule &&
+        modifications.beforeMissionDurationMn !== undefined
+      ) {
+        toCreate.push({
+          duration_mn: modifications.beforeMissionDurationMn,
+          rrule: modifications.beforeMissionRrule,
+        });
+      }
+
+      // Handle "after mission" part during schedule period
+      if (
+        modifications.afterMissionRrule &&
+        modifications.afterMissionDurationMn !== undefined
+      ) {
+        toCreate.push({
+          duration_mn: modifications.afterMissionDurationMn,
+          rrule: modifications.afterMissionRrule,
+        });
+      }
+    }
+
+    // Create post-mission availability using consolidated latest schedule until (B)
+    // Only create once per availability, using the latest schedule until
+    // Check if we already created a post-mission for this availability
+    const existingPostMission = toCreate.some(
+      created =>
+        created.duration_mn === availability.duration_mn &&
+        (() => {
+          try {
+            const rule = rrulestr(created.rrule);
+            const ruleObj =
+              rule instanceof RRuleSet
+                ? (rule as RRuleSet).rrules()[0]
+                : (rule as RRule);
+            return (
+              ruleObj.options.dtstart &&
+              ruleObj.options.dtstart > consolidatedScheduleUntil
+            );
+          } catch {
+            return false;
+          }
+        })()
+    );
+
+    if (!existingPostMission) {
+      // Parse the original availability RRULE to get options
+      const originalRule = rrulestr(availability.rrule);
+      const isRRuleSet =
+        originalRule instanceof RRuleSet ||
+        typeof (originalRule as RRuleSet).rrules === 'function';
+
+      let baseRule: RRule;
+      if (isRRuleSet) {
+        const rruleSet = originalRule as RRuleSet;
+        const rules = rruleSet.rrules();
+        baseRule = rules[0] || new RRule();
+      } else {
+        baseRule = originalRule as RRule;
+      }
+
+      const options = baseRule.options;
+
+      // Get the original dtstart from the availability
+      const originalDtstart = options.dtstart || new Date();
+
+      // Create post-mission availability using consolidated latest schedule until (B)
+      const postMissionRrule = createAvailabilityAfterSchedulePeriod(
+        options,
+        originalDtstart,
+        consolidatedScheduleUntil,
+        options.until
+      );
+
+      toCreate.push({
+        duration_mn: availability.duration_mn,
+        rrule: postMissionRrule,
+      });
     }
   }
 
