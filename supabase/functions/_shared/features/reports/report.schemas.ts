@@ -9,3 +9,9 @@ export const CreateReportRequestBodySchema = z.object({
 export type CreateReportRequestBody = z.infer<
   typeof CreateReportRequestBodySchema
 >;
+
+export const SendReportRequestBodySchema = z.object({
+  report_id: z.string().uuid("L'ID du rapport doit être un UUID valide"),
+});
+
+export type SendReportRequestBody = z.infer<typeof SendReportRequestBodySchema>;
