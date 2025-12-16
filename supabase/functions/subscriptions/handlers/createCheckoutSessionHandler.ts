@@ -7,6 +7,7 @@ import { getStripeClient } from '../../_shared/features/stripe/stripe.util.ts';
 import {
   createCheckoutSession,
   CreateCheckoutSessionRequestBodySchema,
+  getSubscriptionStatus,
 } from '../../_shared/features/subscriptions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
@@ -38,6 +39,18 @@ export const createCheckoutSessionHandler = factory.createHandlers(
         );
       }
 
+      const subscriptionStatus = await getSubscriptionStatus(
+        supabaseClient,
+        user.id
+      );
+
+      if (subscriptionStatus.isSubscribed) {
+        return apiResponse.conflict(
+          'ALREADY_SUBSCRIBED',
+          'You already have an active subscription. Please manage your existing subscription instead.'
+        );
+      }
+
       const validationResult = await validateRequestBody(
         CreateCheckoutSessionRequestBodySchema,
         req
@@ -47,13 +60,14 @@ export const createCheckoutSessionHandler = factory.createHandlers(
         return validationResult.response;
       }
 
+      const body = validationResult.data;
       const stripe = getStripeClient();
       const session = await createCheckoutSession(
         stripe,
         supabaseClient,
         user.id,
-        validationResult.data.successUrl,
-        validationResult.data.cancelUrl
+        body.successUrl,
+        body.cancelUrl
       );
 
       return apiResponse.ok({
