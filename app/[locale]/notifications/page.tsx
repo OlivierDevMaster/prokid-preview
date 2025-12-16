@@ -3,4 +3,3 @@ import { NotificationsPage } from '@/features/notifications/components/Notificat
 export default function Page() {
   return <NotificationsPage />;
 }
-

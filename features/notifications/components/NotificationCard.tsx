@@ -56,7 +56,7 @@ export function NotificationCard({
     if (!isRead && onMarkAsRead) {
       onMarkAsRead(notification.id);
     }
-    router.push(`${redirectLink}/${notification.id}` ?? '/notifications');
+    router.push(`${redirectLink}/${notification.id}`);
   };
 
   const handleAccept = (e: React.MouseEvent) => {

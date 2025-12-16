@@ -2,12 +2,27 @@ import { Building2, MessageSquare, Users } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { StatCard } from '@/features/admin/StatCard';
+import { findMissions } from '@/features/missions/mission.service';
+import { getProfessionals } from '@/features/professionals/professional.service';
+import { getStructures } from '@/features/structures/structure.service';
 
 export default async function DashboardPage() {
   const t = await getTranslations('admin.dashboard');
 
+  // Fetch counts for professionals, structures, and missions
+  const [professionalsResult, structuresResult, missionsResult] =
+    await Promise.all([
+      getProfessionals({}, { limit: 1, page: 1 }),
+      getStructures({}, { limit: 1, page: 1 }),
+      findMissions({}, { limit: 1, page: 1 }),
+    ]);
+
+  const professionalsCount = professionalsResult.count ?? 0;
+  const structuresCount = structuresResult.count ?? 0;
+  const missionsCount = missionsResult.count ?? 0;
+
   return (
-    <div className='space-y-8'>
+    <div className='h-full space-y-8 bg-blue-50/30 p-8'>
       {/* Header */}
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
@@ -16,12 +31,20 @@ export default async function DashboardPage() {
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        <StatCard icon={Building2} title={t('totalAffaires')} value='3' />
-        <StatCard icon={Users} title={t('totalAcheteurs')} value='522' />
+        <StatCard
+          icon={Users}
+          title={t('totalProfessionals')}
+          value={professionalsCount.toString()}
+        />
+        <StatCard
+          icon={Building2}
+          title={t('totalStructures')}
+          value={structuresCount.toString()}
+        />
         <StatCard
           icon={MessageSquare}
-          title={t('correspondancesPotentielles')}
-          value='1566'
+          title={t('totalMissions')}
+          value={missionsCount.toString()}
         />
       </div>
     </div>

@@ -19,9 +19,9 @@ test('should handle overlapping schedules with different patterns - Mon-Fri vs W
   const availability: ProfessionalAvailability = {
     duration_mn: 180, // 3 hours
     rrule: new RRule({
+      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
       dtstart: new Date('2024-01-01T09:00:00Z'),
       freq: RRule.WEEKLY,
-      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
     }).toString(),
   };
 
@@ -29,10 +29,10 @@ test('should handle overlapping schedules with different patterns - Mon-Fri vs W
   const schedule1: MissionSchedule = {
     duration_mn: 60, // 1 hour
     rrule: new RRule({
-      dtstart: new Date('2024-01-08T10:00:00Z'),
-      until: new Date('2024-01-29T10:00:00Z'),
-      freq: RRule.WEEKLY,
       byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
+      dtstart: new Date('2024-01-08T10:00:00Z'),
+      freq: RRule.WEEKLY,
+      until: new Date('2024-01-29T10:00:00Z'),
     }).toString(),
   };
 
@@ -117,7 +117,6 @@ test('should handle overlapping schedules with different patterns - Mon-Fri vs W
   );
 
   // Should create one post-mission availability (consolidated, using latest schedule until)
-  const scheduleUntil1 = new Date('2024-01-29T10:00:00Z');
   const scheduleUntil2 = new Date('2024-01-31T10:30:00Z');
   const latestScheduleUntil = scheduleUntil2; // Latest is Jan 31
 
@@ -236,4 +235,3 @@ test('should handle overlapping schedules with different patterns - daily vs spe
     'Should create exactly one post-mission availability'
   );
 });
-

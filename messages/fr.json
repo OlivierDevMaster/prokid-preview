@@ -345,12 +345,21 @@
       "childhood_education_and_care_assistant_certificate": "CAP accompagnant éducatif petite enfance",
       "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
       "other_early_childhood_profession": "Autre profession de la petite enfance"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de votre activité professionnelle",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales",
+      "totalReports": "Comptes Rendus Totaux"
     }
   },
   "structure": {
     "navigation": {
       "missions": "Missions",
-      "professionals": "Professionnels"
+      "professionals": "Professionnels",
+      "dashboard": "Tableau de bord"
     },
     "missions": {
       "title": "Mes missions",
@@ -387,6 +396,14 @@
         "verifiedAt": "Vérifié le",
         "memberSince": "Membre depuis"
       }
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de l'activité de votre structure",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalMissions": "Missions Totales",
+      "totalInvitations": "Invitations Totales"
     },
     "invitations": {
       "title": "Inviter un Professionnel",
@@ -426,7 +443,10 @@
       "users": "Utilisateurs",
       "totalAcheteurs": "Acheteurs Totaux",
       "correspondancesPotentielles": "Correspondances Potentielles",
-      "totalAffaires": "Affaires Totales"
+      "totalAffaires": "Affaires Totales",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales"
     },
     "users": {
       "title": "Utilisateurs",
@@ -680,7 +700,8 @@
       "users": "Utilisateurs",
       "professionals": "Professionnels",
       "structures": "Structures",
-      "availabilities": "Disponibilités"
+      "availabilities": "Disponibilités",
+      "dashboard": "Tableau de bord"
     },
     "notifications": {
       "title": "Notifications",

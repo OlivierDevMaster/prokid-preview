@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Calendar, Mail, MapPin, Phone } from 'lucide-react';
+import { Building2, Calendar, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
@@ -99,23 +99,6 @@ export function StructureDetails() {
                       <span>{profile.email}</span>
                     </div>
                   )}
-
-                  {profile?.phone && (
-                    <div className='flex items-center gap-2 text-sm text-gray-600'>
-                      <Phone className='h-4 w-4 text-gray-400' />
-                      <span>{profile.phone}</span>
-                    </div>
-                  )}
-
-                  {(profile?.city || profile?.postal_code) && (
-                    <div className='flex items-center gap-2 text-sm text-gray-600'>
-                      <MapPin className='h-4 w-4 text-gray-400' />
-                      <span>
-                        {profile.city}
-                        {profile.postal_code && `, ${profile.postal_code}`}
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 <div className='my-4 w-full border'></div>
@@ -160,18 +143,6 @@ export function StructureDetails() {
                     </h3>
                     <p className='text-gray-800'>{structure.user_id}</p>
                   </div>
-
-                  {/* Stripe Customer ID */}
-                  {structure.stripe_customer_id && (
-                    <div>
-                      <h3 className='mb-2 text-sm font-semibold text-gray-700'>
-                        {t('stripeCustomerId')}
-                      </h3>
-                      <p className='text-gray-800'>
-                        {structure.stripe_customer_id}
-                      </p>
-                    </div>
-                  )}
 
                   {/* Created At */}
                   <div>

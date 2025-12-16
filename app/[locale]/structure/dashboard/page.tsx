@@ -1,15 +1,15 @@
-import { Building2, ClipboardList, MessageSquare } from 'lucide-react';
+import { MessageSquare, UserPlus, Users } from 'lucide-react';
 import { getServerSession } from 'next-auth';
 import { getTranslations } from 'next-intl/server';
 
 import { StatCard } from '@/features/admin/StatCard';
-import { findMissions } from '@/features/missions/mission.service';
-import { findReports } from '@/features/reports/report.service';
-import { getStructuresForProfessional } from '@/features/structure-members/structureMember.service';
+import { findStructureInvitations } from '@/features/structure-invitations/structureInvitation.service';
+import { getProfessionalsForStructure } from '@/features/structure-members/structureMember.service';
+import { getStructureMissions } from '@/features/structure/missions/services/mission.service';
 import { authOptions } from '@/lib/auth';
 
 export default async function DashboardPage() {
-  const t = await getTranslations('professional.dashboard');
+  const t = await getTranslations('structure.dashboard');
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
@@ -25,19 +25,20 @@ export default async function DashboardPage() {
     );
   }
 
-  // Fetch counts for structures, missions, and reports
-  const [structuresResult, missionsResult, reportsResult] = await Promise.all([
-    getStructuresForProfessional(userId, {}, { limit: 1, page: 1 }),
-    findMissions({ professional_id: userId }, { limit: 1, page: 1 }),
-    findReports({ authorId: userId }, { limit: 1, page: 1 }),
-  ]);
+  // Fetch counts for professionals, missions, and invitations
+  const [professionalsResult, missionsResult, invitationsResult] =
+    await Promise.all([
+      getProfessionalsForStructure(userId, {}, { limit: 1, page: 1 }),
+      getStructureMissions(userId, {}, { limit: 1, page: 1 }),
+      findStructureInvitations({ structure_id: userId }, { limit: 1, page: 1 }),
+    ]);
 
-  const structuresCount = structuresResult.count ?? 0;
+  const professionalsCount = professionalsResult.count ?? 0;
   const missionsCount = missionsResult.count ?? 0;
-  const reportsCount = reportsResult.count ?? 0;
+  const invitationsCount = invitationsResult.count ?? 0;
 
   return (
-    <div className='h-100vh space-y-8 bg-blue-50/30 p-8'>
+    <div className='h-full space-y-8 bg-blue-50/30 p-8'>
       {/* Header */}
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
@@ -47,9 +48,9 @@ export default async function DashboardPage() {
       {/* Stats Cards */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         <StatCard
-          icon={Building2}
-          title={t('totalStructures')}
-          value={structuresCount.toString()}
+          icon={Users}
+          title={t('totalProfessionals')}
+          value={professionalsCount.toString()}
         />
         <StatCard
           icon={MessageSquare}
@@ -57,9 +58,9 @@ export default async function DashboardPage() {
           value={missionsCount.toString()}
         />
         <StatCard
-          icon={ClipboardList}
-          title={t('totalReports')}
-          value={reportsCount.toString()}
+          icon={UserPlus}
+          title={t('totalInvitations')}
+          value={invitationsCount.toString()}
         />
       </div>
     </div>

@@ -1,11 +1,13 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 
-import { AdminNavbar } from '@/features/admin/layout/AdminNavbar';
-import { AdminSidebar } from '@/features/admin/layout/sidebar';
+import { AdminSidebar } from '@/features/admin/layout/AdminSidebar';
+import { BoNavbar } from '@/features/layout/BoNavbar';
 import { useRouter } from '@/i18n/routing';
+import { getUser } from '@/services/auth/auth.service';
 
 export default function ProtectedLayout({
   children,
@@ -15,13 +17,40 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  // Fetch user profile to check role
+  const { data: userData, isLoading: isLoadingProfile } = useQuery({
+    enabled: !!session?.user?.id && status === 'authenticated',
+    queryFn: async () => {
+      if (!session?.user?.id) {
+        return null;
+      }
+      const result = await getUser(session.user.id);
+      if (result.error) {
+        return null;
+      }
+      return result.profile;
+    },
+    queryKey: ['user-profile', session?.user?.id],
+  });
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/login');
+      return;
     }
-  }, [status, router]);
 
-  if (status === 'loading') {
+    // Check if profile is loaded and role is not admin
+    if (
+      status === 'authenticated' &&
+      !isLoadingProfile &&
+      userData &&
+      userData.role !== 'admin'
+    ) {
+      router.push('/auth/login');
+    }
+  }, [status, userData, isLoadingProfile, router]);
+
+  if (status === 'loading' || isLoadingProfile) {
     return (
       <main className='flex min-h-screen flex-col items-center justify-center'>
         <div>Loading...</div>
@@ -29,17 +58,19 @@ export default function ProtectedLayout({
     );
   }
 
-  if (!session) {
+  if (!session || !userData || userData.role !== 'admin') {
     return null;
   }
 
   return (
-    <div className='flex min-h-screen bg-gray-50'>
-      <AdminSidebar />
-      <div className='flex flex-1 flex-col overflow-hidden'>
-        <AdminNavbar />
-        <main className='flex-1 overflow-auto'>
-          <div className='p-8'>{children}</div>
+    <div className='flex h-screen flex-col overflow-hidden'>
+      <BoNavbar userRole='Admin' />
+      <div className='flex flex-1 overflow-hidden'>
+        <div className='flex h-full flex-shrink-0'>
+          <AdminSidebar />
+        </div>
+        <main className='flex-1 overflow-y-auto'>
+          <div>{children}</div>
         </main>
       </div>
     </div>

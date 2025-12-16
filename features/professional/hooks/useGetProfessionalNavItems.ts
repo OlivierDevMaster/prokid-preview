@@ -1,4 +1,4 @@
-import { Calendar, ClipboardMinus, Users } from 'lucide-react';
+import { Calendar, ClipboardMinus, LayoutDashboard, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -7,6 +7,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
   const tProfessional = useTranslations('admin');
 
   const items: SidebarNavItem[] = [
+    {
+      href: '/professional/dashboard',
+      icon: LayoutDashboard,
+      label: tProfessional('navigation.dashboard'),
+    },
     {
       href: '/professional/availabilities',
       icon: Calendar,

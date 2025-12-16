@@ -17,9 +17,14 @@ const defaultUrl = process.env.VERCEL_URL
   : 'http://localhost:3000';
 
 export const metadata: Metadata = {
-  description: 'The fastest way to build apps with Next.js and Supabase',
+  description: 'La plateforme des pros de la petite enfance',
+  icons: {
+    apple: '/icons/logo-bg-dark-blue-circle.svg',
+    icon: '/icons/logo-bg-dark-blue-circle.svg',
+    shortcut: '/icons/logo-bg-dark-blue-circle.svg',
+  },
   metadataBase: new URL(defaultUrl),
-  title: 'Next.js and Supabase Starter Kit',
+  title: 'prokid',
 };
 
 const geistSans = Geist({

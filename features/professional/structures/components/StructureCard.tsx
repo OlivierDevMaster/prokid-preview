@@ -10,14 +10,10 @@ import { cn } from '@/lib/utils';
 import { Structure } from '../modeles/Structure.modele';
 
 interface StructureCardProps {
-  onViewDetails?: (id: string) => void;
   structure: Structure;
 }
 
-export function StructureCard({
-  onViewDetails,
-  structure,
-}: StructureCardProps) {
+export function StructureCard({ structure }: StructureCardProps) {
   // const progressPercentage =
   //   (structure.hoursCompleted / structure.hoursTotal) * 100;
 

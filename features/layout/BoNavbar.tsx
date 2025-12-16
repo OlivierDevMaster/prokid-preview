@@ -10,13 +10,24 @@ import ProkidLogo from '@/features/layout/ProkidLogo';
 import NotificationsPanel from '../notifications/components/NotificationsPanel';
 
 type BoNavbarProps = {
+  settingsRoute?: string;
   userRole?: string;
 };
 
 export function BoNavbar({
+  settingsRoute,
   userRole = 'Professionnel(le) petite enfance',
 }: BoNavbarProps) {
   const router = useRouter();
+
+  // Determine settings route based on userRole if not provided
+  const getSettingsRoute = () => {
+    if (settingsRoute) return settingsRoute;
+    if (userRole === 'Admin') return '/admin/settings';
+    if (userRole === 'Structure') return '/structure/settings';
+    return '/professional/settings';
+  };
+
   return (
     <nav className='sticky top-0 z-50 w-full border-b bg-white shadow-sm'>
       <div className='flex items-center justify-between px-3 py-2'>
@@ -34,7 +45,7 @@ export function BoNavbar({
           <NotificationsPanel />
           <Button
             className='h-8 w-8 hover:bg-gray-100'
-            onClick={() => router.push('/professional/settings')}
+            onClick={() => router.push(getSettingsRoute())}
             size='icon'
             variant='ghost'
           >

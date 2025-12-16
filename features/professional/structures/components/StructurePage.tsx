@@ -44,11 +44,7 @@ export default function StructuresPage() {
       {/* Structures Grid */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         {(structures ?? []).map(structure => (
-          <StructureCard
-            key={structure.user_id}
-            onViewDetails={handleViewDetails}
-            structure={structure}
-          />
+          <StructureCard key={structure.user_id} structure={structure} />
         ))}
       </div>
 

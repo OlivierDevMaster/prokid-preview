@@ -69,7 +69,7 @@ export default function AdminStructureDetailsPage() {
   const name = structure.name || 'N/A';
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>

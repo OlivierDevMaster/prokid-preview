@@ -336,12 +336,21 @@
       "childhood_education_and_care_assistant_certificate": "Childhood education and care assistant certificate",
       "childcare_auxiliary_nurse": "Childcare auxiliary nurse",
       "other_early_childhood_profession": "Other early childhood profession"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of your professional activity",
+      "notAuthenticated": "Please sign in to view your dashboard",
+      "totalStructures": "Total Structures",
+      "totalMissions": "Total Missions",
+      "totalReports": "Total Reports"
     }
   },
   "structure": {
     "navigation": {
       "missions": "Missions",
-      "professionals": "Professionals"
+      "professionals": "Professionals",
+      "dashboard": "Dashboard"
     },
     "missions": {
       "title": "My missions",
@@ -378,6 +387,14 @@
         "verifiedAt": "Verified at",
         "memberSince": "Member since"
       }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of your structure activity",
+      "notAuthenticated": "Please sign in to view your dashboard",
+      "totalProfessionals": "Total Professionals",
+      "totalMissions": "Total Missions",
+      "totalInvitations": "Total Invitations"
     },
     "invitations": {
       "title": "Invite a Professional",
@@ -417,7 +434,10 @@
       "subtitle": "Overview of your data.",
       "totalAcheteurs": "Total Buyers",
       "correspondancesPotentielles": "Potential Matches",
-      "totalAffaires": "Total Business"
+      "totalAffaires": "Total Business",
+      "totalProfessionals": "Total Professionals",
+      "totalStructures": "Total Structures",
+      "totalMissions": "Total Missions"
     },
     "users": {
       "title": "Users",
@@ -671,7 +691,8 @@
       "users": "Users",
       "professionals": "Professionals",
       "structures": "Structures",
-      "availabilities": "Availabilities"
+      "availabilities": "Availabilities",
+      "dashboard": "Dashboard"
     },
     "notifications": {
       "title": "Notifications",

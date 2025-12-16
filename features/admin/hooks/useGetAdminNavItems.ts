@@ -1,30 +1,30 @@
-'use client';
-
+import { LayoutDashboard, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-interface NavItem {
-  href: string;
-  icon: string;
-  label: string;
-}
+import { SidebarNavItem } from '@/modeles/navigation.modele';
 
-export default function useGetAdminNavItems(): NavItem[] {
+export default function useGetAdminNavItems(): SidebarNavItem[] {
   const tAdmin = useTranslations('admin');
 
-  const items: NavItem[] = [
+  const items: SidebarNavItem[] = [
+    {
+      href: '/admin',
+      icon: LayoutDashboard,
+      label: tAdmin('navigation.dashboard'),
+    },
     {
       href: '/admin/users',
-      icon: 'users',
+      icon: Users,
       label: tAdmin('navigation.users'),
     },
     {
       href: '/admin/professionals',
-      icon: 'users',
+      icon: Users,
       label: tAdmin('navigation.professionals'),
     },
     {
       href: '/admin/structures',
-      icon: 'users',
+      icon: Users,
       label: tAdmin('navigation.structures'),
     },
   ];

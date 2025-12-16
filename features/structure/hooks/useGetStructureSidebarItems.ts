@@ -1,4 +1,4 @@
-import { Target, Users } from 'lucide-react';
+import { LayoutDashboard, Target, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -6,6 +6,11 @@ import { SidebarNavItem } from '@/modeles/navigation.modele';
 export function useGetStructureSidebarItems(): SidebarNavItem[] {
   const tStructure = useTranslations('structure.navigation');
   const items: SidebarNavItem[] = [
+    {
+      href: '/structure/dashboard',
+      icon: LayoutDashboard,
+      label: tStructure('dashboard'),
+    },
     {
       href: '/structure/missions',
       icon: Target,
