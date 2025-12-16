@@ -60,21 +60,33 @@ export const getSubscriptionStatus = async (
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<SubscriptionStatusResponse> => {
-  const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('professional_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [subscriptionResult, isSubscribedResult] = await Promise.all([
+    supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('professional_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.rpc('is_professional_subscribed', {
+      user_id_param: userId,
+    }),
+  ]);
 
-  if (error) {
-    throw new Error(`Failed to fetch subscription: ${error.message}`);
+  if (subscriptionResult.error) {
+    throw new Error(
+      `Failed to fetch subscription: ${subscriptionResult.error.message}`
+    );
   }
 
-  const isSubscribed =
-    subscription !== null &&
-    (subscription.status === 'active' || subscription.status === 'trialing');
+  if (isSubscribedResult.error) {
+    throw new Error(
+      `Failed to check subscription status: ${isSubscribedResult.error.message}`
+    );
+  }
+
+  const subscription = subscriptionResult.data;
+  const isSubscribed = isSubscribedResult.data ?? false;
 
   return {
     isSubscribed,
