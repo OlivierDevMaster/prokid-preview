@@ -4,6 +4,7 @@ import { Hono } from '@hono/hono';
 import { authMiddleware } from '../_shared/middlewares/auth.middleware.ts';
 import { apiResponse } from '../_shared/utils/responses.ts';
 import {
+  cancelSubscriptionHandler,
   createCheckoutSessionHandler,
   createPortalSessionHandler,
   getSubscriptionStatusHandler,
@@ -26,5 +27,7 @@ app.get('/status', ...getSubscriptionStatusHandler);
 // POST /subscriptions/portal - Create customer portal session (authenticated)
 app.post('/portal', ...createPortalSessionHandler);
 
-Deno.serve(app.fetch);
+// POST /subscriptions/cancel - Cancel subscription (authenticated)
+app.post('/cancel', ...cancelSubscriptionHandler);
 
+Deno.serve(app.fetch);

@@ -120,13 +120,43 @@ export const cancelSubscription = async (
     .from('subscriptions')
     .select('*')
     .eq('professional_id', userId)
-    .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (fetchError || !subscription) {
-    throw new Error('No active subscription found');
+  if (fetchError) {
+    throw new Error(`Failed to fetch subscription: ${fetchError.message}`);
+  }
+
+  if (!subscription) {
+    throw new Error('No subscription found');
+  }
+
+  if (subscription.status === 'canceled') {
+    throw new Error('Subscription is already canceled');
+  }
+
+  if (
+    subscription.status === 'incomplete_expired' ||
+    subscription.status === 'unpaid'
+  ) {
+    throw new Error('Subscription has already ended and cannot be canceled');
+  }
+
+  if (subscription.cancel_at_period_end) {
+    throw new Error(
+      'Subscription is already scheduled to cancel at period end'
+    );
+  }
+
+  if (
+    subscription.status !== 'active' &&
+    subscription.status !== 'trialing' &&
+    subscription.status !== 'past_due'
+  ) {
+    throw new Error(
+      `Cannot cancel subscription with status: ${subscription.status}`
+    );
   }
 
   const stripeSubscription = await stripe.subscriptions.update(

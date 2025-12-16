@@ -16,3 +16,11 @@ export const CreatePortalSessionRequestBodySchema = z.object({
 export type CreatePortalSessionRequestBody = z.infer<
   typeof CreatePortalSessionRequestBodySchema
 >;
+
+export const CancelSubscriptionRequestBodySchema = z.object({
+  cancelAtPeriodEnd: z.boolean().optional().default(true),
+});
+
+export type CancelSubscriptionRequestBody = z.infer<
+  typeof CancelSubscriptionRequestBodySchema
+>;

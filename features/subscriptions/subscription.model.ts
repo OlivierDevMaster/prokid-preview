@@ -65,6 +65,12 @@ export const SubscriptionStatusLabel: Record<
   },
 };
 
+export interface CancelSubscriptionRequestBody {
+  cancelAtPeriodEnd?: boolean;
+}
+
+export type CancelSubscriptionResponse = ProfessionalSubscription;
+
 export interface SubscriptionStatusResponse {
   isSubscribed: boolean;
   status: null | SubscriptionStatus;

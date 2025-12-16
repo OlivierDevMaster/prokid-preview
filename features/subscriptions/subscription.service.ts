@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/client';
 import { invokeEdgeFunction } from '@/lib/supabase/edge-functions';
 
 import type {
+  CancelSubscriptionRequestBody,
+  CancelSubscriptionResponse,
   CreateCheckoutSessionRequestBody,
   CreateCheckoutSessionResponse,
   CreatePortalSessionRequestBody,
@@ -64,4 +66,18 @@ export const isProfessionalSubscribed = async (
   }
 
   return data ?? false;
+};
+
+export const cancelSubscription = async (
+  body: CancelSubscriptionRequestBody
+): Promise<CancelSubscriptionResponse> => {
+  const supabase = createClient();
+
+  return invokeEdgeFunction<
+    CancelSubscriptionResponse,
+    CancelSubscriptionRequestBody
+  >(supabase, 'subscriptions/cancel', {
+    body,
+    method: 'POST',
+  });
 };
