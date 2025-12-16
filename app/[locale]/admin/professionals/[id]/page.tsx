@@ -72,7 +72,7 @@ export default function AdminProfessionalDetailsPage() {
     : 'N/A';
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
@@ -205,16 +205,6 @@ export default function AdminProfessionalDetailsPage() {
                 </label>
                 <p className='text-gray-900'>
                   {new Date(professional.updated_at).toLocaleDateString()}
-                </p>
-              </div>
-            )}
-            {professional.user_id && (
-              <div>
-                <label className='text-sm font-semibold text-gray-700'>
-                  {t('userId')}
-                </label>
-                <p className='font-mono text-sm text-gray-900'>
-                  {professional.user_id}
                 </p>
               </div>
             )}

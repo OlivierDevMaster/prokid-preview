@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Link } from '@/i18n/routing';
 
@@ -19,10 +20,19 @@ export default function ProfessionalSignUpLayout({
             <div className='flex flex-col items-center justify-center p-6'>
               <div className='space-y-8'>
                 <div className='space-y-4 text-center'>
-                  <h1 className='text-4xl font-bold text-gray-800 md:text-5xl'>
-                    {t('welcome')} <span className='text-blue-400'>PRO</span>
-                    <span className='text-green-400'>Kid</span> 👋
-                  </h1>
+                  <div className='flex items-center justify-center'>
+                    <h1 className='text-4xl font-bold text-gray-800 md:text-5xl'>
+                      {t('welcome')}
+                    </h1>
+                    <Image
+                      alt='ProKid'
+                      className='ml-4'
+                      height={200}
+                      src='/icons/logo.svg'
+                      width={200}
+                    />
+                    <div className='text-4xl'>👋</div>
+                  </div>
                   <p className='text-sm text-gray-600'>
                     {tProfessional('profileConfiguration')}
                   </p>

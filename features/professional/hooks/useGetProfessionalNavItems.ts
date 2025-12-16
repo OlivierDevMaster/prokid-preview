@@ -1,28 +1,30 @@
+import { Calendar, ClipboardMinus, LayoutDashboard, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-interface NavItem {
-  href: string;
-  icon: string;
-  label: string;
-}
+import { SidebarNavItem } from '@/modeles/navigation.modele';
 
-export default function useGetProfessionalNavItems(): NavItem[] {
+export default function useGetProfessionalNavItems(): SidebarNavItem[] {
   const tProfessional = useTranslations('admin');
 
-  const items: NavItem[] = [
+  const items: SidebarNavItem[] = [
+    {
+      href: '/professional/dashboard',
+      icon: LayoutDashboard,
+      label: tProfessional('navigation.dashboard'),
+    },
     {
       href: '/professional/availabilities',
-      icon: 'availabilities',
+      icon: Calendar,
       label: tProfessional('navigation.availabilities'),
     },
     {
       href: '/professional/reports',
-      icon: 'report',
+      icon: ClipboardMinus,
       label: tProfessional('navigation.reports'),
     },
     {
       href: '/professional/structures',
-      icon: 'structure',
+      icon: Users,
       label: tProfessional('navigation.structure'),
     },
   ];

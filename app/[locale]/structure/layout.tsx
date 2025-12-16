@@ -1,5 +1,5 @@
-import { ProfessionalNavbar } from '@/features/professional/layout/ProfessionalNavbar';
-import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
+import { BoNavbar } from '@/features/layout/BoNavbar';
+import { StructureSidebar } from '@/features/structure/layout/StructureSidebar';
 
 export default function StructureLayout({
   children,
@@ -7,12 +7,14 @@ export default function StructureLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className='flex min-h-screen flex-col'>
-      <ProfessionalNavbar />
-      <div className='bg-green flex flex-1 overflow-hidden'>
-        <ProfessionalSidebar />
-        <main className='flex-1 overflow-auto'>
-          <div className='p-8'>{children}</div>
+    <div className='flex h-screen flex-col overflow-hidden'>
+      <BoNavbar userRole='Structure' />
+      <div className='flex flex-1 overflow-hidden'>
+        <div className='flex h-full flex-shrink-0'>
+          <StructureSidebar />
+        </div>
+        <main className='flex-1 overflow-y-auto'>
+          <div>{children}</div>
         </main>
       </div>
     </div>

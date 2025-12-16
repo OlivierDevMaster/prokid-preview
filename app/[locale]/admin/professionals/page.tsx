@@ -30,7 +30,7 @@ export default async function ProfessionalsPage({
   };
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-8 bg-blue-50/30 p-8'>
       {/* Header */}
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>

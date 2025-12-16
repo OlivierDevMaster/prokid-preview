@@ -103,4 +103,3 @@ export function test(name: string, fn: () => void) {
 // Common test constants
 export const missionStart = new Date('2024-01-08T00:00:00Z'); // Monday
 export const missionEnd = new Date('2024-01-31T23:59:59Z'); // End of January
-

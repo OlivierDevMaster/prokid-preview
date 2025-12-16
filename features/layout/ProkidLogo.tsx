@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { cn } from '@/lib/utils';
 
 type ProkidLogoProps = {
@@ -6,9 +8,15 @@ type ProkidLogoProps = {
 
 export default function ProkidLogo({ className }: ProkidLogoProps) {
   return (
-    <div className={cn('font-bold text-gray-800 md:text-2xl', className)}>
-      <span className='text-blue-400'>PRO</span>
-      <span className='text-green-400'>Kid</span>
+    <div className={cn('flex w-32 items-center', className)}>
+      <Image
+        alt='ProKid Logo'
+        className='h-auto w-auto'
+        height={40}
+        src='/icons/logo.svg'
+        unoptimized
+        width={40}
+      />
     </div>
   );
 }
