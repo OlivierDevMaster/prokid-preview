@@ -109,14 +109,15 @@ export const cancelSubscription = async (
     }
   );
 
+  const subscriptionItem = stripeSubscription.items.data[0];
   const updateData: ProfessionalSubscriptionUpdate = {
     cancel_at_period_end: cancelAtPeriodEnd,
-    current_period_end: new Date(
-      stripeSubscription.current_period_end * 1000
-    ).toISOString(),
-    current_period_start: new Date(
-      stripeSubscription.current_period_start * 1000
-    ).toISOString(),
+    current_period_end: subscriptionItem?.current_period_end
+      ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
+      : null,
+    current_period_start: subscriptionItem?.current_period_start
+      ? new Date(subscriptionItem.current_period_start * 1000).toISOString()
+      : null,
     status: stripeSubscription.status as SubscriptionStatus,
   };
 
@@ -166,15 +167,16 @@ export const reactivateSubscription = async (
     }
   );
 
+  const subscriptionItem = stripeSubscription.items.data[0];
   const updateData: ProfessionalSubscriptionUpdate = {
     cancel_at_period_end: false,
     canceled_at: null,
-    current_period_end: new Date(
-      stripeSubscription.current_period_end * 1000
-    ).toISOString(),
-    current_period_start: new Date(
-      stripeSubscription.current_period_start * 1000
-    ).toISOString(),
+    current_period_end: subscriptionItem?.current_period_end
+      ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
+      : null,
+    current_period_start: subscriptionItem?.current_period_start
+      ? new Date(subscriptionItem.current_period_start * 1000).toISOString()
+      : null,
     status: stripeSubscription.status as SubscriptionStatus,
   };
 
@@ -205,19 +207,20 @@ export const syncSubscriptionFromStripe = async (
     throw new Error('Subscription metadata missing user_id');
   }
 
+  const subscriptionItem = stripeSubscription.items.data[0];
   const subscriptionData: ProfessionalSubscriptionInsert = {
     cancel_at_period_end: stripeSubscription.cancel_at_period_end ?? false,
     canceled_at: stripeSubscription.canceled_at
       ? new Date(stripeSubscription.canceled_at * 1000).toISOString()
       : null,
-    current_period_end: new Date(
-      stripeSubscription.current_period_end * 1000
-    ).toISOString(),
-    current_period_start: new Date(
-      stripeSubscription.current_period_start * 1000
-    ).toISOString(),
+    current_period_end: subscriptionItem?.current_period_end
+      ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
+      : null,
+    current_period_start: subscriptionItem?.current_period_start
+      ? new Date(subscriptionItem.current_period_start * 1000).toISOString()
+      : null,
     professional_id: userId,
-    status: stripeSubscription.status as SubscriptionStatus,
+    status: stripeSubscription.status,
     stripe_price_id: stripeSubscription.items.data[0]?.price.id ?? '',
     stripe_subscription_id: stripeSubscription.id,
     trial_end: stripeSubscription.trial_end

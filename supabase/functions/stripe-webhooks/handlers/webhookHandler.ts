@@ -36,30 +36,70 @@ const createAdminClient = () => {
 
 export const webhookHandler = factory.createHandlers(async ({ req }) => {
   try {
-    const stripe = getStripeClient();
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
-
-    if (!webhookSecret) {
-      console.error('STRIPE_WEBHOOK_SECRET is not configured');
-      return apiResponse.internalServerError('Webhook secret not configured');
-    }
-
-    const signature = req.header('stripe-signature');
-
-    if (!signature) {
-      return apiResponse.badRequest('Missing stripe-signature header');
-    }
-
-    const body = await req.text();
-
-    let event: Stripe.Event;
-
+    // Get raw body for signature verification
+    // Stripe requires the raw body (as string) to verify the webhook signature
+    let rawBody: string;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+      rawBody = await req.text();
+    } catch (error) {
+      console.error('Error reading request body:', error);
       return apiResponse.badRequest(
-        `Webhook signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+        'INVALID_REQUEST_BODY',
+        'Impossible de lire le corps de la requête'
+      );
+    }
+
+    if (!rawBody || rawBody.length === 0) {
+      return apiResponse.badRequest(
+        'MISSING_REQUEST_BODY',
+        'Le corps de la requête est requis'
+      );
+    }
+
+    // Verify webhook signature
+    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    if (!stripeWebhookSecret) {
+      console.error('STRIPE_WEBHOOK_SECRET not configured');
+      return apiResponse.internalServerError(
+        'Configuration webhook Stripe manquante'
+      );
+    }
+
+    // Get Stripe signature from headers
+    const stripeSignature = req.header('stripe-signature');
+    if (!stripeSignature) {
+      return apiResponse.badRequest(
+        'MISSING_STRIPE_SIGNATURE',
+        'Signature Stripe manquante dans les en-têtes'
+      );
+    }
+
+    // Initialize Stripe client for signature verification
+    let stripe: Stripe;
+    try {
+      stripe = getStripeClient();
+    } catch (error) {
+      console.error('Stripe initialization error:', error);
+      return apiResponse.internalServerError(
+        error instanceof Error
+          ? error.message
+          : 'Configuration Stripe manquante'
+      );
+    }
+
+    // Verify webhook signature
+    let event: Stripe.Event;
+    try {
+      event = await stripe.webhooks.constructEventAsync(
+        rawBody,
+        stripeSignature,
+        stripeWebhookSecret
+      );
+    } catch (error) {
+      console.error('Webhook signature verification failed:', error);
+      return apiResponse.badRequest(
+        'INVALID_WEBHOOK_SIGNATURE',
+        'Signature webhook invalide'
       );
     }
 
@@ -123,6 +163,7 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
+        console.log('invoice payment succeeded', invoice);
         if (invoice.subscription) {
           const stripeSubscription = await stripe.subscriptions.retrieve(
             typeof invoice.subscription === 'string'
