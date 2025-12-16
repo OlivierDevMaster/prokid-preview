@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+
 export default function StructurePage() {
-  return <div>StructurePage</div>;
+  redirect('/structure/dashboard');
 }

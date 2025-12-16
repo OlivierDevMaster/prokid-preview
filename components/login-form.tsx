@@ -69,7 +69,7 @@ export function LoginForm({
       if (role === 'professional') {
         router.push('/professional');
       } else if (role === 'structure') {
-        router.push('/structure');
+        router.push('/structure/dashboard');
       } else if (role === 'admin') {
         router.push('/admin');
       } else {
