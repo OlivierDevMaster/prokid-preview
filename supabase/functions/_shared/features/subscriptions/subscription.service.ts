@@ -263,20 +263,7 @@ export const syncSubscriptionFromStripe = async (
   supabase: SupabaseClient<Database>,
   stripeSubscription: Stripe.Subscription
 ): Promise<ProfessionalSubscription> => {
-  console.log('[syncSubscriptionFromStripe] Starting sync:', {
-    cancelAt: stripeSubscription.cancel_at,
-    cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-    canceledAt: stripeSubscription.canceled_at,
-    cancellationDetails: stripeSubscription.cancellation_details,
-    status: stripeSubscription.status,
-    subscriptionId: stripeSubscription.id,
-  });
-
   const userId = stripeSubscription.metadata.user_id;
-  console.log('[syncSubscriptionFromStripe] Extracted metadata:', {
-    allMetadata: stripeSubscription.metadata,
-    userId,
-  });
 
   if (!userId) {
     console.error('[syncSubscriptionFromStripe] Missing user_id in metadata');
@@ -284,12 +271,6 @@ export const syncSubscriptionFromStripe = async (
   }
 
   const subscriptionItem = stripeSubscription.items.data[0];
-  console.log('[syncSubscriptionFromStripe] Subscription item:', {
-    currentPeriodEnd: subscriptionItem?.current_period_end,
-    currentPeriodStart: subscriptionItem?.current_period_start,
-    itemId: subscriptionItem?.id,
-    priceId: subscriptionItem?.price.id,
-  });
 
   // If cancel_at is set, it means the subscription is scheduled to cancel
   // This happens when canceling through customer portal even if cancel_at_period_end is false
@@ -299,13 +280,6 @@ export const syncSubscriptionFromStripe = async (
       subscriptionItem?.current_period_end &&
       stripeSubscription.cancel_at === subscriptionItem.current_period_end)
   );
-
-  console.log('[syncSubscriptionFromStripe] Cancellation analysis:', {
-    cancelAt: stripeSubscription.cancel_at,
-    cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-    currentPeriodEnd: subscriptionItem?.current_period_end,
-    isScheduledToCancel,
-  });
 
   const subscriptionData: ProfessionalSubscriptionInsert = {
     cancel_at_period_end: isScheduledToCancel,
@@ -330,13 +304,6 @@ export const syncSubscriptionFromStripe = async (
       : null,
   };
 
-  console.log('[syncSubscriptionFromStripe] Prepared subscription data:', {
-    ...subscriptionData,
-    canceled_at: subscriptionData.canceled_at,
-    current_period_end: subscriptionData.current_period_end,
-    current_period_start: subscriptionData.current_period_start,
-  });
-
   const { data: existingSubscription, error: findError } = await supabase
     .from('subscriptions')
     .select('id, status, cancel_at_period_end, canceled_at')
@@ -353,26 +320,7 @@ export const syncSubscriptionFromStripe = async (
     );
   }
 
-  console.log('[syncSubscriptionFromStripe] Existing subscription lookup:', {
-    existingCancelAtPeriodEnd: existingSubscription?.cancel_at_period_end,
-    existingCanceledAt: existingSubscription?.canceled_at,
-    existingId: existingSubscription?.id,
-    existingStatus: existingSubscription?.status,
-    found: !!existingSubscription,
-  });
-
   if (existingSubscription) {
-    console.log(
-      '[syncSubscriptionFromStripe] Updating existing subscription:',
-      {
-        dbId: existingSubscription.id,
-        newCancelAtPeriodEnd: subscriptionData.cancel_at_period_end,
-        newStatus: subscriptionData.status,
-        oldCancelAtPeriodEnd: existingSubscription.cancel_at_period_end,
-        oldStatus: existingSubscription.status,
-      }
-    );
-
     const { data: updatedSubscription, error: updateError } = await supabase
       .from('subscriptions')
       .update(subscriptionData)
@@ -397,17 +345,9 @@ export const syncSubscriptionFromStripe = async (
       throw new Error('Failed to update subscription: No data returned');
     }
 
-    console.log('[syncSubscriptionFromStripe] Update successful:', {
-      cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end,
-      canceledAt: updatedSubscription.canceled_at,
-      dbId: updatedSubscription.id,
-      status: updatedSubscription.status,
-    });
-
     return updatedSubscription;
   }
 
-  console.log('[syncSubscriptionFromStripe] Creating new subscription');
   const { data: newSubscription, error: insertError } = await supabase
     .from('subscriptions')
     .insert(subscriptionData)
@@ -430,11 +370,6 @@ export const syncSubscriptionFromStripe = async (
     console.error('[syncSubscriptionFromStripe] Insert returned no data');
     throw new Error('Failed to create subscription: No data returned');
   }
-
-  console.log('[syncSubscriptionFromStripe] Insert successful:', {
-    dbId: newSubscription.id,
-    status: newSubscription.status,
-  });
 
   return newSubscription;
 };

@@ -109,31 +109,12 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        console.log('subscription', subscription);
-        console.log(`[${event.type}] Processing subscription:`, {
-          cancelAt: subscription.cancel_at,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          canceledAt: subscription.canceled_at,
-          cancellationDetails: subscription.cancellation_details,
-          currentPeriodEnd:
-            subscription.items?.data?.[0]?.current_period_end ?? null,
-          eventId: event.id,
-          metadata: subscription.metadata,
-          status: subscription.status,
-          subscriptionId: subscription.id,
-        });
         try {
-          const result = await syncSubscriptionFromStripe(
+          await syncSubscriptionFromStripe(
             stripe,
             supabaseAdminClient,
             subscription
           );
-          console.log(`[${event.type}] Subscription synced successfully:`, {
-            cancelAtPeriodEnd: result.cancel_at_period_end,
-            dbId: result.id,
-            status: result.status,
-            subscriptionId: subscription.id,
-          });
         } catch (error) {
           console.error(`[${event.type}] Error syncing subscription:`, {
             error: error instanceof Error ? error.message : String(error),
@@ -173,7 +154,6 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.log('invoice', invoice);
         const subscriptionRef =
           invoice.parent?.subscription_details?.subscription;
         if (subscriptionRef) {
@@ -194,7 +174,6 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.log('invoice payment succeeded', invoice);
         const subscriptionRef =
           invoice.parent?.subscription_details?.subscription;
         if (subscriptionRef) {
@@ -214,7 +193,7 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.warn(`Unhandled event type: ${event.type}`);
     }
 
     return apiResponse.ok({ received: true });
