@@ -16,10 +16,6 @@ export default function StructuresPage() {
     console.log('Add structure');
   };
 
-  const handleViewDetails = (id: string) => {
-    console.log('View details for structure:', id);
-  };
-
   return (
     <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}

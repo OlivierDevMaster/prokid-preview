@@ -15,7 +15,7 @@ export default function ProfessionalSignUpLayout({
   return (
     <main>
       <div className='overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100'>
-        <div className='flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
+        <div className='flex items-center justify-center p-6 md:p-10'>
           <div className='w-full'>
             <div className='flex flex-col items-center justify-center p-6'>
               <div className='space-y-8'>
@@ -37,7 +37,7 @@ export default function ProfessionalSignUpLayout({
                     {tProfessional('profileConfiguration')}
                   </p>
                 </div>
-                <div className='w-full max-w-3xl'>{children}</div>
+                <div>{children}</div>
                 <div className='text-center text-gray-700'>
                   {t('hasAccount')}{' '}
                   <Link

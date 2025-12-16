@@ -97,6 +97,9 @@ export function LoginForm({
               <p className='text-sm text-blue-800'>{t('demoBanner')}</p>
             </div>
 
+            <div className='flex justify-center space-y-2 text-blue-500'>
+              <Link href='/'>{t('home')}</Link>
+            </div>
             {error && (
               <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
                 {error}

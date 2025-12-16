@@ -46,7 +46,7 @@ export function Step1ProfilePhoto({
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='w-full max-w-3xl space-y-6'>
       <ProgressBar currentStep={1} totalSteps={4} />
 
       <div className='space-y-2 text-center'>

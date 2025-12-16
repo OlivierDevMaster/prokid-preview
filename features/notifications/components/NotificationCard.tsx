@@ -141,7 +141,7 @@ export function NotificationCard({
             {canAcceptOrDecline(notification) && (
               <div className='mt-3 flex items-center gap-2'>
                 <Button
-                  className='h-auto bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700'
+                  className='h-auto bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700'
                   onClick={handleAccept}
                   size='sm'
                 >

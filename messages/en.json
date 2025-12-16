@@ -75,7 +75,8 @@
       "submitButton": "Log in",
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
-      "error": "Invalid email or password"
+      "error": "Invalid email or password",
+      "home": "🏠 Home"
     },
     "signUp": {
       "welcome": "Welcome to",
@@ -138,7 +139,9 @@
         "copyMondaySchedule": "Copy the hours of Monday to all days",
         "addSlot": "Add a slot",
         "recurring": "Recurring",
-        "nonWorking": "Non working"
+        "nonWorking": "Non working",
+        "errorSlotOverlap": "This slot overlaps with another slot",
+        "errorSlotInvalidTime": "Start time must be before end time"
       },
       "structureForm": {
         "title": "Create my structure account",
@@ -735,6 +738,7 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "cancelled": "Cancelled",
-    "pending": "Pending"
+    "pending": "Pending",
+    "subtitle": "{total} notification(s), {unread} unread"
   }
 }

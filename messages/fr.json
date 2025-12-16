@@ -83,7 +83,8 @@
       "submitButton": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
-      "error": "Email ou mot de passe invalide"
+      "error": "Email ou mot de passe invalide",
+      "home": "🏠 Accueil"
     },
     "signUp": {
       "welcome": "Bienvenue sur",
@@ -147,7 +148,9 @@
         "copyMondaySchedule": "Copier les horaires du lundi à tous les jours",
         "addSlot": "Ajouter un créneau",
         "recurring": "Récurrent",
-        "nonWorking": "Non travaillé"
+        "nonWorking": "Non travaillé",
+        "errorSlotOverlap": "Ce créneau chevauche un autre créneau",
+        "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin"
       },
       "structureForm": {
         "title": "Créer mon compte structure",
@@ -744,6 +747,7 @@
     "accepted": "Accepté",
     "declined": "Décliné",
     "cancelled": "Annulé",
-    "pending": "En attente"
+    "pending": "En attente",
+    "subtitle": "{total} notification(s), {unread} non lue(s)"
   }
 }
