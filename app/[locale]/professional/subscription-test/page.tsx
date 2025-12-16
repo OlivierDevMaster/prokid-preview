@@ -6,6 +6,7 @@ import {
   ExternalLink,
   Loader2,
   RefreshCw,
+  Trash2,
   XCircle,
 } from 'lucide-react';
 import { useLocale } from 'next-intl';
@@ -21,6 +22,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  useCancelSubscription,
   useCreateCheckoutSession,
   useCreatePortalSession,
   useSubscriptionStatus,
@@ -42,11 +44,17 @@ export default function SubscriptionTestPage() {
   } = useSubscriptionStatus();
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
+  const cancelSubscription = useCancelSubscription();
 
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isCreatingPortal, setIsCreatingPortal] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCanceled, setShowCanceled] = useState(false);
+  const [cancelMessage, setCancelMessage] = useState<{
+    message: string;
+    type: 'error' | 'success';
+  } | null>(null);
 
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
@@ -101,6 +109,38 @@ export default function SubscriptionTestPage() {
     }
   };
 
+  const handleCancelSubscription = async (cancelAtPeriodEnd: boolean) => {
+    setIsCanceling(true);
+    setCancelMessage(null);
+    try {
+      const result = await cancelSubscription.mutateAsync({
+        cancelAtPeriodEnd,
+      });
+      setCancelMessage({
+        message: result.message,
+        type: 'success',
+      });
+      // Refetch after a short delay to allow webhook to process
+      setTimeout(() => {
+        refetch();
+      }, 1000);
+      setTimeout(() => setCancelMessage(null), 5000);
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to cancel subscription';
+      setCancelMessage({
+        message: errorMessage,
+        type: 'error',
+      });
+      setTimeout(() => setCancelMessage(null), 5000);
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
   const getStatusLabel = (status: null | SubscriptionStatusType) => {
     if (!status) return 'No subscription';
     return SubscriptionStatusLabel[locale][status];
@@ -143,6 +183,45 @@ export default function SubscriptionTestPage() {
             <XCircle className='h-5 w-5 text-yellow-600' />
             <p className='text-sm font-medium text-yellow-800'>
               Checkout was canceled. No charges were made.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {cancelMessage && (
+        <div
+          className={`rounded-lg border p-4 ${
+            cancelMessage.type === 'success'
+              ? 'border-green-200 bg-green-50'
+              : 'border-red-200 bg-red-50'
+          }`}
+        >
+          <div className='flex items-center gap-2'>
+            {cancelMessage.type === 'success' ? (
+              <CheckCircle2
+                className={`h-5 w-5 ${
+                  cancelMessage.type === 'success'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                }`}
+              />
+            ) : (
+              <XCircle
+                className={`h-5 w-5 ${
+                  cancelMessage.type === 'success'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                }`}
+              />
+            )}
+            <p
+              className={`text-sm font-medium ${
+                cancelMessage.type === 'success'
+                  ? 'text-green-800'
+                  : 'text-red-800'
+              }`}
+            >
+              {cancelMessage.message}
             </p>
           </div>
         </div>
@@ -347,6 +426,87 @@ export default function SubscriptionTestPage() {
               )}
             </Button>
           </div>
+
+          {subscriptionData?.subscription &&
+            subscriptionData.subscription.status !== 'canceled' &&
+            !subscriptionData.subscription.cancel_at_period_end && (
+              <div className='mt-4 space-y-3'>
+                <p className='text-sm font-medium text-gray-700'>
+                  Cancel Subscription
+                </p>
+                <div className='flex flex-col gap-3 sm:flex-row'>
+                  <Button
+                    className='flex-1'
+                    disabled={
+                      isCanceling ||
+                      !subscriptionData?.subscription ||
+                      subscriptionData.subscription.status === 'canceled' ||
+                      subscriptionData.subscription.cancel_at_period_end
+                    }
+                    onClick={() => handleCancelSubscription(true)}
+                    size='lg'
+                    variant='destructive'
+                  >
+                    {isCanceling ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Canceling...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className='mr-2 h-4 w-4' />
+                        Cancel at Period End
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    className='flex-1'
+                    disabled={
+                      isCanceling ||
+                      !subscriptionData?.subscription ||
+                      subscriptionData.subscription.status === 'canceled' ||
+                      subscriptionData.subscription.cancel_at_period_end
+                    }
+                    onClick={() => handleCancelSubscription(false)}
+                    size='lg'
+                    variant='destructive'
+                  >
+                    {isCanceling ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Canceling...
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className='mr-2 h-4 w-4' />
+                        Cancel Immediately
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className='text-xs text-gray-500'>
+                  Cancel at Period End: Subscription remains active until the
+                  end of the current billing period. Cancel Immediately:
+                  Subscription is canceled right away.
+                </p>
+              </div>
+            )}
+
+          {subscriptionData?.subscription?.cancel_at_period_end && (
+            <div className='mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4'>
+              <p className='text-sm text-yellow-800'>
+                Your subscription is scheduled to cancel at the end of the
+                current period (
+                {subscriptionData.subscription.current_period_end
+                  ? new Date(
+                      subscriptionData.subscription.current_period_end
+                    ).toLocaleDateString()
+                  : 'N/A'}
+                ).
+              </p>
+            </div>
+          )}
 
           {!subscriptionData?.subscription && (
             <p className='mt-4 text-sm text-gray-500'>
