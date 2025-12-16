@@ -115,7 +115,7 @@ export const cancelSubscription = async (
   supabase: SupabaseClient<Database>,
   userId: string,
   cancelAtPeriodEnd: boolean = true
-): Promise<ProfessionalSubscription> => {
+): Promise<{ message: string; stripeSubscriptionId: string }> => {
   const { data: subscription, error: fetchError } = await supabase
     .from('subscriptions')
     .select('*')
@@ -159,44 +159,27 @@ export const cancelSubscription = async (
     );
   }
 
-  const stripeSubscription = await stripe.subscriptions.update(
-    subscription.stripe_subscription_id,
-    {
-      cancel_at_period_end: cancelAtPeriodEnd,
-    }
-  );
+  let stripeSubscription: Stripe.Subscription;
 
-  const subscriptionItem = stripeSubscription.items.data[0];
-  const updateData: ProfessionalSubscriptionUpdate = {
-    cancel_at_period_end: cancelAtPeriodEnd,
-    current_period_end: subscriptionItem?.current_period_end
-      ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
-      : null,
-    current_period_start: subscriptionItem?.current_period_start
-      ? new Date(subscriptionItem.current_period_start * 1000).toISOString()
-      : null,
-    status: stripeSubscription.status as SubscriptionStatus,
-  };
-
-  if (!cancelAtPeriodEnd) {
-    updateData.canceled_at = new Date().toISOString();
-    updateData.status = 'canceled' as SubscriptionStatus;
-  }
-
-  const { data: updatedSubscription, error: updateError } = await supabase
-    .from('subscriptions')
-    .update(updateData)
-    .eq('id', subscription.id)
-    .select('*')
-    .single();
-
-  if (updateError || !updatedSubscription) {
-    throw new Error(
-      `Failed to update subscription: ${updateError?.message ?? 'Unknown error'}`
+  if (cancelAtPeriodEnd) {
+    stripeSubscription = await stripe.subscriptions.update(
+      subscription.stripe_subscription_id,
+      {
+        cancel_at_period_end: true,
+      }
+    );
+  } else {
+    stripeSubscription = await stripe.subscriptions.cancel(
+      subscription.stripe_subscription_id
     );
   }
 
-  return updatedSubscription;
+  return {
+    message: cancelAtPeriodEnd
+      ? 'Subscription will be canceled at the end of the current period. The database will be updated via webhook.'
+      : 'Subscription has been canceled. The database will be updated via webhook.',
+    stripeSubscriptionId: stripeSubscription.id,
+  };
 };
 
 export const reactivateSubscription = async (

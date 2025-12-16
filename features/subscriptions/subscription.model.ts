@@ -69,7 +69,10 @@ export interface CancelSubscriptionRequestBody {
   cancelAtPeriodEnd?: boolean;
 }
 
-export type CancelSubscriptionResponse = ProfessionalSubscription;
+export interface CancelSubscriptionResponse {
+  message: string;
+  stripeSubscriptionId: string;
+}
 
 export interface SubscriptionStatusResponse {
   isSubscribed: boolean;
