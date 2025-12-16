@@ -10,11 +10,15 @@
 CREATE OR REPLACE FUNCTION public.is_professional_subscribed(user_id_param UUID)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = ''
 STABLE
 AS $$
 BEGIN
+  -- RLS policies on subscriptions table enforce security:
+  -- - Professionals can only view their own subscription (professional_id = auth.uid())
+  -- - Admins can view all subscriptions
+  -- With SECURITY INVOKER, the function runs with caller's permissions and RLS is enforced
   RETURN EXISTS (
     SELECT 1
     FROM (
@@ -36,4 +40,4 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.is_professional_subscribed(UUID) IS 'Checks if a professional has an active or trialing subscription based on their most recent subscription. Returns true if the most recent subscription status is active or trialing and either not scheduled to cancel, or scheduled to cancel but current period has not ended yet.';
+COMMENT ON FUNCTION public.is_professional_subscribed(UUID) IS 'Checks if a professional has an active or trialing subscription based on their most recent subscription. Returns true if the most recent subscription status is active or trialing and either not scheduled to cancel, or scheduled to cancel but current period has not ended yet. Security is enforced by RLS policies on the subscriptions table.';

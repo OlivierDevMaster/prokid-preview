@@ -1,3 +1,4 @@
-export { useCreateCheckoutSession } from './useCreateCheckoutSession';
-export { useCreatePortalSession } from './useCreatePortalSession';
-export { useSubscriptionStatus } from './useSubscriptionStatus';
+export * from './useCreateCheckoutSession';
+export * from './useCreatePortalSession';
+export * from './useIsProfessionalSubscribed';
+export * from './useSubscriptionStatus';
