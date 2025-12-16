@@ -61,9 +61,17 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  -- If has_used_trial is being changed and user is not admin, prevent the change
+  -- If has_used_trial is being changed
   IF OLD.has_used_trial IS DISTINCT FROM NEW.has_used_trial THEN
-    IF NOT (SELECT public.is_admin()) THEN
+    -- Allow the change if:
+    -- 1. User is admin, OR
+    -- 2. The change is from false to true (system update via trigger), OR
+    -- 3. The update is coming from a SECURITY DEFINER function (system update)
+    IF NOT (
+      (SELECT public.is_admin()) OR
+      (OLD.has_used_trial = FALSE AND NEW.has_used_trial = TRUE) OR
+      current_setting('request.jwt.claim.role', true) IS NULL
+    ) THEN
       -- Reset has_used_trial to its original value
       NEW.has_used_trial := OLD.has_used_trial;
     END IF;
