@@ -6,7 +6,11 @@
 -- Note: Each professional has 5-10 missions from multiple structures they're members of
 -- Note: Most missions are one-time (until_offset = NULL), some are recurring with UNTIL dates
 -- Note: Uses seeds_create_mission_from_availability() which finds matching availabilities to extract RRULE patterns, generates constrained RRULEs, and creates schedules (no availability_id stored)
--- Note: Some missions use seeds_create_mission_with_custom_rrule() to test missions outside professional availabilities
+-- Note: All missions must comply with validateMissionAvailability validation rules:
+--   - Mission schedules must have positive duration (> 0)
+--   - Mission schedules must fall within professional availabilities
+--   - RRULEs must be valid and constrained by mission dates
+--   - Mission end date must be after start date
 
 -- ============================================================================
 -- Professional 010 (John Doe) - Member of structures: af9, afa, afb, afc, afd
@@ -660,53 +664,19 @@ SELECT public.seeds_create_mission_from_availability(
   '08fb0a72-ee9b-4771-bf24-7fe19c869b01', '08fb0a72-ee9b-4771-bf24-7fe19c869aef', 5, 10, 240, 3, NULL, 'accepted', 'Fourth Week Friday', 'Friday midday care');
 
 -- ============================================================================
--- TEST CASES: Missions outside professional availabilities
--- These test the new architecture where structures can create missions
--- with custom RRULEs that don't match professional availabilities
+-- NOTE: All missions in this seed file must comply with validateMissionAvailability rules:
+-- 1. Mission schedules must have positive duration (> 0)
+-- 2. Mission schedules must fall within professional availabilities
+-- 3. RRULEs must be valid and constrained by mission dates
+-- 4. Mission end date must be after start date
+--
+-- The seed function (seeds_create_mission_from_availability) generates RRULEs that are constrained
+-- by mission dates, but they do NOT validate against availabilities.
+-- Therefore, all missions created here must be within professional availabilities
+-- to pass validation when created through the API.
+--
+-- Test cases for missions outside availabilities have been removed as they
+-- would fail validation in the createMissionHandler.
 -- ============================================================================
-
--- Professional 010 (John Doe) - Has: Mon 9am-12pm, Mon 2pm-6pm, Tue 8am-12pm, Wed 10am-4pm, Fri 9am-5pm
--- Testing: Thursday (no availability), Monday 7am (before availability), Monday 7pm (after availability)
-
--- From Structure 1 (af9) - Thursday 10am-2pm (outside availability - John doesn't work Thursdays)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869af9', '08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 4, 10, 240, 0, NULL, 'pending', 'Thursday Custom Session', 'Mission outside availability - Thursday'
-);
-
--- From Structure 2 (afa) - Monday 7am-9am (before availability - John starts at 9am)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afa', '08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 7, 120, 0, NULL, 'pending', 'Early Monday Session', 'Mission outside availability - Early morning'
-);
-
--- From Structure 3 (afb) - Monday 7pm-9pm (after availability - John ends at 6pm)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afb', '08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 19, 120, 0, NULL, 'pending', 'Evening Monday Session', 'Mission outside availability - Evening'
-);
-
--- Professional 011 (Marie Martin) - Has: Mon 8am-1pm, Tue 2pm-6pm, Thu 9am-3pm, Sat 10am-4pm
--- Testing: Wednesday (no availability), Sunday (no availability)
-
--- From Structure 1 (af9) - Wednesday 11am-3pm (outside availability - Marie doesn't work Wednesdays)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869af9', '08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 3, 11, 240, 0, NULL, 'pending', 'Wednesday Custom Care', 'Mission outside availability - Wednesday'
-);
-
--- From Structure 2 (afa) - Sunday 2pm-6pm (outside availability - Marie doesn't work Sundays)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afa', '08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 0, 14, 240, 0, NULL, 'pending', 'Sunday Custom Session', 'Mission outside availability - Sunday'
-);
-
--- Professional 012 (Pierre Dupont) - Has: Mon 1pm-5pm, Wed 9am-12pm, Wed 2pm-6pm, Sun 8am-4pm
--- Testing: Tuesday (no availability), Friday (no availability)
-
--- From Structure 2 (afa) - Tuesday 10am-2pm (outside availability - Pierre doesn't work Tuesdays)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afa', '08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 2, 10, 240, 0, NULL, 'pending', 'Tuesday Custom Consultation', 'Mission outside availability - Tuesday'
-);
-
--- From Structure 3 (afb) - Friday 1pm-5pm (outside availability - Pierre doesn't work Fridays)
-SELECT public.seeds_create_mission_with_custom_rrule(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afb', '08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 5, 13, 240, 0, NULL, 'pending', 'Friday Custom Session', 'Mission outside availability - Friday'
-);
 
 -- Note: seeds_get_next_weekday function is kept for potential future use

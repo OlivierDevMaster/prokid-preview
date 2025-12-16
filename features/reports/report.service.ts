@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { invokeEdgeFunction } from '@/lib/supabase/edge-functions';
 
 import type {
   Report,
@@ -180,4 +181,26 @@ export const findReports = async (
     count: count ?? 0,
     data: data ?? [],
   };
+};
+
+export type SendReportResponse = {
+  emailId: null | string;
+  message: string;
+  reportId: string;
+};
+
+export const sendReport = async (
+  reportId: string
+): Promise<SendReportResponse> => {
+  const supabase = createClient();
+
+  return invokeEdgeFunction<SendReportResponse, { report_id: string }>(
+    supabase,
+    'reports',
+    {
+      body: { report_id: reportId },
+      method: 'POST',
+      path: '/send',
+    }
+  );
 };
