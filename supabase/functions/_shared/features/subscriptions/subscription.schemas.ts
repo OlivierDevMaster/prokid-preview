@@ -16,4 +16,3 @@ export const CreatePortalSessionRequestBodySchema = z.object({
 export type CreatePortalSessionRequestBody = z.infer<
   typeof CreatePortalSessionRequestBodySchema
 >;
-

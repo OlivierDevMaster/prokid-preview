@@ -10,16 +10,12 @@ The professional subscription system enables professionals to subscribe monthly 
 ┌─────────────┐
 │  Frontend   │
 │  (Next.js)  │
+│  Hooks &    │
+│  Services   │
 └──────┬──────┘
        │
-       │ API Calls
-       ▼
-┌─────────────────────┐
-│  Next.js API Routes │
-│  /api/subscriptions │
-└──────┬──────────────┘
-       │
        │ Edge Function Calls
+       │ (via invokeEdgeFunction)
        ▼
 ┌──────────────────────────┐
 │  Supabase Edge Functions │
@@ -43,7 +39,7 @@ The professional subscription system enables professionals to subscribe monthly 
        ▼
 ┌──────────────────────────┐
 │     Supabase Database    │
-│  subscriptions│
+│  subscriptions           │
 └──────────────────────────┘
 ```
 
@@ -57,7 +53,7 @@ Tracks subscription status for each professional:
 - `professional_id` - Reference to professionals table (user_id)
 - `stripe_subscription_id` - Unique Stripe subscription ID
 - `stripe_price_id` - Stripe price ID for the subscription
-- `status` - Current status (active, trialing, past_due, canceled, etc.)
+- `status` - Current status using `subscription_status` enum type (active, trialing, past_due, canceled, etc.)
 - `current_period_start` - Start of current billing period
 - `current_period_end` - End of current billing period
 - `trial_start` - Start of trial period
@@ -78,20 +74,20 @@ Tracks subscription status for each professional:
 ```mermaid
 sequenceDiagram
     participant P as Professional
-    participant FE as Frontend
-    participant API as Next.js API
+    participant FE as Frontend (Hook)
+    participant SVC as Service
     participant EF as Edge Function
     participant S as Stripe
     participant DB as Database
 
     P->>FE: Click "Subscribe"
-    FE->>API: POST /api/subscriptions/checkout
-    API->>EF: POST /subscriptions/checkout
+    FE->>SVC: useCreateCheckoutSession()
+    SVC->>EF: POST /subscriptions/checkout
     EF->>DB: Get/Create Stripe customer
     EF->>S: Create checkout session
     S-->>EF: Checkout session URL
-    EF-->>API: { url, sessionId }
-    API-->>FE: { url, sessionId }
+    EF-->>SVC: { url, sessionId }
+    SVC-->>FE: { url, sessionId }
     FE->>S: Redirect to Stripe Checkout
     S->>P: Display payment form
     P->>S: Complete checkout
@@ -102,8 +98,8 @@ sequenceDiagram
 **Steps:**
 
 1. Professional clicks "Subscribe" button in the frontend
-2. Frontend calls `POST /api/subscriptions/checkout` with `successUrl` and `cancelUrl`
-3. Next.js API route forwards request to Supabase Edge Function
+2. Frontend uses `useCreateCheckoutSession()` hook with `successUrl` and `cancelUrl`
+3. Hook calls service which invokes Supabase Edge Function
 4. Edge Function:
    - Authenticates the user
    - Verifies user is a professional
@@ -124,25 +120,25 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant P as Professional
-    participant FE as Frontend
-    participant API as Next.js API
+    participant FE as Frontend (Hook)
+    participant SVC as Service
     participant EF as Edge Function
     participant DB as Database
 
     P->>FE: View subscription status
-    FE->>API: GET /api/subscriptions/status
-    API->>EF: GET /subscriptions/status
+    FE->>SVC: useSubscriptionStatus()
+    SVC->>EF: GET /subscriptions/status
     EF->>DB: Query subscriptions
     DB-->>EF: Subscription data
-    EF-->>API: { subscription, isSubscribed, status }
-    API-->>FE: Subscription status
+    EF-->>SVC: { subscription, isSubscribed, status }
+    SVC-->>FE: Subscription status
     FE->>P: Display status
 ```
 
 **Steps:**
 
-1. Frontend calls `GET /api/subscriptions/status`
-2. Next.js API route forwards to Edge Function
+1. Frontend uses `useSubscriptionStatus()` hook
+2. Hook calls service which invokes Supabase Edge Function
 3. Edge Function:
    - Authenticates the user
    - Verifies user is a professional
@@ -157,20 +153,20 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant P as Professional
-    participant FE as Frontend
-    participant API as Next.js API
+    participant FE as Frontend (Hook)
+    participant SVC as Service
     participant EF as Edge Function
     participant S as Stripe
     participant DB as Database
 
     P->>FE: Click "Manage Subscription"
-    FE->>API: POST /api/subscriptions/portal
-    API->>EF: POST /subscriptions/portal
+    FE->>SVC: useCreatePortalSession()
+    SVC->>EF: POST /subscriptions/portal
     EF->>DB: Get Stripe customer ID
     EF->>S: Create portal session
     S-->>EF: Portal session URL
-    EF-->>API: { url }
-    API-->>FE: { url }
+    EF-->>SVC: { url }
+    SVC-->>FE: { url }
     FE->>S: Redirect to Stripe Portal
     S->>P: Display subscription management
 ```
@@ -178,8 +174,9 @@ sequenceDiagram
 **Steps:**
 
 1. Professional clicks "Manage Subscription"
-2. Frontend calls `POST /api/subscriptions/portal` with `returnUrl`
-3. Edge Function:
+2. Frontend uses `useCreatePortalSession()` hook with `returnUrl`
+3. Hook calls service which invokes Edge Function
+4. Edge Function:
    - Authenticates the user
    - Verifies user is a professional
    - Gets Stripe customer ID from database
@@ -231,67 +228,93 @@ sequenceDiagram
 - Only verified webhooks are processed
 - Webhook endpoint does not require JWT authentication (uses signature verification instead)
 
-## API Endpoints
+## Frontend Integration
 
-### Next.js API Routes
+### React Hooks
 
-#### `POST /api/subscriptions/checkout`
+The subscription system uses React Query hooks for data fetching and mutations:
+
+#### `useCreateCheckoutSession()`
 
 Creates a Stripe checkout session for subscription.
 
-**Request Body:**
-```json
-{
-  "successUrl": "https://yourapp.com/subscription/success",
-  "cancelUrl": "https://yourapp.com/subscription/cancel"
-}
+**Usage:**
+```typescript
+import { useCreateCheckoutSession } from '@/features/subscriptions/hooks';
+
+const { mutate: createCheckout } = useCreateCheckoutSession();
+
+createCheckout({
+  successUrl: 'https://yourapp.com/subscription/success',
+  cancelUrl: 'https://yourapp.com/subscription/cancel'
+}, {
+  onSuccess: (data) => {
+    window.location.href = data.url;
+  }
+});
 ```
 
 **Response:**
-```json
+```typescript
 {
-  "url": "https://checkout.stripe.com/...",
-  "sessionId": "cs_..."
+  url: string;
+  sessionId: string;
 }
 ```
 
-#### `GET /api/subscriptions/status`
+#### `useSubscriptionStatus()`
 
 Gets current subscription status for authenticated professional.
 
+**Usage:**
+```typescript
+import { useSubscriptionStatus } from '@/features/subscriptions/hooks';
+
+const { data, isLoading } = useSubscriptionStatus();
+```
+
 **Response:**
-```json
+```typescript
 {
-  "subscription": {
-    "id": "...",
-    "professional_id": "...",
-    "status": "trialing",
-    "current_period_end": "2025-03-16T10:34:07Z",
-    "trial_end": "2025-03-16T10:34:07Z",
-    ...
-  },
-  "isSubscribed": true,
-  "status": "trialing"
+  subscription: ProfessionalSubscription | null;
+  isSubscribed: boolean;
+  status: SubscriptionStatus | null;
 }
 ```
 
-#### `POST /api/subscriptions/portal`
+#### `useCreatePortalSession()`
 
 Creates Stripe customer portal session.
 
-**Request Body:**
-```json
-{
-  "returnUrl": "https://yourapp.com/subscription"
-}
+**Usage:**
+```typescript
+import { useCreatePortalSession } from '@/features/subscriptions/hooks';
+
+const { mutate: createPortal } = useCreatePortalSession();
+
+createPortal({
+  returnUrl: 'https://yourapp.com/subscription'
+}, {
+  onSuccess: (data) => {
+    window.location.href = data.url;
+  }
+});
 ```
 
 **Response:**
-```json
+```typescript
 {
-  "url": "https://billing.stripe.com/..."
+  url: string;
 }
 ```
+
+### Services
+
+Services are located in `features/subscriptions/subscription.service.ts` and handle direct communication with Edge Functions:
+
+- `createCheckoutSession()` - Creates checkout session
+- `getSubscriptionStatus()` - Gets subscription status
+- `createPortalSession()` - Creates portal session
 
 ### Supabase Edge Functions
 
@@ -313,7 +336,7 @@ Webhook endpoint for Stripe events. No authentication required (uses signature v
 
 ## Subscription Statuses
 
-The system tracks the following subscription statuses (matching Stripe):
+The system tracks the following subscription statuses using the `subscription_status` enum type (matching Stripe):
 
 - `active` - Subscription is active and paid
 - `trialing` - Subscription is in trial period
@@ -323,6 +346,20 @@ The system tracks the following subscription statuses (matching Stripe):
 - `incomplete` - Subscription setup incomplete
 - `incomplete_expired` - Subscription setup expired
 - `paused` - Subscription is paused
+
+### Status Labels
+
+Status labels are available in both English and French via `SubscriptionStatusLabel`:
+
+```typescript
+import { SubscriptionStatusLabel, SubscriptionStatus } from '@/features/subscriptions/subscription.model';
+
+// English
+const labelEn = SubscriptionStatusLabel.en[SubscriptionStatus.active]; // "Active"
+
+// French
+const labelFr = SubscriptionStatusLabel.fr[SubscriptionStatus.active]; // "Actif"
+```
 
 ## Trial Period
 
@@ -395,10 +432,10 @@ To test the subscription system:
    - Trigger test events: `stripe trigger customer.subscription.created`
 
 3. **Subscription Flow:**
-   - Create checkout session
+   - Use `useCreateCheckoutSession()` hook to create checkout session
    - Complete checkout with test card
    - Verify webhook creates subscription record
-   - Check subscription status endpoint
+   - Use `useSubscriptionStatus()` hook to check subscription status
 
 ## Security Considerations
 
