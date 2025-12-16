@@ -7,7 +7,7 @@ import { getStripeClient } from '../../_shared/features/stripe/stripe.util.ts';
 import {
   createCheckoutSession,
   CreateCheckoutSessionRequestBodySchema,
-  getSubscriptionStatus,
+  isProfessionalSubscribed,
 } from '../../_shared/features/subscriptions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
@@ -39,12 +39,12 @@ export const createCheckoutSessionHandler = factory.createHandlers(
         );
       }
 
-      const subscriptionStatus = await getSubscriptionStatus(
+      const isSubscribed = await isProfessionalSubscribed(
         supabaseClient,
         user.id
       );
 
-      if (subscriptionStatus.isSubscribed) {
+      if (isSubscribed) {
         return apiResponse.conflict(
           'ALREADY_SUBSCRIBED',
           'You already have an active subscription. Please manage your existing subscription instead.'

@@ -46,4 +46,3 @@ export const getSubscriptionStatusHandler = factory.createHandlers(
     }
   }
 );
-

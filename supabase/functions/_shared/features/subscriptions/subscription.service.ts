@@ -16,6 +16,21 @@ import {
   SubscriptionConfig,
 } from './subscription.config.ts';
 
+export const isProfessionalSubscribed = async (
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<boolean> => {
+  const { data, error } = await supabase.rpc('is_professional_subscribed', {
+    user_id_param: userId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to check subscription status: ${error.message}`);
+  }
+
+  return data ?? false;
+};
+
 export const createCheckoutSession = async (
   stripe: Stripe,
   supabase: SupabaseClient<Database>,
