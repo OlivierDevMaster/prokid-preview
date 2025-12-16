@@ -17,16 +17,23 @@ AS $$
 BEGIN
   RETURN EXISTS (
     SELECT 1
-    FROM public.subscriptions
-    WHERE professional_id = user_id_param
-    AND status IN ('active', 'trialing')
+    FROM (
+      SELECT *
+      FROM public.subscriptions
+      WHERE professional_id = user_id_param
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) latest_subscription
+    WHERE latest_subscription.status IN ('active', 'trialing')
     AND (
-      cancel_at_period_end = false
-      OR cancel_at_period_end IS NULL
-      OR (cancel_at_period_end = true AND current_period_end > NOW())
+      latest_subscription.cancel_at_period_end = false
+      OR latest_subscription.cancel_at_period_end IS NULL
+      OR (latest_subscription.cancel_at_period_end = true
+          AND latest_subscription.current_period_end IS NOT NULL
+          AND latest_subscription.current_period_end > NOW())
     )
   );
 END;
 $$;
 
-COMMENT ON FUNCTION public.is_professional_subscribed(UUID) IS 'Checks if a professional has an active or trialing subscription. Returns true if subscription status is active or trialing and either not scheduled to cancel, or scheduled to cancel but current period has not ended yet.';
+COMMENT ON FUNCTION public.is_professional_subscribed(UUID) IS 'Checks if a professional has an active or trialing subscription based on their most recent subscription. Returns true if the most recent subscription status is active or trialing and either not scheduled to cancel, or scheduled to cancel but current period has not ended yet.';
