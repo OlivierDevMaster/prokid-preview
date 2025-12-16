@@ -193,7 +193,7 @@ sequenceDiagram
     participant EF as Edge Function
     participant DB as Database
 
-    S->>EF: POST /stripe-webhook
+    S->>EF: POST /stripe-webhooks
     Note over EF: Verify webhook signature
     alt subscription.created or subscription.updated
         EF->>S: Retrieve full subscription object
@@ -330,7 +330,7 @@ Internal endpoint called by Next.js API. Requires authentication.
 
 Internal endpoint called by Next.js API. Requires authentication.
 
-#### `POST /stripe-webhook`
+#### `POST /stripe-webhooks`
 
 Webhook endpoint for Stripe events. No authentication required (uses signature verification).
 
@@ -428,7 +428,7 @@ To test the subscription system:
    - Configure webhook endpoint in Stripe dashboard
 
 2. **Webhook Testing:**
-   - Use Stripe CLI: `stripe listen --forward-to localhost:54321/functions/v1/stripe-webhook`
+   - Use Stripe CLI: `stripe listen --forward-to localhost:54321/functions/v1/stripe-webhooks`
    - Trigger test events: `stripe trigger customer.subscription.created`
 
 3. **Subscription Flow:**

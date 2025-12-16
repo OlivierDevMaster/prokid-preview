@@ -433,13 +433,13 @@ entrypoint = "./functions/subscriptions/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/subscriptions/*.html" ]
 
-[functions.stripe-webhook]
+[functions.stripe-webhooks]
 enabled = true
 verify_jwt = false
-import_map = "./functions/stripe-webhook/deno.json"
+import_map = "./functions/stripe-webhooks/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/stripe-webhook/index.ts"
+entrypoint = "./functions/stripe-webhooks/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/stripe-webhook/*.html" ]
+# static_files = [ "./functions/stripe-webhooks/*.html" ]

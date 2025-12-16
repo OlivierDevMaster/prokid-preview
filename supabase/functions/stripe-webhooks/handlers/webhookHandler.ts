@@ -105,6 +105,7 @@ export const webhookHandler = factory.createHandlers(async ({ req }) => {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
+        console.log('invoice', invoice);
         if (invoice.subscription) {
           const stripeSubscription = await stripe.subscriptions.retrieve(
             typeof invoice.subscription === 'string'
