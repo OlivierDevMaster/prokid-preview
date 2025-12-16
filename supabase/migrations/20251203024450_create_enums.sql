@@ -1,6 +1,6 @@
 -- Migration: create_enums
 -- Purpose: Create enum types for the database schema
--- Affected objects: role enum type, invitation_status enum type, membership_action enum type, locale enum type, mission_status enum type, report_status enum type
+-- Affected objects: role enum type, invitation_status enum type, membership_action enum type, locale enum type, mission_status enum type, report_status enum type, subscription_status enum type
 
 CREATE TYPE "public"."role" AS ENUM ('professional', 'structure', 'admin');
 
@@ -25,3 +25,16 @@ COMMENT ON TYPE "public"."mission_status" IS 'Status of missions: pending, accep
 CREATE TYPE "public"."report_status" AS ENUM ('draft', 'sent');
 
 COMMENT ON TYPE "public"."report_status" IS 'Status of a report: draft (work in progress) or sent (submitted to structure)';
+
+CREATE TYPE "public"."subscription_status" AS ENUM (
+  'active',
+  'trialing',
+  'past_due',
+  'canceled',
+  'unpaid',
+  'incomplete',
+  'incomplete_expired',
+  'paused'
+);
+
+COMMENT ON TYPE "public"."subscription_status" IS 'Stripe subscription status: active, trialing, past_due, canceled, unpaid, incomplete, incomplete_expired, or paused';
