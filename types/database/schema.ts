@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -255,6 +250,7 @@ export type Database = {
           current_job: string | null
           description: string | null
           experience_years: number
+          has_used_trial: boolean
           hourly_rate: number
           intervention_radius_km: number
           is_available: boolean
@@ -275,6 +271,7 @@ export type Database = {
           current_job?: string | null
           description?: string | null
           experience_years: number
+          has_used_trial?: boolean
           hourly_rate: number
           intervention_radius_km: number
           is_available?: boolean
@@ -295,6 +292,7 @@ export type Database = {
           current_job?: string | null
           description?: string | null
           experience_years?: number
+          has_used_trial?: boolean
           hourly_rate?: number
           intervention_radius_km?: number
           is_available?: boolean
@@ -650,6 +648,69 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          professional_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id: string
+          stripe_subscription_id: string
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          professional_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id: string
+          stripe_subscription_id: string
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          professional_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_price_id?: string
+          stripe_subscription_id?: string
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "subscriptions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       professionals_with_profiles_search: {
@@ -696,8 +757,32 @@ export type Database = {
         Args: { availability_id_param: string; date_to_exclude: string }
         Returns: string
       }
+      create_onetime_availability: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      create_recurring_availability: {
+        Args: {
+          day_offset: number
+          duration_minutes: number
+          exdate_offsets?: number[]
+          hour: number
+          user_id_param: string
+        }
+        Returns: string
+      }
+      get_rrule_day: { Args: { day_offset: number }; Returns: string }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
+      is_professional_subscribed: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
       seeds_create_mission_from_availability: {
         Args: {
           day_offset: number
@@ -718,21 +803,6 @@ export type Database = {
           day_offset: number
           duration_minutes: number
           hour: number
-          until_offset?: number
-          weeks_ahead?: number
-        }
-        Returns: string
-      }
-      seeds_create_mission_with_custom_rrule: {
-        Args: {
-          day_offset: number
-          description_param?: string
-          duration_minutes: number
-          hour: number
-          professional_id_param: string
-          status_param?: string
-          structure_id_param: string
-          title_param?: string
           until_offset?: number
           weeks_ahead?: number
         }
@@ -786,6 +856,15 @@ export type Database = {
         | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
+      subscription_status:
+        | "active"
+        | "trialing"
+        | "past_due"
+        | "canceled"
+        | "unpaid"
+        | "incomplete"
+        | "incomplete_expired"
+        | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -939,6 +1018,17 @@ export const Constants = {
       ],
       report_status: ["draft", "sent"],
       role: ["professional", "structure", "admin"],
+      subscription_status: [
+        "active",
+        "trialing",
+        "past_due",
+        "canceled",
+        "unpaid",
+        "incomplete",
+        "incomplete_expired",
+        "paused",
+      ],
     },
   },
 } as const
+
