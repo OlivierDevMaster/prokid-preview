@@ -243,11 +243,12 @@ export const syncSubscriptionFromStripe = async (
 
   // If cancel_at is set, it means the subscription is scheduled to cancel
   // This happens when canceling through customer portal even if cancel_at_period_end is false
-  const isScheduledToCancel =
+  const isScheduledToCancel = !!(
     stripeSubscription.cancel_at_period_end ||
     (stripeSubscription.cancel_at !== null &&
       subscriptionItem?.current_period_end &&
-      stripeSubscription.cancel_at === subscriptionItem.current_period_end);
+      stripeSubscription.cancel_at === subscriptionItem.current_period_end)
+  );
 
   console.log('[syncSubscriptionFromStripe] Cancellation analysis:', {
     cancelAt: stripeSubscription.cancel_at,
