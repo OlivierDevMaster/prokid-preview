@@ -31,6 +31,23 @@ export const isProfessionalSubscribed = async (
   return data ?? false;
 };
 
+export const hasUsedTrial = async (
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('professionals')
+    .select('has_used_trial')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to check trial usage: ${error.message}`);
+  }
+
+  return data?.has_used_trial ?? false;
+};
+
 export const createCheckoutSession = async (
   stripe: Stripe,
   supabase: SupabaseClient<Database>,
@@ -45,8 +62,9 @@ export const createCheckoutSession = async (
   );
 
   const priceId = getSubscriptionPriceId();
+  const hasTrialBeenUsed = await hasUsedTrial(supabase, userId);
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     cancel_url: cancelUrl,
     customer: customerId,
     line_items: [
@@ -63,10 +81,14 @@ export const createCheckoutSession = async (
       metadata: {
         user_id: userId,
       },
-      trial_period_days: SubscriptionConfig.TRIAL_PERIOD_DAYS,
+      ...(hasTrialBeenUsed
+        ? {}
+        : { trial_period_days: SubscriptionConfig.TRIAL_PERIOD_DAYS }),
     },
     success_url: successUrl,
-  });
+  };
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
 
   return session;
 };
@@ -237,7 +259,7 @@ export const reactivateSubscription = async (
 };
 
 export const syncSubscriptionFromStripe = async (
-  stripe: Stripe,
+  _stripe: Stripe,
   supabase: SupabaseClient<Database>,
   stripeSubscription: Stripe.Subscription
 ): Promise<ProfessionalSubscription> => {

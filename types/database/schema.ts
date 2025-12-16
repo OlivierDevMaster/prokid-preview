@@ -250,6 +250,7 @@ export type Database = {
           current_job: string | null
           description: string | null
           experience_years: number
+          has_used_trial: boolean
           hourly_rate: number
           intervention_radius_km: number
           is_available: boolean
@@ -270,6 +271,7 @@ export type Database = {
           current_job?: string | null
           description?: string | null
           experience_years: number
+          has_used_trial?: boolean
           hourly_rate: number
           intervention_radius_km: number
           is_available?: boolean
@@ -290,6 +292,7 @@ export type Database = {
           current_job?: string | null
           description?: string | null
           experience_years?: number
+          has_used_trial?: boolean
           hourly_rate?: number
           intervention_radius_km?: number
           is_available?: boolean
