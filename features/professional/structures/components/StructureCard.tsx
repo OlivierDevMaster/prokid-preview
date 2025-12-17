@@ -3,13 +3,14 @@
 import { Building2, Clock, FileText, Mail } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import type { StructureMemberWithStructure } from '@/features/structure-members/structureMember.model';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMembershipMissionDurations } from '@/features/mission-durations';
+import { ProfessionalStructureDetailsDialog } from '@/features/professional/structures/components/ProfessionalStructureDetailsDialog';
 import { useLastReport } from '@/features/professional/structures/hooks/useLastReport';
 
 interface StructureCardProps {
@@ -22,6 +23,7 @@ export function StructureCard({ structureMember }: StructureCardProps) {
   const professionalId = session?.user?.id ?? null;
   const structureId = structure.user_id;
   const t = useTranslations('professional.structure');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: missionDurations, isLoading: isLoadingDurations } =
     useMembershipMissionDurations(professionalId, structureId);
@@ -37,8 +39,6 @@ export function StructureCard({ structureMember }: StructureCardProps) {
   const totalDurationHours = missionDurations?.total_duration_mn
     ? Math.round(missionDurations.total_duration_mn / 60)
     : 0;
-
-  const router = useRouter();
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -107,14 +107,19 @@ export function StructureCard({ structureMember }: StructureCardProps) {
         {/* Action Button */}
         <Button
           className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={() =>
-            router.push(`/professional/structures/${structure.user_id}`)
-          }
+          onClick={() => setIsDialogOpen(true)}
           variant='outline'
         >
           {t('viewDetails')}
         </Button>
       </div>
+
+      <ProfessionalStructureDetailsDialog
+        isLoading={false}
+        onClose={() => setIsDialogOpen(false)}
+        open={isDialogOpen}
+        structureMember={structureMember}
+      />
     </Card>
   );
 }
