@@ -11,9 +11,24 @@ export const getMissionDurations = async (
 
   return invokeEdgeFunction<MissionDurations>(supabase, 'mission-durations', {
     method: 'GET',
+    path: '/membership',
     queryParams: {
       professional_id: professionalId,
       structure_id: structureId,
+    },
+  });
+};
+
+export const getMissionDuration = async (
+  missionId: string
+): Promise<MissionDurations> => {
+  const supabase = createClient();
+
+  return invokeEdgeFunction<MissionDurations>(supabase, 'mission-durations', {
+    method: 'GET',
+    path: '/mission',
+    queryParams: {
+      mission_id: missionId,
     },
   });
 };

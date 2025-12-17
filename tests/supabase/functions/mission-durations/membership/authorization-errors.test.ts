@@ -2,14 +2,14 @@ import '@std/dotenv/load';
 import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
-import { ApiTestHelper } from '../../helpers/ApiHelper.ts';
-import { SupabaseTestClient } from '../../helpers/SupabaseTestClient.ts';
+import { ApiTestHelper } from '../../../helpers/ApiHelper.ts';
+import { SupabaseTestClient } from '../../../helpers/SupabaseTestClient.ts';
 import {
   MissionCleanupHelper,
   MissionFixtureBuilder,
   MissionTestFixture,
-} from '../missions/missions.fixture.ts';
-import { MissionDurationsAssertions } from './missionDurations.assertion.ts';
+} from '../../missions/missions.fixture.ts';
+import { MissionDurationsAssertions } from '../missionDurations.assertion.ts';
 
 describe('Mission durations authorization errors', () => {
   let supabaseClient: SupabaseTestClient;
@@ -41,7 +41,7 @@ describe('Mission durations authorization errors', () => {
     const { response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/membership',
       queryParams: {
         professional_id: fixture.professionalId!,
         structure_id: fixture.structureId!,
@@ -94,7 +94,7 @@ describe('Mission durations authorization errors', () => {
     const { response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/membership',
       queryParams: {
         professional_id: fixture.professionalId!,
         structure_id: fixture.structureId!,
@@ -138,7 +138,7 @@ describe('Mission durations authorization errors', () => {
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/membership',
       queryParams: {
         professional_id: fixture.professionalId!,
         structure_id: otherStructure.user.id,

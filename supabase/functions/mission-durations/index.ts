@@ -3,7 +3,10 @@ import { Hono } from '@hono/hono';
 
 import { authMiddleware } from '../_shared/middlewares/auth.middleware.ts';
 import { apiResponse } from '../_shared/utils/responses.ts';
-import { getMissionDurationsHandler } from './handlers/index.ts';
+import {
+  getMembershipMissionDurationsHandler,
+  getMissionDurationHandler,
+} from './handlers/index.ts';
 
 const app = new Hono().basePath('/mission-durations');
 
@@ -13,7 +16,10 @@ app.options('*', () => apiResponse.options());
 // Protected routes (with auth middleware)
 app.use('*', authMiddleware);
 
-// GET /mission-durations?professional_id=...&structure_id=... - Get mission durations
-app.get('/', ...getMissionDurationsHandler);
+// GET /mission-durations/membership?professional_id=...&structure_id=... - Get mission durations per membership
+app.get('/membership', ...getMembershipMissionDurationsHandler);
+
+// GET /mission-durations/mission?mission_id=... - Get mission duration per mission
+app.get('/mission', ...getMissionDurationHandler);
 
 Deno.serve(app.fetch);

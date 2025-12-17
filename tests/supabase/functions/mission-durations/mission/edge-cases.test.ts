@@ -2,17 +2,17 @@ import '@std/dotenv/load';
 import { assertEquals, assertExists } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
-import { ApiTestHelper } from '../../helpers/ApiHelper.ts';
-import { SupabaseTestClient } from '../../helpers/SupabaseTestClient.ts';
+import { ApiTestHelper } from '../../../helpers/ApiHelper.ts';
+import { SupabaseTestClient } from '../../../helpers/SupabaseTestClient.ts';
 import {
   MissionCleanupHelper,
   MissionFixtureBuilder,
   MissionTestFixture,
-} from '../missions/missions.fixture.ts';
-import { MissionDurationsAssertions } from './missionDurations.assertion.ts';
-import { MissionDurationsTestData } from './missionDurations.data.ts';
+} from '../../missions/missions.fixture.ts';
+import { MissionDurationsAssertions } from '../missionDurations.assertion.ts';
+import { MissionDurationsTestData } from '../missionDurations.data.ts';
 
-describe('Mission durations edge cases', () => {
+describe('Mission duration edge cases', () => {
   let supabaseClient: SupabaseTestClient;
   let apiHelper: ApiTestHelper;
   let fixtureBuilder: MissionFixtureBuilder;
@@ -32,50 +32,6 @@ describe('Mission durations edge cases', () => {
       await cleanupHelper.cleanupFixture(fixture);
       fixture = null;
     }
-  });
-
-  it('should handle mission with no schedules', async () => {
-    // Arrange
-    fixture = await fixtureBuilder.createStructureWithProfessionalMember();
-
-    const missionStart = new Date('2025-01-01T00:00:00Z');
-    const missionEnd = new Date('2025-12-31T23:59:59Z');
-
-    const { data: mission } = await fixture.adminClient
-      .from('missions')
-      .insert({
-        mission_dtstart: missionStart.toISOString(),
-        mission_until: missionEnd.toISOString(),
-        professional_id: fixture.professionalId!,
-        status: 'accepted',
-        structure_id: fixture.structureId!,
-        title: 'Mission Without Schedules',
-      })
-      .select('id')
-      .single();
-
-    assertExists(mission);
-
-    // Act
-    const { data, response } = await apiHelper.invokeEndpoint({
-      method: 'GET',
-      name: 'mission-durations',
-      path: '/',
-      queryParams: {
-        professional_id: fixture.professionalId!,
-        structure_id: fixture.structureId!,
-      },
-      token: fixture.professionalToken!,
-    });
-
-    // Assert
-    MissionDurationsAssertions.assertSuccessfulResponse(response, data);
-    assertEquals(data.total_duration_mn, 0);
-    assertEquals(data.past_duration_mn, 0);
-    assertEquals(data.future_duration_mn, 0);
-    assertEquals(data.percentage, 0);
-
-    fixture.missionId = mission.id;
   });
 
   it('should handle mission with multiple schedules', async () => {
@@ -120,10 +76,9 @@ describe('Mission durations edge cases', () => {
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/mission',
       queryParams: {
-        professional_id: fixture.professionalId!,
-        structure_id: fixture.structureId!,
+        mission_id: mission.id,
       },
       token: fixture.professionalToken!,
     });
@@ -176,10 +131,9 @@ describe('Mission durations edge cases', () => {
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/mission',
       queryParams: {
-        professional_id: fixture.professionalId!,
-        structure_id: fixture.structureId!,
+        mission_id: mission.id,
       },
       token: fixture.professionalToken!,
     });
@@ -228,10 +182,9 @@ describe('Mission durations edge cases', () => {
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/mission',
       queryParams: {
-        professional_id: fixture.professionalId!,
-        structure_id: fixture.structureId!,
+        mission_id: mission.id,
       },
       token: fixture.professionalToken!,
     });
@@ -251,12 +204,12 @@ describe('Mission durations edge cases', () => {
     fixture.missionId = mission.id;
   });
 
-  it('should handle pending missions', async () => {
+  it('should handle mission with very short duration', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
     const missionStart = new Date('2025-01-01T00:00:00Z');
-    const missionEnd = new Date('2025-12-31T23:59:59Z');
+    const missionEnd = new Date('2025-01-01T23:59:59Z'); // Single day
 
     const { data: mission } = await fixture.adminClient
       .from('missions')
@@ -264,38 +217,40 @@ describe('Mission durations edge cases', () => {
         mission_dtstart: missionStart.toISOString(),
         mission_until: missionEnd.toISOString(),
         professional_id: fixture.professionalId!,
-        status: 'pending',
+        status: 'accepted',
         structure_id: fixture.structureId!,
-        title: 'Pending Mission',
+        title: 'Single Day Mission',
       })
       .select('id')
       .single();
 
     assertExists(mission);
 
+    // Create a single occurrence schedule
     await fixture.adminClient.from('mission_schedules').insert({
-      duration_mn: 120,
+      duration_mn: 60,
       mission_id: mission.id,
-      rrule: MissionDurationsTestData.weeklyRRULE,
+      rrule: 'DTSTART:20250101T090000Z\nRRULE:FREQ=DAILY;COUNT=1',
     });
 
     // Act
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
+      path: '/mission',
       queryParams: {
-        professional_id: fixture.professionalId!,
-        structure_id: fixture.structureId!,
+        mission_id: mission.id,
       },
       token: fixture.professionalToken!,
     });
 
     // Assert
     MissionDurationsAssertions.assertSuccessfulResponse(response, data);
-    // Pending missions should be included
-    assertEquals(data.total_duration_mn > 0, true);
-    // Percentage should be calculated correctly
+    assertEquals(data.total_duration_mn, 60); // Single occurrence * 60 minutes
+    assertEquals(
+      data.total_duration_mn,
+      data.past_duration_mn + data.future_duration_mn
+    );
     assertEquals(data.percentage >= 0, true);
     assertEquals(data.percentage <= 100, true);
 

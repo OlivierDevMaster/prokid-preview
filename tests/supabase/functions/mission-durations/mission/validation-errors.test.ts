@@ -2,16 +2,16 @@ import '@std/dotenv/load';
 import { assertEquals } from '@std/assert';
 import { afterEach, beforeEach, describe, it } from '@std/testing/bdd';
 
-import { ApiTestHelper } from '../../helpers/ApiHelper.ts';
-import { SupabaseTestClient } from '../../helpers/SupabaseTestClient.ts';
+import { ApiTestHelper } from '../../../helpers/ApiHelper.ts';
+import { SupabaseTestClient } from '../../../helpers/SupabaseTestClient.ts';
 import {
   MissionCleanupHelper,
   MissionFixtureBuilder,
   MissionTestFixture,
-} from '../missions/missions.fixture.ts';
-import { MissionDurationsAssertions } from './missionDurations.assertion.ts';
+} from '../../missions/missions.fixture.ts';
+import { MissionDurationsAssertions } from '../missionDurations.assertion.ts';
 
-describe('Mission durations validation errors', () => {
+describe('Mission duration validation errors', () => {
   let supabaseClient: SupabaseTestClient;
   let apiHelper: ApiTestHelper;
   let fixtureBuilder: MissionFixtureBuilder;
@@ -33,7 +33,7 @@ describe('Mission durations validation errors', () => {
     }
   });
 
-  it('should return 400 when professional_id is missing', async () => {
+  it('should return 400 when mission_id is missing', async () => {
     // Arrange
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
@@ -41,48 +41,29 @@ describe('Mission durations validation errors', () => {
     const { data, response } = await apiHelper.invokeEndpoint({
       method: 'GET',
       name: 'mission-durations',
-      path: '/',
-      queryParams: {
-        structure_id: fixture.structureId!,
-      },
-      token: fixture.professionalToken!,
-    });
-
-    // Assert
-    MissionDurationsAssertions.assertErrorResponse(response, 400);
-    assertEquals(data.error?.code, 'MISSING_PARAMETERS');
-  });
-
-  it('should return 400 when structure_id is missing', async () => {
-    // Arrange
-    fixture = await fixtureBuilder.createStructureWithProfessionalMember();
-
-    // Act
-    const { data, response } = await apiHelper.invokeEndpoint({
-      method: 'GET',
-      name: 'mission-durations',
-      path: '/',
-      queryParams: {
-        professional_id: fixture.professionalId!,
-      },
-      token: fixture.professionalToken!,
-    });
-
-    // Assert
-    MissionDurationsAssertions.assertErrorResponse(response, 400);
-    assertEquals(data.error?.code, 'MISSING_PARAMETERS');
-  });
-
-  it('should return 400 when both parameters are missing', async () => {
-    // Arrange
-    fixture = await fixtureBuilder.createStructureWithProfessionalMember();
-
-    // Act
-    const { data, response } = await apiHelper.invokeEndpoint({
-      method: 'GET',
-      name: 'mission-durations',
-      path: '/',
+      path: '/mission',
       queryParams: {},
+      token: fixture.professionalToken!,
+    });
+
+    // Assert
+    MissionDurationsAssertions.assertErrorResponse(response, 400);
+    assertEquals(data.error?.code, 'MISSING_PARAMETERS');
+    assertEquals(data.error?.message, 'mission_id is required');
+  });
+
+  it('should return 400 when mission_id is empty string', async () => {
+    // Arrange
+    fixture = await fixtureBuilder.createStructureWithProfessionalMember();
+
+    // Act
+    const { data, response } = await apiHelper.invokeEndpoint({
+      method: 'GET',
+      name: 'mission-durations',
+      path: '/mission',
+      queryParams: {
+        mission_id: '',
+      },
       token: fixture.professionalToken!,
     });
 

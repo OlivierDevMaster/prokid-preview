@@ -1,15 +1,13 @@
 import { createFactory } from '@hono/hono/factory';
 import { SupabaseClient, User } from '@supabase/supabase-js';
-import RRulePkg from 'rrule';
 
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
-const { RRuleSet, rrulestr } = RRulePkg;
-
-type MissionSchedule = {
-  duration_mn: number;
-  rrule: string;
-};
+import {
+  calculateScheduleDuration,
+  generateMissionOccurrences,
+  type MissionSchedule,
+} from '../utils/missionDuration.utils.ts';
 
 type Variables = {
   supabaseAdminClient: SupabaseClient<Database>;
@@ -19,66 +17,7 @@ type Variables = {
 
 const factory = createFactory<{ Variables: Variables }>();
 
-/**
- * Generates all occurrences for a mission schedule.
- * Parses the RRULE directly (source of truth) and generates occurrences.
- * Only includes occurrences that fall within the mission date range.
- * Handles both RRule and RRuleSet (when EXDATE is present).
- * Supports RRULEs with UNTIL, COUNT, or neither.
- */
-function generateMissionOccurrences(
-  schedule: MissionSchedule,
-  missionDtstart: Date,
-  missionUntil: Date
-): Date[] {
-  // Parse the RRULE directly - it's the source of truth
-  const rule = rrulestr(schedule.rrule);
-
-  // Determine the date range for generating occurrences
-  // Use the RRULE's own DTSTART if present, otherwise use mission start
-  // For the end, we need to handle UNTIL, COUNT, or neither
-  let scheduleStart: Date;
-  let scheduleEnd: Date;
-
-  if (
-    rule instanceof RRuleSet ||
-    typeof (rule as RRulePkg.RRuleSet).rrules === 'function'
-  ) {
-    // It's an RRuleSet - get dtstart/until from the first RRule
-    const rruleSet = rule as RRulePkg.RRuleSet;
-    const rules = rruleSet.rrules();
-
-    if (rules.length > 0) {
-      const firstRule = rules[0];
-      scheduleStart = firstRule.options.dtstart || missionDtstart;
-      // If UNTIL exists, use it; if COUNT exists, we need to generate all and filter
-      // Otherwise, use missionUntil as a safe upper bound
-      scheduleEnd = firstRule.options.until || missionUntil;
-    } else {
-      return [];
-    }
-  } else {
-    // It's a regular RRule
-    const rrule = rule as RRulePkg.RRule;
-    scheduleStart = rrule.options.dtstart || missionDtstart;
-    // If UNTIL exists, use it; if COUNT exists, we need to generate all and filter
-    // Otherwise, use missionUntil as a safe upper bound
-    scheduleEnd = rrule.options.until || missionUntil;
-  }
-
-  // Generate all occurrences from the RRULE
-  // If COUNT is present, this will generate exactly COUNT occurrences
-  // If UNTIL is present, this will generate up to UNTIL
-  // We'll filter by mission range afterwards to ensure we only count valid occurrences
-  const allOccurrences = rule.between(scheduleStart, scheduleEnd, true);
-
-  // Filter occurrences to only include those within the mission date range
-  return allOccurrences.filter(
-    occ => occ >= missionDtstart && occ <= missionUntil
-  );
-}
-
-export const getMissionDurationsHandler = factory.createHandlers(
+export const getMembershipMissionDurationsHandler = factory.createHandlers(
   async ({ get, req }) => {
     try {
       const userId = get('user')?.id;
@@ -209,22 +148,17 @@ export const getMissionDurationsHandler = factory.createHandlers(
               missionUntil
             );
 
-            // Split occurrences by current date
-            const pastOccurrences = occurrences.filter(occ => occ < now);
-            const futureOccurrences = occurrences.filter(occ => occ >= now);
-
-            // Calculate durations
-            const scheduleTotalDuration =
-              occurrences.length * schedule.duration_mn;
-            const schedulePastDuration =
-              pastOccurrences.length * schedule.duration_mn;
-            const scheduleFutureDuration =
-              futureOccurrences.length * schedule.duration_mn;
+            // Calculate durations using shared utility
+            const durationCalculation = calculateScheduleDuration(
+              scheduleData,
+              occurrences,
+              now
+            );
 
             // Accumulate totals
-            totalDurationMn += scheduleTotalDuration;
-            pastDurationMn += schedulePastDuration;
-            futureDurationMn += scheduleFutureDuration;
+            totalDurationMn += durationCalculation.total_duration_mn;
+            pastDurationMn += durationCalculation.past_duration_mn;
+            futureDurationMn += durationCalculation.future_duration_mn;
           } catch (error) {
             // Log error but continue processing other schedules
             console.error(
@@ -250,7 +184,7 @@ export const getMissionDurationsHandler = factory.createHandlers(
         total_duration_mn: totalDurationMn,
       });
     } catch (error) {
-      console.error('Error in getMissionDurationsHandler:', error);
+      console.error('Error in getMembershipMissionDurationsHandler:', error);
       return apiResponse.internalServerError('An unexpected error occurred', {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
