@@ -384,6 +384,34 @@
       "descriptionLabel": "Description",
       "filterByStructure": "Filtrer par structure",
       "allStructures": "Toutes les structures"
+    },
+    "subscription": {
+      "title": "Abonnement ProKid Pro",
+      "description": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "alreadySubscribed": "Vous êtes déjà abonné",
+      "alreadySubscribedMessage": "Votre abonnement ProKid Pro est actif.",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "activateButton": "Activer mon abonnement",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment.",
+      "featuresTitle": "Ce que vous obtenez",
+      "feature1Title": "Visibilité maximale",
+      "feature1Description": "Votre profil apparaît dans toutes les recherches des structures",
+      "feature2Title": "Demandes qualifiées",
+      "feature2Description": "Recevez des demandes directes de structures intéressées",
+      "feature3Title": "Messagerie intégrée",
+      "feature3Description": "Échangez facilement avec les structures via la plateforme",
+      "feature4Title": "Analytics simples",
+      "feature4Description": "Suivez les vues de votre profil et vos demandes",
+      "launchOffer": "Offre de lancement",
+      "activating": "Activation en cours...",
+      "goToDashboard": "Retour au tableau de bord",
+      "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
+      "checkoutError": "Échec de la création de la session de paiement"
     }
   },
   "structure": {
@@ -656,8 +684,18 @@
       "label": {
         "title": "Titre",
         "structure": "Structure",
-        "content": "Description"
+        "content": "Description",
+        "mission": "Mission"
       },
+      "status": {
+        "draft": "Brouillon",
+        "sent": "Envoyé"
+      },
+      "selectMission": "Mission",
+      "selectMissionPlaceholder": "Sélectionner une mission",
+      "emailSentSuccessfully": "Email envoyé avec succès",
+      "emailSendError": "Échec de l'envoi de l'email",
+      "sending": "Envoi en cours...",
       "messages": {
         "unauthenticated": "Utilisateur non authentifié",
         "errorCreatingReport": "Une erreur est survenue lors de la création du rapport",
@@ -665,7 +703,10 @@
         "reportSavedSuccessfully": "Rapport enregistré avec succès",
         "impossibleToCreateReport": "Impossible de créer le rapport",
         "data": "Données",
-        "dataDescription": "Données du rapport"
+        "dataDescription": "Données du rapport",
+        "attachmentUploadedSuccessfully": "Pièce jointe ajoutée avec succès",
+        "attachmentUploadedError": "Erreur lors de l'ajout de la pièce jointe",
+        "attachmentDeletedSuccessfully": "Pièce jointe supprimée avec succès"
       }
     },
     "reports": {
@@ -725,6 +766,32 @@
       "noStructures": "Aucune structure pour le moment.",
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu"
+    },
+    "subscription": {
+      "launchOffer": "Offre de lancement",
+      "title": "ProKid Pro",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "activateButton": "Activer mon abonnement",
+      "activating": "Activation en cours...",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment.",
+      "featuresTitle": "Ce que vous obtenez",
+      "feature1Title": "Visibilité maximale",
+      "feature1Description": "Votre profil apparaît dans toutes les recherches des structures",
+      "feature2Title": "Demandes qualifiées",
+      "feature2Description": "Recevez des demandes directes de structures intéressées",
+      "feature3Title": "Messagerie intégrée",
+      "feature3Description": "Échangez facilement avec les structures via la plateforme",
+      "feature4Title": "Analytics simples",
+      "feature4Description": "Suivez les vues de votre profil et vos demandes",
+      "alreadySubscribed": "Vous êtes déjà abonné",
+      "alreadySubscribedMessage": "Votre abonnement ProKid Pro est actif.",
+      "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
+      "checkoutError": "Échec de la création de la session de paiement"
     },
     "navigation": {
       "planning": "Mon Planning",

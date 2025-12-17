@@ -1,32 +1,155 @@
+import { createServerClient } from '@supabase/ssr';
+import { getToken } from 'next-auth/jwt';
 import createMiddleware from 'next-intl/middleware';
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
+import { authOptions } from '@/lib/auth';
 import { updateSession } from '@/lib/supabase/proxy';
 
 import { routing } from './i18n/routing';
 
 const intlMiddleware = createMiddleware(routing);
 
+// Role-based route protection
+const roleRoutes: Record<string, string> = {
+  '/admin': 'admin',
+  '/professional': 'professional',
+  '/structure': 'structure',
+};
+
 export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
   // First, apply next-intl middleware to handle locale routing
   const intlResponse = intlMiddleware(request);
 
   // If next-intl redirected, return that response immediately
-  // (Don't process Supabase session for redirects to avoid loops)
   if (intlResponse.status === 307 || intlResponse.status === 308) {
     return intlResponse;
   }
 
-  // Then, update Supabase session (this should not redirect anymore)
-  const supabaseResponse = await updateSession(request);
+  // Extract locale and path without locale
+  const locale = pathname.split('/')[1];
+  const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
 
-  // Supabase should not redirect anymore, but if it does, return it
-  if (supabaseResponse.status === 307 || supabaseResponse.status === 308) {
-    return supabaseResponse;
+  // Check if the path requires role-based access
+  const requiredRole = Object.entries(roleRoutes).find(([route]) =>
+    pathWithoutLocale.startsWith(route)
+  )?.[1];
+
+  if (requiredRole) {
+    // Get NextAuth token
+    const token = await getToken({
+      req: request,
+      secret: authOptions.secret,
+    });
+
+    // If no token, redirect to login
+    if (!token || !token.id) {
+      const loginUrl = new URL(`/${locale}/auth/login`, request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Create Supabase client for middleware context
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase environment variables in middleware');
+      const loginUrl = new URL(`/${locale}/auth/login`, request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll() {
+          // Cookies are set via the response in updateSession
+        },
+      },
+    });
+
+    // Get user profile role from Supabase
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', token.id as string)
+      .maybeSingle();
+
+    // If profile not found or error, redirect to login
+    if (error || !profile || !profile.role) {
+      console.error('Profile not found or missing role:', { error, profile });
+      const loginUrl = new URL(`/${locale}/auth/login`, request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      loginUrl.searchParams.set('error', 'profile_not_found');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Check if user has the required role
+    if (profile.role !== requiredRole) {
+      // Redirect to appropriate dashboard based on user's role
+      // If user doesn't have a valid role, redirect to login
+      let redirectPath = `/${locale}/auth/login`;
+
+      if (profile.role === 'admin') {
+        redirectPath = `/${locale}/admin/dashboard`;
+      } else if (profile.role === 'professional') {
+        // Check if professional is subscribed before allowing access
+        const { data: isSubscribed, error: subscriptionError } =
+          await supabase.rpc('is_professional_subscribed', {
+            user_id_param: token.id as string,
+          });
+
+        if (subscriptionError || !isSubscribed) {
+          // Redirect to subscription page if not subscribed
+          redirectPath = `/${locale}/professional/subscription`;
+        } else {
+          redirectPath = `/${locale}/professional/dashboard`;
+        }
+      } else if (profile.role === 'structure') {
+        redirectPath = `/${locale}/structure/dashboard`;
+      }
+
+      const redirectUrl = new URL(redirectPath, request.url);
+      // Add a message parameter to inform the user why they were redirected
+      redirectUrl.searchParams.set('error', 'access_denied');
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Additional check: if accessing professional routes, verify subscription
+    // Skip subscription check for subscription-related pages to avoid redirect loops
+    const isSubscriptionPage =
+      pathWithoutLocale.startsWith('/professional/subscription') ||
+      pathWithoutLocale.startsWith('/professional/subscription-test');
+
+    if (requiredRole === 'professional' && !isSubscriptionPage) {
+      const { data: isSubscribed, error: subscriptionError } =
+        await supabase.rpc('is_professional_subscribed', {
+          user_id_param: token.id as string,
+        });
+
+      if (subscriptionError) {
+        console.error('Error checking subscription status:', subscriptionError);
+        // Allow access but log the error (could redirect to error page)
+      } else if (!isSubscribed) {
+        // Redirect to subscription page if not subscribed
+        const subscriptionUrl = new URL(
+          `/${locale}/professional/subscription`,
+          request.url
+        );
+        subscriptionUrl.searchParams.set('error', 'subscription_required');
+        return NextResponse.redirect(subscriptionUrl);
+      }
+    }
   }
 
+  // Update Supabase session
+  const supabaseResponse = await updateSession(request);
+
   // Return Supabase response (it contains the updated cookies)
-  // The response body and status should be the same as intlResponse
   return supabaseResponse;
 }
 
@@ -39,6 +162,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - files with extensions (e.g., .svg, .png, .jpg, etc.)
+     * - auth routes (login, signup, etc.)
      */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

@@ -1,8 +1,17 @@
 'use client';
 
-import { ArrowLeft, FileText, Link, Paperclip, Send } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Link,
+  Paperclip,
+  Send,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -23,9 +32,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useDeleteReportAttachment } from '@/features/report-attachments/hooks/useDeleteReportAttachment';
+import { useSendReport } from '@/features/reports/hooks/useSendReport';
+import { useUpdateReport } from '@/features/reports/hooks/useUpdateReport';
 import { Report } from '@/features/reports/report.model';
 
-import useGetStructures from '../../structures/hooks/useGetStructures';
+import { useGetMissions } from '../hooks/useGetMissions';
 import { useReportForm } from '../hooks/useReportForm';
 
 type ReportFormProps = {
@@ -36,8 +48,17 @@ type ReportFormProps = {
 export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const t = useTranslations('admin.report');
   const { form, isLoading, onSubmit } = useReportForm();
-  const { data: structures } = useGetStructures();
-
+  const { data: missionsData } = useGetMissions();
+  const missions = missionsData?.data ?? [];
+  const { isPending: isSending, mutate: sendReport } = useSendReport();
+  const { isPending: isUpdating, mutate: updateReport } = useUpdateReport();
+  const { mutate: deleteAttachment } = useDeleteReportAttachment();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [currentReport, setCurrentReport] = useState<null | Report>(
+    report || null
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { handleSubmit, setValue } = form;
   useEffect(() => {
     if (isEdit && report) {
       form.reset({
@@ -46,17 +67,175 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
         mission_id: report.mission_id,
         title: report.title,
       });
+      setCurrentReport(report);
     }
   }, [isEdit, report, form]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      // Validate file sizes (10MB max per file)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const validFiles = files.filter(file => {
+        if (file.size > maxSize) {
+          toast.error(`${file.name} is too large. Maximum file size is 10MB.`);
+          return false;
+        }
+        return true;
+      });
+      setSelectedFiles(prev => {
+        const updatedFiles = [...prev, ...validFiles];
+        setValue('files', updatedFiles);
+        return updatedFiles;
+      });
+    }
+    // Reset input to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveAttachment = (attachmentId: string) => {
+    if (currentReport?.status === 'sent') {
+      toast.error('Cannot delete attachments from sent reports');
+      return;
+    }
+    deleteAttachment(attachmentId);
+  };
+
+  const handleFormSubmit = async () => {
+    await onSubmit();
+  };
+
+  const handleSendReport = async () => {
+    // Block if report is already sent
+    if (currentReport?.status === 'sent') {
+      toast.error('This report has already been sent');
+      return;
+    }
+
+    const formValues = form.getValues();
+
+    // Validate required fields
+    if (!formValues.mission_id) {
+      toast.error('Please select a mission before sending');
+      return;
+    }
+    if (!formValues.title || formValues.title.trim().length === 0) {
+      toast.error('Please enter a title before sending');
+      return;
+    }
+    if (!formValues.content || formValues.content.trim().length === 0) {
+      toast.error('Please enter content before sending');
+      return;
+    }
+
+    let reportId: string;
+
+    // If report doesn't exist yet, create it first
+    if (!currentReport?.id) {
+      try {
+        const result = await onSubmit();
+        if (!result) {
+          toast.error(
+            t('messages.errorCreatingReport') || 'Failed to create report'
+          );
+          return;
+        }
+        setCurrentReport(result);
+        reportId = result.id;
+      } catch (error) {
+        console.error('Error creating report:', error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('messages.errorCreatingReport') || 'Failed to create report'
+        );
+        return;
+      }
+    } else {
+      // Report exists, save any pending changes before sending
+      const hasChanges =
+        formValues.title !== currentReport.title ||
+        formValues.content !== currentReport.content ||
+        formValues.mission_id !== currentReport.mission_id;
+
+      if (hasChanges) {
+        try {
+          const updatedReport = await new Promise<Report>((resolve, reject) => {
+            updateReport(
+              {
+                reportId: currentReport.id,
+                updateData: {
+                  content: formValues.content,
+                  mission_id: formValues.mission_id,
+                  title: formValues.title,
+                },
+              },
+              {
+                onError: error => reject(error),
+                onSuccess: report => resolve(report),
+              }
+            );
+          });
+          setCurrentReport(updatedReport);
+          reportId = updatedReport.id;
+        } catch (error) {
+          console.error('Error updating report:', error);
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : 'Failed to save changes before sending'
+          );
+          return;
+        }
+      } else {
+        reportId = currentReport.id;
+      }
+    }
+
+    // Upload any pending files before sending
+    if (selectedFiles.length > 0) {
+      try {
+        await handleUploadFiles(reportId);
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        toast.error('Failed to upload some files. Please try again.');
+        return;
+      }
+    }
+
+    // Then send the report
+    sendReport(reportId, {
+      onError: error => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('emailSendError') || 'Failed to send email'
+        );
+      },
+      onSuccess: () => {
+        toast.success(t('emailSentSuccessfully') || 'Email sent successfully');
+        // Refresh to show updated status
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      },
+    });
+  };
+
   return (
     <Form {...form}>
-      <form className='space-y-6' onSubmit={onSubmit}>
+      <form className='space-y-6' onSubmit={handleSubmit(handleFormSubmit)}>
         <div className='space-y-6'>
           {/* Header */}
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <Link href='/admin/report'>
+              <Link href='/professional/reports'>
                 <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
               </Link>
               <h1 className='text-3xl font-bold text-blue-600'>
@@ -64,19 +243,28 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
               </h1>
             </div>
             <div className='flex gap-3'>
-              <Button
-                className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                disabled={isLoading}
-                type='submit'
-                variant='outline'
-              >
-                <FileText className='mr-2 h-4 w-4' />
-                {t('saveDraft')}
-              </Button>
-              <Button className='bg-blue-500 text-white hover:bg-blue-600'>
-                <Send className='mr-2 h-4 w-4' />
-                {t('sendEmail')}
-              </Button>
+              {(!isEdit || currentReport?.status !== 'sent') && (
+                <Button
+                  className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                  disabled={isLoading || isUpdating}
+                  type='submit'
+                  variant='outline'
+                >
+                  <FileText className='mr-2 h-4 w-4' />
+                  {t('saveDraft')}
+                </Button>
+              )}
+              {currentReport?.status !== 'sent' && (
+                <Button
+                  className='bg-blue-500 text-white hover:bg-blue-600'
+                  disabled={isLoading || isSending}
+                  onClick={handleSendReport}
+                  type='button'
+                >
+                  <Send className='mr-2 h-4 w-4' />
+                  {isSending ? t('sending') || 'Sending...' : t('sendEmail')}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -108,34 +296,57 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                   )}
                 />
 
-                {/* Recipient Structure */}
+                {/* Mission Selection */}
                 <FormField
                   control={form.control}
                   name='mission_id'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-sm font-semibold text-gray-700'>
-                        {t('recipientStructure')}{' '}
+                        {t('selectMission') || 'Mission'}{' '}
                         <span className='text-red-500'>*</span>
                       </FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        disabled={isEdit && currentReport?.status === 'sent'}
+                        onValueChange={async value => {
+                          field.onChange(value);
+                          // await handleMissionChange(value);
+                        }}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t('selectStructure')} />
+                            <SelectValue
+                              placeholder={
+                                t('selectMissionPlaceholder') ||
+                                'Select a mission'
+                              }
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(structures ?? []).map(structure => (
-                            <SelectItem
-                              key={structure.user_id}
-                              value={structure.user_id}
-                            >
-                              {structure.name}
-                            </SelectItem>
-                          ))}
+                          {missions.map(mission => {
+                            const missionWithStructure = mission as {
+                              id: string;
+                              structure?: {
+                                name?: string;
+                                profile?: { email?: string };
+                              };
+                              title: string;
+                            };
+                            const structureName =
+                              missionWithStructure.structure?.name ||
+                              missionWithStructure.structure?.profile?.email ||
+                              'N/A';
+                            return (
+                              <SelectItem
+                                key={missionWithStructure.id}
+                                value={missionWithStructure.id}
+                              >
+                                {missionWithStructure.title} - {structureName}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -179,25 +390,117 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
               />
 
               {/* Attachments */}
-              <div className='space-y-2'>
+              <div className='space-y-4'>
                 <label className='text-sm font-semibold text-gray-700'>
                   {t('attachments')}{' '}
                   <span className='text-gray-500'>({t('optional')})</span>
                 </label>
-                <div className='flex items-center gap-4'>
-                  <Button
-                    className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                    disabled
-                    type='button'
-                    variant='outline'
-                  >
-                    <Paperclip className='mr-2 h-4 w-4' />
-                    {t('addFiles')}
-                  </Button>
-                  <span className='text-sm text-gray-500'>
-                    {t('fileTypes')}
-                  </span>
-                </div>
+
+                {/* File Input */}
+                {currentReport?.status !== 'sent' && (
+                  <div className='flex items-center gap-4'>
+                    <input
+                      accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
+                      className='hidden'
+                      multiple
+                      onChange={handleFileSelect}
+                      ref={fileInputRef}
+                      type='file'
+                    />
+                    <Button
+                      className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                      disabled={isLoading}
+                      onClick={() => fileInputRef.current?.click()}
+                      type='button'
+                      variant='outline'
+                    >
+                      <Paperclip className='mr-2 h-4 w-4' />
+                      {t('addFiles')}
+                    </Button>
+                    <span className='text-sm text-gray-500'>
+                      {t('fileTypes')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Selected Files (Pending Upload) */}
+                {selectedFiles.length > 0 && (
+                  <div className='space-y-2'>
+                    <p className='text-sm font-medium text-gray-700'>
+                      Files to upload:
+                    </p>
+                    <div className='space-y-2'>
+                      {selectedFiles.map((file, index) => (
+                        <div
+                          className='flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3'
+                          key={`${file.name}-${index}`}
+                        >
+                          <div className='flex items-center gap-2'>
+                            <Paperclip className='h-4 w-4 text-gray-500' />
+                            <span className='text-sm text-gray-700'>
+                              {file.name}
+                            </span>
+                            <span className='text-xs text-gray-500'>
+                              ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                            </span>
+                          </div>
+                          <Button
+                            className='h-8 w-8 p-0 text-red-500 hover:bg-red-50'
+                            onClick={() => handleRemoveFile(index)}
+                            type='button'
+                            variant='ghost'
+                          >
+                            <X className='h-4 w-4' />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Existing Attachments */}
+                {currentReport?.attachments &&
+                  currentReport.attachments.length > 0 && (
+                    <div className='space-y-2'>
+                      <p className='text-sm font-medium text-gray-700'>
+                        Current attachments:
+                      </p>
+                      <div className='space-y-2'>
+                        {currentReport.attachments.map(attachment => (
+                          <div
+                            className='flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3'
+                            key={attachment.id}
+                          >
+                            <div className='flex items-center gap-2'>
+                              <Paperclip className='h-4 w-4 text-gray-500' />
+                              <span className='text-sm text-gray-700'>
+                                {attachment.file_name}
+                              </span>
+                              <span className='text-xs text-gray-500'>
+                                (
+                                {(attachment.file_size / 1024 / 1024).toFixed(
+                                  2
+                                )}{' '}
+                                MB)
+                              </span>
+                            </div>
+                            {currentReport?.status !== 'sent' && (
+                              <Button
+                                className='h-8 w-8 p-0 text-red-500 hover:bg-red-50'
+                                onClick={() =>
+                                  handleRemoveAttachment(attachment.id)
+                                }
+                                type='button'
+                                variant='ghost'
+                              >
+                                <Trash2 className='h-4 w-4' />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           </Card>

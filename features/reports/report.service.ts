@@ -19,9 +19,15 @@ export const createReport = async (
 ): Promise<Report> => {
   const supabase = createClient();
 
+  // Ensure status is set to 'draft' if not provided
+  const reportData = {
+    ...insertData,
+    status: insertData.status || 'draft',
+  };
+
   const { data, error } = await supabase
     .from('reports')
-    .insert(insertData)
+    .insert(reportData)
     .select(
       `
         *,
@@ -41,7 +47,14 @@ export const createReport = async (
     )
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating report:', error);
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error('Failed to create report: No data returned from database');
+  }
 
   return data;
 };

@@ -163,7 +163,7 @@ export default function SubscriptionTestPage() {
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Success/Cancel Messages */}
       {showSuccess && (
         <div className='rounded-lg border border-green-200 bg-green-50 p-4'>
@@ -208,9 +208,9 @@ export default function SubscriptionTestPage() {
             ) : (
               <XCircle
                 className={`h-5 w-5 ${
-                  cancelMessage.type === 'success'
-                    ? 'text-green-600'
-                    : 'text-red-600'
+                  cancelMessage?.type === 'error'
+                    ? 'text-red-600'
+                    : 'text-green-600'
                 }`}
               />
             )}

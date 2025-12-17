@@ -106,29 +106,37 @@ export default function useReportColumnDefs({
           },
         });
 
-        actions.push({
-          icon: <Edit className='h-4 w-4' />,
-          label: 'Edit',
-          onClick: () => {
-            router.push(`/professional/reports/${row.original.id}/edit`);
-          },
-        });
+        const status = row.original.status;
 
-        actions.push({
-          icon: <Send className='h-4 w-4' />,
-          label: 'Send',
-          onClick: () => {
-            router.push(`/professional/reports/${row.original.id}/edit`);
-          },
-        });
+        // Only allow edit/delete if status is draft
+        if (status === 'draft') {
+          actions.push({
+            icon: <Edit className='h-4 w-4' />,
+            label: 'Edit',
+            onClick: () => {
+              router.push(`/professional/reports/${row.original.id}/edit`);
+            },
+          });
 
-        actions.push({
-          icon: <Trash className='h-4 w-4' />,
-          label: 'Delete',
-          onClick: () => {
-            router.push(`/professional/reports/${row.original.id}/delete`);
-          },
-        });
+          actions.push({
+            icon: <Trash className='h-4 w-4' />,
+            label: 'Delete',
+            onClick: () => {
+              router.push(`/professional/reports/${row.original.id}/delete`);
+            },
+          });
+        }
+
+        // Only allow send if status is draft
+        if (status === 'draft') {
+          actions.push({
+            icon: <Send className='h-4 w-4' />,
+            label: 'Send',
+            onClick: () => {
+              router.push(`/professional/reports/${row.original.id}`);
+            },
+          });
+        }
 
         return <TableActions actions={actions} />;
       },
