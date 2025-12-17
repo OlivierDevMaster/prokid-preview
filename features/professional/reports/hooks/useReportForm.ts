@@ -1,23 +1,21 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
+import type { ReportInsert } from '@/features/reports/report.model';
+
+import { useUploadReportAttachment } from '@/features/report-attachments';
+import { useCreateReport } from '@/features/reports/hooks';
 import { createClient } from '@/lib/supabase/client';
 
 import {
   type ReportFormData,
   reportFormSchema,
 } from '../schemas/report.schema';
-import { createUserReport, updateUserReport } from '../services/report.service';
 
 export function useReportForm() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const t = useTranslations('admin');
 
   const form = useForm<ReportFormData>({
@@ -29,58 +27,57 @@ export function useReportForm() {
     resolver: zodResolver(reportFormSchema),
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: ReportFormData) => {
-      const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const sendReportMutation = useCreateReport();
+  const { mutate: uploadAttachment } = useUploadReportAttachment();
 
-      if (!session?.user?.id) {
-        throw new Error(t('report.messages.unauthenticated'));
-      }
+  const onSubmit = form.handleSubmit(async data => {
+    const supabase = createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      if (data.id) {
-        return updateUserReport(data.id, {
-          content: data.content,
-          mission_id: data.mission_id,
-          title: data.title,
+    if (!session?.user?.id) {
+      throw new Error(t('report.messages.unauthenticated'));
+    }
+
+    const authorId = session.user.id;
+    const { files, ...rest } = data;
+    const parsedData: ReportInsert = {
+      ...rest,
+      author_id: authorId,
+      status: 'draft', // Ensure status is set to draft
+    };
+
+    const result = await sendReportMutation.mutateAsync(parsedData);
+
+    if (files && files.length > 0) {
+      await handleUploadFiles(result.id, files);
+    }
+  });
+
+  const handleUploadFiles = async (reportId: string, selectedFiles: File[]) => {
+    if (selectedFiles.length === 0) return;
+
+    // Upload files one by one (since useUploadReportAttachment only accepts one file)
+    for (const file of selectedFiles) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          uploadAttachment(
+            { file, reportId },
+            {
+              onError: error => reject(error),
+              onSuccess: () => resolve(),
+            }
+          );
         });
+      } catch (error) {
+        console.error(`Error uploading file ${file.name}:`, error);
       }
-      // Create report object - author_id will be set by the edge function
-      // The edge function uses the authenticated user from the token
-      return createUserReport({
-        author_id: session.user.id, // Will be overridden by edge function, but kept for type safety
-        content: data.content,
-        mission_id: data.mission_id,
-        title: data.title,
-      });
-    },
-    onError: error => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('report.messages.errorCreatingReport')
-      );
-    },
-    onSuccess: data => {
-      if (data) {
-        queryClient.invalidateQueries({ queryKey: ['reports'] });
-        toast.success(t('report.messages.reportSavedSuccessfully'));
-        router.push('/professional/reports');
-      } else {
-        toast.error(t('report.messages.impossibleToCreateReport'));
-      }
-    },
-  });
-
-  const onSubmit = form.handleSubmit(data => {
-    mutation.mutate(data);
-  });
-
+    }
+  };
   return {
     form,
-    isLoading: mutation.isPending,
+    isLoading: sendReportMutation.isPending,
     onSubmit,
   };
 }

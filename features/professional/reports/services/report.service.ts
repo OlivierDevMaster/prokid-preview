@@ -21,9 +21,13 @@ export async function createUserReport(
 ): Promise<null | Report> {
   try {
     const supabase = await createClient();
+    // Ensure status is set to 'draft' when creating
     const { data, error } = await supabase
       .from('reports')
-      .insert(report)
+      .insert({
+        ...report,
+        status: 'draft',
+      })
       .select(
         `
         *,

@@ -50,7 +50,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
         <TableHeaderActions actions={actions} />
 
         {/* Table */}
-        <Card>
+        <Card className='shadow-none'>
           <CardHeader>
             <CardTitle>{t('tableTitle')}</CardTitle>
           </CardHeader>

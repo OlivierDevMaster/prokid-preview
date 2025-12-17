@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useFindMission } from '@/features/missions/hooks/useFindMission';
 import { MissionStatus } from '@/features/missions/mission.model';
 
 import type { Notification } from '../notification.model';
@@ -33,13 +34,17 @@ export function NotificationDetails() {
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
 
-  const notificationMission = useMemo(() => {
-    if (!notification) return null;
-    if (notification.type === 'mission_received') {
-      return notification.data.mission;
+  // Extract mission_id from notification.data if type is 'mission_received'
+  const missionId = useMemo(() => {
+    if (!notification || notification.type !== 'mission_received') {
+      return null;
     }
-    return null;
+    const data = notification.data as { mission_id?: string };
+    return data.mission_id || null;
   }, [notification]);
+
+  // Fetch mission by mission_id
+  const { data: notificationMission } = useFindMission(missionId);
 
   const notificationMissionStatus = useMemo(() => {
     if (!notificationMission) return undefined;

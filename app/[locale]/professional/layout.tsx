@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { BoNavbar } from '@/features/layout/BoNavbar';
@@ -14,6 +15,8 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const subscriptionPath = pathname?.split('/').slice(-2).join('/') || '';
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -60,6 +63,10 @@ export default function ProtectedLayout({
 
   if (!session || !userData || userData.role !== 'professional') {
     return null;
+  }
+
+  if (subscriptionPath === 'professional/subscription') {
+    return <div>{children}</div>;
   }
 
   return (

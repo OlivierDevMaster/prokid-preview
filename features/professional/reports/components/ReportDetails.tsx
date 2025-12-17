@@ -1,11 +1,15 @@
 'use client';
 
-import { ArrowLeft, FileText, Link, Paperclip, Send } from 'lucide-react';
+import { ArrowLeft, FileText, Paperclip, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useSendReport } from '@/features/reports/hooks/useSendReport';
+import { Link } from '@/i18n/routing';
 
 import { useGetReport } from '../hooks/useGetReport';
 
@@ -17,7 +21,24 @@ export function ReportDetails() {
 
   const { data: reportData, isLoading } = useGetReport(id as string);
   const report = reportData?.report;
-  const structure = reportData?.structure;
+  const { isPending: isSending, mutate: sendReport } = useSendReport();
+
+  const handleSendEmail = () => {
+    if (!report?.id) return;
+    sendReport(report.id, {
+      onError: error => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('emailSendError') || 'Failed to send email'
+        );
+      },
+      onSuccess: () => {
+        toast.success(t('emailSentSuccessfully') || 'Email sent successfully');
+        router.refresh();
+      },
+    });
+  };
 
   if (isLoading) {
     return <div>{tCommon('messages.loading')}</div>;
@@ -39,30 +60,54 @@ export function ReportDetails() {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
-          <Link href='/admin/report'>
+          <Link href='/professional/reports'>
             <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
           </Link>
-          <h1 className='text-3xl font-bold text-blue-600'>{t('details')}</h1>
+          <div className='flex items-center gap-3'>
+            <h1 className='text-3xl font-bold text-blue-600'>{t('details')}</h1>
+            {report?.status && (
+              <Badge
+                className={
+                  report.status === 'sent'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-yellow-500 text-white'
+                }
+                variant='default'
+              >
+                {report.status === 'sent'
+                  ? t('status.sent') || 'Sent'
+                  : t('status.draft') || 'Draft'}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className='flex gap-3'>
-          <Button
-            className='border-gray-300 text-gray-700 hover:bg-gray-50'
-            onClick={() => {
-              router.push(`/professional/reports/${id}/edit`);
-            }}
-            variant='outline'
-          >
-            <FileText className='mr-2 h-4 w-4' />
-            {tCommon('actions.edit')}
-          </Button>
-          <Button className='bg-blue-500 text-white hover:bg-blue-600'>
-            <Send className='mr-2 h-4 w-4' />
-            {t('sendEmail')}
-          </Button>
+          {report?.status !== 'sent' && (
+            <Button
+              className='border-gray-300 text-gray-700 hover:bg-gray-50'
+              onClick={() => {
+                router.push(`/professional/reports/${id}/edit`);
+              }}
+              variant='outline'
+            >
+              <FileText className='mr-2 h-4 w-4' />
+              {tCommon('actions.edit')}
+            </Button>
+          )}
+          {report?.status !== 'sent' && (
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
+              disabled={isSending}
+              onClick={handleSendEmail}
+            >
+              <Send className='mr-2 h-4 w-4' />
+              {isSending ? t('sending') || 'Sending...' : t('sendEmail')}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -75,10 +120,14 @@ export function ReportDetails() {
               <div className='rounded-lg border p-2'>{report?.title ?? ''}</div>
             </div>
 
-            {/* Recipient Structure */}
+            {/* Mission */}
             <div>
-              <h5 className='pb-2 font-bold'>{t('label.structure')}</h5>
-              <div className='rounded-lg border p-2'>{structure?.name}</div>
+              <h5 className='pb-2 font-bold'>
+                {t('label.mission') || 'Mission'}
+              </h5>
+              <div className='rounded-lg border p-2'>
+                {report?.mission?.title || 'N/A'}
+              </div>
             </div>
           </div>
 
