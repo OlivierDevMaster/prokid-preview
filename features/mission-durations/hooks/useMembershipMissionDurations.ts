@@ -5,7 +5,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 
 import { getMissionDurations } from '../services/missionDuration.service';
 
-export const useMissionDurations = (
+export const useMembershipMissionDurations = (
   professionalId: null | string,
   structureId: null | string
 ) => {
@@ -18,6 +18,6 @@ export const useMissionDurations = (
       }
       return getMissionDurations(professionalId, structureId);
     },
-    queryKey: ['mission-durations', professionalId, structureId],
+    queryKey: ['mission-durations', 'membership', professionalId, structureId],
   });
 };

@@ -9,7 +9,7 @@ import type { StructureMemberWithStructure } from '@/features/structure-members/
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useMissionDurations } from '@/features/mission-durations/hooks/useMissionDurations';
+import { useMembershipMissionDurations } from '@/features/mission-durations';
 import { useLastReport } from '@/features/professional/structures/hooks/useLastReport';
 
 interface StructureCardProps {
@@ -24,7 +24,7 @@ export function StructureCard({ structureMember }: StructureCardProps) {
   const t = useTranslations('professional.structure');
 
   const { data: missionDurations, isLoading: isLoadingDurations } =
-    useMissionDurations(professionalId, structureId);
+    useMembershipMissionDurations(professionalId, structureId);
   const { data: lastReport, isLoading: isLoadingLastReport } = useLastReport(
     professionalId,
     structureId
