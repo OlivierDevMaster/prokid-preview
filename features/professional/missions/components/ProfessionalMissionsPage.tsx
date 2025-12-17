@@ -1,16 +1,34 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
+import { MissionConfig } from '@/features/missions/mission.config';
+import { Pagination } from '@/features/paginations/components/Pagination';
 
 import { ProfessionalMissionCard } from './ProfessionalMissionCard';
 
 export function ProfessionalMissionsPage() {
   const t = useTranslations('professional.missions');
-  const { data: missionsData, isLoading } = useGetProfessionalMissions();
+
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(MissionConfig.PAGE_DEFAULT)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    'limit',
+    parseAsInteger.withDefault(MissionConfig.PAGE_SIZE_DEFAULT)
+  );
+
+  const { data: missionsData, isLoading } = useGetProfessionalMissions(
+    {},
+    { limit: pageSize, page }
+  );
 
   const missions = missionsData?.data ?? [];
+  const totalCount = missionsData?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleViewDetails = (id: string) => {
     console.log('View details for mission:', id);
@@ -46,6 +64,20 @@ export function ProfessionalMissionsPage() {
       ) : (
         <div className='py-12 text-center text-gray-500'>
           <p>{t('noMissions')}</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalCount > 0 && (
+        <div className='mt-8'>
+          <Pagination
+            currentPage={page}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            pageSize={pageSize}
+            totalItems={totalCount}
+            totalPages={totalPages}
+          />
         </div>
       )}
     </div>
