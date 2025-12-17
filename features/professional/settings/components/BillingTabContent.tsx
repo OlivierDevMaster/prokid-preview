@@ -1,9 +1,18 @@
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useSubscriptionStatus } from '@/features/subscriptions/hooks/useSubscriptionStatus';
 
 const BillingTabContent = () => {
   const t = useTranslations('admin');
+  const { data: subscriptionData } = useSubscriptionStatus();
+
+  useEffect(() => {
+    if (subscriptionData) {
+      console.info('Subscription Status:', subscriptionData);
+    }
+  }, [subscriptionData]);
 
   return (
     <div className='rounded-md border border-gray-200 p-4'>
