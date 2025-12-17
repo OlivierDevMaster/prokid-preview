@@ -360,7 +360,13 @@
     "structure": {
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu",
-      "viewDetails": "Voir les détails"
+      "viewDetails": "Voir les détails",
+      "loading": "Chargement...",
+      "noStructure": "Aucune structure trouvée",
+      "contact": "Contact",
+      "createdAt": "Créé le",
+      "close": "Fermer",
+      "noReport": "Aucun compte rendu"
     },
     "missions": {
       "title": "Mes missions",
