@@ -32,6 +32,23 @@ export async function proxy(request: NextRequest) {
   const locale = pathname.split('/')[1];
   const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
 
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/professionals', '/faq', '/auth'];
+
+  // Check if the current path is a public route
+  const isPublicRoute = publicRoutes.some(route => {
+    if (route === '/') {
+      return pathWithoutLocale === '/';
+    }
+    return pathWithoutLocale.startsWith(route);
+  });
+
+  // If it's a public route, skip role checking
+  if (isPublicRoute) {
+    const supabaseResponse = await updateSession(request);
+    return supabaseResponse;
+  }
+
   // Check if the path requires role-based access
   const requiredRole = Object.entries(roleRoutes).find(([route]) =>
     pathWithoutLocale.startsWith(route)

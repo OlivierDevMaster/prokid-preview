@@ -1,12 +1,16 @@
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { useSubscriptionStatus } from '@/features/subscriptions/hooks/useSubscriptionStatus';
 
 const BillingTabContent = () => {
   const t = useTranslations('admin');
+  const { data: subscriptionData } = useSubscriptionStatus();
+
+  console.info({ subscriptionData });
 
   return (
-    <div className='rounded-md border border-gray-200 p-4'>
+    <div>
       <h1 className='text-2xl font-bold text-gray-900'>
         {t('setting.billing')}
       </h1>

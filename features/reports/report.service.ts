@@ -217,3 +217,14 @@ export const sendReport = async (
     }
   );
 };
+
+export const deleteReport = async (reportId: string): Promise<void> => {
+  const supabase = createClient();
+
+  const { error } = await supabase.from('reports').delete().eq('id', reportId);
+
+  if (error) {
+    console.error('Error deleting report:', error);
+    throw error;
+  }
+};

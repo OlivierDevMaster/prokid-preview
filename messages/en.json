@@ -697,8 +697,15 @@
         "dataDescription": "Report data",
         "attachmentUploadedSuccessfully": "Attachment uploaded successfully",
         "attachmentUploadedError": "Error uploading attachment",
-        "attachmentDeletedSuccessfully": "Attachment deleted successfully"
-      }
+        "attachmentDeletedSuccessfully": "Attachment deleted successfully",
+        "errorDeletingReport": "Error deleting report",
+        "reportDeletedSuccessfully": "Report deleted successfully"
+      },
+      "deleteReport": "Delete Report",
+      "deleteReportDescription": "Are you sure you want to delete this report? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
     },
     "reports": {
       "title": "My Reports",

@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -48,6 +49,7 @@ type ReportFormProps = {
 export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const t = useTranslations('admin.report');
   const { form, isLoading, onSubmit } = useReportForm();
+  const router = useRouter();
   const { data: missionsData } = useGetMissions();
   const missions = missionsData?.data ?? [];
   const { isPending: isSending, mutate: sendReport } = useSendReport();
@@ -109,6 +111,8 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
 
   const handleFormSubmit = async () => {
     await onSubmit();
+    toast.success(t('messages.reportSavedSuccessfully'));
+    router.push('/professional/reports');
   };
 
   const handleSendReport = async () => {
