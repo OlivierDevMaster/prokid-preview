@@ -15,5 +15,9 @@ export default function ReportEditPage() {
     return <div>{tCommon('messages.notFound')}</div>;
   }
 
-  return <ReportForm isEdit={true} report={response.report} />;
+  return (
+    <div className='bg-blue-50/30 p-8'>
+      <ReportForm isEdit={true} report={response.report} />
+    </div>
+  );
 }

@@ -619,8 +619,18 @@
       "label": {
         "title": "Tiele",
         "structure": "Structure",
-        "content": "Description"
+        "content": "Description",
+        "mission": "Mission"
       },
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent"
+      },
+      "selectMission": "Mission",
+      "selectMissionPlaceholder": "Select a mission",
+      "emailSentSuccessfully": "Email sent successfully",
+      "emailSendError": "Failed to send email",
+      "sending": "Sending...",
       "messages": {
         "unauthenticated": "Unauthenticated user",
         "errorCreatingReport": "An error occurred while creating the report",
@@ -628,7 +638,10 @@
         "reportSavedSuccessfully": "Report saved successfully",
         "impossibleToCreateReport": "Impossible to create the report",
         "data": "Data",
-        "dataDescription": "Report data"
+        "dataDescription": "Report data",
+        "attachmentUploadedSuccessfully": "Attachment uploaded successfully",
+        "attachmentUploadedError": "Error uploading attachment",
+        "attachmentDeletedSuccessfully": "Attachment deleted successfully"
       }
     },
     "reports": {

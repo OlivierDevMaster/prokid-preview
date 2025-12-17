@@ -136,14 +136,6 @@ export function StructureDetails() {
                 </h2>
 
                 <div className='space-y-6'>
-                  {/* Structure ID */}
-                  <div>
-                    <h3 className='mb-2 text-sm font-semibold text-gray-700'>
-                      {t('structureId')}
-                    </h3>
-                    <p className='text-gray-800'>{structure.user_id}</p>
-                  </div>
-
                   {/* Created At */}
                   <div>
                     <h3 className='mb-2 text-sm font-semibold text-gray-700'>

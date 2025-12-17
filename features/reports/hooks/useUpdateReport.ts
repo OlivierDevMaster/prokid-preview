@@ -19,6 +19,8 @@ export const useUpdateReport = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
+      queryClient.invalidateQueries({ queryKey: ['get-report'] });
+      queryClient.invalidateQueries({ queryKey: ['report'] });
     },
   });
 };

@@ -235,7 +235,7 @@ export default function AvailabilitiesPage() {
   };
 
   return (
-    <div className='space-y-6 p-8'>
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold text-blue-900'>{t('title')}</h1>
@@ -319,169 +319,176 @@ export default function AvailabilitiesPage() {
       </div>
 
       {/* Weekly Navigation */}
-      <div className='flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
-        <Button
-          className='text-gray-600 hover:text-gray-800'
-          onClick={goToPreviousWeek}
-          size='sm'
-          variant='ghost'
-        >
-          <ChevronLeft className='mr-1 h-4 w-4' />
-          {t('previousWeek')}
-        </Button>
-        <h2 className='text-lg font-bold text-blue-900'>
-          {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
-        </h2>
-        <Button
-          className='text-gray-600 hover:text-gray-800'
-          onClick={goToNextWeek}
-          size='sm'
-          variant='ghost'
-        >
-          {t('nextWeek')}
-          <ChevronRight className='ml-1 h-4 w-4' />
-        </Button>
-      </div>
+      <div className='rounded-lg border border-gray-200 bg-white p-4'>
+        <div className='mb-4 flex items-center justify-between'>
+          <Button
+            className='text-gray-600 hover:text-gray-800'
+            onClick={goToPreviousWeek}
+            size='sm'
+            variant='ghost'
+          >
+            <ChevronLeft className='mr-1 h-4 w-4' />
+            {t('previousWeek')}
+          </Button>
+          <h2 className='text-lg font-bold text-blue-900'>
+            {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
+          </h2>
+          <Button
+            className='text-gray-600 hover:text-gray-800'
+            onClick={goToNextWeek}
+            size='sm'
+            variant='ghost'
+          >
+            {t('nextWeek')}
+            <ChevronRight className='ml-1 h-4 w-4' />
+          </Button>
+        </div>
 
-      {/* Calendar Grid */}
-      <div className='grid grid-cols-7 gap-3'>
-        {weekDays.map((day, index) => {
-          // Utiliser mounted pour éviter les différences d'hydratation
-          const isToday = mounted && isSameDay(day, new Date());
-          const dayName = dayNames[index];
-          const dayNumber = format(day, 'd');
-          const month = format(day, 'MMM', { locale: fr });
+        {/* Calendar Grid */}
+        <div className='grid grid-cols-7 gap-3'>
+          {weekDays.map((day, index) => {
+            // Utiliser mounted pour éviter les différences d'hydratation
+            const isToday = mounted && isSameDay(day, new Date());
+            const dayName = dayNames[index];
+            const dayNumber = format(day, 'd');
+            const month = format(day, 'MMM', { locale: fr });
 
-          return (
-            <Card
-              className={`min-h-[200px] rounded-lg border-2 bg-white shadow-sm ${
-                isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-              }`}
-              key={index}
-            >
-              <div className='p-4'>
-                <div className='mb-1 text-sm font-bold text-blue-900'>
-                  {dayName}
-                </div>
-                <div className='mb-4 text-sm text-blue-900'>
-                  {dayNumber} {month}
-                </div>
-                {/* Display availability slots for this day */}
-                <div className='space-y-2'>
-                  {isLoading ? (
-                    <div className='text-xs text-gray-500'>
-                      {tCommon('messages.loading')}
-                    </div>
-                  ) : (
-                    groupedSlots.getSlotsByDay(day).map((slot, slotIndex) => {
-                      const startTime = format(new Date(slot.startAt), 'HH:mm');
-                      const endTime = format(new Date(slot.endAt), 'HH:mm');
-                      const isBooked = !slot.isAvailable;
-                      const slotId = `${slot.startAt}-${slot.endAt}`;
-                      const isDeleting = deletingSlotId === slotId;
-                      const isStoppingRecurrence =
-                        stoppingRecurrenceId === slotId;
-                      const isPopoverOpen = openPopoverId === slotId;
+            return (
+              <Card
+                className={`min-h-[200px] rounded-lg border-2 bg-white shadow-sm ${
+                  isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                }`}
+                key={index}
+              >
+                <div className='p-4'>
+                  <div className='mb-1 text-sm font-bold text-blue-900'>
+                    {dayName}
+                  </div>
+                  <div className='mb-4 text-sm text-blue-900'>
+                    {dayNumber} {month}
+                  </div>
+                  {/* Display availability slots for this day */}
+                  <div className='space-y-2'>
+                    {isLoading ? (
+                      <div className='text-xs text-gray-500'>
+                        {tCommon('messages.loading')}
+                      </div>
+                    ) : (
+                      groupedSlots.getSlotsByDay(day).map((slot, slotIndex) => {
+                        const startTime = format(
+                          new Date(slot.startAt),
+                          'HH:mm'
+                        );
+                        const endTime = format(new Date(slot.endAt), 'HH:mm');
+                        const isBooked = !slot.isAvailable;
+                        const slotId = `${slot.startAt}-${slot.endAt}`;
+                        const isDeleting = deletingSlotId === slotId;
+                        const isStoppingRecurrence =
+                          stoppingRecurrenceId === slotId;
+                        const isPopoverOpen = openPopoverId === slotId;
 
-                      return (
-                        <Popover
-                          key={slotIndex}
-                          onOpenChange={open =>
-                            setOpenPopoverId(open ? slotId : null)
-                          }
-                          open={isPopoverOpen}
-                        >
-                          <PopoverTrigger asChild>
-                            <div
-                              className={`cursor-pointer rounded border p-2 text-xs transition-colors hover:opacity-80 ${
-                                isBooked
-                                  ? 'border-red-300 bg-red-50 text-red-700'
-                                  : 'border-green-300 bg-green-50 text-green-700'
-                              }`}
-                            >
-                              <div className='flex items-center justify-between gap-2'>
-                                <div className='flex-1'>
-                                  <div className='font-medium'>
-                                    {startTime} - {endTime}
-                                  </div>
-                                  {isBooked && slot.mission && (
-                                    <div className='mt-1 text-xs opacity-75'>
-                                      {t('booked')}
+                        return (
+                          <Popover
+                            key={slotIndex}
+                            onOpenChange={open =>
+                              setOpenPopoverId(open ? slotId : null)
+                            }
+                            open={isPopoverOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <div
+                                className={`cursor-pointer rounded border p-2 text-xs transition-colors hover:opacity-80 ${
+                                  isBooked
+                                    ? 'border-red-300 bg-red-50 text-red-700'
+                                    : 'border-green-300 bg-green-50 text-green-700'
+                                }`}
+                              >
+                                <div className='flex items-center justify-between gap-2'>
+                                  <div className='flex-1'>
+                                    <div className='font-medium'>
+                                      {startTime} - {endTime}
                                     </div>
-                                  )}
+                                    {isBooked && slot.mission && (
+                                      <div className='mt-1 text-xs opacity-75'>
+                                        {t('booked')}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </PopoverTrigger>
-                          <PopoverContent align='start' className='w-56 p-2'>
-                            <div className='space-y-1'>
-                              {!isBooked && (
-                                <>
-                                  <Button
-                                    className='w-full justify-start text-sm'
-                                    disabled={isStoppingRecurrence}
-                                    onClick={() =>
-                                      handleStopRecurrenceClick(slot)
-                                    }
-                                    size='sm'
-                                    variant='ghost'
-                                  >
-                                    {isStoppingRecurrence ? (
-                                      <>
-                                        <Clock className='mr-2 h-3 w-3 animate-spin' />
-                                        {tCommon('messages.saving')}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Repeat2 className='mr-2 h-3 w-3' />
-                                        {t('stopRecurrence')}
-                                      </>
-                                    )}
-                                  </Button>
-                                  <Button
-                                    className='w-full justify-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700'
-                                    disabled={isDeleting}
-                                    onClick={() => handleDeleteSlotClick(slot)}
-                                    size='sm'
-                                    variant='ghost'
-                                  >
-                                    {isDeleting ? (
-                                      <>
-                                        <Clock className='mr-2 h-3 w-3 animate-spin' />
-                                        {tCommon('messages.saving')}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Trash2 className='mr-2 h-3 w-3' />
-                                        {t('deleteSlot')}
-                                      </>
-                                    )}
-                                  </Button>
-                                </>
-                              )}
-                              {isBooked && (
-                                <div className='px-2 py-1 text-xs text-gray-500'>
-                                  {t('cannotDeleteBooked')}
-                                </div>
-                              )}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      );
-                    })
-                  )}
-                  {!isLoading &&
-                    isFetched &&
-                    groupedSlots.getSlotsByDay(day).length === 0 && (
-                      <div className='text-xs text-gray-400'>
-                        {t('noSlots')}
-                      </div>
+                            </PopoverTrigger>
+                            <PopoverContent align='start' className='w-56 p-2'>
+                              <div className='space-y-1'>
+                                {!isBooked && (
+                                  <>
+                                    <Button
+                                      className='w-full justify-start text-sm'
+                                      disabled={isStoppingRecurrence}
+                                      onClick={() =>
+                                        handleStopRecurrenceClick(slot)
+                                      }
+                                      size='sm'
+                                      variant='ghost'
+                                    >
+                                      {isStoppingRecurrence ? (
+                                        <>
+                                          <Clock className='mr-2 h-3 w-3 animate-spin' />
+                                          {tCommon('messages.saving')}
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Repeat2 className='mr-2 h-3 w-3' />
+                                          {t('stopRecurrence')}
+                                        </>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      className='w-full justify-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700'
+                                      disabled={isDeleting}
+                                      onClick={() =>
+                                        handleDeleteSlotClick(slot)
+                                      }
+                                      size='sm'
+                                      variant='ghost'
+                                    >
+                                      {isDeleting ? (
+                                        <>
+                                          <Clock className='mr-2 h-3 w-3 animate-spin' />
+                                          {tCommon('messages.saving')}
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Trash2 className='mr-2 h-3 w-3' />
+                                          {t('deleteSlot')}
+                                        </>
+                                      )}
+                                    </Button>
+                                  </>
+                                )}
+                                {isBooked && (
+                                  <div className='px-2 py-1 text-xs text-gray-500'>
+                                    {t('cannotDeleteBooked')}
+                                  </div>
+                                )}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        );
+                      })
                     )}
+                    {!isLoading &&
+                      isFetched &&
+                      groupedSlots.getSlotsByDay(day).length === 0 && (
+                        <div className='text-xs text-gray-400'>
+                          {t('noSlots')}
+                        </div>
+                      )}
+                  </div>
                 </div>
-              </div>
-            </Card>
-          );
-        })}
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {/* Edit Modal */}

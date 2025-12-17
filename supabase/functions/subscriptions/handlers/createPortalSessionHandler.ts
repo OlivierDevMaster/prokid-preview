@@ -66,4 +66,3 @@ export const createPortalSessionHandler = factory.createHandlers(
     }
   }
 );
-
