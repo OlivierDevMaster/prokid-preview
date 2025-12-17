@@ -6,7 +6,9 @@ import './multiple-availabilities.test.ts';
 import './different-patterns-overlap.test.ts';
 
 // Run all tests
-console.log('Running updateAvailabilitiesForMissions (Interval Approach) tests...\n');
+console.log(
+  'Running updateAvailabilitiesForMissions (Interval Approach) tests...\n'
+);
 
 for (const testCase of tests) {
   try {
@@ -29,4 +31,3 @@ console.log(
 if (stats.failed > 0) {
   process.exit(1);
 }
-

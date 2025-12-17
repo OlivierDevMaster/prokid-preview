@@ -16,12 +16,8 @@ export default function StructuresPage() {
     console.log('Add structure');
   };
 
-  const handleViewDetails = (id: string) => {
-    console.log('View details for structure:', id);
-  };
-
   return (
-    <div className='-m-8 min-h-screen space-y-6 bg-blue-50/30 p-8'>
+    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-start justify-between'>
         <div>
@@ -44,11 +40,7 @@ export default function StructuresPage() {
       {/* Structures Grid */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         {(structures ?? []).map(structure => (
-          <StructureCard
-            key={structure.user_id}
-            onViewDetails={handleViewDetails}
-            structure={structure}
-          />
+          <StructureCard key={structure.user_id} structure={structure} />
         ))}
       </div>
 

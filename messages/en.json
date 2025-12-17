@@ -72,10 +72,11 @@
       "emailPlaceholder": "your@email.com",
       "passwordLabel": "Password",
       "forgotPassword": "Forgot password?",
-      "submitButton": "Log in (Demo)",
+      "submitButton": "Log in",
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
-      "error": "Invalid email or password"
+      "error": "Invalid email or password",
+      "home": "🏠 Home"
     },
     "signUp": {
       "welcome": "Welcome to",
@@ -138,7 +139,9 @@
         "copyMondaySchedule": "Copy the hours of Monday to all days",
         "addSlot": "Add a slot",
         "recurring": "Recurring",
-        "nonWorking": "Non working"
+        "nonWorking": "Non working",
+        "errorSlotOverlap": "This slot overlaps with another slot",
+        "errorSlotInvalidTime": "Start time must be before end time"
       },
       "structureForm": {
         "title": "Create my structure account",
@@ -189,6 +192,10 @@
     "newsletterDescription": "Stay informed about early childhood news",
     "emailPlaceholder": "Your email address",
     "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "subscriptionSuccess": "Successfully subscribed!",
+    "subscriptionError": "An error occurred. Please try again.",
+    "emailAlreadySubscribed": "This email is already subscribed to the newsletter",
     "copyright": "© ProKid 2025 — All rights reserved"
   },
   "faq": {
@@ -295,6 +302,19 @@
         "bookingInstructions": "Click on an available slot to select the reason for consultation and confirm your appointment. You can also send a message for a personalized request."
       }
     },
+    "structures": {
+      "details": {
+        "loading": "Loading structure...",
+        "notFound": "Structure not found",
+        "backToList": "Back to list",
+        "sendMessage": "Send a message",
+        "additionalInformation": "Additional Information",
+        "structureId": "Structure ID",
+        "stripeCustomerId": "Stripe Customer ID",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At"
+      }
+    },
     "roles": {
       "all": "All roles",
       "rsai": "RSAI",
@@ -319,6 +339,87 @@
       "childhood_education_and_care_assistant_certificate": "Childhood education and care assistant certificate",
       "childcare_auxiliary_nurse": "Childcare auxiliary nurse",
       "other_early_childhood_profession": "Other early childhood profession"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of your professional activity",
+      "notAuthenticated": "Please sign in to view your dashboard",
+      "totalStructures": "Total Structures",
+      "totalMissions": "Total Missions",
+      "totalReports": "Total Reports"
+    }
+  },
+  "structure": {
+    "navigation": {
+      "missions": "Missions",
+      "professionals": "Professionals",
+      "dashboard": "Dashboard"
+    },
+    "missions": {
+      "title": "My missions",
+      "description": "Manage your interventions and follow-ups for each establishment.",
+      "addMission": "Add a mission",
+      "noMissions": "No missions found.",
+      "loading": "Loading...",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report",
+      "noReport": "No report",
+      "period": "Period",
+      "viewDetails": "View details",
+      "unknownProfessional": "Unknown professional"
+    },
+    "professionals": {
+      "title": "My professionals",
+      "description": "View and manage all your professionals.",
+      "loading": "Loading...",
+      "noProfessionals": "No professionals found.",
+      "viewProfile": "View profile",
+      "details": {
+        "loading": "Loading...",
+        "notFound": "Professional not found",
+        "backToList": "Back to list",
+        "certified": "Certified",
+        "available": "Available",
+        "reviews": "reviews",
+        "skills": "Skills",
+        "yearsExperience": "years of experience",
+        "hour": "hour",
+        "contact": "Contact",
+        "about": "About",
+        "additionalInfo": "Additional Information",
+        "verifiedAt": "Verified at",
+        "memberSince": "Member since"
+      }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of your structure activity",
+      "notAuthenticated": "Please sign in to view your dashboard",
+      "totalProfessionals": "Total Professionals",
+      "totalMissions": "Total Missions",
+      "totalInvitations": "Total Invitations"
+    },
+    "invitations": {
+      "title": "Invite a Professional",
+      "description": "Search for and invite a professional to join your structure.",
+      "back": "Back",
+      "cancel": "Cancel",
+      "sendInvitation": "Send Invitation",
+      "sending": "Sending...",
+      "search": {
+        "label": "Search for a professional",
+        "placeholder": "Search by name, email, or description...",
+        "startSearching": "Start typing to search for professionals",
+        "noResults": "No professionals found matching your search.",
+        "results": "Found {count} professional(s)"
+      },
+      "success": {
+        "invitationSent": "Invitation sent successfully!"
+      },
+      "errors": {
+        "selectProfessional": "Please select a professional to invite",
+        "failedToSend": "Failed to send invitation. Please try again."
+      }
     }
   },
   "admin": {
@@ -336,7 +437,10 @@
       "subtitle": "Overview of your data.",
       "totalAcheteurs": "Total Buyers",
       "correspondancesPotentielles": "Potential Matches",
-      "totalAffaires": "Total Business"
+      "totalAffaires": "Total Business",
+      "totalProfessionals": "Total Professionals",
+      "totalStructures": "Total Structures",
+      "totalMissions": "Total Missions"
     },
     "users": {
       "title": "Users",
@@ -590,7 +694,51 @@
       "users": "Users",
       "professionals": "Professionals",
       "structures": "Structures",
-      "availabilities": "Availabilities"
+      "availabilities": "Availabilities",
+      "dashboard": "Dashboard"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "{total} notification(s), {unread} unread",
+      "loading": "Loading...",
+      "noNotifications": "No notifications",
+      "notFound": "Notification not found",
+      "back": "Back",
+      "unread": "Unread",
+      "read": "Read",
+      "from": "From",
+      "description": "Description",
+      "readAt": "Read at",
+      "accept": "Accept",
+      "decline": "Decline",
+      "filter": "Filter",
+      "filterAll": "All",
+      "filterUnread": "Unread",
+      "filterRead": "Read",
+      "unreadCount": "{count} unread notification(s)",
+      "viewAll": "View all notifications"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} unread notification(s)",
+    "viewAll": "View all notifications",
+    "unread": "Unread",
+    "read": "Read",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "filterRead": "Read",
+    "loading": "Loading...",
+    "description": "Description",
+    "from": "From",
+    "readAt": "Read at",
+    "back": "Back",
+    "accept": "Accept",
+    "decline": "Decline",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "cancelled": "Cancelled",
+    "pending": "Pending",
+    "subtitle": "{total} notification(s), {unread} unread"
   }
 }

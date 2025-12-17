@@ -138,7 +138,7 @@ export default function ProfessionalSignUpForm2() {
   if (isLoadingUser) {
     return (
       <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
-        <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
+        <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
           <div className='text-center'>Loading...</div>
         </Card>
       </div>
@@ -148,7 +148,7 @@ export default function ProfessionalSignUpForm2() {
   if (!userId) {
     return (
       <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
-        <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
+        <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
           <div className='text-center text-red-600'>
             User not found. Please sign in again.
           </div>
@@ -159,7 +159,7 @@ export default function ProfessionalSignUpForm2() {
 
   return (
     <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
-      <Card className='w-full rounded-lg bg-white p-8 shadow-lg'>
+      <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
         {currentStep === 1 && (
           <Step1ProfilePhoto
             onNext={handleNext}

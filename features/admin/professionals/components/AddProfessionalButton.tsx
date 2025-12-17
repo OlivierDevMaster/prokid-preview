@@ -74,19 +74,6 @@ export function AddProfessionalButton() {
         <form onSubmit={handleSubmit}>
           <div className='grid gap-4 py-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='user_id'>{t('userId')}</Label>
-              <Input
-                id='user_id'
-                onChange={e =>
-                  setFormData({ ...formData, user_id: e.target.value })
-                }
-                placeholder={t('userIdPlaceholder')}
-                required
-                type='text'
-                value={formData.user_id || ''}
-              />
-            </div>
-            <div className='grid gap-2'>
               <Label htmlFor='description'>{t('description')}</Label>
               <Textarea
                 id='description'
@@ -128,7 +115,11 @@ export function AddProfessionalButton() {
             >
               {t('cancel')}
             </Button>
-            <Button disabled={createProfessional.isPending} type='submit'>
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-400'
+              disabled={createProfessional.isPending}
+              type='submit'
+            >
               {createProfessional.isPending ? t('creating') : t('create')}
             </Button>
           </DialogFooter>

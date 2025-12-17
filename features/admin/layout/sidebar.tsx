@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Calendar,
-  ChevronDown,
-  ClipboardMinus,
-  LayoutDashboard,
-  Users,
-} from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -20,22 +14,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import useGetAdminNavItems from '@/features/admin/hooks/useGetAdminNavItems';
+import ProkidLogo from '@/features/layout/ProkidLogo';
 import { usePathname } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
-// Mapping des icônes
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  dashboard: LayoutDashboard,
-  planning: Calendar,
-  report: ClipboardMinus,
-  structure: Users,
-  users: Users,
-};
-
 export function AdminSidebar() {
   const t = useTranslations('admin');
-  const title = useTranslations('title');
   const pathname = usePathname();
   const { data: session } = useSession();
   const router = useRouter();
@@ -65,9 +50,7 @@ export function AdminSidebar() {
       {/* Logo Section */}
       <div className='border-b border-gray-200 p-6'>
         <Link href='/'>
-          <h1 className='text-xl font-bold text-gray-900'>
-            {title('project')}
-          </h1>
+          <ProkidLogo />
         </Link>
       </div>
 
@@ -75,7 +58,7 @@ export function AdminSidebar() {
       <nav className='flex-1 space-y-1 p-4' suppressHydrationWarning>
         {mounted &&
           navItems.map(item => {
-            const Icon = iconMap[item.icon] || LayoutDashboard;
+            const Icon = item.icon;
             const active = isActive(item.href);
             return (
               <Link

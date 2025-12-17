@@ -39,7 +39,7 @@ export function Navigation() {
     } else if (isProfessional) {
       router.push('/professional/availabilities');
     } else if (isStructure) {
-      router.push('/structure/dashboard');
+      router.push('/structure/missions');
     }
   };
 
@@ -79,7 +79,7 @@ export function Navigation() {
                   {session.user?.email}
                 </span>
                 <Button
-                  className='bg-blue-500 text-white'
+                  className='bg-blue-500 text-white hover:bg-blue-600'
                   onClick={handleDashboard}
                   size='sm'
                 >

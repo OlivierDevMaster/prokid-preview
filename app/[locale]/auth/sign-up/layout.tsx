@@ -30,7 +30,7 @@ export default function SingUpLayout({
                 <div className='space-y-4 text-center'>
                   <h1 className='text-4xl font-bold text-gray-800 md:text-5xl'>
                     {t('welcome')} <span className='text-blue-400'>PRO</span>
-                    <span className='text-green-400'>Kid</span> 👋
+                    <span className='text-green-400'>Kid</span>
                   </h1>
                   <p className='text-lg text-gray-700'>{t('question')}</p>
                 </div>

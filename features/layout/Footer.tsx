@@ -9,14 +9,58 @@ import {
   Twitter,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useCreateNewsletterSubscription } from '@/features/newsletter-subscriptions/hooks/useCreateNewsletterSubscription';
 import { Link } from '@/i18n/routing';
 
 export function Footer() {
   const t = useTranslations('footer');
   const title = useTranslations('title');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    'error' | 'idle' | 'success'
+  >('idle');
+  const [errorMessage, setErrorMessage] = useState<null | string>(null);
+
+  const { mutate: createSubscription } = useCreateNewsletterSubscription();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage(null);
+
+    createSubscription(
+      { email },
+      {
+        onError: (error: { code?: string } & Error) => {
+          setSubmitStatus('error');
+          if (error.code === 'EMAIL_ALREADY_SUBSCRIBED') {
+            setErrorMessage(
+              t('emailAlreadySubscribed') ||
+                'This email is already subscribed to the newsletter'
+            );
+          } else {
+            setErrorMessage(
+              error.message ||
+                t('subscriptionError') ||
+                'An error occurred. Please try again.'
+            );
+          }
+          setIsSubmitting(false);
+        },
+        onSuccess: () => {
+          setSubmitStatus('success');
+          setEmail('');
+          setIsSubmitting(false);
+        },
+      }
+    );
+  };
 
   return (
     <footer className='bg-slate-800 text-white'>
@@ -179,18 +223,35 @@ export function Footer() {
               <p className='mb-4 text-sm text-slate-300'>
                 {t('newsletterDescription')}
               </p>
-              <form className='flex gap-2'>
-                <Input
-                  className='border-slate-600 bg-slate-700 text-white placeholder:text-slate-400'
-                  placeholder={t('emailPlaceholder')}
-                  type='email'
-                />
-                <Button
-                  className='bg-green-500 text-white hover:bg-green-600'
-                  type='submit'
-                >
-                  {t('subscribe')}
-                </Button>
+              <form className='flex flex-col gap-2' onSubmit={handleSubmit}>
+                <div className='flex gap-2'>
+                  <Input
+                    className='border-slate-600 bg-slate-700 text-white placeholder:text-slate-400'
+                    disabled={isSubmitting}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder={t('emailPlaceholder')}
+                    required
+                    type='email'
+                    value={email}
+                  />
+                  <Button
+                    className='bg-green-500 text-white hover:bg-green-600 disabled:opacity-50'
+                    disabled={isSubmitting || !email}
+                    type='submit'
+                  >
+                    {isSubmitting
+                      ? t('subscribing') || 'Subscribing...'
+                      : t('subscribe')}
+                  </Button>
+                </div>
+                {submitStatus === 'success' && (
+                  <p className='text-sm text-green-400'>
+                    {t('subscriptionSuccess') || 'Successfully subscribed!'}
+                  </p>
+                )}
+                {submitStatus === 'error' && errorMessage && (
+                  <p className='text-sm text-red-400'>{errorMessage}</p>
+                )}
               </form>
             </div>
           </div>

@@ -83,7 +83,8 @@
       "submitButton": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
-      "error": "Email ou mot de passe invalide"
+      "error": "Email ou mot de passe invalide",
+      "home": "🏠 Accueil"
     },
     "signUp": {
       "welcome": "Bienvenue sur",
@@ -147,7 +148,9 @@
         "copyMondaySchedule": "Copier les horaires du lundi à tous les jours",
         "addSlot": "Ajouter un créneau",
         "recurring": "Récurrent",
-        "nonWorking": "Non travaillé"
+        "nonWorking": "Non travaillé",
+        "errorSlotOverlap": "Ce créneau chevauche un autre créneau",
+        "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin"
       },
       "structureForm": {
         "title": "Créer mon compte structure",
@@ -198,6 +201,10 @@
     "newsletterDescription": "Restez informé des actualités de la petite enfance",
     "emailPlaceholder": "Votre adresse e-mail",
     "subscribe": "S'abonner",
+    "subscribing": "Abonnement en cours...",
+    "subscriptionSuccess": "Abonnement réussi !",
+    "subscriptionError": "Une erreur est survenue. Veuillez réessayer.",
+    "emailAlreadySubscribed": "Cette adresse e-mail est déjà abonnée à la newsletter",
     "copyright": "© ProKid 2025 — Tous droits réservés"
   },
   "faq": {
@@ -304,6 +311,19 @@
         "bookingInstructions": "Cliquez sur un créneau disponible pour sélectionner le motif de consultation et confirmer votre rendez-vous. Vous pouvez aussi envoyer un message pour une demande personnalisée."
       }
     },
+    "structures": {
+      "details": {
+        "loading": "Chargement de la structure...",
+        "notFound": "Structure non trouvée",
+        "backToList": "Retour à la liste",
+        "sendMessage": "Envoyer un message",
+        "additionalInformation": "Informations supplémentaires",
+        "structureId": "ID de la structure",
+        "stripeCustomerId": "ID client Stripe",
+        "createdAt": "Date de création",
+        "updatedAt": "Date de mise à jour"
+      }
+    },
     "roles": {
       "all": "Tous les rôles",
       "rsai": "RSAI",
@@ -328,6 +348,87 @@
       "childhood_education_and_care_assistant_certificate": "CAP accompagnant éducatif petite enfance",
       "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
       "other_early_childhood_profession": "Autre profession de la petite enfance"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de votre activité professionnelle",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales",
+      "totalReports": "Comptes Rendus Totaux"
+    }
+  },
+  "structure": {
+    "navigation": {
+      "missions": "Missions",
+      "professionals": "Professionnels",
+      "dashboard": "Tableau de bord"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Gérez vos interventions et suivis pour chaque établissement.",
+      "addMission": "Ajouter une mission",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "unknownProfessional": "Professionnel inconnu"
+    },
+    "professionals": {
+      "title": "Mes professionnels",
+      "description": "Consultez et gérez tous vos professionnels.",
+      "loading": "Chargement...",
+      "noProfessionals": "Aucun professionnel trouvé.",
+      "viewProfile": "Voir le profil",
+      "details": {
+        "loading": "Chargement...",
+        "notFound": "Professionnel non trouvé",
+        "backToList": "Retour à la liste",
+        "certified": "Certifié",
+        "available": "Disponible",
+        "reviews": "avis",
+        "skills": "Compétences",
+        "yearsExperience": "années d'expérience",
+        "hour": "heure",
+        "contact": "Contact",
+        "about": "À propos",
+        "additionalInfo": "Informations supplémentaires",
+        "verifiedAt": "Vérifié le",
+        "memberSince": "Membre depuis"
+      }
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de l'activité de votre structure",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalMissions": "Missions Totales",
+      "totalInvitations": "Invitations Totales"
+    },
+    "invitations": {
+      "title": "Inviter un Professionnel",
+      "description": "Recherchez et invitez un professionnel à rejoindre votre structure.",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "sendInvitation": "Envoyer l'invitation",
+      "sending": "Envoi en cours...",
+      "search": {
+        "label": "Rechercher un professionnel",
+        "placeholder": "Rechercher par nom, email ou description...",
+        "startSearching": "Commencez à taper pour rechercher des professionnels",
+        "noResults": "Aucun professionnel trouvé correspondant à votre recherche.",
+        "results": "{count} professionnel(s) trouvé(s)"
+      },
+      "success": {
+        "invitationSent": "Invitation envoyée avec succès !"
+      },
+      "errors": {
+        "selectProfessional": "Veuillez sélectionner un professionnel à inviter",
+        "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
+      }
     }
   },
   "admin": {
@@ -345,7 +446,10 @@
       "users": "Utilisateurs",
       "totalAcheteurs": "Acheteurs Totaux",
       "correspondancesPotentielles": "Correspondances Potentielles",
-      "totalAffaires": "Affaires Totales"
+      "totalAffaires": "Affaires Totales",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales"
     },
     "users": {
       "title": "Utilisateurs",
@@ -599,7 +703,51 @@
       "users": "Utilisateurs",
       "professionals": "Professionnels",
       "structures": "Structures",
-      "availabilities": "Disponibilités"
+      "availabilities": "Disponibilités",
+      "dashboard": "Tableau de bord"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "{total} notification(s), {unread} non lue(s)",
+      "loading": "Chargement...",
+      "noNotifications": "Aucune notification",
+      "notFound": "Notification non trouvée",
+      "back": "Retour",
+      "unread": "Non lue",
+      "read": "Lue",
+      "from": "De",
+      "description": "Description",
+      "readAt": "Lue le",
+      "accept": "Accepter",
+      "decline": "Décliner",
+      "filter": "Filtrer",
+      "filterAll": "Toutes",
+      "filterUnread": "Non lues",
+      "filterRead": "Lues",
+      "unreadCount": "{count} notification(s) non lue(s)",
+      "viewAll": "Voir toutes les notifications"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} notification(s) non lue(s)",
+    "viewAll": "Toutes les notifications",
+    "unread": "Non lue(s)",
+    "read": "Lue(s)",
+    "filterAll": "Toutes",
+    "filterUnread": "Non lues",
+    "filterRead": "Lues",
+    "loading": "Chargement...",
+    "description": "Description",
+    "from": "De",
+    "readAt": "Lue le",
+    "back": "Retour",
+    "accept": "Accepter",
+    "decline": "Décliner",
+    "accepted": "Accepté",
+    "declined": "Décliné",
+    "cancelled": "Annulé",
+    "pending": "En attente",
+    "subtitle": "{total} notification(s), {unread} non lue(s)"
   }
 }
