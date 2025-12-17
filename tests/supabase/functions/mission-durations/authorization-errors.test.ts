@@ -58,9 +58,10 @@ describe('Mission durations authorization errors', () => {
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
     // Create another professional user
+    const otherProfessionalEmail = `other-professional-${Date.now()}@test.com`;
     const { data: otherProfessional } =
       await fixture.adminClient.auth.admin.createUser({
-        email: `other-professional-${Date.now()}@test.com`,
+        email: otherProfessionalEmail,
         email_confirm: true,
         password: 'test-password',
       });
@@ -70,7 +71,7 @@ describe('Mission durations authorization errors', () => {
     const { data: otherProfessionalProfile } = await fixture.adminClient
       .from('profiles')
       .insert({
-        email: `other-professional-${Date.now()}@test.com`,
+        email: otherProfessionalEmail,
         role: 'professional',
         user_id: otherProfessional.user.id,
       })
@@ -79,9 +80,10 @@ describe('Mission durations authorization errors', () => {
 
     assertExists(otherProfessionalProfile);
 
+    // Sign in with the same email used for creation
     const { data: otherProfessionalSession } =
       await fixture.adminClient.auth.signInWithPassword({
-        email: `other-professional-${Date.now() - 1}@test.com`,
+        email: otherProfessionalEmail,
         password: 'test-password',
       });
 
@@ -116,9 +118,10 @@ describe('Mission durations authorization errors', () => {
     fixture = await fixtureBuilder.createStructureWithProfessionalMember();
 
     // Create another structure
+    const otherStructureEmail = `other-structure-${Date.now()}@test.com`;
     const { data: otherStructure } =
       await fixture.adminClient.auth.admin.createUser({
-        email: `other-structure-${Date.now()}@test.com`,
+        email: otherStructureEmail,
         email_confirm: true,
         password: 'test-password',
       });
@@ -126,7 +129,7 @@ describe('Mission durations authorization errors', () => {
     assertExists(otherStructure.user);
 
     await fixture.adminClient.from('profiles').insert({
-      email: `other-structure-${Date.now()}@test.com`,
+      email: otherStructureEmail,
       role: 'structure',
       user_id: otherStructure.user.id,
     });
