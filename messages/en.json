@@ -363,7 +363,10 @@
       "noReport": "No report",
       "period": "Period",
       "viewDetails": "View details",
-      "unknownStructure": "Unknown structure"
+      "unknownStructure": "Unknown structure",
+      "structure": "Structure Information",
+      "close": "Close",
+      "descriptionLabel": "Description"
     }
   },
   "structure": {

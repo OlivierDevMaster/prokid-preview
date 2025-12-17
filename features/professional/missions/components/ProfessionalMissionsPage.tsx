@@ -2,12 +2,15 @@
 
 import { useTranslations } from 'next-intl';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { useState } from 'react';
 
 import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
 import { MissionConfig } from '@/features/missions/mission.config';
 import { Pagination } from '@/features/paginations/components/Pagination';
 
+import { useGetProfessionalMission } from '../hooks/useGetProfessionalMission';
 import { ProfessionalMissionCard } from './ProfessionalMissionCard';
+import { ProfessionalMissionDetailsDialog } from './ProfessionalMissionDetailsDialog';
 
 export function ProfessionalMissionsPage() {
   const t = useTranslations('professional.missions');
@@ -20,18 +23,31 @@ export function ProfessionalMissionsPage() {
     'limit',
     parseAsInteger.withDefault(MissionConfig.PAGE_SIZE_DEFAULT)
   );
+  const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: missionsData, isLoading } = useGetProfessionalMissions(
     {},
     { limit: pageSize, page }
   );
 
+  const { data: selectedMission, isLoading: isLoadingMission } =
+    useGetProfessionalMission(selectedMissionId);
+
   const missions = missionsData?.data ?? [];
   const totalCount = missionsData?.count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleViewDetails = (id: string) => {
-    console.log('View details for mission:', id);
+    setSelectedMissionId(id);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedMissionId(null);
   };
 
   if (isLoading) {
@@ -80,6 +96,14 @@ export function ProfessionalMissionsPage() {
           />
         </div>
       )}
+
+      {/* Mission Details Dialog */}
+      <ProfessionalMissionDetailsDialog
+        isLoading={isLoadingMission}
+        mission={selectedMission ?? null}
+        onClose={handleCloseDialog}
+        open={isDialogOpen}
+      />
     </div>
   );
 }

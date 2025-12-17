@@ -372,7 +372,10 @@
       "noReport": "Aucun compte rendu",
       "period": "Période",
       "viewDetails": "Voir les détails",
-      "unknownStructure": "Structure inconnue"
+      "unknownStructure": "Structure inconnue",
+      "structure": "Informations sur la structure",
+      "close": "Fermer",
+      "descriptionLabel": "Description"
     }
   },
   "structure": {
