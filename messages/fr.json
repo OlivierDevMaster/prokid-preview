@@ -356,6 +356,10 @@
       "totalStructures": "Structures Totales",
       "totalMissions": "Missions Totales",
       "totalReports": "Comptes Rendus Totaux"
+    },
+    "structure": {
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu"
     }
   },
   "structure": {
@@ -694,7 +698,9 @@
       "title": "Mes structures",
       "description": "Gérez vos interventions et suivis pour chaque établissement",
       "addStructure": "Ajouter une structure",
-      "noStructures": "Aucune structure pour le moment."
+      "noStructures": "Aucune structure pour le moment.",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu"
     },
     "navigation": {
       "planning": "Mon Planning",

@@ -347,6 +347,10 @@
       "totalStructures": "Total Structures",
       "totalMissions": "Total Missions",
       "totalReports": "Total Reports"
+    },
+    "structure": {
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report"
     }
   },
   "structure": {
@@ -652,7 +656,9 @@
       "title": "My structures",
       "description": "Manage your interventions and follow-ups for each establishment",
       "addStructure": "Add a structure",
-      "noStructures": "No structure found."
+      "noStructures": "No structure found.",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report"
     },
     "setting": {
       "activate": "Activate now",
