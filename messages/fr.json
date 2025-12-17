@@ -381,7 +381,9 @@
       "unknownStructure": "Structure inconnue",
       "structure": "Informations sur la structure",
       "close": "Fermer",
-      "descriptionLabel": "Description"
+      "descriptionLabel": "Description",
+      "filterByStructure": "Filtrer par structure",
+      "allStructures": "Toutes les structures"
     }
   },
   "structure": {

@@ -1,12 +1,21 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
 import { MissionConfig } from '@/features/missions/mission.config';
 import { Pagination } from '@/features/paginations/components/Pagination';
+import { useStructuresForProfessional } from '@/features/structure-members/hooks/useStructuresForProfessional';
 
 import { useGetProfessionalMission } from '../hooks/useGetProfessionalMission';
 import { ProfessionalMissionCard } from './ProfessionalMissionCard';
@@ -14,6 +23,8 @@ import { ProfessionalMissionDetailsDialog } from './ProfessionalMissionDetailsDi
 
 export function ProfessionalMissionsPage() {
   const t = useTranslations('professional.missions');
+  const { data: session } = useSession();
+  const professionalId = session?.user?.id ?? '';
 
   const [page, setPage] = useQueryState(
     'page',
@@ -23,13 +34,29 @@ export function ProfessionalMissionsPage() {
     'limit',
     parseAsInteger.withDefault(MissionConfig.PAGE_SIZE_DEFAULT)
   );
+  const [structureId, setStructureId] = useQueryState(
+    'structure',
+    parseAsString.withDefault('all')
+  );
   const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: missionsData, isLoading } = useGetProfessionalMissions(
+  const { data: structuresData } = useStructuresForProfessional(
+    professionalId,
     {},
+    { limit: 1000, page: 1 }
+  );
+
+  const structures = structuresData?.data ?? [];
+
+  const { data: missionsData, isLoading } = useGetProfessionalMissions(
+    {
+      ...(structureId && structureId !== 'all'
+        ? { structure_id: structureId }
+        : {}),
+    },
     { limit: pageSize, page }
   );
 
@@ -50,6 +77,11 @@ export function ProfessionalMissionsPage() {
     setSelectedMissionId(null);
   };
 
+  const handleStructureChange = (value: string) => {
+    setStructureId(value);
+    setPage(MissionConfig.PAGE_DEFAULT);
+  };
+
   if (isLoading) {
     return (
       <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
@@ -64,6 +96,30 @@ export function ProfessionalMissionsPage() {
       <div className='mb-6'>
         <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
         <p className='mt-2 text-gray-600'>{t('description')}</p>
+      </div>
+
+      {/* Filters */}
+      <div className='mb-6 flex gap-4'>
+        <Select onValueChange={handleStructureChange} value={structureId}>
+          <SelectTrigger className='w-[250px]'>
+            <SelectValue placeholder={t('filterByStructure')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value='all'>{t('allStructures')}</SelectItem>
+            {structures.map(structureMember => {
+              const structure = structureMember.structure;
+              const structureName =
+                structure.name ||
+                structure.profile?.email ||
+                t('unknownStructure');
+              return (
+                <SelectItem key={structure.user_id} value={structure.user_id}>
+                  {structureName}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Missions Grid */}

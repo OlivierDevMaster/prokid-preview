@@ -372,7 +372,9 @@
       "unknownStructure": "Unknown structure",
       "structure": "Structure Information",
       "close": "Close",
-      "descriptionLabel": "Description"
+      "descriptionLabel": "Description",
+      "filterByStructure": "Filter by structure",
+      "allStructures": "All structures"
     }
   },
   "structure": {
