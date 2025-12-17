@@ -11,7 +11,7 @@ export default function DashboardPage() {
   const { missionsCount, professionalsCount } = useGetDashboardStats();
 
   return (
-    <div className='h-full space-y-8 bg-blue-50/30 p-8'>
+    <div className='min-h-screen space-y-8 bg-blue-50/30 p-8'>
       {/* Header */}
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>

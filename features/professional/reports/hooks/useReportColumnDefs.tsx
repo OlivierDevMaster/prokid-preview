@@ -2,13 +2,24 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { ArrowUpDown, Edit, Eye, Send, Trash } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import type { Report } from '@/services/admin/reports/report.types';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import TableActions from '@/features/admin/components/TableActions';
 import { TableActionType } from '@/features/admin/models/table.modele';
+import { useDeleteReport } from '@/features/reports/hooks/useDeleteReport';
 
 type UseReportColumnDefsProps = {
   locale?: string;
@@ -31,6 +42,9 @@ export default function useReportColumnDefs({
 }: UseReportColumnDefsProps) {
   const dateLocale = locale === 'fr' ? fr : enUS;
   const router = useRouter();
+  const t = useTranslations('admin.report');
+  const { isPending: isDeleting, mutate: deleteReport } = useDeleteReport();
+  const [reportToDelete, setReportToDelete] = useState<null | string>(null);
 
   const columns: ColumnDef<Report>[] = [
     {
@@ -111,6 +125,14 @@ export default function useReportColumnDefs({
         // Only allow edit/delete if status is draft
         if (status === 'draft') {
           actions.push({
+            icon: <Send className='h-4 w-4' />,
+            label: 'Send',
+            onClick: () => {
+              router.push(`/professional/reports/${row.original.id}`);
+            },
+          });
+
+          actions.push({
             icon: <Edit className='h-4 w-4' />,
             label: 'Edit',
             onClick: () => {
@@ -122,18 +144,7 @@ export default function useReportColumnDefs({
             icon: <Trash className='h-4 w-4' />,
             label: 'Delete',
             onClick: () => {
-              router.push(`/professional/reports/${row.original.id}/delete`);
-            },
-          });
-        }
-
-        // Only allow send if status is draft
-        if (status === 'draft') {
-          actions.push({
-            icon: <Send className='h-4 w-4' />,
-            label: 'Send',
-            onClick: () => {
-              router.push(`/professional/reports/${row.original.id}`);
+              setReportToDelete(row.original.id);
             },
           });
         }
@@ -145,5 +156,56 @@ export default function useReportColumnDefs({
     },
   ];
 
-  return columns;
+  const handleDeleteConfirm = () => {
+    if (reportToDelete) {
+      deleteReport(reportToDelete);
+      setReportToDelete(null);
+    }
+  };
+
+  const DeleteDialog = (
+    <Dialog
+      onOpenChange={open => {
+        if (!open) {
+          setReportToDelete(null);
+        }
+      }}
+      open={!!reportToDelete}
+    >
+      <DialogContent className='sm:max-w-[425px]'>
+        <DialogHeader>
+          <DialogTitle>{t('deleteReport') || 'Delete Report'}</DialogTitle>
+          <DialogDescription>
+            {t('deleteReportDescription') ||
+              'Are you sure you want to delete this report? This action cannot be undone.'}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            disabled={isDeleting}
+            onClick={() => setReportToDelete(null)}
+            type='button'
+            variant='outline'
+          >
+            {t('cancel') || 'Cancel'}
+          </Button>
+          <Button
+            className='bg-red-600 text-white hover:bg-red-700'
+            disabled={isDeleting}
+            onClick={handleDeleteConfirm}
+            type='button'
+          >
+            {isDeleting
+              ? t('deleting') || 'Deleting...'
+              : t('delete') || 'Delete'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return {
+    columns,
+    deleteDialog: DeleteDialog,
+  };
 }

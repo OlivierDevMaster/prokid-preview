@@ -1,6 +1,5 @@
 'use client';
 
-import { Info } from 'lucide-react';
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -90,11 +89,6 @@ export function LoginForm({
             <div className='space-y-2 text-center'>
               <h1 className='text-2xl font-bold text-gray-800'>{t('title')}</h1>
               <p className='text-sm text-gray-600'>{t('subtitle')}</p>
-            </div>
-
-            <div className='flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4'>
-              <Info className='mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600' />
-              <p className='text-sm text-blue-800'>{t('demoBanner')}</p>
             </div>
 
             <div className='flex justify-center space-y-2 text-blue-500'>

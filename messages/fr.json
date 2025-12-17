@@ -678,8 +678,15 @@
         "dataDescription": "Données du rapport",
         "attachmentUploadedSuccessfully": "Pièce jointe ajoutée avec succès",
         "attachmentUploadedError": "Erreur lors de l'ajout de la pièce jointe",
-        "attachmentDeletedSuccessfully": "Pièce jointe supprimée avec succès"
-      }
+        "attachmentDeletedSuccessfully": "Pièce jointe supprimée avec succès",
+        "errorDeletingReport": "Erreur lors de la suppression du rapport",
+        "reportDeletedSuccessfully": "Rapport supprimé avec succès"
+      },
+      "deleteReport": "Supprimer le rapport",
+      "deleteReportDescription": "Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression en cours..."
     },
     "reports": {
       "title": "Mes Rapports",

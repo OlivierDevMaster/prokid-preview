@@ -51,7 +51,7 @@ export default function FAQPage() {
   ];
 
   return (
-    <div className='min-h-screen bg-[#f5f7f5] px-4 py-12 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-green-50/30 px-4 py-12 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-3xl'>
         <h1 className='mb-12 text-center text-3xl font-bold text-gray-700'>
           {t('title')}
@@ -65,7 +65,7 @@ export default function FAQPage() {
         >
           {faqItems.map(item => (
             <AccordionItem
-              className='rounded-lg border border-green-100/50 bg-white px-6 shadow-sm data-[state=closed]:bg-green-50/30'
+              className='rounded-lg border bg-white px-6 shadow-sm'
               key={item.key}
               value={item.key}
             >
