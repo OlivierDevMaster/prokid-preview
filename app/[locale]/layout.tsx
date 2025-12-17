@@ -5,6 +5,7 @@ import { getMessages } from 'next-intl/server';
 import { ThemeProvider } from 'next-themes';
 import { Geist } from 'next/font/google';
 import { notFound } from 'next/navigation';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { Toaster } from '@/components/ui/sonner';
 import ConditionalWrapper from '@/features/layout/ConditionalWrapper';
@@ -55,17 +56,19 @@ export default async function LocaleLayout({
       >
         <AuthSessionProvider>
           <NextIntlClientProvider messages={messages}>
-            <QueryProvider>
-              <ThemeProvider
-                attribute='class'
-                defaultTheme='light'
-                disableTransitionOnChange
-                enableSystem
-              >
-                <ConditionalWrapper>{children}</ConditionalWrapper>
-                <Toaster />
-              </ThemeProvider>
-            </QueryProvider>
+            <NuqsAdapter>
+              <QueryProvider>
+                <ThemeProvider
+                  attribute='class'
+                  defaultTheme='light'
+                  disableTransitionOnChange
+                  enableSystem
+                >
+                  <ConditionalWrapper>{children}</ConditionalWrapper>
+                  <Toaster />
+                </ThemeProvider>
+              </QueryProvider>
+            </NuqsAdapter>
           </NextIntlClientProvider>
         </AuthSessionProvider>
       </body>

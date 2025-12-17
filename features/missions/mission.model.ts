@@ -1,3 +1,6 @@
+import type { Professional } from '@/features/professionals/professional.model';
+import type { Structure } from '@/features/structures/structure.model';
+
 import { createEnumConstants } from '@/lib/utils/enums';
 import {
   Constants,
@@ -54,3 +57,11 @@ export interface MissionFilters {
 export type MissionInsert = TablesInsert<'missions'>;
 
 export type MissionUpdate = TablesUpdate<'missions'>;
+
+export type MissionWithProfessional = {
+  professional: Professional;
+} & Mission;
+
+export type MissionWithStructure = {
+  structure: Structure;
+} & Mission;

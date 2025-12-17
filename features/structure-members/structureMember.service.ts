@@ -43,7 +43,10 @@ export const getStructuresForProfessional = async (
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  query = query.order('created_at', { ascending: false }).range(from, to);
+  query = query
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .range(from, to);
 
   const { count, data, error } = await query;
 
@@ -86,7 +89,10 @@ export const getProfessionalsForStructure = async (
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  query = query.order('created_at', { ascending: false }).range(from, to);
+  query = query
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .range(from, to);
 
   const { count, data, error } = await query;
 
