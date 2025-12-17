@@ -359,7 +359,8 @@
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",
-      "lastReport": "Dernier compte rendu"
+      "lastReport": "Dernier compte rendu",
+      "viewDetails": "Voir les détails"
     }
   },
   "structure": {

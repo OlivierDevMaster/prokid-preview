@@ -350,7 +350,8 @@
     },
     "structure": {
       "hoursCompleted": "Hours completed",
-      "lastReport": "Last report"
+      "lastReport": "Last report",
+      "viewDetails": "View details"
     }
   },
   "structure": {

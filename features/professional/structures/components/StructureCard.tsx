@@ -112,7 +112,7 @@ export function StructureCard({ structureMember }: StructureCardProps) {
           }
           variant='outline'
         >
-          Voir les détails
+          {t('viewDetails')}
         </Button>
       </div>
     </Card>
