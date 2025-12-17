@@ -87,7 +87,7 @@ export function StructureCard({ structureMember }: StructureCardProps) {
               </div>
               <span className='whitespace-nowrap text-sm font-medium text-gray-700'>
                 {isLoadingDurations
-                  ? 'xxh / xxh'
+                  ? 'xh / xh'
                   : `${pastDurationHours}h / ${totalDurationHours}h`}
               </span>
             </div>
