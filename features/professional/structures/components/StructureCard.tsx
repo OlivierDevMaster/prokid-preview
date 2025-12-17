@@ -10,6 +10,7 @@ import type { StructureMemberWithStructure } from '@/features/structure-members/
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMissionDurations } from '@/features/mission-durations/hooks/useMissionDurations';
+import { useLastReport } from '@/features/professional/structures/hooks/useLastReport';
 
 interface StructureCardProps {
   structureMember: StructureMemberWithStructure;
@@ -24,6 +25,10 @@ export function StructureCard({ structureMember }: StructureCardProps) {
 
   const { data: missionDurations, isLoading: isLoadingDurations } =
     useMissionDurations(professionalId, structureId);
+  const { data: lastReport, isLoading: isLoadingLastReport } = useLastReport(
+    professionalId,
+    structureId
+  );
 
   const progressPercentage = missionDurations?.percentage ?? 0;
   const pastDurationHours = missionDurations?.past_duration_mn
@@ -91,7 +96,11 @@ export function StructureCard({ structureMember }: StructureCardProps) {
           <div className='flex items-center gap-2 text-sm text-gray-600'>
             <FileText className='h-4 w-4 text-gray-400' />
             <span>{t('lastReport')}</span>
-            {/* TODO: Fetch last report date for this structure */}
+            {isLoadingLastReport ? (
+              <span className='text-gray-500'>...</span>
+            ) : lastReport?.title ? (
+              <span className='text-gray-500'>{lastReport.title}</span>
+            ) : null}
           </div>
         </div>
 
