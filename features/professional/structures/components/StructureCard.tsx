@@ -7,7 +7,6 @@ import type { StructureMemberWithStructure } from '@/features/structure-members/
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
 interface StructureCardProps {
   structureMember: StructureMemberWithStructure;
@@ -20,22 +19,6 @@ export function StructureCard({ structureMember }: StructureCardProps) {
 
   const progressPercentage = 60;
 
-  const statusConfig = {
-    on_time: {
-      bgColor: 'bg-green-50',
-      dotColor: 'bg-green-500',
-      label: 'Dans les temps',
-      textColor: 'text-green-700',
-    },
-    to_monitor: {
-      bgColor: 'bg-orange-50',
-      dotColor: 'bg-orange-500',
-      label: 'À surveiller',
-      textColor: 'text-orange-700',
-    },
-  };
-
-  const status = statusConfig['on_time'];
   const router = useRouter();
 
   return (
@@ -56,16 +39,6 @@ export function StructureCard({ structureMember }: StructureCardProps) {
                 {/* <span>{structure.location}</span> */}
               </div>
             </div>
-          </div>
-          <div
-            className={cn(
-              'flex items-center gap-1.5 rounded-full px-3 py-1',
-              status.bgColor,
-              status.textColor
-            )}
-          >
-            <div className={cn('h-2 w-2 rounded-full', status.dotColor)} />
-            <span className='text-xs font-medium'>{status.label}</span>
           </div>
         </div>
 
