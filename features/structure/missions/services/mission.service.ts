@@ -25,12 +25,8 @@ export const getStructureMissions = async (
       `
       *,
       professional:professionals!missions_professional_id_fkey(
-        user_id,
-        profile:profiles!professionals_user_id_fkey(
-          first_name,
-          last_name,
-          email
-        )
+        *,
+        profile:profiles!professionals_user_id_fkey(*)
       )
     `,
       { count: 'exact' }
@@ -73,12 +69,8 @@ export const getStructureMission = async (
       `
       *,
       professional:professionals!missions_professional_id_fkey(
-        user_id,
-        profile:profiles!professionals_user_id_fkey(
-          first_name,
-          last_name,
-          email
-        )
+        *,
+        profile:profiles!professionals_user_id_fkey(*)
       )
     `
     )

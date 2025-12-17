@@ -361,6 +361,18 @@
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu",
       "viewDetails": "Voir les détails"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Consultez et gérez toutes vos missions avec les structures.",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "unknownStructure": "Structure inconnue"
     }
   },
   "structure": {
@@ -711,7 +723,8 @@
       "professionals": "Professionnels",
       "structures": "Structures",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "missions": "Missions"
     },
     "notifications": {
       "title": "Notifications",

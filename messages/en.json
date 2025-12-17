@@ -352,6 +352,18 @@
       "hoursCompleted": "Hours completed",
       "lastReport": "Last report",
       "viewDetails": "View details"
+    },
+    "missions": {
+      "title": "My missions",
+      "description": "View and manage all your missions with structures.",
+      "noMissions": "No missions found.",
+      "loading": "Loading...",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report",
+      "noReport": "No report",
+      "period": "Period",
+      "viewDetails": "View details",
+      "unknownStructure": "Unknown structure"
     }
   },
   "structure": {
@@ -702,7 +714,8 @@
       "professionals": "Professionals",
       "structures": "Structures",
       "availabilities": "Availabilities",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "missions": "Missions"
     },
     "notifications": {
       "title": "Notifications",

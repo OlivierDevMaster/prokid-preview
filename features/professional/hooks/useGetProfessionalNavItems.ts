@@ -1,4 +1,10 @@
-import { Calendar, ClipboardMinus, LayoutDashboard, Users } from 'lucide-react';
+import {
+  Calendar,
+  ClipboardMinus,
+  LayoutDashboard,
+  Target,
+  Users,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -16,6 +22,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       href: '/professional/availabilities',
       icon: Calendar,
       label: tProfessional('navigation.availabilities'),
+    },
+    {
+      href: '/professional/missions',
+      icon: Target,
+      label: tProfessional('navigation.missions'),
     },
     {
       href: '/professional/reports',
