@@ -3,17 +3,18 @@
 import { Building2, Clock, FileText, MapPin, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import type { StructureMemberWithStructure } from '@/features/structure-members/structureMember.model';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-import { Structure } from '../modeles/Structure.modele';
-
 interface StructureCardProps {
-  structure: Structure;
+  structureMember: StructureMemberWithStructure;
 }
 
-export function StructureCard({ structure }: StructureCardProps) {
+export function StructureCard({ structureMember }: StructureCardProps) {
+  const structure = structureMember.structure;
   // const progressPercentage =
   //   (structure.hoursCompleted / structure.hoursTotal) * 100;
 
