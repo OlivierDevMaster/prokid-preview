@@ -348,6 +348,34 @@
       "totalMissions": "Total Missions",
       "totalReports": "Total Reports"
     },
+    "structure": {
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report",
+      "viewDetails": "View details",
+      "loading": "Loading...",
+      "noStructure": "No structure found",
+      "contact": "Contact",
+      "createdAt": "Created at",
+      "close": "Close",
+      "noReport": "No report"
+    },
+    "missions": {
+      "title": "My missions",
+      "description": "View and manage all your missions with structures.",
+      "noMissions": "No missions found.",
+      "loading": "Loading...",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report",
+      "noReport": "No report",
+      "period": "Period",
+      "viewDetails": "View details",
+      "unknownStructure": "Unknown structure",
+      "structure": "Structure Information",
+      "close": "Close",
+      "descriptionLabel": "Description",
+      "filterByStructure": "Filter by structure",
+      "allStructures": "All structures"
+    },
     "subscription": {
       "title": "Abonnement ProKid Pro",
       "description": "Développez votre activité professionnelle avec ProKid",
@@ -693,7 +721,9 @@
       "title": "My structures",
       "description": "Manage your interventions and follow-ups for each establishment",
       "addStructure": "Add a structure",
-      "noStructures": "No structure found."
+      "noStructures": "No structure found.",
+      "hoursCompleted": "Hours completed",
+      "lastReport": "Last report"
     },
     "setting": {
       "activate": "Activate now",
@@ -762,7 +792,8 @@
       "professionals": "Professionals",
       "structures": "Structures",
       "availabilities": "Availabilities",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "missions": "Missions"
     },
     "notifications": {
       "title": "Notifications",
