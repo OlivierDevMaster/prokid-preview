@@ -56,6 +56,7 @@ describe('Successful mission durations retrieval', () => {
     assertEquals(data.total_duration_mn, 0);
     assertEquals(data.past_duration_mn, 0);
     assertEquals(data.future_duration_mn, 0);
+    assertEquals(data.percentage, 0);
   });
 
   it('should calculate durations for a single mission with one schedule', async () => {
@@ -123,6 +124,16 @@ describe('Successful mission durations retrieval', () => {
       assertEquals(
         data.total_duration_mn,
         data.past_duration_mn + data.future_duration_mn
+      );
+      // Percentage should be calculated correctly
+      assertEquals(data.percentage >= 0, true);
+      assertEquals(data.percentage <= 100, true);
+      const expectedPercentage =
+        (data.past_duration_mn / data.total_duration_mn) * 100;
+      assertEquals(
+        Math.abs(data.percentage - expectedPercentage) < 0.01,
+        true,
+        `Percentage should be ~${expectedPercentage}%, got ${data.percentage}%`
       );
     } finally {
       global.Date = originalDate;
@@ -207,6 +218,9 @@ describe('Successful mission durations retrieval', () => {
       data.total_duration_mn,
       data.past_duration_mn + data.future_duration_mn
     );
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionIds = [mission1.id, mission2.id];
   });
@@ -301,6 +315,9 @@ describe('Successful mission durations retrieval', () => {
     // Should only count the accepted mission
     assertEquals(data.total_duration_mn > 0, true);
     // Should not include declined/cancelled missions (they would triple the duration)
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionIds = [
       acceptedMission.id,
@@ -328,5 +345,8 @@ describe('Successful mission durations retrieval', () => {
     // Assert
     MissionDurationsAssertions.assertSuccessfulResponse(response, data);
     MissionDurationsAssertions.assertContentType(response);
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
   });
 });

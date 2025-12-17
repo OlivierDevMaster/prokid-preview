@@ -6,6 +6,7 @@ export const MissionDurationsTestData = {
   expectedResponseStructure: {
     future_duration_mn: 0,
     past_duration_mn: 0,
+    percentage: 0,
     total_duration_mn: 0,
   } as MissionDurations,
 

@@ -73,6 +73,7 @@ describe('Mission durations edge cases', () => {
     assertEquals(data.total_duration_mn, 0);
     assertEquals(data.past_duration_mn, 0);
     assertEquals(data.future_duration_mn, 0);
+    assertEquals(data.percentage, 0);
 
     fixture.missionId = mission.id;
   });
@@ -135,6 +136,9 @@ describe('Mission durations edge cases', () => {
       data.total_duration_mn,
       data.past_duration_mn + data.future_duration_mn
     );
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionId = mission.id;
   });
@@ -184,6 +188,9 @@ describe('Mission durations edge cases', () => {
     MissionDurationsAssertions.assertSuccessfulResponse(response, data);
     // Should calculate based on COUNT occurrences
     assertEquals(data.total_duration_mn, 10 * 120); // 10 occurrences * 120 minutes
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionId = mission.id;
   });
@@ -237,6 +244,9 @@ describe('Mission durations edge cases', () => {
       data.total_duration_mn,
       data.past_duration_mn + data.future_duration_mn
     );
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionId = mission.id;
   });
@@ -285,6 +295,9 @@ describe('Mission durations edge cases', () => {
     MissionDurationsAssertions.assertSuccessfulResponse(response, data);
     // Pending missions should be included
     assertEquals(data.total_duration_mn > 0, true);
+    // Percentage should be calculated correctly
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
 
     fixture.missionId = mission.id;
   });

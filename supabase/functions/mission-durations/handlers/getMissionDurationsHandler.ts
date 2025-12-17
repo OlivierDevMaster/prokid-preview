@@ -158,6 +158,7 @@ export const getMissionDurationsHandler = factory.createHandlers(
         return apiResponse.ok({
           future_duration_mn: 0,
           past_duration_mn: 0,
+          percentage: 0,
           total_duration_mn: 0,
         });
       }
@@ -235,9 +236,17 @@ export const getMissionDurationsHandler = factory.createHandlers(
         }
       }
 
+      // Calculate percentage (past / total * 100)
+      // Handle division by zero: if total is 0, percentage is 0
+      const percentage =
+        totalDurationMn > 0
+          ? Math.round((pastDurationMn / totalDurationMn) * 100 * 100) / 100
+          : 0;
+
       return apiResponse.ok({
         future_duration_mn: futureDurationMn,
         past_duration_mn: pastDurationMn,
+        percentage,
         total_duration_mn: totalDurationMn,
       });
     } catch (error) {

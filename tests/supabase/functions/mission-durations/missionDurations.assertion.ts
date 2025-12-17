@@ -49,15 +49,31 @@ export class MissionDurationsAssertions {
     assertExists(data.total_duration_mn);
     assertExists(data.past_duration_mn);
     assertExists(data.future_duration_mn);
+    assertExists(data.percentage);
     assertEquals(typeof data.total_duration_mn, 'number');
     assertEquals(typeof data.past_duration_mn, 'number');
     assertEquals(typeof data.future_duration_mn, 'number');
+    assertEquals(typeof data.percentage, 'number');
     assertEquals(data.total_duration_mn >= 0, true);
     assertEquals(data.past_duration_mn >= 0, true);
     assertEquals(data.future_duration_mn >= 0, true);
+    assertEquals(data.percentage >= 0, true);
+    assertEquals(data.percentage <= 100, true);
     assertEquals(
       data.total_duration_mn,
       data.past_duration_mn + data.future_duration_mn
     );
+    // Verify percentage calculation (with small tolerance for rounding)
+    if (data.total_duration_mn > 0) {
+      const expectedPercentage =
+        (data.past_duration_mn / data.total_duration_mn) * 100;
+      assertEquals(
+        Math.abs(data.percentage - expectedPercentage) < 0.01,
+        true,
+        `Percentage mismatch: expected ~${expectedPercentage}%, got ${data.percentage}%`
+      );
+    } else {
+      assertEquals(data.percentage, 0);
+    }
   }
 }
