@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Building2, Clock, FileText, MapPin } from 'lucide-react';
+import { Building2, Clock, FileText, Mail, MapPin } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
@@ -99,7 +99,7 @@ export function ProfessionalMissionCard({
         <div className='mb-4 space-y-3'>
           {structureEmail && (
             <div className='flex items-center gap-2 text-sm text-gray-600'>
-              <MapPin className='h-4 w-4 text-gray-400' />
+              <Mail className='h-4 w-4 text-gray-400' />
               <span>{structureEmail}</span>
             </div>
           )}
