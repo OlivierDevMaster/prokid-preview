@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { Bell, Check, Clock, FileText, UserPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useFindMission } from '@/features/missions/hooks/useFindMission';
 import { MissionStatus } from '@/features/missions/mission.model';
+import { useRouter } from '@/i18n/routing';
 
 import type { Notification } from '../notification.model';
 

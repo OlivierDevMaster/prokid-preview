@@ -1,15 +1,16 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { redirect } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { redirect } from '@/i18n/routing';
 
 export function AddUserButton() {
   const t = useTranslations('admin.users');
+  const locale = useLocale();
   const onClick = () => {
-    redirect('/admin/users/new');
+    redirect({ href: '/admin/users/new', locale });
   };
 
   return (

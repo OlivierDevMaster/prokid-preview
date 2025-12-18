@@ -10,7 +10,6 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -37,6 +36,7 @@ import { useDeleteReportAttachment } from '@/features/report-attachments/hooks/u
 import { useSendReport } from '@/features/reports/hooks/useSendReport';
 import { useUpdateReport } from '@/features/reports/hooks/useUpdateReport';
 import { Report } from '@/features/reports/report.model';
+import { useRouter } from '@/i18n/routing';
 
 import { useGetMissions } from '../hooks/useGetMissions';
 import { useReportForm } from '../hooks/useReportForm';

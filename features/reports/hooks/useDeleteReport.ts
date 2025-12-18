@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+
+import { useRouter } from '@/i18n/routing';
 
 import { deleteReport } from '../report.service';
 

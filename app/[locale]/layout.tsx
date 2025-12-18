@@ -55,7 +55,7 @@ export default async function LocaleLayout({
         className={`${geistSans.variable} ${geistSans.className} antialiased`}
       >
         <AuthSessionProvider>
-          <NextIntlClientProvider messages={messages}>
+          <NextIntlClientProvider locale={locale} messages={messages}>
             <NuqsAdapter>
               <QueryProvider>
                 <ThemeProvider

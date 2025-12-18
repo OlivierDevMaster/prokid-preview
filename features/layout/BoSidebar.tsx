@@ -3,7 +3,6 @@
 import { ChevronDown } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useRouter } from '@/i18n/routing';
 import { usePathname } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
