@@ -34,9 +34,13 @@ export function NotificationDetails() {
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
 
-  // Extract mission_id from notification.data if type is 'mission_received'
+  // Extract mission_id from notification.data if type is 'mission_received' or 'mission_expired'
   const missionId = useMemo(() => {
-    if (!notification || notification.type !== 'mission_received') {
+    if (
+      !notification ||
+      (notification.type !== 'mission_received' &&
+        notification.type !== 'mission_expired')
+    ) {
       return null;
     }
     const data = notification.data as { mission_id?: string };
@@ -165,6 +169,11 @@ export function NotificationDetails() {
                 {notificationMissionStatus === MissionStatus.cancelled && (
                   <Badge className='bg-gray-500 text-white' variant='default'>
                     {t('cancelled')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.expired && (
+                  <Badge className='bg-orange-500 text-white' variant='default'>
+                    {t('expired')}
                   </Badge>
                 )}
               </div>

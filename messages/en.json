@@ -722,7 +722,8 @@
       "noReports": "No reports found.",
       "loading": "Loading...",
       "error": "Error loading reports",
-      "view": "View"
+      "view": "View",
+      "mission": "Mission"
     },
     "structure": {
       "title": "My structures",
@@ -843,6 +844,7 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "cancelled": "Cancelled",
+    "expired": "Expired",
     "pending": "Pending",
     "subtitle": "{total} notification(s), {unread} unread"
   }

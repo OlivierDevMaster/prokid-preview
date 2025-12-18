@@ -731,7 +731,8 @@
       "noReports": "Aucun rapport trouvé.",
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
-      "view": "Voir"
+      "view": "Voir",
+      "mission": "Mission"
     },
     "setting": {
       "activate": "Activer maintenant",
@@ -852,6 +853,7 @@
     "accepted": "Accepté",
     "declined": "Décliné",
     "cancelled": "Annulé",
+    "expired": "Expiré",
     "pending": "En attente",
     "subtitle": "{total} notification(s), {unread} non lue(s)"
   }
