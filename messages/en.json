@@ -846,6 +846,7 @@
     "cancelled": "Cancelled",
     "expired": "Expired",
     "pending": "Pending",
-    "subtitle": "{total} notification(s), {unread} unread"
+    "subtitle": "{total} notification(s), {unread} unread",
+    "noNotifications": "No notifications"
   }
 }
