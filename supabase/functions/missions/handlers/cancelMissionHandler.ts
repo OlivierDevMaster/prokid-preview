@@ -42,7 +42,7 @@ export const cancelMissionHandler = factory.createHandlers(
         );
       }
 
-      // Verify mission is not already cancelled or expired
+      // Verify mission is not already cancelled, expired, or ended
       if (mission.status === 'cancelled') {
         return apiResponse.badRequest(
           'INVALID_STATUS',
@@ -53,6 +53,12 @@ export const cancelMissionHandler = factory.createHandlers(
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Cannot cancel an expired mission. The mission start date has passed and the mission has expired.'
+        );
+      }
+      if (mission.status === 'ended') {
+        return apiResponse.badRequest(
+          'INVALID_STATUS',
+          'Cannot cancel an ended mission. The mission end date has passed and the mission has ended.'
         );
       }
 

@@ -42,6 +42,18 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
       label: MissionStatusLabel[locale].declined,
       textColor: 'text-red-700',
     },
+    ended: {
+      bgColor: 'bg-blue-50',
+      dotColor: 'bg-blue-500',
+      label: MissionStatusLabel[locale].ended,
+      textColor: 'text-blue-700',
+    },
+    expired: {
+      bgColor: 'bg-orange-50',
+      dotColor: 'bg-orange-500',
+      label: MissionStatusLabel[locale].expired,
+      textColor: 'text-orange-700',
+    },
     pending: {
       bgColor: 'bg-yellow-50',
       dotColor: 'bg-yellow-500',
