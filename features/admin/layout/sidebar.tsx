@@ -3,7 +3,7 @@
 import { ChevronDown } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';

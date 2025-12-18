@@ -2,7 +2,7 @@
 
 import { Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/routing';
 import { useEffect } from 'react';
 
 import { BoNavbar } from '@/features/layout/BoNavbar';

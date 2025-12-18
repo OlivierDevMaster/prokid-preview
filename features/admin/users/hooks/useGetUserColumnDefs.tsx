@@ -11,7 +11,7 @@ import {
   Trash2,
   UserX,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 import type { User } from '@/services/admin/users/user.types';
 

@@ -3,7 +3,7 @@
 import { Bell, Settings } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';

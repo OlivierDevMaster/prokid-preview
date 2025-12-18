@@ -5,12 +5,12 @@ import { format } from 'date-fns';
 import { Bell, Check, Clock, UserPlus, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
+import { useRouter } from '@/i18n/routing';
 
 import type { Notification } from '../notification.model';
 

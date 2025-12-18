@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
 import { EditStructureDialog } from '@/features/admin/structures/components/EditStructureDialog';
 import { useDeleteStructure } from '@/features/structures/hooks/useDeleteStructure';
 import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
+import { useRouter } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 
 export default function AdminStructureDetailsPage() {
