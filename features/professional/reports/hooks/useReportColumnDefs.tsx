@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import type { Report as ReportWithRelations } from '@/features/reports/report.model';
 import type { Report } from '@/services/admin/reports/report.types';
 
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ type UseReportColumnDefsProps = {
   translations: {
     contents: string;
     createdAt: string;
+    mission?: string;
     next: string;
     noResults?: string;
     of: string;
@@ -52,8 +54,10 @@ export default function useReportColumnDefs({
       cell: ({ row }) => {
         const title = row.original.title;
         return (
-          <div className='max-w-md truncate font-medium' title={title}>
-            {title}
+          <div className='max-w-md'>
+            <div className='truncate font-medium' title={title}>
+              {title}
+            </div>
           </div>
         );
       },
@@ -65,6 +69,30 @@ export default function useReportColumnDefs({
             variant='ghost'
           >
             {translations.title}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
+          </Button>
+        );
+      },
+    },
+    {
+      accessorKey: 'title',
+      cell: ({ row }) => {
+        const reportWithMission = row.original as ReportWithRelations;
+        const missionTitle = reportWithMission.mission?.title || null;
+        return (
+          <div className='max-w-md'>
+            {missionTitle && <div title={missionTitle}>{missionTitle}</div>}
+          </div>
+        );
+      },
+      header: ({ column }) => {
+        return (
+          <Button
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
+          >
+            {translations.mission}
             <ArrowUpDown className='ml-2 h-4 w-4' />
           </Button>
         );
