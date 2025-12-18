@@ -34,9 +34,13 @@ export function NotificationDetails() {
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
 
-  // Extract mission_id from notification.data if type is 'mission_received'
+  // Extract mission_id from notification.data if type is 'mission_received' or 'mission_expired'
   const missionId = useMemo(() => {
-    if (!notification || notification.type !== 'mission_received') {
+    if (
+      !notification ||
+      (notification.type !== 'mission_received' &&
+        notification.type !== 'mission_expired')
+    ) {
       return null;
     }
     const data = notification.data as { mission_id?: string };
