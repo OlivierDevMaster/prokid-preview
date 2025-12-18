@@ -20,6 +20,7 @@ import { useAcceptNotification } from '../hooks/useAcceptNotification';
 import { useDeclineNotification } from '../hooks/useDeclineNotification';
 import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationsRealtime } from '../hooks/useNotificationsRealtime';
 import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import { NotificationPopover } from './NotificationPopover';
 
@@ -30,6 +31,8 @@ export default function NotificationsPanel() {
   const { isAdmin, isProfessional, isStructure } = useRole();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [redirectLink, setRedirectLink] = useState<null | string>(null);
+
+  useNotificationsRealtime();
 
   const { data: notificationsData } = useNotifications(
     {
