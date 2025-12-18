@@ -42,11 +42,17 @@ export const cancelMissionHandler = factory.createHandlers(
         );
       }
 
-      // Verify mission is not already cancelled
+      // Verify mission is not already cancelled or expired
       if (mission.status === 'cancelled') {
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Mission is already cancelled'
+        );
+      }
+      if (mission.status === 'expired') {
+        return apiResponse.badRequest(
+          'INVALID_STATUS',
+          'Cannot cancel an expired mission. The mission start date has passed and the mission has expired.'
         );
       }
 

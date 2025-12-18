@@ -37,6 +37,7 @@ The handler verifies:
 Fetches all missions for the professional in the structure, excluding:
 - `declined` missions
 - `cancelled` missions
+- `expired` missions
 
 Only `pending` and `accepted` missions are included in the calculation.
 

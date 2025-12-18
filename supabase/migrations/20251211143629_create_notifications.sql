@@ -17,6 +17,7 @@ CREATE TYPE "public"."notification_type" AS ENUM (
   'mission_accepted',
   'mission_declined',
   'mission_cancelled',
+  'mission_expired',
   'report_sent'
 );
 
@@ -557,6 +558,85 @@ CREATE TRIGGER "trigger_create_mission_cancelled_notification"
   FOR EACH ROW
   WHEN (NEW."status" = 'cancelled' AND (OLD."status" IS NULL OR OLD."status" != 'cancelled'))
   EXECUTE FUNCTION "public"."create_mission_cancelled_notification"();
+
+-- ============================================================================
+-- Function: create_mission_expired_notification
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION "public"."create_mission_expired_notification"()
+RETURNS TRIGGER AS $$
+DECLARE
+  structure_name TEXT;
+  professional_first_name TEXT;
+  professional_last_name TEXT;
+  professional_name TEXT;
+BEGIN
+  -- Only create notification when status changes to expired
+  IF NEW."status" = 'expired' AND (OLD."status" IS NULL OR OLD."status" != 'expired') THEN
+    -- Get structure name
+    SELECT "name" INTO structure_name
+    FROM "public"."structures"
+    WHERE "user_id" = NEW."structure_id";
+
+    -- Get professional name from profile
+    SELECT "first_name", "last_name" INTO professional_first_name, professional_last_name
+    FROM "public"."profiles"
+    WHERE "user_id" = NEW."professional_id";
+
+    -- Build full name
+    professional_name := COALESCE(professional_first_name || ' ', '') || COALESCE(professional_last_name, '');
+
+    -- Create notification for the professional
+    INSERT INTO "public"."notifications" (
+      "type",
+      "recipient_id",
+      "recipient_role",
+      "data"
+    )
+    VALUES (
+      'mission_expired',
+      NEW."professional_id",
+      'professional',
+      jsonb_build_object(
+        'mission_id', NEW."id",
+        'mission_title', NEW."title",
+        'structure_id', NEW."structure_id",
+        'structure_name', structure_name
+      )
+    );
+
+    -- Create notification for the structure
+    INSERT INTO "public"."notifications" (
+      "type",
+      "recipient_id",
+      "recipient_role",
+      "data"
+    )
+    VALUES (
+      'mission_expired',
+      NEW."structure_id",
+      'structure',
+      jsonb_build_object(
+        'mission_id', NEW."id",
+        'mission_title', NEW."title",
+        'professional_id', NEW."professional_id",
+        'professional_name', professional_name
+      )
+    );
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+COMMENT ON FUNCTION "public"."create_mission_expired_notification"() IS 'Creates notifications for both professional and structure when a mission expires';
+
+-- Trigger for mission expired
+CREATE TRIGGER "trigger_create_mission_expired_notification"
+  AFTER UPDATE OF "status" ON "public"."missions"
+  FOR EACH ROW
+  WHEN (NEW."status" = 'expired' AND (OLD."status" IS NULL OR OLD."status" != 'expired'))
+  EXECUTE FUNCTION "public"."create_mission_expired_notification"();
 
 -- ============================================================================
 -- Function: create_report_sent_notification

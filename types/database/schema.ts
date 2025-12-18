@@ -859,6 +859,7 @@ export type Database = {
         | "mission_accepted"
         | "mission_declined"
         | "mission_cancelled"
+        | "mission_expired"
         | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
@@ -1026,6 +1027,7 @@ export const Constants = {
         "mission_accepted",
         "mission_declined",
         "mission_cancelled",
+        "mission_expired",
         "report_sent",
       ],
       report_status: ["draft", "sent"],

@@ -190,6 +190,7 @@ DECLARE
   expired_count INTEGER;
 BEGIN
   -- Update missions where status is pending and start date has passed
+  -- The trigger will automatically create notifications when status changes to expired
   UPDATE public.missions
   SET status = 'expired',
       updated_at = NOW()

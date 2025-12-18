@@ -56,6 +56,18 @@ export const declineMissionHandler = factory.createHandlers(
             'Mission is already declined.'
           );
         }
+        if (mission.status === 'expired') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot decline an expired mission. The mission start date has passed and the mission has expired.'
+          );
+        }
+        if (mission.status === 'cancelled') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot decline a cancelled mission.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be declined'

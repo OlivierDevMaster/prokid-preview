@@ -80,8 +80,12 @@ export const getMissionDurationHandler = factory.createHandlers(
         );
       }
 
-      // Exclude declined and cancelled missions
-      if (mission.status === 'declined' || mission.status === 'cancelled') {
+      // Exclude declined, cancelled, and expired missions
+      if (
+        mission.status === 'declined' ||
+        mission.status === 'cancelled' ||
+        mission.status === 'expired'
+      ) {
         return apiResponse.ok({
           future_duration_mn: 0,
           past_duration_mn: 0,
