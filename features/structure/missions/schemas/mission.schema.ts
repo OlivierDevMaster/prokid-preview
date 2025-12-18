@@ -1,16 +1,38 @@
 import { z } from 'zod';
 
+// Step 1: Mission creation schema (without schedules)
 export const missionFormSchema = z
   .object({
     description: z.string().optional(),
-    mission_dtstart: z.date({
-      required_error: 'Mission start date is required',
-    }),
-    mission_until: z.date({
-      required_error: 'Mission end date is required',
-    }),
+    mission_dtstart: z
+      .date({
+        required_error: 'Mission start date is required',
+      })
+      .refine(
+        date => {
+          const now = new Date();
+          now.setSeconds(0, 0);
+          return date >= now;
+        },
+        {
+          message: 'Mission start date cannot be in the past',
+        }
+      ),
+    mission_until: z
+      .date({
+        required_error: 'Mission end date is required',
+      })
+      .refine(
+        date => {
+          const now = new Date();
+          now.setSeconds(0, 0);
+          return date >= now;
+        },
+        {
+          message: 'Mission end date cannot be in the past',
+        }
+      ),
     professional_id: z.string().min(1, 'Professional selection is required'),
-    schedule_id: z.string().optional(),
     structure_id: z.string().min(1, 'Structure ID is required'),
     title: z.string().min(1, 'Mission title is required'),
   })
@@ -26,3 +48,29 @@ export const missionFormSchema = z
   );
 
 export type MissionFormData = z.infer<typeof missionFormSchema>;
+
+// Step 2: Mission schedule schema
+// This represents the selected availability slot data
+export const missionScheduleFormSchema = z.object({
+  dtstart: z.string().optional(), // Will be set from startAt
+  duration_mn: z.number().int().positive('Duration must be positive'),
+  endAt: z.string().min(1, 'End time is required'),
+  isRecurrent: z.boolean(),
+  rrule: z.string().min(1, 'RRULE is required'),
+  startAt: z.string().min(1, 'Start time is required'),
+  until: z.string().nullable().optional(), // Will be set based on isRecurrent
+});
+
+export type MissionScheduleFormData = z.infer<typeof missionScheduleFormSchema>;
+
+// Form schema for step 2 with field array
+export const missionSchedulesFormSchema = z.object({
+  mission_id: z.string().min(1, 'Mission ID is required'),
+  schedules: z
+    .array(missionScheduleFormSchema)
+    .min(1, 'At least one schedule is required'),
+});
+
+export type MissionSchedulesFormData = z.infer<
+  typeof missionSchedulesFormSchema
+>;

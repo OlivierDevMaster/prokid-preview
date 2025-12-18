@@ -36,6 +36,7 @@ interface ReportTableProps {
     of: string;
     page: string;
     previous: string;
+    structure?: string;
     title: string;
     view?: string;
   };

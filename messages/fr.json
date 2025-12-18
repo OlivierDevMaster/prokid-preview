@@ -366,7 +366,8 @@
       "contact": "Contact",
       "createdAt": "Créé le",
       "close": "Fermer",
-      "noReport": "Aucun compte rendu"
+      "noReport": "Aucun compte rendu",
+      "reportsList": "Liste des rapports"
     },
     "missions": {
       "title": "Mes missions",
@@ -436,7 +437,7 @@
       "availabilityDescription": "Sélectionnez la disponibilité du professionnel pour cette mission",
       "missionStartDate": "Date de début de mission",
       "missionEndDate": "Date de fin de mission",
-      "description": "Description",
+      "descriptionLabel": "Description",
       "optional": "Optionnel",
       "descriptionPlaceholder": "Entrez la description de la mission",
       "cancel": "Annuler",
@@ -446,11 +447,24 @@
       "createError": "Échec de la création de la mission",
       "filterByProfessional": "Filtrer par professionnel",
       "allProfessionals": "Tous les professionnels",
+      "step": "Étape",
+      "next": "Suivant",
+      "back": "Retour",
+      "selectAvailabilities": "Sélectionner les disponibilités du professionnel",
+      "selectedSchedules": "Créneaux sélectionnés",
+      "previousWeek": "Semaine précédente",
+      "nextWeek": "Semaine suivante",
+      "weekOf": "Semaine du",
+      "noSlots": "Aucun créneau",
+      "recurrent": "Récurrent",
+      "recurrentDescription": "Si coché, ce créneau se répétera jusqu'à la date de fin de mission",
+      "noProfessionals": "Aucun professionnel trouvé",
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu",
       "noReport": "Aucun compte rendu",
       "period": "Période",
       "viewDetails": "Voir les détails",
+      "close": "Fermer",
       "unknownProfessional": "Professionnel inconnu"
     },
     "professionals": {
@@ -743,6 +757,7 @@
       "tableTitle": "Liste des rapports",
       "titleColumn": "Titre",
       "contentsColumn": "Contenu",
+      "structureColumn": "Structure",
       "createdAt": "Date de création",
       "previous": "Précédent",
       "next": "Suivant",
@@ -753,6 +768,9 @@
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
       "view": "Voir",
+      "filterByStructure": "Filtrer par structure",
+      "allStructures": "Toutes les structures",
+      "unknownStructure": "Structure inconnue",
       "mission": "Mission"
     },
     "setting": {

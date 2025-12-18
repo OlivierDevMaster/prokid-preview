@@ -15,8 +15,10 @@ import {
 import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
 import { useRouter } from '@/i18n/routing';
 
+import { useGetMission } from '../hooks/useGetMission';
 import { useGetMissions } from '../hooks/useGetMissions';
 import { MissionCard } from './MissionCard';
+import { MissionDetailsDialog } from './MissionDetailsDialog';
 
 export function MissionsPage() {
   const t = useTranslations('structure.missions');
@@ -24,6 +26,10 @@ export function MissionsPage() {
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<
     'all' | string
   >('all');
+  const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: professionalsData } = useGetProfessionals(
     {},
@@ -38,10 +44,19 @@ export function MissionsPage() {
       : {}),
   });
 
+  const { data: selectedMission, isLoading: isLoadingMission } =
+    useGetMission(selectedMissionId);
+
   const missions = missionsData?.data ?? [];
 
   const handleViewDetails = (id: string) => {
-    console.log('View details for mission:', id);
+    setSelectedMissionId(id);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedMissionId(null);
   };
 
   const handleCreateMission = () => {
@@ -113,6 +128,14 @@ export function MissionsPage() {
           <p>{t('noMissions')}</p>
         </div>
       )}
+
+      {/* Mission Details Dialog */}
+      <MissionDetailsDialog
+        isLoading={isLoadingMission}
+        mission={selectedMission ?? null}
+        onClose={handleCloseDialog}
+        open={isDialogOpen}
+      />
     </div>
   );
 }

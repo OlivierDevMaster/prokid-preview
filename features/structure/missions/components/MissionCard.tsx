@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useMissionDuration } from '@/features/mission-durations';
 import { MissionStatusLabel } from '@/features/missions/mission.model';
 import { cn } from '@/lib/utils';
 
@@ -20,8 +21,16 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
   const t = useTranslations('structure.missions');
   const locale = (useLocale() as 'en' | 'fr') || 'en';
 
-  // Calculate progress percentage (placeholder - you may want to calculate based on actual hours)
-  const progressPercentage = 60;
+  const { data: missionDuration, isLoading: isLoadingDuration } =
+    useMissionDuration(mission.id);
+
+  const progressPercentage = missionDuration?.percentage ?? 0;
+  const pastDurationHours = missionDuration?.past_duration_mn
+    ? Math.round(missionDuration.past_duration_mn / 60)
+    : 0;
+  const totalDurationHours = missionDuration?.total_duration_mn
+    ? Math.round(missionDuration.total_duration_mn / 60)
+    : 0;
 
   const statusConfig = {
     accepted: {
@@ -130,6 +139,11 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
                   />
                 </div>
               </div>
+              <span className='whitespace-nowrap text-sm font-medium text-gray-700'>
+                {isLoadingDuration
+                  ? 'xh / xh'
+                  : `${pastDurationHours}h / ${totalDurationHours}h`}
+              </span>
             </div>
           </div>
 

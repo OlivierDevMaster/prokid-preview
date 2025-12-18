@@ -1,10 +1,17 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Building2, Calendar, FileText, Mail } from 'lucide-react';
+import {
+  Building2,
+  Calendar,
+  ClipboardList,
+  FileText,
+  Mail,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import type { StructureMemberWithStructure } from '@/features/structure-members/structureMember.model';
 
@@ -180,6 +187,15 @@ function StructureDetailsContent({
               {t('createdAt')}:{' '}
               {format(new Date(structure.created_at), 'dd/MM/yyyy')}
             </span>
+          </div>
+        </div>
+
+        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
+          <div className='flex items-center gap-2 text-sm text-gray-600'>
+            <ClipboardList className='h-4 w-4 text-gray-400' />
+            <Link href={`/professional/reports?structure=${structureId}`}>
+              {t('reportsList')}
+            </Link>
           </div>
         </div>
       </div>
