@@ -101,6 +101,12 @@ function MissionDetailsContent({
       label: MissionStatusLabel[locale].declined,
       textColor: 'text-red-700',
     },
+    ended: {
+      bgColor: 'bg-blue-50',
+      dotColor: 'bg-blue-500',
+      label: MissionStatusLabel[locale].ended,
+      textColor: 'text-blue-700',
+    },
     expired: {
       bgColor: 'bg-orange-50',
       dotColor: 'bg-orange-500',

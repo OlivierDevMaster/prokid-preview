@@ -34,12 +34,13 @@ export function NotificationDetails() {
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
 
-  // Extract mission_id from notification.data if type is 'mission_received' or 'mission_expired'
+  // Extract mission_id from notification.data if type is 'mission_received', 'mission_expired', or 'mission_ended'
   const missionId = useMemo(() => {
     if (
       !notification ||
       (notification.type !== 'mission_received' &&
-        notification.type !== 'mission_expired')
+        notification.type !== 'mission_expired' &&
+        notification.type !== 'mission_ended')
     ) {
       return null;
     }
@@ -90,6 +91,10 @@ export function NotificationDetails() {
     switch (type) {
       case 'invitation_received':
         return <UserPlus className='h-8 w-8 text-blue-500' />;
+      case 'mission_ended':
+        return <Check className='h-8 w-8 text-blue-500' />;
+      case 'mission_expired':
+        return <Clock className='h-8 w-8 text-orange-500' />;
       case 'mission_received':
         return <Clock className='h-8 w-8 text-green-500' />;
       case 'report_sent':
@@ -174,6 +179,11 @@ export function NotificationDetails() {
                 {notificationMissionStatus === MissionStatus.expired && (
                   <Badge className='bg-orange-500 text-white' variant='default'>
                     {t('expired')}
+                  </Badge>
+                )}
+                {notificationMissionStatus === MissionStatus.ended && (
+                  <Badge className='bg-blue-500 text-white' variant='default'>
+                    {t('ended')}
                   </Badge>
                 )}
               </div>

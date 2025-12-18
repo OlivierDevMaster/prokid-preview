@@ -43,6 +43,8 @@ export function NotificationCard({
     switch (type) {
       case 'invitation_received':
         return <UserPlus className='h-5 w-5 text-blue-500' />;
+      case 'mission_ended':
+        return <Check className='h-5 w-5 text-blue-500' />;
       case 'mission_expired':
         return <Clock className='h-5 w-5 text-orange-500' />;
       case 'mission_received':

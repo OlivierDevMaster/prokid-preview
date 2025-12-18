@@ -68,6 +68,12 @@ export const declineMissionHandler = factory.createHandlers(
             'Cannot decline a cancelled mission.'
           );
         }
+        if (mission.status === 'ended') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot decline an ended mission. The mission end date has passed and the mission has ended.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be declined'

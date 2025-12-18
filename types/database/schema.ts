@@ -776,6 +776,7 @@ export type Database = {
         }
         Returns: string
       }
+      end_accepted_missions: { Args: never; Returns: number }
       expire_pending_missions: { Args: never; Returns: number }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
@@ -849,6 +850,7 @@ export type Database = {
         | "declined"
         | "cancelled"
         | "expired"
+        | "ended"
       notification_type:
         | "invitation_received"
         | "invitation_accepted"
@@ -860,6 +862,7 @@ export type Database = {
         | "mission_declined"
         | "mission_cancelled"
         | "mission_expired"
+        | "mission_ended"
         | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
@@ -1016,6 +1019,7 @@ export const Constants = {
         "declined",
         "cancelled",
         "expired",
+        "ended",
       ],
       notification_type: [
         "invitation_received",
@@ -1028,6 +1032,7 @@ export const Constants = {
         "mission_declined",
         "mission_cancelled",
         "mission_expired",
+        "mission_ended",
         "report_sent",
       ],
       report_status: ["draft", "sent"],

@@ -74,6 +74,12 @@ export const acceptMissionHandler = factory.createHandlers(
             'Cannot accept a cancelled mission.'
           );
         }
+        if (mission.status === 'ended') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept an ended mission. The mission end date has passed and the mission has ended.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be accepted'

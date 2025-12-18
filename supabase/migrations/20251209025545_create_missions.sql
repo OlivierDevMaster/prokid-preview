@@ -126,16 +126,27 @@ BEGIN
     RAISE EXCEPTION 'Cannot change mission status from expired to %. Once a mission is expired, it cannot be changed.', NEW."status";
   END IF;
 
+  -- Prevent changing from 'ended' to any other status (ended is final)
+  IF OLD."status" = 'ended' AND NEW."status" != 'ended' THEN
+    RAISE EXCEPTION 'Cannot change mission status from ended to %. Once a mission is ended, it cannot be changed.', NEW."status";
+  END IF;
+
   -- Prevent changing from 'accepted', 'declined', or 'cancelled' to 'expired'
   IF (OLD."status" = 'accepted' OR OLD."status" = 'declined' OR OLD."status" = 'cancelled') AND NEW."status" = 'expired' THEN
     RAISE EXCEPTION 'Cannot change mission status from % to expired. Only pending missions can be expired.', OLD."status";
+  END IF;
+
+  -- Prevent manually changing from 'declined' or 'cancelled' to 'ended'
+  -- (only 'accepted' -> 'ended' transition is allowed, and only automatic via end_accepted_missions())
+  IF (OLD."status" = 'declined' OR OLD."status" = 'cancelled') AND NEW."status" = 'ended' THEN
+    RAISE EXCEPTION 'Cannot change mission status from % to ended. Only accepted missions can be automatically ended when their end date passes.', OLD."status";
   END IF;
 
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
-COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status: cannot revert accepted/declined/expired to pending, cannot change between accepted and declined, cannot change from expired to any other status, and cannot change from accepted/declined/cancelled to expired (only pending missions can be expired)';
+COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status: cannot revert accepted/declined/expired/ended to pending, cannot change between accepted and declined, cannot change from expired/ended to any other status, and cannot manually change from accepted/declined/cancelled to ended (only automatic transition allowed)';
 
 -- Trigger to prevent status rollback
 CREATE TRIGGER "trigger_prevent_mission_status_rollback"
@@ -216,6 +227,49 @@ SELECT cron.schedule(
   'expire-pending-missions',
   '0 * * * *',
   $$SELECT public.expire_pending_missions()$$
+);
+
+-- ============================================================================
+-- Function: end_accepted_missions
+-- ============================================================================
+
+-- Function to automatically end accepted missions past their end date
+CREATE OR REPLACE FUNCTION public.end_accepted_missions()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+DECLARE
+  ended_count INTEGER;
+BEGIN
+  -- Update missions where status is accepted and end date has passed
+  -- The trigger will automatically create notifications when status changes to ended
+  UPDATE public.missions
+  SET status = 'ended',
+      updated_at = NOW()
+  WHERE status = 'accepted'
+    AND mission_until < NOW();
+
+  -- Get the number of missions that were ended
+  GET DIAGNOSTICS ended_count = ROW_COUNT;
+
+  RETURN ended_count;
+END;
+$$;
+
+COMMENT ON FUNCTION public.end_accepted_missions() IS 'Automatically ends accepted missions where the end date (mission_until) has passed. Returns the count of missions that were ended.';
+
+-- ============================================================================
+-- Schedule: Hourly ending check
+-- ============================================================================
+
+-- Schedule the function to run every hour at minute 0
+-- Pattern: '0 * * * *' means: minute 0 of every hour, every day
+SELECT cron.schedule(
+  'end-accepted-missions',
+  '0 * * * *',
+  $$SELECT public.end_accepted_missions()$$
 );
 
 -- RLS
