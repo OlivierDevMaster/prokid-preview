@@ -5,6 +5,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { authOptions } from '@/lib/auth';
 import { updateSession } from '@/lib/supabase/proxy';
+import { Database } from '@/types/database/schema';
 
 import { routing } from './i18n/routing';
 
@@ -73,7 +74,6 @@ export async function proxy(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('Missing Supabase environment variables in middleware');
       const loginUrl = new URL(`/${locale}/auth/login`, request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -85,9 +85,20 @@ export async function proxy(request: NextRequest) {
         },
         setAll() {
           // Cookies are set via the response in updateSession
+          // We don't set them here to avoid conflicts
         },
       },
     });
+
+    // Create service role client for subscription checks
+    // This bypasses RLS, which is acceptable since NextAuth has already verified identity
+    let supabaseServiceRole: null | ReturnType<typeof createServiceRoleClient> =
+      null;
+    try {
+      supabaseServiceRole = createServiceRoleClient();
+    } catch {
+      // Continue with regular client - subscription check will fail but won't crash
+    }
 
     // Get user profile role from Supabase
     const { data: profile, error } = await supabase
@@ -98,7 +109,6 @@ export async function proxy(request: NextRequest) {
 
     // If profile not found or error, redirect to login
     if (error || !profile || !profile.role) {
-      console.error('Profile not found or missing role:', { error, profile });
       const loginUrl = new URL(`/${locale}/auth/login`, request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       loginUrl.searchParams.set('error', 'profile_not_found');
@@ -115,8 +125,10 @@ export async function proxy(request: NextRequest) {
         redirectPath = `/${locale}/admin/dashboard`;
       } else if (profile.role === 'professional') {
         // Check if professional is subscribed before allowing access
+        // Use service role client to bypass RLS (NextAuth has already verified identity)
+        const subscriptionClient = supabaseServiceRole || supabase;
         const { data: isSubscribed, error: subscriptionError } =
-          await supabase.rpc('is_professional_subscribed', {
+          await subscriptionClient.rpc('is_professional_subscribed', {
             user_id_param: token.id as string,
           });
 
@@ -143,13 +155,14 @@ export async function proxy(request: NextRequest) {
       pathWithoutLocale.startsWith('/professional/subscription-test');
 
     if (requiredRole === 'professional' && !isSubscriptionPage) {
+      // Use service role client to bypass RLS (NextAuth has already verified identity)
+      const subscriptionClient = supabaseServiceRole || supabase;
       const { data: isSubscribed, error: subscriptionError } =
-        await supabase.rpc('is_professional_subscribed', {
+        await subscriptionClient.rpc('is_professional_subscribed', {
           user_id_param: token.id as string,
         });
 
       if (subscriptionError) {
-        console.error('Error checking subscription status:', subscriptionError);
         // Allow access but log the error (could redirect to error page)
       } else if (!isSubscribed) {
         // Redirect to subscription page if not subscribed
@@ -168,6 +181,36 @@ export async function proxy(request: NextRequest) {
 
   // Return Supabase response (it contains the updated cookies)
   return supabaseResponse;
+}
+
+/**
+ * Creates a Supabase admin client with service role key to bypass RLS
+ * Used for subscription checks in middleware where NextAuth has already verified identity
+ * Uses createServerClient from @supabase/ssr with no-op cookie handlers since service role doesn't need session management
+ */
+function createServiceRoleClient(): ReturnType<
+  typeof createServerClient<Database>
+> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured'
+    );
+  }
+
+  return createServerClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+    cookies: {
+      getAll() {
+        // No-op: service role client doesn't need cookies
+        return [];
+      },
+      setAll() {
+        // No-op: service role client doesn't need to set cookies
+      },
+    },
+  });
 }
 
 export const config = {
