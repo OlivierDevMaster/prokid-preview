@@ -855,6 +855,7 @@
     "cancelled": "Annulé",
     "expired": "Expiré",
     "pending": "En attente",
+    "ended": "Terminé",
     "subtitle": "{total} notification(s), {unread} non lue(s)",
     "noNotifications": "Aucune notification"
   }
