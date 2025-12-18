@@ -419,7 +419,8 @@
     "navigation": {
       "missions": "Missions",
       "professionals": "Professionnels",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "reports": "Rapports"
     },
     "missions": {
       "title": "Mes missions",
@@ -758,6 +759,7 @@
       "titleColumn": "Titre",
       "contentsColumn": "Contenu",
       "structureColumn": "Structure",
+      "professionalColumn": "Professionnel",
       "createdAt": "Date de création",
       "previous": "Précédent",
       "next": "Suivant",
@@ -769,7 +771,9 @@
       "error": "Erreur lors du chargement des rapports",
       "view": "Voir",
       "filterByStructure": "Filtrer par structure",
+      "filterByProfessional": "Filtrer par professionnel",
       "allStructures": "Toutes les structures",
+      "allProfessionals": "Tous les professionnels",
       "unknownStructure": "Structure inconnue",
       "mission": "Mission"
     },

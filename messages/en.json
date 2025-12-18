@@ -410,7 +410,8 @@
     "navigation": {
       "missions": "Missions",
       "professionals": "Professionals",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "reports": "Reports"
     },
     "missions": {
       "title": "My missions",
@@ -754,13 +755,16 @@
       "titleColumn": "Title",
       "contentsColumn": "Contents",
       "structureColumn": "Structure",
+      "professionalColumn": "Professional",
       "createdAt": "Created at",
       "previous": "Previous",
       "next": "Next",
       "page": "Page",
       "of": "of",
       "filterByStructure": "Filter by structure",
+      "filterByProfessional": "Filter by professional",
       "allStructures": "All structures",
+      "allProfessionals": "All professionals",
       "unknownStructure": "Unknown structure",
       "noResults": "No results.",
       "noReports": "No reports found.",
