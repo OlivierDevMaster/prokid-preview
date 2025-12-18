@@ -62,6 +62,24 @@ export const acceptMissionHandler = factory.createHandlers(
             'Mission is already accepted.'
           );
         }
+        if (mission.status === 'expired') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept an expired mission. The mission start date has passed and the mission has expired.'
+          );
+        }
+        if (mission.status === 'cancelled') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept a cancelled mission.'
+          );
+        }
+        if (mission.status === 'ended') {
+          return apiResponse.badRequest(
+            'INVALID_STATUS',
+            'Cannot accept an ended mission. The mission end date has passed and the mission has ended.'
+          );
+        }
         return apiResponse.badRequest(
           'INVALID_STATUS',
           'Only pending missions can be accepted'

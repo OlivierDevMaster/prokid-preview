@@ -874,7 +874,10 @@
     "accepted": "Accepté",
     "declined": "Décliné",
     "cancelled": "Annulé",
+    "expired": "Expiré",
     "pending": "En attente",
-    "subtitle": "{total} notification(s), {unread} non lue(s)"
+    "ended": "Terminé",
+    "subtitle": "{total} notification(s), {unread} non lue(s)",
+    "noNotifications": "Aucune notification"
   }
 }

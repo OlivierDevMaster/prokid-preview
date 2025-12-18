@@ -68,7 +68,7 @@ export class TriggerTestFixtureBuilder {
   }
 
   async createMissionWithStatus(
-    status: 'accepted' | 'cancelled' | 'declined' | 'pending'
+    status: 'accepted' | 'cancelled' | 'declined' | 'expired' | 'pending'
   ): Promise<TriggerTestFixture> {
     const structureEmail = `test-structure-${Date.now()}@example.com`;
     const professionalEmail = `test-professional-${Date.now()}@example.com`;

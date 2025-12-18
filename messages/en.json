@@ -865,7 +865,10 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "cancelled": "Cancelled",
+    "expired": "Expired",
     "pending": "Pending",
-    "subtitle": "{total} notification(s), {unread} unread"
+    "ended": "Ended",
+    "subtitle": "{total} notification(s), {unread} unread",
+    "noNotifications": "No notifications"
   }
 }

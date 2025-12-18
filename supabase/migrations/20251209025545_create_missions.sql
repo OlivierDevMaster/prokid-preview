@@ -100,8 +100,9 @@ CREATE TRIGGER extract_mission_schedule_rrule_dates
 -- Function: prevent_mission_status_rollback
 -- ============================================================================
 
--- Function to prevent status changes from accepted/declined back to pending
+-- Function to prevent status changes from accepted/declined/expired back to pending
 -- AND prevent changing between accepted and declined (once a choice is made, it's final)
+-- AND prevent changing from expired to any other status (expired is final)
 CREATE OR REPLACE FUNCTION "public"."prevent_mission_status_rollback"()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -120,11 +121,32 @@ BEGIN
     RAISE EXCEPTION 'Cannot change mission status from declined to accepted. Once a mission is declined, the choice is final.';
   END IF;
 
+  -- Prevent changing from 'expired' to any other status (expired is final)
+  IF OLD."status" = 'expired' AND NEW."status" != 'expired' THEN
+    RAISE EXCEPTION 'Cannot change mission status from expired to %. Once a mission is expired, it cannot be changed.', NEW."status";
+  END IF;
+
+  -- Prevent changing from 'ended' to any other status (ended is final)
+  IF OLD."status" = 'ended' AND NEW."status" != 'ended' THEN
+    RAISE EXCEPTION 'Cannot change mission status from ended to %. Once a mission is ended, it cannot be changed.', NEW."status";
+  END IF;
+
+  -- Prevent changing from 'accepted', 'declined', or 'cancelled' to 'expired'
+  IF (OLD."status" = 'accepted' OR OLD."status" = 'declined' OR OLD."status" = 'cancelled') AND NEW."status" = 'expired' THEN
+    RAISE EXCEPTION 'Cannot change mission status from % to expired. Only pending missions can be expired.', OLD."status";
+  END IF;
+
+  -- Prevent manually changing from 'declined' or 'cancelled' to 'ended'
+  -- (only 'accepted' -> 'ended' transition is allowed, and only automatic via end_accepted_missions())
+  IF (OLD."status" = 'declined' OR OLD."status" = 'cancelled') AND NEW."status" = 'ended' THEN
+    RAISE EXCEPTION 'Cannot change mission status from % to ended. Only accepted missions can be automatically ended when their end date passes.', OLD."status";
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
-COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status: cannot revert accepted/declined to pending, and cannot change between accepted and declined (choices are final)';
+COMMENT ON FUNCTION "public"."prevent_mission_status_rollback"() IS 'Prevents changing mission status: cannot revert accepted/declined/expired/ended to pending, cannot change between accepted and declined, cannot change from expired/ended to any other status, and cannot manually change from accepted/declined/cancelled to ended (only automatic transition allowed)';
 
 -- Trigger to prevent status rollback
 CREATE TRIGGER "trigger_prevent_mission_status_rollback"
@@ -163,6 +185,92 @@ CREATE TRIGGER "trigger_check_professional_membership"
   BEFORE INSERT OR UPDATE OF "structure_id", "professional_id" ON "public"."missions"
   FOR EACH ROW
   EXECUTE FUNCTION "public"."check_professional_membership"();
+
+-- ============================================================================
+-- Function: expire_pending_missions
+-- ============================================================================
+
+-- Function to automatically expire pending missions past their start date
+CREATE OR REPLACE FUNCTION public.expire_pending_missions()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+DECLARE
+  expired_count INTEGER;
+BEGIN
+  -- Update missions where status is pending and start date has passed
+  -- The trigger will automatically create notifications when status changes to expired
+  UPDATE public.missions
+  SET status = 'expired',
+      updated_at = NOW()
+  WHERE status = 'pending'
+    AND mission_dtstart < NOW();
+
+  -- Get the number of missions that were expired
+  GET DIAGNOSTICS expired_count = ROW_COUNT;
+
+  RETURN expired_count;
+END;
+$$;
+
+COMMENT ON FUNCTION public.expire_pending_missions() IS 'Automatically expires pending missions where the start date (mission_dtstart) has passed. Returns the count of missions that were expired.';
+
+-- ============================================================================
+-- Schedule: Hourly expiration check
+-- ============================================================================
+
+-- Schedule the function to run every hour at minute 0
+-- Pattern: '0 * * * *' means: minute 0 of every hour, every day
+SELECT cron.schedule(
+  'expire-pending-missions',
+  '0 * * * *',
+  $$SELECT public.expire_pending_missions()$$
+);
+
+-- ============================================================================
+-- Function: end_accepted_missions
+-- ============================================================================
+
+-- Function to automatically end accepted missions past their end date
+CREATE OR REPLACE FUNCTION public.end_accepted_missions()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+DECLARE
+  ended_count INTEGER;
+BEGIN
+  -- Update missions where status is accepted and end date has passed
+  -- The trigger will automatically create notifications when status changes to ended
+  UPDATE public.missions
+  SET status = 'ended',
+      updated_at = NOW()
+  WHERE status = 'accepted'
+    AND mission_until < NOW();
+
+  -- Get the number of missions that were ended
+  GET DIAGNOSTICS ended_count = ROW_COUNT;
+
+  RETURN ended_count;
+END;
+$$;
+
+COMMENT ON FUNCTION public.end_accepted_missions() IS 'Automatically ends accepted missions where the end date (mission_until) has passed. Returns the count of missions that were ended.';
+
+-- ============================================================================
+-- Schedule: Hourly ending check
+-- ============================================================================
+
+-- Schedule the function to run every hour at minute 0
+-- Pattern: '0 * * * *' means: minute 0 of every hour, every day
+SELECT cron.schedule(
+  'end-accepted-missions',
+  '0 * * * *',
+  $$SELECT public.end_accepted_missions()$$
+);
 
 -- RLS
 ALTER TABLE "public"."missions" ENABLE ROW LEVEL SECURITY;
