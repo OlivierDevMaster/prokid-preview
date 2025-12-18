@@ -841,6 +841,8 @@
     "viewAll": "View all notifications",
     "unread": "Unread",
     "read": "Read",
+    "unreadSingular": "Unread",
+    "readSingular": "Read",
     "filterAll": "All",
     "filterUnread": "Unread",
     "filterRead": "Read",

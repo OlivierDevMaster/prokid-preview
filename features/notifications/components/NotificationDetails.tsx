@@ -145,7 +145,7 @@ export function NotificationDetails() {
                 </h1>
                 {!isRead && (
                   <Badge className='bg-blue-500 text-white' variant='default'>
-                    {t('unread')}
+                    {t('unreadSingular')}
                   </Badge>
                 )}
                 {isRead && (
@@ -153,7 +153,7 @@ export function NotificationDetails() {
                     className='bg-gray-200 text-gray-600'
                     variant='secondary'
                   >
-                    {t('read')}
+                    {t('readSingular')}
                   </Badge>
                 )}
                 {notificationMissionStatus === MissionStatus.pending && (

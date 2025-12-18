@@ -850,6 +850,8 @@
     "viewAll": "Toutes les notifications",
     "unread": "Non lue(s)",
     "read": "Lue(s)",
+    "unreadSingular": "Non lue",
+    "readSingular": "Lue",
     "filterAll": "Toutes",
     "filterUnread": "Non lues",
     "filterRead": "Lues",
