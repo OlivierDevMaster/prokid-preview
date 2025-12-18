@@ -141,11 +141,11 @@ export function NotificationDetails() {
             <div className='flex-1'>
               <div className='mb-2 flex items-center gap-2'>
                 <h1 className='text-2xl font-bold text-gray-800'>
-                  {getNotificationTitle(typedNotification)}
+                  {getNotificationTitle(typedNotification, t)}
                 </h1>
                 {!isRead && (
                   <Badge className='bg-blue-500 text-white' variant='default'>
-                    {t('unread')}
+                    {t('unreadSingular')}
                   </Badge>
                 )}
                 {isRead && (
@@ -153,7 +153,7 @@ export function NotificationDetails() {
                     className='bg-gray-200 text-gray-600'
                     variant='secondary'
                   >
-                    {t('read')}
+                    {t('readSingular')}
                   </Badge>
                 )}
                 {notificationMissionStatus === MissionStatus.pending && (
@@ -199,7 +199,7 @@ export function NotificationDetails() {
                 {t('description')}
               </h2>
               <p className='text-gray-800'>
-                {getNotificationDescription(typedNotification)}
+                {getNotificationDescription(typedNotification, t)}
               </p>
             </div>
 
@@ -208,7 +208,7 @@ export function NotificationDetails() {
                 {t('from')}
               </h2>
               <p className='text-gray-800'>
-                {getNotificationSender(typedNotification)}
+                {getNotificationSender(typedNotification, t)}
               </p>
             </div>
 

@@ -51,6 +51,16 @@
       "friday": "Friday",
       "saturday": "Saturday",
       "sunday": "Sunday"
+    },
+    "pagination": {
+      "itemsPerPage": "Items per page",
+      "next": "Next",
+      "of": "of",
+      "ofItems": "of",
+      "page": "Page",
+      "previous": "Previous",
+      "showing": "Showing",
+      "to": "to"
     }
   },
   "navigation": {
@@ -831,6 +841,8 @@
     "viewAll": "View all notifications",
     "unread": "Unread",
     "read": "Read",
+    "unreadSingular": "Unread",
+    "readSingular": "Read",
     "filterAll": "All",
     "filterUnread": "Unread",
     "filterRead": "Read",
@@ -847,7 +859,48 @@
     "expired": "Expired",
     "pending": "Pending",
     "ended": "Ended",
+    "actions": {
+      "joinStructure": "Join structure",
+      "acceptMission": "Accept mission",
+      "declineInvitation": "Decline invitation",
+      "declineMission": "Decline mission"
+    },
     "subtitle": "{total} notification(s), {unread} unread",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "titles": {
+      "invitation_accepted": "Invitation accepted by {professional_name}",
+      "invitation_declined": "Invitation declined by {professional_name}",
+      "invitation_received": "Invitation from {structure_name}",
+      "member_fired": "{professional_name} was removed from the structure",
+      "member_quit": "{professional_name} left the structure",
+      "mission_accepted": "Mission accepted: {mission_title}",
+      "mission_cancelled": "Mission cancelled: {mission_title}",
+      "mission_declined": "Mission declined: {mission_title}",
+      "mission_ended": "Mission ended: {mission_title}",
+      "mission_expired": "Mission expired: {mission_title}",
+      "mission_received": "New mission: {mission_title}",
+      "report_sent": "Report received: {report_title}",
+      "default": "Notification"
+    },
+    "descriptions": {
+      "invitation_accepted": "{professional_name} has accepted your invitation",
+      "invitation_declined": "{professional_name} has declined your invitation",
+      "invitation_received": "You have been invited to join {structure_name}",
+      "member_fired": "{professional_name} has been removed from your structure",
+      "member_quit": "{professional_name} has left your structure",
+      "mission_accepted": "{professional_name} has accepted the mission: {mission_title}",
+      "mission_cancelled": "The mission \"{mission_title}\" has been cancelled",
+      "mission_declined": "{professional_name} has declined the mission: {mission_title}",
+      "mission_expired_professional": "The mission \"{mission_title}\" from {structure_name} has expired",
+      "mission_expired_structure": "{professional_name} did not respond to the mission: {mission_title}",
+      "mission_ended_professional": "The mission \"{mission_title}\" from {structure_name} has ended",
+      "mission_ended_structure": "The mission \"{mission_title}\" with {professional_name} has ended",
+      "mission_received": "You have received a new mission: {mission_title}",
+      "report_sent": "You have received a report: {report_title} from {professional_name}",
+      "default": "You have a new notification"
+    },
+    "sender": {
+      "system": "System"
+    }
   }
 }
