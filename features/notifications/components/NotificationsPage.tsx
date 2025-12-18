@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
 import {
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Pagination } from '@/features/paginations/components/Pagination';
 
 import type { Notification } from '../notification.model';
 
@@ -19,6 +21,7 @@ import { useDeclineNotification } from '../hooks/useDeclineNotification';
 import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
+import { NotificationConfig } from '../notification.config';
 import { NotificationCard } from './NotificationCard';
 
 export function NotificationsPage() {
@@ -26,6 +29,15 @@ export function NotificationsPage() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [filter, setFilter] = useState<'all' | 'read' | 'unread'>('all');
+
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(NotificationConfig.PAGE_DEFAULT)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    'limit',
+    parseAsInteger.withDefault(NotificationConfig.PAGE_SIZE_DEFAULT)
+  );
 
   const filters = {
     recipient_id: userId,
@@ -36,13 +48,18 @@ export function NotificationsPage() {
         : {}),
   };
 
-  const { data: notificationsData, isLoading } = useNotifications(filters);
+  const { data: notificationsData, isLoading } = useNotifications(filters, {
+    limit: pageSize,
+    page,
+  });
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
   const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   const notifications = (notificationsData?.data ?? []) as Notification[];
+  const totalCount = notificationsData?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleMarkAsRead = (notificationId: string) => {
     markAsRead(notificationId);
@@ -64,6 +81,11 @@ export function NotificationsPage() {
     });
   };
 
+  const handleFilterChange = (value: string) => {
+    setFilter(value as 'all' | 'read' | 'unread');
+    setPage(NotificationConfig.PAGE_DEFAULT);
+  };
+
   if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-blue-50/30'>
@@ -81,17 +103,12 @@ export function NotificationsPage() {
             <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
             <p className='mt-2 text-sm text-gray-600'>
               {t('subtitle', {
-                total: notifications.length,
+                total: totalCount,
                 unread: unreadCount,
               })}
             </p>
           </div>
-          <Select
-            onValueChange={(value: string) =>
-              setFilter(value as 'all' | 'read' | 'unread')
-            }
-            value={filter}
-          >
+          <Select onValueChange={handleFilterChange} value={filter}>
             <SelectTrigger className='w-40'>
               <SelectValue placeholder={t('filter')} />
             </SelectTrigger>
@@ -119,6 +136,20 @@ export function NotificationsPage() {
                 onMarkAsRead={handleMarkAsRead}
               />
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalCount > 0 && (
+          <div className='mt-8'>
+            <Pagination
+              currentPage={page}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              pageSize={pageSize}
+              totalItems={totalCount}
+              totalPages={totalPages}
+            />
           </div>
         )}
       </div>
