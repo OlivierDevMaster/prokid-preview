@@ -357,6 +357,34 @@
       "totalMissions": "Missions Totales",
       "totalReports": "Comptes Rendus Totaux"
     },
+    "structure": {
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "viewDetails": "Voir les détails",
+      "loading": "Chargement...",
+      "noStructure": "Aucune structure trouvée",
+      "contact": "Contact",
+      "createdAt": "Créé le",
+      "close": "Fermer",
+      "noReport": "Aucun compte rendu"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Consultez et gérez toutes vos missions avec les structures.",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "unknownStructure": "Structure inconnue",
+      "structure": "Informations sur la structure",
+      "close": "Fermer",
+      "descriptionLabel": "Description",
+      "filterByStructure": "Filtrer par structure",
+      "allStructures": "Toutes les structures"
+    },
     "subscription": {
       "title": "Abonnement ProKid Pro",
       "description": "Développez votre activité professionnelle avec ProKid",
@@ -742,7 +770,9 @@
       "title": "Mes structures",
       "description": "Gérez vos interventions et suivis pour chaque établissement",
       "addStructure": "Ajouter une structure",
-      "noStructures": "Aucune structure pour le moment."
+      "noStructures": "Aucune structure pour le moment.",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu"
     },
     "subscription": {
       "launchOffer": "Offre de lancement",
@@ -778,7 +808,8 @@
       "professionals": "Professionnels",
       "structures": "Structures",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "missions": "Missions"
     },
     "notifications": {
       "title": "Notifications",
