@@ -1,16 +1,15 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Bell, Check, Clock, FileText, UserPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useFindMission } from '@/features/missions/hooks/useFindMission';
-import { MissionStatus } from '@/features/missions/mission.model';
 import { useRouter } from '@/i18n/routing';
 
 import type { Notification } from '../notification.model';
@@ -21,8 +20,11 @@ import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotification } from '../hooks/useNotification';
 import {
   canAcceptOrDecline,
+  getAcceptButtonLabel,
+  getDeclineButtonLabel,
   getNotificationDescription,
   getNotificationSender,
+  getNotificationStatus,
   getNotificationTitle,
 } from '../utils/notification.utils';
 
@@ -35,27 +37,11 @@ export function NotificationDetails() {
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
 
-  // Extract mission_id from notification.data if type is 'mission_received', 'mission_expired', or 'mission_ended'
-  const missionId = useMemo(() => {
-    if (
-      !notification ||
-      (notification.type !== 'mission_received' &&
-        notification.type !== 'mission_expired' &&
-        notification.type !== 'mission_ended')
-    ) {
-      return null;
-    }
-    const data = notification.data as { mission_id?: string };
-    return data.mission_id || null;
-  }, [notification]);
-
-  // Fetch mission by mission_id
-  const { data: notificationMission } = useFindMission(missionId);
-
-  const notificationMissionStatus = useMemo(() => {
-    if (!notificationMission) return undefined;
-    return notificationMission.status;
-  }, [notificationMission]);
+  const { data: notificationStatus } = useQuery({
+    enabled: !!notification && canAcceptOrDecline(notification),
+    queryFn: () => getNotificationStatus(notification!),
+    queryKey: ['notification-status', notification?.id],
+  });
 
   // Mark as read when viewing
   useEffect(() => {
@@ -157,32 +143,32 @@ export function NotificationDetails() {
                     {t('readSingular')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.pending && (
+                {notificationStatus === 'pending' && (
                   <Badge className='bg-yellow-500 text-white' variant='default'>
                     {t('pending')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.accepted && (
+                {notificationStatus === 'accepted' && (
                   <Badge className='bg-green-500 text-white' variant='default'>
                     {t('accepted')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.declined && (
+                {notificationStatus === 'declined' && (
                   <Badge className='bg-red-500 text-white' variant='default'>
                     {t('declined')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.cancelled && (
+                {notificationStatus === 'cancelled' && (
                   <Badge className='bg-gray-500 text-white' variant='default'>
                     {t('cancelled')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.expired && (
+                {notificationStatus === 'expired' && (
                   <Badge className='bg-orange-500 text-white' variant='default'>
                     {t('expired')}
                   </Badge>
                 )}
-                {notificationMissionStatus === MissionStatus.ended && (
+                {notificationStatus === 'ended' && (
                   <Badge className='bg-blue-500 text-white' variant='default'>
                     {t('ended')}
                   </Badge>
@@ -225,26 +211,66 @@ export function NotificationDetails() {
             )}
           </div>
 
-          {canAcceptOrDecline(typedNotification) &&
-            notificationMissionStatus === MissionStatus.pending && (
-              <div className='flex items-center gap-3 border-t pt-6'>
-                <Button
-                  className='bg-blue-600 text-white hover:bg-blue-700'
-                  onClick={handleAccept}
-                >
-                  <Check className='mr-2 h-4 w-4' />
-                  {t('accept')}
-                </Button>
-                <Button
-                  className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                  onClick={handleDecline}
-                  variant='outline'
-                >
-                  <X className='mr-2 h-4 w-4' />
-                  {t('decline')}
-                </Button>
-              </div>
-            )}
+          {canAcceptOrDecline(typedNotification) && (
+            <div className='border-t pt-6'>
+              {notificationStatus === 'pending' && (
+                <div className='flex items-center gap-3'>
+                  <Button
+                    className='bg-blue-600 text-white hover:bg-blue-700'
+                    onClick={handleAccept}
+                  >
+                    <Check className='mr-2 h-4 w-4' />
+                    {getAcceptButtonLabel(typedNotification, t)}
+                  </Button>
+                  <Button
+                    className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                    onClick={handleDecline}
+                    variant='outline'
+                  >
+                    <X className='mr-2 h-4 w-4' />
+                    {getDeclineButtonLabel(typedNotification, t)}
+                  </Button>
+                </div>
+              )}
+              {notificationStatus !== 'pending' && notificationStatus && (
+                <div className='flex items-center gap-3'>
+                  {notificationStatus === 'accepted' && (
+                    <Badge
+                      className='bg-green-500 text-white'
+                      variant='default'
+                    >
+                      <Check className='mr-1 h-3 w-3' />
+                      {t('accepted')}
+                    </Badge>
+                  )}
+                  {notificationStatus === 'declined' && (
+                    <Badge className='bg-red-500 text-white' variant='default'>
+                      <X className='mr-1 h-3 w-3' />
+                      {t('declined')}
+                    </Badge>
+                  )}
+                  {notificationStatus === 'cancelled' && (
+                    <Badge className='bg-gray-500 text-white' variant='default'>
+                      {t('cancelled')}
+                    </Badge>
+                  )}
+                  {notificationStatus === 'expired' && (
+                    <Badge
+                      className='bg-orange-500 text-white'
+                      variant='default'
+                    >
+                      {t('expired')}
+                    </Badge>
+                  )}
+                  {notificationStatus === 'ended' && (
+                    <Badge className='bg-blue-500 text-white' variant='default'>
+                      {t('ended')}
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       </div>
     </div>
