@@ -20,6 +20,7 @@ import { useAcceptNotification } from '../hooks/useAcceptNotification';
 import { useDeclineNotification } from '../hooks/useDeclineNotification';
 import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import { NotificationPopover } from './NotificationPopover';
 
 export default function NotificationsPanel() {
@@ -43,7 +44,7 @@ export default function NotificationsPanel() {
   const { mutate: declineNotification } = useDeclineNotification();
 
   const notifications = (notificationsData?.data ?? []) as Notification[];
-  const unreadCount = notifications.filter(n => !n.read_at).length;
+  const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   // Set redirect link based on user role
   useEffect(() => {

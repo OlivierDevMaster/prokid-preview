@@ -2,6 +2,7 @@
 
 import { format } from 'date-fns';
 import { Bell, Check, Clock, UserPlus, X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +12,7 @@ import { Link } from '@/i18n/routing';
 
 import type { Notification } from '../notification.model';
 
+import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import {
   canAcceptOrDecline,
   getNotificationDescription,
@@ -30,10 +32,12 @@ export function NotificationPopover({
   onDecline,
 }: NotificationPanelProps) {
   const t = useTranslations('notifications');
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const { isAdmin, isProfessional, isStructure } = useRole();
   const [baseRedirectLink, setBaseRedirectLink] =
     useState<string>('/notifications');
-  const unreadCount = notifications.filter(n => !n.read_at).length;
+  const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   // Set redirect link based on user role
   useEffect(() => {

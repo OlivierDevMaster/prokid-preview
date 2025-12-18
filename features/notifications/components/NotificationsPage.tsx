@@ -18,6 +18,7 @@ import { useAcceptNotification } from '../hooks/useAcceptNotification';
 import { useDeclineNotification } from '../hooks/useDeclineNotification';
 import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import { NotificationCard } from './NotificationCard';
 
 export function NotificationsPage() {
@@ -39,6 +40,7 @@ export function NotificationsPage() {
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const { mutate: acceptNotification } = useAcceptNotification();
   const { mutate: declineNotification } = useDeclineNotification();
+  const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   const notifications = (notificationsData?.data ?? []) as Notification[];
 
@@ -69,8 +71,6 @@ export function NotificationsPage() {
       </div>
     );
   }
-
-  const unreadCount = notifications.filter(n => !n.read_at).length;
 
   return (
     <div className='min-h-screen bg-blue-50/30 p-8 sm:px-6 lg:px-8'>
