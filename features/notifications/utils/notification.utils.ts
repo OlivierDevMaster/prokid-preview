@@ -1,5 +1,10 @@
 import { format } from 'date-fns';
 
+import { MissionStatus } from '@/features/missions/mission.model';
+import { findMission } from '@/features/missions/mission.service';
+import { InvitationStatus } from '@/features/structure-invitations/structureInvitation.model';
+import { findStructureInvitation } from '@/features/structure-invitations/structureInvitation.service';
+
 import type { Notification } from '../notification.model';
 
 type TranslationFunction = (
@@ -207,4 +212,63 @@ export const canAcceptOrDecline = (notification: Notification): boolean => {
     notification.type === 'invitation_received' ||
     notification.type === 'mission_received'
   );
+};
+
+export const getNotificationStatus = async (
+  notification: Notification
+): Promise<
+  'accepted' | 'cancelled' | 'declined' | 'ended' | 'expired' | 'pending' | null
+> => {
+  if (notification.type === 'invitation_received') {
+    const data = notification.data as { invitation_id: string };
+    const invitation = await findStructureInvitation(data.invitation_id);
+    if (!invitation) return null;
+
+    if (invitation.status === InvitationStatus.accepted) return 'accepted';
+    if (invitation.status === InvitationStatus.declined) return 'declined';
+    if (invitation.status === InvitationStatus.pending) return 'pending';
+    return null;
+  }
+
+  if (notification.type === 'mission_received') {
+    const data = notification.data as { mission_id: string };
+    const mission = await findMission(data.mission_id);
+    if (!mission) return null;
+
+    if (mission.status === MissionStatus.accepted) return 'accepted';
+    if (mission.status === MissionStatus.declined) return 'declined';
+    if (mission.status === MissionStatus.cancelled) return 'cancelled';
+    if (mission.status === MissionStatus.expired) return 'expired';
+    if (mission.status === MissionStatus.ended) return 'ended';
+    if (mission.status === MissionStatus.pending) return 'pending';
+    return null;
+  }
+
+  return null;
+};
+
+export const getAcceptButtonLabel = (
+  notification: Notification,
+  t: TranslationFunction
+): string => {
+  if (notification.type === 'invitation_received') {
+    return t('actions.joinStructure');
+  }
+  if (notification.type === 'mission_received') {
+    return t('actions.acceptMission');
+  }
+  return t('accept');
+};
+
+export const getDeclineButtonLabel = (
+  notification: Notification,
+  t: TranslationFunction
+): string => {
+  if (notification.type === 'invitation_received') {
+    return t('actions.declineInvitation');
+  }
+  if (notification.type === 'mission_received') {
+    return t('actions.declineMission');
+  }
+  return t('decline');
 };

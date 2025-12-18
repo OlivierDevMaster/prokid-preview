@@ -866,6 +866,12 @@
     "expired": "Expiré",
     "pending": "En attente",
     "ended": "Terminé",
+    "actions": {
+      "joinStructure": "Rejoindre la structure",
+      "acceptMission": "Accepter la mission",
+      "declineInvitation": "Refuser l'invitation",
+      "declineMission": "Refuser la mission"
+    },
     "subtitle": "{total} notification(s), {unread} non lue(s)",
     "noNotifications": "Aucune notification",
     "titles": {
