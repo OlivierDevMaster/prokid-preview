@@ -20,6 +20,7 @@ import { useAcceptNotification } from '../hooks/useAcceptNotification';
 import { useDeclineNotification } from '../hooks/useDeclineNotification';
 import { useMarkNotificationAsRead } from '../hooks/useMarkNotificationAsRead';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationsRealtime } from '../hooks/useNotificationsRealtime';
 import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import { NotificationConfig } from '../notification.config';
 import { NotificationCard } from './NotificationCard';
@@ -29,6 +30,8 @@ export function NotificationsPage() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [filter, setFilter] = useState<'all' | 'read' | 'unread'>('all');
+
+  useNotificationsRealtime();
 
   const [page, setPage] = useQueryState(
     'page',
