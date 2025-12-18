@@ -731,7 +731,8 @@
       "noReports": "Aucun rapport trouvé.",
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
-      "view": "Voir"
+      "view": "Voir",
+      "mission": "Mission"
     },
     "setting": {
       "activate": "Activer maintenant",
