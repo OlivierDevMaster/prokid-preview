@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TableHeaderActions from '@/features/admin/components/TableHeaderActions';
 
 import { useReports } from '../hooks/useReports';
@@ -21,6 +20,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
   const translations = {
     contents: t('contentsColumn'),
     createdAt: t('createdAt'),
+    mission: t('mission'),
     next: t('next'),
     noResults: t('noResults'),
     of: t('of'),
@@ -49,26 +49,16 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
 
         <TableHeaderActions actions={actions} />
 
-        {/* Table */}
-        <Card className='shadow-none'>
-          <CardHeader>
-            <CardTitle>{t('tableTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {reports.length === 0 && (
-              <div className='py-8 text-center text-gray-500'>
-                {t('noReports')}
-              </div>
-            )}
-            {reports.length > 0 && (
-              <ReportTable
-                data={reports}
-                locale={locale}
-                translations={translations}
-              />
-            )}
-          </CardContent>
-        </Card>
+        {reports.length === 0 && (
+          <div className='py-8 text-center text-gray-500'>{t('noReports')}</div>
+        )}
+        {reports.length > 0 && (
+          <ReportTable
+            data={reports}
+            locale={locale}
+            translations={translations}
+          />
+        )}
       </div>
     </>
   );

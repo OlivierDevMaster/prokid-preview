@@ -722,7 +722,8 @@
       "noReports": "No reports found.",
       "loading": "Loading...",
       "error": "Error loading reports",
-      "view": "View"
+      "view": "View",
+      "mission": "Mission"
     },
     "structure": {
       "title": "My structures",
