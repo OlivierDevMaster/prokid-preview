@@ -2,8 +2,7 @@
 
 import { ChevronDown } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,8 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePathname } from '@/i18n/routing';
-import { Link } from '@/i18n/routing';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from '@/modeles/navigation.modele';
 
@@ -25,6 +23,7 @@ type BoSidebarProps = {
 export function BoSidebar({ navItems }: BoSidebarProps) {
   const t = useTranslations('admin');
   const pathname = usePathname();
+  const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -36,7 +35,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
-    router.push('/auth/login');
+    router.push(`/${locale}/auth/login`);
   };
 
   const isActive = (href: string) => {

@@ -1,11 +1,12 @@
 'use client';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { addDays, format, parseISO, startOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Clock, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -38,6 +39,7 @@ export default function AvailabilitiesEditPage({
 }: AvailabilitiesEditPageProps) {
   const tAvailabilities = useTranslations('admin.availabilities');
   const tCommon = useTranslations('common');
+  const tAuthProfessional = useTranslations('auth.signUp.professionalForm');
   const queryClient = useQueryClient();
   const [initialized, setInitialized] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -65,6 +67,9 @@ export default function AvailabilitiesEditPage({
   const [schedule, setSchedule] = useState<Record<string, DaySchedule>>();
 
   const [isSaving, setIsSaving] = useState(false);
+  const [slotErrors, setSlotErrors] = useState<
+    Record<string, Record<number, null | string>>
+  >({});
 
   const initializeSchedule: Record<string, DaySchedule> | undefined =
     useMemo(() => {
@@ -110,6 +115,7 @@ export default function AvailabilitiesEditPage({
     if (!open) {
       setInitialized(false);
       setSchedule(undefined);
+      setSlotErrors({});
       prevWeekStartRef.current = null;
     }
   }, [open]);
@@ -126,16 +132,10 @@ export default function AvailabilitiesEditPage({
         prevWeekStartRef.current = currentWeekStartTime;
         setInitialized(false);
         setSchedule(undefined);
+        setSlotErrors({});
       }
     }
   }, [open, weekStart]);
-
-  // Initialize schedule when data is ready and dialog is open
-  useEffect(() => {
-    if (!open || initialized || !initializeSchedule) return;
-    setSchedule(initializeSchedule);
-    setInitialized(true);
-  }, [initializeSchedule, initialized, open]);
 
   const dayLabels = [
     tCommon('days.monday'),
@@ -146,6 +146,106 @@ export default function AvailabilitiesEditPage({
     tCommon('days.saturday'),
     tCommon('days.sunday'),
   ];
+
+  /**
+   * Validate slots for a specific day and return errors
+   */
+  const validateDaySlots = useCallback(
+    (dayKey: string, slots: TimeSlot[]): Record<number, null | string> => {
+      /**
+       * Convert time string (HH:MM) to minutes since midnight
+       */
+      const timeToMinutes = (time: string): number => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+
+      /**
+       * Check if two time slots overlap
+       * Two slots overlap if: slot1.start < slot2.end && slot1.end > slot2.start
+       */
+      const doSlotsOverlap = (slot1: TimeSlot, slot2: TimeSlot): boolean => {
+        const start1 = timeToMinutes(slot1.start);
+        const end1 = timeToMinutes(slot1.end);
+        const start2 = timeToMinutes(slot2.start);
+        const end2 = timeToMinutes(slot2.end);
+
+        // Check if start time is before end time (valid slot)
+        if (start1 >= end1 || start2 >= end2) {
+          return false;
+        }
+
+        // Check overlap: slot1.start < slot2.end && slot1.end > slot2.start
+        return start1 < end2 && end1 > start2;
+      };
+
+      const errors: Record<number, null | string> = {};
+
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i];
+
+        // Skip deleted slots
+        if (slot.isDeleted) {
+          continue;
+        }
+
+        const startMinutes = timeToMinutes(slot.start);
+        const endMinutes = timeToMinutes(slot.end);
+
+        // Check if start time is before end time
+        if (startMinutes >= endMinutes) {
+          errors[i] =
+            tAuthProfessional('errorSlotInvalidTime') || 'Invalid time range';
+          continue;
+        }
+
+        // Check for overlaps with other slots
+        for (let j = 0; j < slots.length; j++) {
+          if (
+            i !== j &&
+            !slots[j].isDeleted &&
+            doSlotsOverlap(slot, slots[j])
+          ) {
+            errors[i] =
+              tAuthProfessional('errorSlotOverlap') ||
+              'This slot overlaps with another';
+            break;
+          }
+        }
+      }
+
+      return errors;
+    },
+    [tAuthProfessional]
+  );
+
+  /**
+   * Check if there are any validation errors across all days
+   */
+  const hasValidationErrors = (): boolean => {
+    return Object.values(slotErrors).some(dayErrors =>
+      Object.values(dayErrors).some(error => error !== null)
+    );
+  };
+
+  // Initialize schedule when data is ready and dialog is open
+  useEffect(() => {
+    if (!open || initialized || !initializeSchedule) return;
+    setSchedule(initializeSchedule);
+    setInitialized(true);
+
+    // Validate initial schedule
+    const initialErrors: Record<string, Record<number, null | string>> = {};
+    AVAILABILITIES_DAY_NAMES.forEach(dayKey => {
+      if (initializeSchedule[dayKey].enabled) {
+        initialErrors[dayKey] = validateDaySlots(
+          dayKey,
+          initializeSchedule[dayKey].slots
+        );
+      }
+    });
+    setSlotErrors(initialErrors);
+  }, [initializeSchedule, initialized, open, validateDaySlots]);
 
   const handleDayToggle = (dayKey: string) => {
     if (!schedule) return;
@@ -160,13 +260,21 @@ export default function AvailabilitiesEditPage({
 
   const handleAddSlot = (dayKey: string) => {
     if (!schedule) return;
-    setSchedule({
+    const newSchedule = {
       ...schedule,
       [dayKey]: {
         ...schedule[dayKey],
         slots: [...schedule[dayKey].slots, { end: '17:00', start: '09:00' }],
       },
-    });
+    };
+    setSchedule(newSchedule);
+
+    // Validate slots after adding
+    const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+    setSlotErrors(prev => ({
+      ...prev,
+      [dayKey]: errors,
+    }));
   };
 
   const handleRemoveSlot = (dayKey: string, slotIndex: number) => {
@@ -174,6 +282,14 @@ export default function AvailabilitiesEditPage({
     setSchedule(prevSchedule => {
       const newSchedule = { ...prevSchedule };
       newSchedule[dayKey].slots[slotIndex].isDeleted = true;
+
+      // Validate slots after removing
+      const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+      setSlotErrors(prev => ({
+        ...prev,
+        [dayKey]: errors,
+      }));
+
       return newSchedule;
     });
   };
@@ -185,7 +301,7 @@ export default function AvailabilitiesEditPage({
     value: string
   ) => {
     if (!schedule) return;
-    setSchedule({
+    const newSchedule = {
       ...schedule,
       [dayKey]: {
         ...schedule[dayKey],
@@ -193,11 +309,38 @@ export default function AvailabilitiesEditPage({
           idx === slotIndex ? { ...slot, [field]: value } : slot
         ),
       },
-    });
+    };
+    setSchedule(newSchedule);
+
+    // Validate slots after change
+    const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+    setSlotErrors(prev => ({
+      ...prev,
+      [dayKey]: errors,
+    }));
   };
 
   const handleSave = async () => {
     if (!userId || !schedule) {
+      return;
+    }
+
+    // Validate all days before saving
+    const allErrors: Record<string, Record<number, null | string>> = {};
+    AVAILABILITIES_DAY_NAMES.forEach(dayKey => {
+      if (schedule[dayKey].enabled) {
+        allErrors[dayKey] = validateDaySlots(dayKey, schedule[dayKey].slots);
+      }
+    });
+    setSlotErrors(allErrors);
+
+    // Check if there are any errors
+    const hasErrors = Object.values(allErrors).some(dayErrors =>
+      Object.values(dayErrors).some(error => error !== null)
+    );
+
+    // Only proceed if there are no errors
+    if (hasErrors) {
       return;
     }
 
@@ -279,67 +422,79 @@ export default function AvailabilitiesEditPage({
                       {daySchedule.slots.map(
                         (slot: TimeSlot, slotIndex: number) =>
                           !slot.isDeleted && (
-                            <div
-                              className='grid grid-cols-2 items-end gap-4'
-                              key={slotIndex}
-                            >
-                              <div className='space-y-2'>
-                                <Label className='text-sm text-gray-700'>
-                                  {tCommon('label.start')}
-                                </Label>
-                                <div className='relative'>
-                                  <Input
-                                    className='border-gray-300 pr-10'
-                                    onChange={e =>
-                                      handleSlotChange(
-                                        dayKey,
-                                        slotIndex,
-                                        'start',
-                                        e.target.value
-                                      )
-                                    }
-                                    type='time'
-                                    value={slot.start}
-                                  />
-                                  <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
-                                </div>
-                              </div>
-                              <div className='space-y-2'>
-                                <Label className='text-sm text-gray-700'>
-                                  {tCommon('label.end')}
-                                </Label>
-                                <div className='relative flex items-center gap-2'>
-                                  <div className='relative flex-1'>
+                            <div key={slotIndex}>
+                              <div className='grid grid-cols-2 items-end gap-4'>
+                                <div className='space-y-2'>
+                                  <Label className='text-sm text-gray-700'>
+                                    {tCommon('label.start')}
+                                  </Label>
+                                  <div className='relative'>
                                     <Input
-                                      className='border-gray-300 pr-10'
+                                      className={`pr-10 ${
+                                        slotErrors[dayKey]?.[slotIndex]
+                                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                          : 'border-gray-300'
+                                      }`}
                                       onChange={e =>
                                         handleSlotChange(
                                           dayKey,
                                           slotIndex,
-                                          'end',
+                                          'start',
                                           e.target.value
                                         )
                                       }
                                       type='time'
-                                      value={slot.end}
+                                      value={slot.start}
                                     />
                                     <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                                   </div>
-                                  {daySchedule.slots.length > 1 && (
-                                    <Button
-                                      className='text-red-600 hover:text-red-700'
-                                      onClick={() =>
-                                        handleRemoveSlot(dayKey, slotIndex)
-                                      }
-                                      size='sm'
-                                      type='button'
-                                      variant='ghost'
-                                    >
-                                      <Trash2 className='h-4 w-4' />
-                                    </Button>
-                                  )}
+                                </div>
+                                <div className='space-y-2'>
+                                  <Label className='text-sm text-gray-700'>
+                                    {tCommon('label.end')}
+                                  </Label>
+                                  <div className='relative flex items-center gap-2'>
+                                    <div className='relative flex-1'>
+                                      <Input
+                                        className={`pr-10 ${
+                                          slotErrors[dayKey]?.[slotIndex]
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                            : 'border-gray-300'
+                                        }`}
+                                        onChange={e =>
+                                          handleSlotChange(
+                                            dayKey,
+                                            slotIndex,
+                                            'end',
+                                            e.target.value
+                                          )
+                                        }
+                                        type='time'
+                                        value={slot.end}
+                                      />
+                                      <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                                    </div>
+                                    {daySchedule.slots.length > 1 && (
+                                      <Button
+                                        className='text-red-600 hover:text-red-700'
+                                        onClick={() =>
+                                          handleRemoveSlot(dayKey, slotIndex)
+                                        }
+                                        size='sm'
+                                        type='button'
+                                        variant='ghost'
+                                      >
+                                        <Trash2 className='h-4 w-4' />
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
+                              {slotErrors[dayKey]?.[slotIndex] && (
+                                <p className='mt-1 text-sm text-red-600'>
+                                  {slotErrors[dayKey][slotIndex]}
+                                </p>
+                              )}
                             </div>
                           )
                       )}
@@ -365,8 +520,8 @@ export default function AvailabilitiesEditPage({
             {tCommon('actions.cancel')}
           </Button>
           <Button
-            className='bg-blue-600 text-white hover:bg-blue-700'
-            disabled={isSaving}
+            className='bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+            disabled={isSaving || hasValidationErrors()}
             onClick={handleSave}
             type='button'
           >

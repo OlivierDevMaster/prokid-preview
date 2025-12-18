@@ -4,15 +4,21 @@ import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { useRouter } from '@/i18n/routing';
 
 import { useGetProfessionals } from '../hooks/useGetProfessionals';
 import { ProfessionalCard } from './ProfessionalCard';
 
 export function ProfessionalsPage() {
   const t = useTranslations('structure.professionals');
+  const router = useRouter();
   const { data: professionalsData, isLoading } = useGetProfessionals();
 
   const professionals = professionalsData?.data ?? [];
+
+  const handleAddMission = () => {
+    router.push('/structure/invitations/new');
+  };
 
   if (isLoading) {
     return (
@@ -30,10 +36,13 @@ export function ProfessionalsPage() {
         <p className='mt-2 text-gray-600'>{t('description')}</p>
       </div>
 
-      <div className='flex justify-end'>
-        <Button className='rounded-lg bg-blue-400 text-white hover:bg-blue-500'>
-          <Plus className='h-4 w-4' />
-          {t('addProfessional')}
+      <div className='flex justify-end gap-3'>
+        <Button
+          className='rounded-lg bg-blue-400 text-white hover:bg-blue-500'
+          onClick={handleAddMission}
+        >
+          <Plus className='mr-2 h-4 w-4' />
+          {t('sendInvitation')}
         </Button>
       </div>
       {/* Professionals Grid */}

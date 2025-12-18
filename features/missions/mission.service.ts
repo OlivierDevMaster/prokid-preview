@@ -26,9 +26,10 @@ export const createMission = async (
     {
       body: {
         description: body.description,
-        duration_mn: body.duration_mn,
+        mission_dtstart: body.mission_dtstart,
+        mission_until: body.mission_until,
         professional_id: body.professional_id,
-        rrule: body.rrule,
+        schedules: body.schedules,
         status: body.status ?? 'pending',
         structure_id: body.structure_id,
         title: body.title,

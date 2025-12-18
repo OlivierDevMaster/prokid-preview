@@ -38,9 +38,10 @@ export const MissionStatusLabel: Record<
 
 export interface CreateMissionRequestBody {
   description?: string;
-  duration_mn: number;
+  mission_dtstart: string;
+  mission_until: string;
   professional_id: string;
-  rrule: string;
+  schedules: MissionSchedule[];
   status?: MissionStatus;
   structure_id: string;
   title: string;
@@ -55,6 +56,11 @@ export interface MissionFilters {
 }
 
 export type MissionInsert = TablesInsert<'missions'>;
+
+export interface MissionSchedule {
+  duration_mn: number;
+  rrule: string;
+}
 
 export type MissionUpdate = TablesUpdate<'missions'>;
 
