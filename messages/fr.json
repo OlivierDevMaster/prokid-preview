@@ -444,6 +444,8 @@
       "create": "Créer la mission",
       "createSuccess": "Mission créée avec succès",
       "createError": "Échec de la création de la mission",
+      "filterByProfessional": "Filtrer par professionnel",
+      "allProfessionals": "Tous les professionnels",
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu",
       "noReport": "Aucun compte rendu",

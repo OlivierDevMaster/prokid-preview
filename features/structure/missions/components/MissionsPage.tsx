@@ -1,18 +1,55 @@
 'use client';
 
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
+import { useRouter } from '@/i18n/routing';
 
 import { useGetMissions } from '../hooks/useGetMissions';
 import { MissionCard } from './MissionCard';
 
 export function MissionsPage() {
   const t = useTranslations('structure.missions');
-  const { data: missionsData, isLoading } = useGetMissions();
+  const router = useRouter();
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<
+    'all' | string
+  >('all');
+
+  const { data: professionalsData } = useGetProfessionals(
+    {},
+    { limit: 1000, page: 1 }
+  );
+
+  const professionals = professionalsData?.data ?? [];
+
+  const { data: missionsData, isLoading } = useGetMissions({
+    ...(selectedProfessionalId && selectedProfessionalId !== 'all'
+      ? { professional_id: selectedProfessionalId }
+      : {}),
+  });
 
   const missions = missionsData?.data ?? [];
 
   const handleViewDetails = (id: string) => {
     console.log('View details for mission:', id);
+  };
+
+  const handleCreateMission = () => {
+    router.push('/structure/missions/new');
+  };
+
+  const handleProfessionalChange = (value: string) => {
+    setSelectedProfessionalId(value);
   };
 
   if (isLoading) {
@@ -26,9 +63,38 @@ export function MissionsPage() {
   return (
     <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
-        <p className='mt-2 text-gray-600'>{t('description')}</p>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
+          <p className='mt-2 text-gray-600'>{t('description')}</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className='flex justify-between gap-4'>
+        <Select
+          onValueChange={handleProfessionalChange}
+          value={selectedProfessionalId}
+        >
+          <SelectTrigger className='w-[250px]'>
+            <SelectValue placeholder={t('filterByProfessional')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value='all'>{t('allProfessionals')}</SelectItem>
+            {professionals.map(professional => (
+              <SelectItem key={professional.id} value={professional.id}>
+                {professional.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          className='bg-blue-500 text-white hover:bg-blue-600'
+          onClick={handleCreateMission}
+        >
+          <Plus className='mr-2 h-4 w-4' />
+          {t('createMission')}
+        </Button>
       </div>
 
       {/* Missions Grid */}

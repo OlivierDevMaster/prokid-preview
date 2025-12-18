@@ -5,6 +5,7 @@ import { formatISO } from 'date-fns';
 import { ArrowLeft } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -207,39 +208,134 @@ export function CreateMissionForm() {
             <FormField
               control={form.control}
               name='professional_id'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t('selectProfessional') || 'Select Professional'}
-                  </FormLabel>
-                  <Select
-                    onValueChange={handleProfessionalChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            t('selectProfessionalPlaceholder') ||
-                            'Select a professional'
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {professionals.map(professional => (
-                        <SelectItem
-                          key={professional.id}
-                          value={professional.id}
-                        >
-                          {professional.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const selectedProfessional = professionals.find(
+                  p => p.id === field.value
+                );
+
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      {t('selectProfessional') || 'Select Professional'}
+                    </FormLabel>
+                    <Select
+                      onValueChange={handleProfessionalChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className='h-auto min-h-[3.5rem] py-2'>
+                          {selectedProfessional ? (
+                            <div className='flex w-full items-center gap-3'>
+                              <div className='flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+                                {selectedProfessional.avatarUrl ? (
+                                  <Image
+                                    alt={selectedProfessional.name}
+                                    className='h-full w-full object-cover'
+                                    height={40}
+                                    src={selectedProfessional.avatarUrl}
+                                    unoptimized
+                                    width={40}
+                                  />
+                                ) : (
+                                  <span className='text-sm font-semibold text-gray-500'>
+                                    {selectedProfessional.name
+                                      .charAt(0)
+                                      .toUpperCase()}
+                                  </span>
+                                )}
+                              </div>
+                              <div className='flex-1 truncate text-left'>
+                                <div className='truncate font-medium text-gray-900'>
+                                  {selectedProfessional.name}
+                                </div>
+                                {selectedProfessional.location && (
+                                  <div className='truncate text-sm text-gray-500'>
+                                    {selectedProfessional.location}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <SelectValue
+                              placeholder={
+                                t('selectProfessionalPlaceholder') ||
+                                'Select a professional'
+                              }
+                            />
+                          )}
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className='max-h-[400px]'>
+                        {professionals.length === 0 ? (
+                          <div className='px-2 py-6 text-center text-sm text-gray-500'>
+                            {t('noProfessionals') || 'No professionals found'}
+                          </div>
+                        ) : (
+                          professionals.map(professional => (
+                            <SelectItem
+                              key={professional.id}
+                              textValue={professional.name}
+                              value={professional.id}
+                            >
+                              <div className='flex w-full items-center gap-3 py-1'>
+                                <div className='flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100'>
+                                  {professional.avatarUrl ? (
+                                    <Image
+                                      alt={professional.name}
+                                      className='h-full w-full object-cover'
+                                      height={48}
+                                      src={professional.avatarUrl}
+                                      unoptimized
+                                      width={48}
+                                    />
+                                  ) : (
+                                    <span className='text-base font-semibold text-gray-500'>
+                                      {professional.name
+                                        .charAt(0)
+                                        .toUpperCase()}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className='flex flex-1 flex-col gap-1 overflow-hidden'>
+                                  <div className='truncate font-medium text-gray-900'>
+                                    {professional.name}
+                                  </div>
+                                  {professional.location && (
+                                    <div className='truncate text-sm text-gray-600'>
+                                      {professional.location}
+                                    </div>
+                                  )}
+                                  {professional.skills &&
+                                    professional.skills.length > 0 && (
+                                      <div className='flex flex-wrap gap-1'>
+                                        {professional.skills
+                                          .slice(0, 3)
+                                          .map((skill, index) => (
+                                            <span
+                                              className='rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700'
+                                              key={index}
+                                            >
+                                              {skill}
+                                            </span>
+                                          ))}
+                                        {professional.skills.length > 3 && (
+                                          <span className='text-xs text-gray-500'>
+                                            +{professional.skills.length - 3}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* Availability Selection - Only show if professional is selected */}

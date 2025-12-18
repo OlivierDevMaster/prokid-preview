@@ -440,7 +440,9 @@
       "creating": "Creating...",
       "create": "Create Mission",
       "createSuccess": "Mission created successfully",
-      "createError": "Failed to create mission"
+      "createError": "Failed to create mission",
+      "filterByProfessional": "Filter by professional",
+      "allProfessionals": "All professionals"
     },
     "professionals": {
       "title": "My professionals",
