@@ -108,7 +108,7 @@ export function NotificationCard({
               <div className='flex-1'>
                 <div className='mb-1 flex items-center gap-2'>
                   <h4 className='text-sm font-bold text-gray-900'>
-                    {getNotificationTitle(notification)}
+                    {getNotificationTitle(notification, t)}
                   </h4>
                   {!isRead && (
                     <Badge className='bg-blue-500 text-white' variant='default'>
@@ -125,11 +125,11 @@ export function NotificationCard({
                   )}
                 </div>
                 <p className='mb-2 text-sm text-gray-700'>
-                  {getNotificationDescription(notification)}
+                  {getNotificationDescription(notification, t)}
                 </p>
                 <div className='mb-2 flex items-center gap-2 text-xs text-gray-500'>
                   <span>
-                    {t('from')}: {getNotificationSender(notification)}
+                    {t('from')}: {getNotificationSender(notification, t)}
                   </span>
                   <span>•</span>
                   <span>

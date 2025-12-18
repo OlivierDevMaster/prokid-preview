@@ -2,89 +2,173 @@ import { format } from 'date-fns';
 
 import type { Notification } from '../notification.model';
 
-export const getNotificationTitle = (notification: Notification): string => {
-  const { data, type } = notification;
+type TranslationFunction = (
+  key: string,
+  values?: Record<string, number | string>
+) => string;
 
-  switch (type) {
-    case 'invitation_accepted':
-      return `Invitation accepted by ${(data as { professional_name: string }).professional_name}`;
-    case 'invitation_declined':
-      return `Invitation declined by ${(data as { professional_name: string }).professional_name}`;
-    case 'invitation_received':
-      return `Invitation from ${(data as { structure_name: string }).structure_name}`;
-    case 'member_fired':
-      return `${(data as { professional_name: string }).professional_name} was removed from the structure`;
-    case 'member_quit':
-      return `${(data as { professional_name: string }).professional_name} left the structure`;
-    case 'mission_accepted':
-      return `Mission accepted: ${(data as { mission_title: string }).mission_title}`;
-    case 'mission_cancelled':
-      return `Mission cancelled: ${(data as { mission_title: string }).mission_title}`;
-    case 'mission_declined':
-      return `Mission declined: ${(data as { mission_title: string }).mission_title}`;
-    case 'mission_ended':
-      return `Mission ended: ${(data as { mission_title: string }).mission_title}`;
-    case 'mission_expired':
-      return `Mission expired: ${(data as { mission_title: string }).mission_title}`;
-    case 'mission_received':
-      return `New mission: ${(data as { mission_title: string }).mission_title}`;
-    case 'report_sent':
-      return `Report received: ${(data as { report_title: string }).report_title}`;
-    default:
-      return 'Notification';
-  }
-};
-
-export const getNotificationDescription = (
-  notification: Notification
+export const getNotificationTitle = (
+  notification: Notification,
+  t: TranslationFunction
 ): string => {
   const { data, type } = notification;
 
   switch (type) {
     case 'invitation_accepted':
-      return `${(data as { professional_name: string }).professional_name} has accepted your invitation`;
+      return t('titles.invitation_accepted', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
     case 'invitation_declined':
-      return `${(data as { professional_name: string }).professional_name} has declined your invitation`;
+      return t('titles.invitation_declined', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
     case 'invitation_received':
-      return `You have been invited to join ${(data as { structure_name: string }).structure_name}`;
+      return t('titles.invitation_received', {
+        structure_name: (data as { structure_name: string }).structure_name,
+      });
     case 'member_fired':
-      return `${(data as { professional_name: string }).professional_name} has been removed from your structure`;
+      return t('titles.member_fired', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
     case 'member_quit':
-      return `${(data as { professional_name: string }).professional_name} has left your structure`;
+      return t('titles.member_quit', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
     case 'mission_accepted':
-      return `${(data as { professional_name: string }).professional_name} has accepted the mission: ${(data as { mission_title: string }).mission_title}`;
+      return t('titles.mission_accepted', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
     case 'mission_cancelled':
-      return `The mission "${(data as { mission_title: string }).mission_title}" has been cancelled`;
+      return t('titles.mission_cancelled', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
     case 'mission_declined':
-      return `${(data as { professional_name: string }).professional_name} has declined the mission: ${(data as { mission_title: string }).mission_title}`;
+      return t('titles.mission_declined', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
+    case 'mission_ended':
+      return t('titles.mission_ended', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
+    case 'mission_expired':
+      return t('titles.mission_expired', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
+    case 'mission_received':
+      return t('titles.mission_received', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
+    case 'report_sent':
+      return t('titles.report_sent', {
+        report_title: (data as { report_title: string }).report_title,
+      });
+    default:
+      return t('titles.default');
+  }
+};
+
+export const getNotificationDescription = (
+  notification: Notification,
+  t: TranslationFunction
+): string => {
+  const { data, type } = notification;
+
+  switch (type) {
+    case 'invitation_accepted':
+      return t('descriptions.invitation_accepted', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
+    case 'invitation_declined':
+      return t('descriptions.invitation_declined', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
+    case 'invitation_received':
+      return t('descriptions.invitation_received', {
+        structure_name: (data as { structure_name: string }).structure_name,
+      });
+    case 'member_fired':
+      return t('descriptions.member_fired', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
+    case 'member_quit':
+      return t('descriptions.member_quit', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
+    case 'mission_accepted':
+      return t('descriptions.mission_accepted', {
+        mission_title: (data as { mission_title: string }).mission_title,
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
+    case 'mission_cancelled':
+      return t('descriptions.mission_cancelled', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
+    case 'mission_declined':
+      return t('descriptions.mission_declined', {
+        mission_title: (data as { mission_title: string }).mission_title,
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+      });
     case 'mission_expired':
       // Check if recipient is professional or structure based on available data
       if ((data as { structure_name?: string }).structure_name) {
         // Professional notification
-        return `The mission "${(data as { mission_title: string }).mission_title}" from ${(data as { structure_name: string }).structure_name} has expired`;
+        return t('descriptions.mission_expired_professional', {
+          mission_title: (data as { mission_title: string }).mission_title,
+          structure_name: (data as { structure_name: string }).structure_name,
+        });
       } else {
         // Structure notification
-        return `${(data as { professional_name: string }).professional_name} did not respond to the mission: ${(data as { mission_title: string }).mission_title}`;
+        return t('descriptions.mission_expired_structure', {
+          mission_title: (data as { mission_title: string }).mission_title,
+          professional_name: (data as { professional_name: string })
+            .professional_name,
+        });
       }
     case 'mission_ended':
       // Check if recipient is professional or structure based on available data
       if ((data as { structure_name?: string }).structure_name) {
         // Professional notification
-        return `The mission "${(data as { mission_title: string }).mission_title}" from ${(data as { structure_name: string }).structure_name} has ended`;
+        return t('descriptions.mission_ended_professional', {
+          mission_title: (data as { mission_title: string }).mission_title,
+          structure_name: (data as { structure_name: string }).structure_name,
+        });
       } else {
         // Structure notification
-        return `The mission "${(data as { mission_title: string }).mission_title}" with ${(data as { professional_name: string }).professional_name} has ended`;
+        return t('descriptions.mission_ended_structure', {
+          mission_title: (data as { mission_title: string }).mission_title,
+          professional_name: (data as { professional_name: string })
+            .professional_name,
+        });
       }
     case 'report_sent':
-      return `You have received a report: ${(data as { report_title: string }).report_title} from ${(data as { professional_name: string }).professional_name}`;
+      return t('descriptions.report_sent', {
+        professional_name: (data as { professional_name: string })
+          .professional_name,
+        report_title: (data as { report_title: string }).report_title,
+      });
     case 'mission_received':
-      return `You have received a new mission: ${(data as { mission_title: string }).mission_title}`;
+      return t('descriptions.mission_received', {
+        mission_title: (data as { mission_title: string }).mission_title,
+      });
     default:
-      return 'You have a new notification';
+      return t('descriptions.default');
   }
 };
 
-export const getNotificationSender = (notification: Notification): string => {
+export const getNotificationSender = (
+  notification: Notification,
+  t: TranslationFunction
+): string => {
   const { data, type } = notification;
 
   switch (type) {
@@ -108,9 +192,9 @@ export const getNotificationSender = (notification: Notification): string => {
       } else if ((data as { professional_name?: string }).professional_name) {
         return (data as { professional_name: string }).professional_name;
       }
-      return 'System';
+      return t('sender.system');
     default:
-      return 'System';
+      return t('sender.system');
   }
 };
 

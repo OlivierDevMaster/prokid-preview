@@ -108,7 +108,7 @@ export function NotificationPopover({
                       <div className='min-w-0 flex-1'>
                         <div className='flex items-start justify-between gap-2'>
                           <h4 className='text-sm font-bold text-gray-900'>
-                            {getNotificationTitle(notification)}
+                            {getNotificationTitle(notification, t)}
                           </h4>
                           <div className='flex flex-shrink-0 items-center gap-2'>
                             <span className='text-xs text-gray-500'>
@@ -124,11 +124,11 @@ export function NotificationPopover({
                         </div>
 
                         <p className='mt-1 line-clamp-2 text-sm text-gray-700'>
-                          {getNotificationDescription(notification)}
+                          {getNotificationDescription(notification, t)}
                         </p>
 
                         <p className='mt-1 text-xs text-gray-500'>
-                          {t('from')}: {getNotificationSender(notification)}
+                          {t('from')}: {getNotificationSender(notification, t)}
                         </p>
                       </div>
                     </div>

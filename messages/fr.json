@@ -867,6 +867,41 @@
     "pending": "En attente",
     "ended": "Terminé",
     "subtitle": "{total} notification(s), {unread} non lue(s)",
-    "noNotifications": "Aucune notification"
+    "noNotifications": "Aucune notification",
+    "titles": {
+      "invitation_accepted": "Invitation acceptée par {professional_name}",
+      "invitation_declined": "Invitation refusée par {professional_name}",
+      "invitation_received": "Invitation de {structure_name}",
+      "member_fired": "{professional_name} a été retiré de la structure",
+      "member_quit": "{professional_name} a quitté la structure",
+      "mission_accepted": "Mission acceptée : {mission_title}",
+      "mission_cancelled": "Mission annulée : {mission_title}",
+      "mission_declined": "Mission refusée : {mission_title}",
+      "mission_ended": "Mission terminée : {mission_title}",
+      "mission_expired": "Mission expirée : {mission_title}",
+      "mission_received": "Nouvelle mission : {mission_title}",
+      "report_sent": "Rapport reçu : {report_title}",
+      "default": "Notification"
+    },
+    "descriptions": {
+      "invitation_accepted": "{professional_name} a accepté votre invitation",
+      "invitation_declined": "{professional_name} a refusé votre invitation",
+      "invitation_received": "Vous avez été invité à rejoindre {structure_name}",
+      "member_fired": "{professional_name} a été retiré de votre structure",
+      "member_quit": "{professional_name} a quitté votre structure",
+      "mission_accepted": "{professional_name} a accepté la mission : {mission_title}",
+      "mission_cancelled": "La mission \"{mission_title}\" a été annulée",
+      "mission_declined": "{professional_name} a refusé la mission : {mission_title}",
+      "mission_expired_professional": "La mission \"{mission_title}\" de {structure_name} a expiré",
+      "mission_expired_structure": "{professional_name} n'a pas répondu à la mission : {mission_title}",
+      "mission_ended_professional": "La mission \"{mission_title}\" de {structure_name} s'est terminée",
+      "mission_ended_structure": "La mission \"{mission_title}\" avec {professional_name} s'est terminée",
+      "mission_received": "Vous avez reçu une nouvelle mission : {mission_title}",
+      "report_sent": "Vous avez reçu un rapport : {report_title} de {professional_name}",
+      "default": "Vous avez une nouvelle notification"
+    },
+    "sender": {
+      "system": "Système"
+    }
   }
 }
