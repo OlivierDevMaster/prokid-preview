@@ -482,7 +482,11 @@ export function CreateMissionForm() {
               >
                 {t('cancel') || 'Cancel'}
               </Button>
-              <Button disabled={isPending} type='submit'>
+              <Button
+                className='bg-blue-500 text-white hover:bg-blue-600'
+                disabled={isPending}
+                type='submit'
+              >
                 {isPending
                   ? t('creating') || 'Creating...'
                   : t('create') || 'Create Mission'}
