@@ -51,6 +51,16 @@
       "friday": "Friday",
       "saturday": "Saturday",
       "sunday": "Sunday"
+    },
+    "pagination": {
+      "itemsPerPage": "Items per page",
+      "next": "Next",
+      "of": "of",
+      "ofItems": "of",
+      "page": "Page",
+      "previous": "Previous",
+      "showing": "Showing",
+      "to": "to"
     }
   },
   "navigation": {

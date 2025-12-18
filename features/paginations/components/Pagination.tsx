@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,16 +20,6 @@ interface PaginationProps {
   pageSizeOptions?: number[];
   totalItems: number;
   totalPages: number;
-  translations?: {
-    itemsPerPage?: string;
-    next?: string;
-    of?: string;
-    ofItems?: string;
-    page?: string;
-    previous?: string;
-    showing?: string;
-    to?: string;
-  };
 }
 
 export function Pagination({
@@ -39,18 +30,8 @@ export function Pagination({
   pageSizeOptions = [10, 20, 50, 100],
   totalItems,
   totalPages,
-  translations = {},
 }: PaginationProps) {
-  const {
-    itemsPerPage = 'Items per page',
-    next = 'Next',
-    of = 'of',
-    ofItems = 'of',
-    page = 'Page',
-    previous = 'Previous',
-    showing = 'Showing',
-    to = 'to',
-  } = translations;
+  const t = useTranslations('common.pagination');
 
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
@@ -67,7 +48,7 @@ export function Pagination({
         {onPageSizeChange && (
           <div className='flex items-center gap-2'>
             <span className='text-sm text-muted-foreground'>
-              {itemsPerPage}:
+              {t('itemsPerPage')}:
             </span>
             <Select
               onValueChange={handlePageSizeChange}
@@ -87,7 +68,8 @@ export function Pagination({
           </div>
         )}
         <div className='text-sm text-muted-foreground'>
-          {showing} {startItem} {to} {endItem} {ofItems} {totalItems}
+          {t('showing')} {startItem} {t('to')} {endItem} {t('ofItems')}{' '}
+          {totalItems}
         </div>
       </div>
       <div className='flex items-center gap-2'>
@@ -98,10 +80,10 @@ export function Pagination({
           variant='outline'
         >
           <ChevronLeft className='mr-1 h-4 w-4' />
-          {previous}
+          {t('previous')}
         </Button>
         <div className='text-sm text-muted-foreground'>
-          {page} {currentPage} {of} {totalPages}
+          {t('page')} {currentPage} {t('of')} {totalPages}
         </div>
         <Button
           disabled={currentPage >= totalPages}
@@ -109,7 +91,7 @@ export function Pagination({
           size='sm'
           variant='outline'
         >
-          {next}
+          {t('next')}
           <ChevronRight className='ml-1 h-4 w-4' />
         </Button>
       </div>
