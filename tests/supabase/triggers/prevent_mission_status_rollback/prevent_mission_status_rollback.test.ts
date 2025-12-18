@@ -137,4 +137,118 @@ describe('Trigger: trigger_prevent_mission_status_rollback', () => {
 
     assertEquals(updateError, null);
   });
+
+  it('should prevent changing status from expired to any other status', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('expired');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.pending })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes('Cannot change mission status from expired'),
+      true
+    );
+  });
+
+  it('should prevent changing status from expired to accepted', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('expired');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.accepted })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes('Cannot change mission status from expired'),
+      true
+    );
+  });
+
+  it('should prevent changing status from expired to declined', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('expired');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.declined })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes('Cannot change mission status from expired'),
+      true
+    );
+  });
+
+  it('should prevent changing status from accepted to expired', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('accepted');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.expired })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes(
+        'Cannot change mission status from accepted to expired'
+      ) || updateError.message.includes('Only pending missions can be expired'),
+      true
+    );
+  });
+
+  it('should prevent changing status from declined to expired', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('declined');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.expired })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes(
+        'Cannot change mission status from declined to expired'
+      ) || updateError.message.includes('Only pending missions can be expired'),
+      true
+    );
+  });
+
+  it('should prevent changing status from cancelled to expired', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('cancelled');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.expired })
+      .eq('id', fixture.missionId);
+
+    assertExists(updateError);
+    assertEquals(
+      updateError.message.includes(
+        'Cannot change mission status from cancelled to expired'
+      ) || updateError.message.includes('Only pending missions can be expired'),
+      true
+    );
+  });
+
+  it('should allow changing status from pending to expired', async () => {
+    const fixture = await fixtureBuilder.createMissionWithStatus('pending');
+    fixtures.push(fixture);
+
+    const { error: updateError } = await adminClient
+      .from('missions')
+      .update({ status: TriggerTestData.missionStatuses.expired })
+      .eq('id', fixture.missionId);
+
+    assertEquals(updateError, null);
+  });
 });
