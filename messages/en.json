@@ -843,6 +843,7 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "cancelled": "Cancelled",
+    "expired": "Expired",
     "pending": "Pending",
     "subtitle": "{total} notification(s), {unread} unread"
   }

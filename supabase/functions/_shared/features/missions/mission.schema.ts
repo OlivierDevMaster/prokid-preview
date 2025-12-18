@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import { MissionStatuses } from './mission.model.ts';
+
+export const MissionStatusSchema = z.enum(MissionStatuses);
+
 export const CreateMissionRequestBodySchema = z
   .object({
     description: z.string().optional(),
@@ -17,7 +21,7 @@ export const CreateMissionRequestBodySchema = z
         })
       )
       .min(1, 'At least one schedule is required'),
-    status: z.enum(['pending', 'accepted', 'declined', 'cancelled']).optional(),
+    status: MissionStatusSchema.optional(),
     structure_id: z.uuid(),
     title: z.string().min(1),
   })

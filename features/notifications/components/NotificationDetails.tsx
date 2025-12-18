@@ -167,6 +167,11 @@ export function NotificationDetails() {
                     {t('cancelled')}
                   </Badge>
                 )}
+                {notificationMissionStatus === MissionStatus.expired && (
+                  <Badge className='bg-orange-500 text-white' variant='default'>
+                    {t('expired')}
+                  </Badge>
+                )}
               </div>
               <p className='mb-4 text-gray-600'>
                 {format(new Date(notification.created_at), 'dd/MM/yyyy HH:mm')}

@@ -55,6 +55,12 @@ export function ProfessionalMissionCard({
       label: MissionStatusLabel[locale].declined,
       textColor: 'text-red-700',
     },
+    expired: {
+      bgColor: 'bg-orange-50',
+      dotColor: 'bg-orange-500',
+      label: MissionStatusLabel[locale].expired,
+      textColor: 'text-orange-700',
+    },
     pending: {
       bgColor: 'bg-yellow-50',
       dotColor: 'bg-yellow-500',
