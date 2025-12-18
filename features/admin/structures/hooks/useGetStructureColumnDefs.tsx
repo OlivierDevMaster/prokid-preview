@@ -4,7 +4,6 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { ArrowUpDown, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
 
 import type { Structure } from '@/features/structures/structure.model';
 
@@ -16,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useRouter } from '@/i18n/routing';
 
 type UseGetStructureColumnDefsProps = {
   locale?: string;

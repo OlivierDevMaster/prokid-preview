@@ -3,7 +3,6 @@
 import { Bell, Settings } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from '@/i18n/routing';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/popover';
 import ProkidLogo from '@/features/layout/ProkidLogo';
 import { useNotificationUnreadCount } from '@/features/notifications/hooks';
+import { useRouter } from '@/i18n/routing';
 
 import { type Notification, NotificationPanel } from './NotificationPanel';
 

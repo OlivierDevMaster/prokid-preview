@@ -2,10 +2,10 @@
 
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from '@/i18n/routing';
 
 import { Button } from '@/components/ui/button';
 import ProkidLogo from '@/features/layout/ProkidLogo';
+import { useRouter } from '@/i18n/routing';
 
 import NotificationsPanel from '../notifications/components/NotificationsPanel';
 

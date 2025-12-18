@@ -2,10 +2,10 @@
 
 import { Building2, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/routing';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useRouter } from '@/i18n/routing';
 
 export function SignUpChoice({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

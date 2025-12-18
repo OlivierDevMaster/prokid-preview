@@ -1,7 +1,6 @@
 'use client';
 
 import { Bell, Settings } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useRouter } from '@/i18n/routing';
 
 import { type Notification, NotificationPanel } from './NotificationPanel';
 
