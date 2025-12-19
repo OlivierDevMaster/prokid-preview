@@ -6,6 +6,7 @@ import { IdentifiersForm } from './IdentifiersForm';
 import { NotificationPreferences } from './NotificationPreferences';
 import { PasswordChangeForm } from './PasswordChangeForm';
 import { PersonalInfoForm } from './PersonalInfoForm';
+import { ProfessionalInfoForm } from './ProfessionalInfoForm';
 
 export function ProfileTabContent() {
   return (
@@ -16,6 +17,10 @@ export function ProfileTabContent() {
 
       <Card className='rounded-lg border border-gray-200 bg-white p-6'>
         <PersonalInfoForm />
+      </Card>
+
+      <Card className='rounded-lg border border-gray-200 bg-white p-6'>
+        <ProfessionalInfoForm />
       </Card>
 
       <Card className='rounded-lg border border-gray-200 bg-white p-6'>

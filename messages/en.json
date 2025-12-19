@@ -282,6 +282,7 @@
   },
   "professional": {
     "title": "Find your professional",
+    "job": "Job",
     "label": {
       "profilePhoto": "Profile photo",
       "profilePhotoPlaceholder": "Choose a professional and smiling photo",
@@ -825,7 +826,15 @@
       },
       "emailUpdateTitle": "Check your email",
       "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update.",
-      "emailUpdateSuccessMessage": "Your email address has been successfully updated!"
+      "emailUpdateSuccessMessage": "Your email address has been successfully updated!",
+      "professionalInformation": "Professional information",
+      "interventionRadius": "Intervention radius",
+      "experienceYears": "Years of experience",
+      "hourlyRate": "Hourly rate",
+      "selectProfession": "Select a profession",
+      "isAvailable": "I am available for new interventions",
+      "noSkills": "No skills added yet",
+      "addSkillPlaceholder": "Add a skill and press Enter"
     },
     "subscription": {
       "launchOffer": "Launch offer",

@@ -291,6 +291,7 @@
   },
   "professional": {
     "title": "Trouvez votre professionnel",
+    "job": "Profession",
     "label": {
       "profilePhoto": "Photo de profil",
       "profilePhotoPlaceholder": "Choisissez une photo professionnelle et souriante",
@@ -826,7 +827,15 @@
       },
       "emailUpdateTitle": "Vérifiez votre e-mail",
       "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
-      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !"
+      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !",
+      "professionalInformation": "Informations professionnelles",
+      "interventionRadius": "Rayon d'intervention",
+      "experienceYears": "Années d'expérience",
+      "hourlyRate": "Tarif horaire",
+      "selectProfession": "Sélectionner une profession",
+      "isAvailable": "Je suis disponible pour de nouvelles interventions",
+      "noSkills": "Aucune compétence ajoutée pour le moment",
+      "addSkillPlaceholder": "Ajouter une compétence et appuyer sur Entrée"
     },
     "structure": {
       "title": "Mes structures",
