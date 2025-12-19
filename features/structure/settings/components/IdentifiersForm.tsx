@@ -26,7 +26,7 @@ export function IdentifiersForm() {
   const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState('');
-  const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(true);
+  const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(false);
   const updateEmailMutation = useUpdateEmail();
 
   const { data: userProfile } = useQuery({
