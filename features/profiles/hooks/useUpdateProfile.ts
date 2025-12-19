@@ -18,8 +18,15 @@ export const useUpdateProfile = () => {
       return updateProfile(userId, updateData);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-      queryClient.invalidateQueries({ queryKey: ['professional'] });
+      queryClient.invalidateQueries({
+        queryKey: ['user-profile', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['professional', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['structure', variables.userId],
+      });
     },
   });
 };

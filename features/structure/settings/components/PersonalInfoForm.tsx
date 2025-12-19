@@ -10,7 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUpdateProfile } from '@/features/profiles/hooks/useUpdateProfile';
-import { uploadProfilePhoto } from '@/features/profiles/profile.service';
+import {
+  deleteProfilePhoto,
+  uploadProfilePhoto,
+} from '@/features/profiles/profile.service';
 import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
 
 export function PersonalInfoForm() {
@@ -22,6 +25,7 @@ export function PersonalInfoForm() {
   const [lastName, setLastName] = useState('');
   const [imagePreview, setImagePreview] = useState<null | string>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateProfileMutation = useUpdateProfile();
@@ -37,6 +41,7 @@ export function PersonalInfoForm() {
     setLastName(currentLastName);
     setImagePreview(null);
     setSelectedFile(null);
+    setShouldRemoveImage(false);
     setIsEditing(true);
   };
 
@@ -45,6 +50,7 @@ export function PersonalInfoForm() {
     setLastName('');
     setImagePreview(null);
     setSelectedFile(null);
+    setShouldRemoveImage(false);
     setIsEditing(false);
   };
 
@@ -72,6 +78,15 @@ export function PersonalInfoForm() {
     }
   };
 
+  const handleRemoveExistingImage = () => {
+    setShouldRemoveImage(true);
+    setImagePreview(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSave = async () => {
     if (!session?.user?.id || !structure) {
       return;
@@ -80,8 +95,9 @@ export function PersonalInfoForm() {
     const hasFormChanges =
       firstName !== currentFirstName || lastName !== currentLastName;
     const hasImageChange = selectedFile !== null;
+    const hasImageRemoval = shouldRemoveImage && currentAvatarUrl !== null;
 
-    if (!hasFormChanges && !hasImageChange) {
+    if (!hasFormChanges && !hasImageChange && !hasImageRemoval) {
       setIsEditing(false);
       return;
     }
@@ -104,7 +120,13 @@ export function PersonalInfoForm() {
         profileUpdates.last_name = lastName.trim();
       }
 
-      if (selectedFile) {
+      if (shouldRemoveImage && currentAvatarUrl) {
+        await deleteProfilePhoto(currentAvatarUrl);
+        profileUpdates.avatar_url = null;
+      } else if (selectedFile) {
+        if (currentAvatarUrl) {
+          await deleteProfilePhoto(currentAvatarUrl);
+        }
         const avatarUrl = await uploadProfilePhoto(
           selectedFile,
           session.user.id
@@ -124,6 +146,7 @@ export function PersonalInfoForm() {
       await Promise.all(updatePromises);
       setImagePreview(null);
       setSelectedFile(null);
+      setShouldRemoveImage(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -135,7 +158,8 @@ export function PersonalInfoForm() {
     }
   };
 
-  const displayImage = imagePreview || currentAvatarUrl;
+  const displayImage =
+    imagePreview || (!shouldRemoveImage ? currentAvatarUrl : null);
   const initials =
     `${currentFirstName.charAt(0) || ''}${currentLastName.charAt(0) || ''}`.toUpperCase();
 
@@ -184,10 +208,14 @@ export function PersonalInfoForm() {
                 >
                   <Camera className='h-4 w-4 text-white' />
                 </Button>
-                {imagePreview && (
+                {(imagePreview || (currentAvatarUrl && !shouldRemoveImage)) && (
                   <Button
                     className='absolute right-0 top-0 h-6 w-6 rounded-full bg-red-500 p-0 hover:bg-red-600'
-                    onClick={handleRemoveSelectedImage}
+                    onClick={
+                      imagePreview
+                        ? handleRemoveSelectedImage
+                        : handleRemoveExistingImage
+                    }
                     size='sm'
                     type='button'
                   >
