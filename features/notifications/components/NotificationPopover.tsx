@@ -1,22 +1,35 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Bell, Check, Clock, UserPlus, X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
-import { Link } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 
 import type { Notification } from '../notification.model';
 
+import { useNotificationUnreadCount } from '../hooks/useUnreadCount';
 import {
   canAcceptOrDecline,
+  getAcceptButtonLabel,
+  getDeclineButtonLabel,
   getNotificationDescription,
   getNotificationSender,
+  getNotificationStatus,
   getNotificationTitle,
 } from '../utils/notification.utils';
+
+interface NotificationActionButtonsProps {
+  notification: Notification;
+  onAccept?: (id: string) => void;
+  onDecline?: (id: string) => void;
+}
 
 interface NotificationPanelProps {
   notifications: Notification[];
@@ -30,10 +43,13 @@ export function NotificationPopover({
   onDecline,
 }: NotificationPanelProps) {
   const t = useTranslations('notifications');
+  const router = useRouter();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const { isAdmin, isProfessional, isStructure } = useRole();
   const [baseRedirectLink, setBaseRedirectLink] =
     useState<string>('/notifications');
-  const unreadCount = notifications.filter(n => !n.read_at).length;
+  const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   // Set redirect link based on user role
   useEffect(() => {
@@ -48,10 +64,18 @@ export function NotificationPopover({
     }
   }, [isAdmin, isProfessional, isStructure]);
 
+  const handleNotificationClick = (notificationId: string) => {
+    router.push(`${baseRedirectLink}/${notificationId}`);
+  };
+
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'invitation_received':
         return <UserPlus className='h-5 w-5 text-gray-400' />;
+      case 'mission_ended':
+        return <Check className='h-5 w-5 text-blue-400' />;
+      case 'mission_expired':
+        return <Clock className='h-5 w-5 text-orange-400' />;
       case 'mission_received':
         return <Clock className='h-5 w-5 text-gray-400' />;
       default:
@@ -76,88 +100,62 @@ export function NotificationPopover({
           </div>
         ) : (
           <div className='divide-y divide-gray-200'>
-            {notifications.map(notification => (
+            {notifications.map((notification: Notification) => (
               <div
                 className='group transition-colors hover:bg-gray-50'
                 key={notification.id}
               >
-                <Link
-                  className='block'
-                  href={`${baseRedirectLink}/${notification.id}`}
+                <div
+                  className='cursor-pointer p-4'
+                  onClick={() => handleNotificationClick(notification.id)}
                 >
-                  <div className='p-4'>
-                    <div className='flex items-start gap-3'>
-                      <div className='mt-1 flex-shrink-0'>
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                            notification.read_at ? 'bg-gray-100' : 'bg-blue-100'
-                          }`}
-                        >
-                          {getNotificationIcon(notification.type)}
-                        </div>
+                  <div className='flex items-start gap-3'>
+                    <div className='mt-1 flex-shrink-0'>
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                          notification.read_at ? 'bg-gray-100' : 'bg-blue-100'
+                        }`}
+                      >
+                        {getNotificationIcon(notification.type)}
                       </div>
+                    </div>
 
-                      <div className='min-w-0 flex-1'>
-                        <div className='flex items-start justify-between gap-2'>
-                          <h4 className='text-sm font-bold text-gray-900'>
-                            {getNotificationTitle(notification)}
-                          </h4>
-                          <div className='flex flex-shrink-0 items-center gap-2'>
-                            <span className='text-xs text-gray-500'>
-                              {format(
-                                new Date(notification.created_at),
-                                'dd/MM/yyyy'
-                              )}
-                            </span>
-                            {!notification.read_at && (
-                              <div className='h-2 w-2 rounded-full bg-blue-500' />
+                    <div className='min-w-0 flex-1'>
+                      <div className='flex items-start justify-between gap-2'>
+                        <h4 className='text-sm font-bold text-gray-900'>
+                          {getNotificationTitle(notification, t)}
+                        </h4>
+                        <div className='flex flex-shrink-0 items-center gap-2'>
+                          <span className='text-xs text-gray-500'>
+                            {format(
+                              new Date(notification.created_at),
+                              'dd/MM/yyyy'
                             )}
-                          </div>
+                          </span>
+                          {!notification.read_at && (
+                            <div className='h-2 w-2 rounded-full bg-blue-500' />
+                          )}
                         </div>
-
-                        <p className='mt-1 line-clamp-2 text-sm text-gray-700'>
-                          {getNotificationDescription(notification)}
-                        </p>
-
-                        <p className='mt-1 text-xs text-gray-500'>
-                          {t('from')}: {getNotificationSender(notification)}
-                        </p>
                       </div>
-                    </div>
-                  </div>
-                </Link>
 
-                {canAcceptOrDecline(notification) && (
-                  <div className='border-t border-gray-100 bg-gray-50 px-4 py-3'>
-                    <div className='flex items-center gap-2'>
-                      <Button
-                        className='h-auto flex-1 bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700'
-                        onClick={e => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          onAccept?.(notification.id);
-                        }}
-                        size='sm'
-                      >
-                        <Check className='mr-1.5 h-4 w-4' />
-                        {t('accept')}
-                      </Button>
-                      <Button
-                        className='h-auto flex-1 border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50'
-                        onClick={e => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          onDecline?.(notification.id);
-                        }}
-                        size='sm'
-                        variant='outline'
-                      >
-                        <X className='mr-1.5 h-4 w-4' />
-                        {t('decline')}
-                      </Button>
+                      <p className='mt-1 line-clamp-2 text-sm text-gray-700'>
+                        {getNotificationDescription(notification, t)}
+                      </p>
+
+                      <p className='mt-1 text-xs text-gray-500'>
+                        {t('from')}: {getNotificationSender(notification, t)}
+                      </p>
+
+                      {canAcceptOrDecline(notification) && (
+                        <NotificationActionButtons
+                          notification={notification}
+                          onAccept={onAccept}
+                          onDecline={onDecline}
+                        />
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -165,4 +163,106 @@ export function NotificationPopover({
       </div>
     </div>
   );
+}
+
+function NotificationActionButtons({
+  notification,
+  onAccept,
+  onDecline,
+}: NotificationActionButtonsProps) {
+  const t = useTranslations('notifications');
+
+  const { data: notificationStatus } = useQuery({
+    enabled: canAcceptOrDecline(notification),
+    queryFn: () => getNotificationStatus(notification),
+    queryKey: ['notification-status', notification.id],
+  });
+
+  if (notificationStatus === 'accepted') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <Badge className='bg-green-500 text-white' variant='default'>
+          <Check className='mr-1 h-3 w-3' />
+          {t('accepted')}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (notificationStatus === 'declined') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <Badge className='bg-red-500 text-white' variant='default'>
+          <X className='mr-1 h-3 w-3' />
+          {t('declined')}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (notificationStatus === 'cancelled') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <Badge className='bg-gray-500 text-white' variant='default'>
+          {t('cancelled')}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (notificationStatus === 'expired') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <Badge className='bg-orange-500 text-white' variant='default'>
+          {t('expired')}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (notificationStatus === 'ended') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <Badge className='bg-blue-500 text-white' variant='default'>
+          {t('ended')}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (notificationStatus === 'pending') {
+    return (
+      <div className='mt-3' onClick={e => e.stopPropagation()}>
+        <div className='flex items-center gap-2'>
+          <Button
+            className='h-auto flex-1 bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700'
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAccept?.(notification.id);
+            }}
+            size='sm'
+          >
+            <Check className='mr-1.5 h-4 w-4' />
+            {getAcceptButtonLabel(notification, t)}
+          </Button>
+          <Button
+            className='h-auto flex-1 border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50'
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDecline?.(notification.id);
+            }}
+            size='sm'
+            variant='outline'
+          >
+            <X className='mr-1.5 h-4 w-4' />
+            {getDeclineButtonLabel(notification, t)}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }

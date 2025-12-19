@@ -79,13 +79,13 @@ export const getMembershipMissionDurationsHandler = factory.createHandlers(
       }
 
       // Fetch all missions for the professional in the structure
-      // Exclude declined and cancelled missions
+      // Exclude declined, cancelled, and expired missions
       const { data: missions, error: missionsError } = await supabaseAdminClient
         .from('missions')
         .select('id, mission_dtstart, mission_until, status')
         .eq('professional_id', professionalId)
         .eq('structure_id', structureId)
-        .not('status', 'in', '(declined,cancelled)');
+        .not('status', 'in', '(declined,cancelled,expired)');
 
       if (missionsError) {
         return apiResponse.internalServerError('Failed to fetch missions', {

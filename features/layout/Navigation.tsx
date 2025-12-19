@@ -3,12 +3,12 @@
 import { Menu, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
+import { useRouter } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 

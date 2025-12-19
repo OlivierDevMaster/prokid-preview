@@ -21,7 +21,8 @@
       "availability": "Availability",
       "km": "km",
       "start": "Start",
-      "end": "End"
+      "end": "End",
+      "profileImage": "Profile image"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -36,12 +37,15 @@
       "add": "Add",
       "cancel": "Cancel",
       "save": "Save",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Upload",
+      "reset": "Reset"
     },
     "messages": {
       "loading": "Loading...",
       "notFound": "Not found",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "imageSelected": "New image selected"
     },
     "days": {
       "monday": "Monday",
@@ -51,6 +55,16 @@
       "friday": "Friday",
       "saturday": "Saturday",
       "sunday": "Sunday"
+    },
+    "pagination": {
+      "itemsPerPage": "Items per page",
+      "next": "Next",
+      "of": "of",
+      "ofItems": "of",
+      "page": "Page",
+      "previous": "Previous",
+      "showing": "Showing",
+      "to": "to"
     }
   },
   "navigation": {
@@ -76,7 +90,42 @@
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
       "error": "Invalid email or password",
-      "home": "🏠 Home"
+      "home": "🏠 Home",
+      "passwordUpdatedSuccess": "Password updated successfully! You can now log in with your new password."
+    },
+    "forgotPassword": {
+      "title": "Reset Your Password",
+      "description": "Type in your email and we'll send you a link to reset your password",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "submitButton": "Send reset email",
+      "sending": "Sending...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "success": {
+        "title": "Check Your Email",
+        "description": "Password reset instructions sent",
+        "message": "If you registered using your email and password, you will receive a password reset email."
+      },
+      "errors": {
+        "generic": "An error occurred"
+      }
+    },
+    "updatePassword": {
+      "title": "Reset Your Password",
+      "description": "Please enter your new password below.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submitButton": "Save new password",
+      "saving": "Saving...",
+      "verifying": "Verifying reset token...",
+      "errors": {
+        "generic": "An error occurred",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "signUp": {
       "welcome": "Welcome to",
@@ -162,7 +211,10 @@
         "passwordMismatch": "Passwords do not match",
         "passwordTooShort": "Password must be at least 8 characters",
         "emailAlreadyExists": "This email is already in use",
-        "hasAccount": "Already have an account? Log in"
+        "hasAccount": "Already have an account? Log in",
+        "profilePhotoLabel": "Profile Photo",
+        "profilePhotoDescription": "Upload a profile picture (optional)",
+        "removePhoto": "Remove"
       }
     }
   },
@@ -233,6 +285,7 @@
   },
   "professional": {
     "title": "Find your professional",
+    "job": "Job",
     "label": {
       "profilePhoto": "Profile photo",
       "profilePhotoPlaceholder": "Choose a professional and smiling photo",
@@ -357,7 +410,8 @@
       "contact": "Contact",
       "createdAt": "Created at",
       "close": "Close",
-      "noReport": "No report"
+      "noReport": "No report",
+      "reportsList": "Reports list"
     },
     "missions": {
       "title": "My missions",
@@ -409,7 +463,8 @@
     "navigation": {
       "missions": "Missions",
       "professionals": "Professionals",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "reports": "Reports"
     },
     "missions": {
       "title": "My missions",
@@ -422,7 +477,49 @@
       "noReport": "No report",
       "period": "Period",
       "viewDetails": "View details",
-      "unknownProfessional": "Unknown professional"
+      "close": "Close",
+      "unknownProfessional": "Unknown professional",
+      "createMission": "Create Mission",
+      "titlePlaceholder": "Enter mission title",
+      "selectProfessional": "Select Professional",
+      "selectProfessionalPlaceholder": "Select a professional",
+      "selectAvailability": "Select Availability",
+      "selectAvailabilityPlaceholder": "Select an availability",
+      "noAvailabilities": "No availabilities found",
+      "availabilityDescription": "Select the professional availability for this mission",
+      "missionStartDate": "Mission Start Date",
+      "missionEndDate": "Mission End Date",
+      "descriptionLabel": "Description",
+      "optional": "Optional",
+      "descriptionPlaceholder": "Enter mission description",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Mission",
+      "createSuccess": "Mission created successfully",
+      "createError": "Failed to create mission",
+      "filterByProfessional": "Filter by professional",
+      "allProfessionals": "All professionals",
+      "step": "Step",
+      "next": "Next",
+      "back": "Back",
+      "selectAvailabilities": "Select Professional Availabilities",
+      "selectedSchedules": "Selected Schedules",
+      "previousWeek": "Previous Week",
+      "nextWeek": "Next Week",
+      "weekOf": "Week of",
+      "noSlots": "No slots",
+      "missionSchedules": "Mission Schedules",
+      "addSchedule": "Add Schedule",
+      "noSchedulesAdded": "No schedules added. Click on availability slots above to add schedules.",
+      "schedule": "Schedule",
+      "recurrent": "Recurrent",
+      "recurrentDescription": "If checked, this schedule will repeat until the mission end date",
+      "recurrentNotAvailable": "This option is only available for recurrent availabilities",
+      "availabilityRange": "Availability range",
+      "scheduleStartTime": "Start Time",
+      "scheduleEndTime": "End Time",
+      "duration": "Duration (minutes)",
+      "noProfessionals": "No professionals found"
     },
     "professionals": {
       "title": "My professionals",
@@ -430,6 +527,7 @@
       "loading": "Loading...",
       "noProfessionals": "No professionals found.",
       "viewProfile": "View profile",
+      "sendInvitation": "Send invitation",
       "details": {
         "loading": "Loading...",
         "notFound": "Professional not found",
@@ -713,11 +811,18 @@
       "tableTitle": "Reports list",
       "titleColumn": "Title",
       "contentsColumn": "Contents",
+      "structureColumn": "Structure",
+      "professionalColumn": "Professional",
       "createdAt": "Created at",
       "previous": "Previous",
       "next": "Next",
       "page": "Page",
       "of": "of",
+      "filterByStructure": "Filter by structure",
+      "filterByProfessional": "Filter by professional",
+      "allStructures": "All structures",
+      "allProfessionals": "All professionals",
+      "unknownStructure": "Unknown structure",
       "noResults": "No results.",
       "noReports": "No reports found.",
       "loading": "Loading...",
@@ -746,11 +851,21 @@
       "afterTrial": "After the free trial",
       "subscriptionStart": "Your subscription will automatically switch to €9.99/month",
       "remaining": "Remaining",
+      "subscriptionHistory": "Subscription History",
+      "subscriptionHistoryCreated": "Created",
+      "subscriptionHistoryPeriod": "Period",
+      "subscriptionHistoryTrialEnds": "Trial ends",
+      "subscriptionHistoryCancelingAtPeriodEnd": "Canceling at period end",
+      "loading": "Loading...",
+      "noActiveSubscription": "No active subscription",
+      "creating": "Creating...",
+      "opening": "Opening...",
       "profileSettings": "Profile settings",
       "saveChanges": "Save changes",
       "availabilities": "Availabilities",
       "profile": "Profile",
       "personalData": "Personal data",
+      "identifiers": "My identifiers",
       "changePassword": "Change password",
       "passwordRequirements": {
         "title": "The password must contain:",
@@ -758,13 +873,34 @@
         "uppercase": "At least one uppercase letter",
         "number": "At least one number"
       },
+      "passwordReset": {
+        "button": "Reset my password",
+        "sending": "Sending...",
+        "dialogTitle": "Check your email",
+        "dialogMessage": "We've sent a password reset link to {email}. Please check your inbox and click the link to set your new password.",
+        "emailNotFound": "Unable to retrieve your email address. Please try again.",
+        "error": "An error occurred while sending the reset email. Please try again."
+      },
       "notificationPreferences": {
         "title": "Notification preferences",
         "appointmentReminders": "Receive appointment reminders by email (24 hours before)",
         "newInterventions": "Receive new intervention requests notifications",
         "reportConfirmation": "Receive report sending confirmation",
         "newsletter": "Receive newsletter and ProKid tips by email"
-      }
+      },
+      "emailUpdateTitle": "Check your email",
+      "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update.",
+      "emailUpdateSuccessMessage": "Your email address has been successfully updated!",
+      "professionalInformation": "Professional information",
+      "structureInformation": "Structure information",
+      "structureName": "Structure name",
+      "interventionRadius": "Intervention radius",
+      "experienceYears": "Years of experience",
+      "hourlyRate": "Hourly rate",
+      "selectProfession": "Select a profession",
+      "isAvailable": "I am available for new interventions",
+      "noSkills": "No skills added yet",
+      "addSkillPlaceholder": "Add a skill and press Enter"
     },
     "subscription": {
       "launchOffer": "Launch offer",
@@ -831,6 +967,8 @@
     "viewAll": "View all notifications",
     "unread": "Unread",
     "read": "Read",
+    "unreadSingular": "Unread",
+    "readSingular": "Read",
     "filterAll": "All",
     "filterUnread": "Unread",
     "filterRead": "Read",
@@ -844,7 +982,51 @@
     "accepted": "Accepted",
     "declined": "Declined",
     "cancelled": "Cancelled",
+    "expired": "Expired",
     "pending": "Pending",
-    "subtitle": "{total} notification(s), {unread} unread"
+    "ended": "Ended",
+    "actions": {
+      "joinStructure": "Join structure",
+      "acceptMission": "Accept mission",
+      "declineInvitation": "Decline invitation",
+      "declineMission": "Decline mission"
+    },
+    "subtitle": "{total} notification(s), {unread} unread",
+    "noNotifications": "No notifications",
+    "titles": {
+      "invitation_accepted": "Invitation accepted by {professional_name}",
+      "invitation_declined": "Invitation declined by {professional_name}",
+      "invitation_received": "Invitation from {structure_name}",
+      "member_fired": "{professional_name} was removed from the structure",
+      "member_quit": "{professional_name} left the structure",
+      "mission_accepted": "Mission accepted: {mission_title}",
+      "mission_cancelled": "Mission cancelled: {mission_title}",
+      "mission_declined": "Mission declined: {mission_title}",
+      "mission_ended": "Mission ended: {mission_title}",
+      "mission_expired": "Mission expired: {mission_title}",
+      "mission_received": "New mission: {mission_title}",
+      "report_sent": "Report received: {report_title}",
+      "default": "Notification"
+    },
+    "descriptions": {
+      "invitation_accepted": "{professional_name} has accepted your invitation",
+      "invitation_declined": "{professional_name} has declined your invitation",
+      "invitation_received": "You have been invited to join {structure_name}",
+      "member_fired": "{professional_name} has been removed from your structure",
+      "member_quit": "{professional_name} has left your structure",
+      "mission_accepted": "{professional_name} has accepted the mission: {mission_title}",
+      "mission_cancelled": "The mission \"{mission_title}\" has been cancelled",
+      "mission_declined": "{professional_name} has declined the mission: {mission_title}",
+      "mission_expired_professional": "The mission \"{mission_title}\" from {structure_name} has expired",
+      "mission_expired_structure": "{professional_name} did not respond to the mission: {mission_title}",
+      "mission_ended_professional": "The mission \"{mission_title}\" from {structure_name} has ended",
+      "mission_ended_structure": "The mission \"{mission_title}\" with {professional_name} has ended",
+      "mission_received": "You have received a new mission: {mission_title}",
+      "report_sent": "You have received a report: {report_title} from {professional_name}",
+      "default": "You have a new notification"
+    },
+    "sender": {
+      "system": "System"
+    }
   }
 }

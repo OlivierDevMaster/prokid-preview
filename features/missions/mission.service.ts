@@ -9,6 +9,7 @@ import type {
   CreateMissionRequestBody,
   Mission,
   MissionFilters,
+  MissionInsert,
   MissionUpdate,
   MissionWithStructure,
 } from './mission.model';
@@ -26,9 +27,10 @@ export const createMission = async (
     {
       body: {
         description: body.description,
-        duration_mn: body.duration_mn,
+        mission_dtstart: body.mission_dtstart,
+        mission_until: body.mission_until,
         professional_id: body.professional_id,
-        rrule: body.rrule,
+        schedules: body.schedules,
         status: body.status ?? 'pending',
         structure_id: body.structure_id,
         title: body.title,
@@ -36,6 +38,23 @@ export const createMission = async (
       method: 'POST',
     }
   );
+};
+
+// Create mission directly in database (for 2-step creation)
+export const createMissionDirect = async (
+  missionData: MissionInsert
+): Promise<Mission> => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('missions')
+    .insert(missionData)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  return data;
 };
 
 export const findMission = async (

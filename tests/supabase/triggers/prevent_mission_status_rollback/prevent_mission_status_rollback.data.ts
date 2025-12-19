@@ -3,6 +3,7 @@ export const TriggerTestData = {
     accepted: 'accepted',
     cancelled: 'cancelled',
     declined: 'declined',
+    expired: 'expired',
     pending: 'pending',
   },
 };

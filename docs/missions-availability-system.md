@@ -39,7 +39,7 @@ missions
 ├── professional_id (UUID) - Reference to professional
 ├── title (TEXT)
 ├── description (TEXT)
-├── status (mission_status) - pending, accepted, declined, cancelled
+├── status (mission_status) - pending, accepted, declined, cancelled, expired
 ├── mission_dtstart (TIMESTAMP) - Mission start date
 ├── mission_until (TIMESTAMP) - Mission end date
 ├── created_at (TIMESTAMP)
@@ -320,6 +320,38 @@ Where:
 - Mission must have at least one schedule (enforced at application level)
 - RRULEs are validated before storage
 - RLS policies ensure proper access control
+
+## Mission Status and Auto-Expiration
+
+### Status Values
+
+Missions can have the following statuses:
+
+- **pending**: Mission has been created but not yet accepted or declined by the professional
+- **accepted**: Professional has accepted the mission
+- **declined**: Professional has declined the mission
+- **cancelled**: Structure has cancelled the mission
+- **expired**: Mission start date has passed and professional did not accept or decline it
+
+### Auto-Expiration
+
+Missions with `status = 'pending'` are automatically expired when their start date (`mission_dtstart`) has passed. This happens via a scheduled database function that runs hourly.
+
+**Process:**
+
+1. A cron job runs every hour (at minute 0)
+2. The `expire_pending_missions()` function is executed
+3. All missions where `status = 'pending'` AND `mission_dtstart < NOW()` are updated to `status = 'expired'`
+4. The `updated_at` timestamp is also updated
+
+**Status Transition Rules:**
+
+- ✅ `pending` → `expired` (allowed by auto-expiration function)
+- ❌ `expired` → any other status (blocked - expired is final)
+- ❌ `accepted`/`declined`/`cancelled` → `expired` (blocked)
+- ❌ `expired` → `pending` (blocked)
+
+Once a mission is expired, it cannot be changed to any other status, similar to accepted or declined missions.
 
 ## Future Enhancements
 

@@ -19,7 +19,7 @@ export default function ConditionalWrapper({
 
   // If the first segment is 'fr' (a locale in the URL), use the second segment
   // For 'en' (defaultLocale), the locale is not in the URL, so use the first segment
-  const parsedPathname = firstSegment === 'fr' ? pathSegments[1] : firstSegment;
+  const parsedPathname = firstSegment === 'en' ? pathSegments[1] : firstSegment;
 
   const isAdminRoute = parsedPathname === 'admin';
   const isAuthRoute = parsedPathname === 'auth';

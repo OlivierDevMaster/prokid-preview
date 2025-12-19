@@ -24,12 +24,16 @@ export const MissionStatusLabel: Record<
     [MissionStatus.accepted]: 'Accepted',
     [MissionStatus.cancelled]: 'Cancelled',
     [MissionStatus.declined]: 'Declined',
+    [MissionStatus.ended]: 'Ended',
+    [MissionStatus.expired]: 'Expired',
     [MissionStatus.pending]: 'Pending',
   },
   fr: {
     [MissionStatus.accepted]: 'Accepté',
     [MissionStatus.cancelled]: 'Annulé',
     [MissionStatus.declined]: 'Refusé',
+    [MissionStatus.ended]: 'Terminé',
+    [MissionStatus.expired]: 'Expiré',
     [MissionStatus.pending]: 'En attente',
   },
 };

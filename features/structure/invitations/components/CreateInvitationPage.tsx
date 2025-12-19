@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
 import { Professional } from '@/features/professionals/professional.model';
+import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
 import { useRouter } from '@/i18n/routing';
 
 import { useCreateInvitation } from '../hooks/useCreateInvitation';
@@ -29,10 +30,22 @@ export function CreateInvitationPage() {
     { limit: 20 }
   );
 
-  const professionals: Professional[] = useMemo(
-    () => professionalsData?.data ?? [],
-    [professionalsData]
+  const { data: structureProfessionalsData } = useGetProfessionals(
+    {},
+    { limit: 1000, page: 1 }
   );
+
+  const structureProfessionalIds = useMemo(
+    () => new Set(structureProfessionalsData?.data.map(prof => prof.id) ?? []),
+    [structureProfessionalsData]
+  );
+
+  const professionals: Professional[] = useMemo(() => {
+    const allProfessionals = professionalsData?.data ?? [];
+    return allProfessionals.filter(
+      professional => !structureProfessionalIds.has(professional.user_id)
+    );
+  }, [professionalsData, structureProfessionalIds]);
 
   const createInvitation = useCreateInvitation();
 

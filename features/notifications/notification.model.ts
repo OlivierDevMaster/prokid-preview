@@ -67,6 +67,28 @@ export interface MissionDeclinedNotificationData {
   professional_name: string;
 }
 
+export interface MissionEndedNotificationData {
+  mission_id: string;
+  mission_title: string;
+  // For structure notifications
+  professional_id?: string;
+  professional_name?: string;
+  // For professional notifications
+  structure_id?: string;
+  structure_name?: string;
+}
+
+export interface MissionExpiredNotificationData {
+  mission_id: string;
+  mission_title: string;
+  // For structure notifications
+  professional_id?: string;
+  professional_name?: string;
+  // For professional notifications
+  structure_id?: string;
+  structure_name?: string;
+}
+
 export interface MissionReceivedNotificationData {
   mission_id: string;
   mission_title: string;
@@ -105,6 +127,12 @@ export type NotificationData =
   | ({
       type: 'mission_declined';
     } & MissionDeclinedNotificationData)
+  | ({
+      type: 'mission_ended';
+    } & MissionEndedNotificationData)
+  | ({
+      type: 'mission_expired';
+    } & MissionExpiredNotificationData)
   | ({
       type: 'mission_received';
     } & MissionReceivedNotificationData)

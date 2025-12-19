@@ -16,6 +16,11 @@ CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 -- Note: In Supabase, this is typically enabled by default, but we ensure it's available
 CREATE EXTENSION IF NOT EXISTS "wrappers" WITH SCHEMA extensions;
 
+-- Enable pg_cron extension for scheduled database tasks
+-- Required for auto-expiring pending missions
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
+
 COMMENT ON EXTENSION pgcrypto IS 'PostgreSQL extension for cryptographic functions';
 COMMENT ON EXTENSION pg_net IS 'PostgreSQL extension for making HTTP requests from the database';
 COMMENT ON EXTENSION wrappers IS 'PostgreSQL extension that provides realtime functionality';
+COMMENT ON EXTENSION pg_cron IS 'PostgreSQL extension for scheduling database functions to run periodically (e.g., hourly, daily)';

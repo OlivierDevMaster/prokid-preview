@@ -1,9 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+
+import { redirect } from '@/i18n/routing';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  router.push('/professional/dashboard');
-  return null;
+  const locale = useLocale();
+  redirect({ href: '/professional/dashboard', locale });
 }

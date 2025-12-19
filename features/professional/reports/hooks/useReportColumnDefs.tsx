@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { ArrowUpDown, Edit, Eye, Send, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import type { Report as ReportWithRelations } from '@/features/reports/report.model';
@@ -21,6 +20,7 @@ import {
 import TableActions from '@/features/admin/components/TableActions';
 import { TableActionType } from '@/features/admin/models/table.modele';
 import { useDeleteReport } from '@/features/reports/hooks/useDeleteReport';
+import { useRouter } from '@/i18n/routing';
 
 type UseReportColumnDefsProps = {
   locale?: string;
@@ -33,6 +33,7 @@ type UseReportColumnDefsProps = {
     of: string;
     page: string;
     previous: string;
+    structure?: string;
     title: string;
     view?: string;
   };
@@ -93,6 +94,31 @@ export default function useReportColumnDefs({
             variant='ghost'
           >
             {translations.mission}
+            <ArrowUpDown className='ml-2 h-4 w-4' />
+          </Button>
+        );
+      },
+    },
+    {
+      accessorKey: 'title',
+      cell: ({ row }) => {
+        const reportWithMissionStructure = row.original as ReportWithRelations;
+        const structureName =
+          reportWithMissionStructure.mission?.structure?.name || null;
+        return (
+          <div className='max-w-md'>
+            {structureName && <div title={structureName}>{structureName}</div>}
+          </div>
+        );
+      },
+      header: ({ column }) => {
+        return (
+          <Button
+            className='h-8 px-2 lg:px-3'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            variant='ghost'
+          >
+            {translations.structure}
             <ArrowUpDown className='ml-2 h-4 w-4' />
           </Button>
         );

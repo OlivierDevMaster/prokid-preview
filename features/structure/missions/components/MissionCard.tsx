@@ -3,9 +3,11 @@
 import { format } from 'date-fns';
 import { Clock, FileText, MapPin, Phone, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useMissionDuration } from '@/features/mission-durations';
 import { MissionStatusLabel } from '@/features/missions/mission.model';
 import { cn } from '@/lib/utils';
 
@@ -20,8 +22,16 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
   const t = useTranslations('structure.missions');
   const locale = (useLocale() as 'en' | 'fr') || 'en';
 
-  // Calculate progress percentage (placeholder - you may want to calculate based on actual hours)
-  const progressPercentage = 60;
+  const { data: missionDuration, isLoading: isLoadingDuration } =
+    useMissionDuration(mission.id);
+
+  const progressPercentage = missionDuration?.percentage ?? 0;
+  const pastDurationHours = missionDuration?.past_duration_mn
+    ? Math.round(missionDuration.past_duration_mn / 60)
+    : 0;
+  const totalDurationHours = missionDuration?.total_duration_mn
+    ? Math.round(missionDuration.total_duration_mn / 60)
+    : 0;
 
   const statusConfig = {
     accepted: {
@@ -42,6 +52,18 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
       label: MissionStatusLabel[locale].declined,
       textColor: 'text-red-700',
     },
+    ended: {
+      bgColor: 'bg-blue-50',
+      dotColor: 'bg-blue-500',
+      label: MissionStatusLabel[locale].ended,
+      textColor: 'text-blue-700',
+    },
+    expired: {
+      bgColor: 'bg-orange-50',
+      dotColor: 'bg-orange-500',
+      label: MissionStatusLabel[locale].expired,
+      textColor: 'text-orange-700',
+    },
     pending: {
       bgColor: 'bg-yellow-50',
       dotColor: 'bg-yellow-500',
@@ -59,6 +81,15 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
     : t('unknownProfessional');
 
   const professionalEmail = mission.professional?.profile?.email;
+  const professionalAvatarUrl = mission.professional?.profile?.avatar_url;
+  const professionalInitials = professionalName
+    ? professionalName
+        .split(' ')
+        .map(n => n.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '';
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -66,8 +97,27 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
         {/* Header */}
         <div className='mb-4 flex items-start justify-between'>
           <div className='flex items-start gap-4'>
-            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200'>
-              <User className='h-6 w-6 text-white' />
+            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-200'>
+              {professionalAvatarUrl ? (
+                <Image
+                  alt={professionalName}
+                  className='h-full w-full object-cover'
+                  height={48}
+                  src={professionalAvatarUrl}
+                  unoptimized
+                  width={48}
+                />
+              ) : (
+                <div className='flex h-full w-full items-center justify-center bg-blue-200'>
+                  {professionalInitials ? (
+                    <span className='text-sm font-semibold text-white'>
+                      {professionalInitials}
+                    </span>
+                  ) : (
+                    <User className='h-6 w-6 text-white' />
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <h3 className='mb-1 text-lg font-bold text-gray-900'>
@@ -118,6 +168,11 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
                   />
                 </div>
               </div>
+              <span className='whitespace-nowrap text-sm font-medium text-gray-700'>
+                {isLoadingDuration
+                  ? 'xh / xh'
+                  : `${pastDurationHours}h / ${totalDurationHours}h`}
+              </span>
             </div>
           </div>
 

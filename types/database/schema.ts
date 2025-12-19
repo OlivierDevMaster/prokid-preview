@@ -243,6 +243,51 @@ export type Database = {
           },
         ]
       }
+      professional_notification_preferences: {
+        Row: {
+          appointment_reminders: boolean
+          created_at: string
+          new_interventions: boolean
+          newsletter: boolean
+          report_confirmation: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          created_at?: string
+          new_interventions?: boolean
+          newsletter?: boolean
+          report_confirmation?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          created_at?: string
+          new_interventions?: boolean
+          newsletter?: boolean
+          report_confirmation?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           city: string
@@ -776,6 +821,8 @@ export type Database = {
         }
         Returns: string
       }
+      end_accepted_missions: { Args: never; Returns: number }
+      expire_pending_missions: { Args: never; Returns: number }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
@@ -842,7 +889,13 @@ export type Database = {
         | "left"
         | "removed_by_structure"
         | "removed_by_admin"
-      mission_status: "pending" | "accepted" | "declined" | "cancelled"
+      mission_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "cancelled"
+        | "expired"
+        | "ended"
       notification_type:
         | "invitation_received"
         | "invitation_accepted"
@@ -853,6 +906,8 @@ export type Database = {
         | "mission_accepted"
         | "mission_declined"
         | "mission_cancelled"
+        | "mission_expired"
+        | "mission_ended"
         | "report_sent"
       report_status: "draft" | "sent"
       role: "professional" | "structure" | "admin"
@@ -1003,7 +1058,14 @@ export const Constants = {
         "removed_by_structure",
         "removed_by_admin",
       ],
-      mission_status: ["pending", "accepted", "declined", "cancelled"],
+      mission_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "cancelled",
+        "expired",
+        "ended",
+      ],
       notification_type: [
         "invitation_received",
         "invitation_accepted",
@@ -1014,6 +1076,8 @@ export const Constants = {
         "mission_accepted",
         "mission_declined",
         "mission_cancelled",
+        "mission_expired",
+        "mission_ended",
         "report_sent",
       ],
       report_status: ["draft", "sent"],

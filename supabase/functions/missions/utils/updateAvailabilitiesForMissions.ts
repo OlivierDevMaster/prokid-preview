@@ -1,4 +1,4 @@
-import { Options, RRule, RRuleSet, rrulestr } from 'rrule';
+import RRulePkg from 'rrule';
 
 /**
  * Represents a new availability that needs to be created
@@ -244,18 +244,18 @@ export function updateAvailabilitiesForMissions(
           untilBeforeSchedule.setSeconds(untilBeforeSchedule.getSeconds() - 1);
 
           // Parse the original availability RRULE to get options
-          const originalRule = rrulestr(availability.rrule);
+          const originalRule = RRulePkg.rrulestr(availability.rrule);
           const isRRuleSet =
-            originalRule instanceof RRuleSet ||
-            typeof (originalRule as RRuleSet).rrules === 'function';
+            originalRule instanceof RRulePkg.RRuleSet ||
+            typeof (originalRule as RRulePkg.RRuleSet).rrules === 'function';
 
-          let baseRule: RRule;
+          let baseRule: RRulePkg.RRule;
           if (isRRuleSet) {
-            const rruleSet = originalRule as RRuleSet;
+            const rruleSet = originalRule as RRulePkg.RRuleSet;
             const rules = rruleSet.rrules();
-            baseRule = rules[0] || new RRule();
+            baseRule = rules[0] || new RRulePkg.RRule();
           } else {
-            baseRule = originalRule as RRule;
+            baseRule = originalRule as RRulePkg.RRule;
           }
 
           const updatedRrule = createAvailabilityWithUntil(
@@ -298,13 +298,13 @@ export function updateAvailabilitiesForMissions(
     // Only create once per availability, using the latest schedule until
     // Check if we already created a post-mission for this specific availability
     // (check by matching both duration AND the original availability's time pattern)
-    const originalRule = rrulestr(availability.rrule);
+    const originalRule = RRulePkg.rrulestr(availability.rrule);
     const isOriginalRRuleSet =
-      originalRule instanceof RRuleSet ||
-      typeof (originalRule as RRuleSet).rrules === 'function';
+      originalRule instanceof RRulePkg.RRuleSet ||
+      typeof (originalRule as RRulePkg.RRuleSet).rrules === 'function';
     const originalBaseRule = isOriginalRRuleSet
-      ? (originalRule as RRuleSet).rrules()[0]
-      : (originalRule as RRule);
+      ? (originalRule as RRulePkg.RRuleSet).rrules()[0]
+      : (originalRule as RRulePkg.RRule);
     const originalDtstart = originalBaseRule.options.dtstart;
 
     const existingPostMission = toCreate.some(
@@ -312,11 +312,11 @@ export function updateAvailabilitiesForMissions(
         created.duration_mn === availability.duration_mn &&
         (() => {
           try {
-            const rule = rrulestr(created.rrule);
+            const rule = RRulePkg.rrulestr(created.rrule);
             const ruleObj =
-              rule instanceof RRuleSet
-                ? (rule as RRuleSet).rrules()[0]
-                : (rule as RRule);
+              rule instanceof RRulePkg.RRuleSet
+                ? (rule as RRulePkg.RRuleSet).rrules()[0]
+                : (rule as RRulePkg.RRule);
             // Check that it's a post-mission (starts after schedule until)
             // AND matches the original availability's time pattern (same hour/minute)
             if (
@@ -341,18 +341,18 @@ export function updateAvailabilitiesForMissions(
 
     if (!existingPostMission) {
       // Parse the original availability RRULE to get options
-      const originalRule = rrulestr(availability.rrule);
+      const originalRule = RRulePkg.rrulestr(availability.rrule);
       const isRRuleSet =
-        originalRule instanceof RRuleSet ||
-        typeof (originalRule as RRuleSet).rrules === 'function';
+        originalRule instanceof RRulePkg.RRuleSet ||
+        typeof (originalRule as RRulePkg.RRuleSet).rrules === 'function';
 
-      let baseRule: RRule;
+      let baseRule: RRulePkg.RRule;
       if (isRRuleSet) {
-        const rruleSet = originalRule as RRuleSet;
+        const rruleSet = originalRule as RRulePkg.RRuleSet;
         const rules = rruleSet.rrules();
-        baseRule = rules[0] || new RRule();
+        baseRule = rules[0] || new RRulePkg.RRule();
       } else {
-        baseRule = originalRule as RRule;
+        baseRule = originalRule as RRulePkg.RRule;
       }
 
       const options = baseRule.options;
@@ -396,18 +396,18 @@ function calculateAvailabilityModifications(
   };
 
   // Parse the original availability RRULE
-  const originalRule = rrulestr(availability.rrule);
+  const originalRule = RRulePkg.rrulestr(availability.rrule);
   const isRRuleSet =
-    originalRule instanceof RRuleSet ||
-    typeof (originalRule as RRuleSet).rrules === 'function';
+    originalRule instanceof RRulePkg.RRuleSet ||
+    typeof (originalRule as RRulePkg.RRuleSet).rrules === 'function';
 
-  let baseRule: RRule;
+  let baseRule: RRulePkg.RRule;
   if (isRRuleSet) {
-    const rruleSet = originalRule as RRuleSet;
+    const rruleSet = originalRule as RRulePkg.RRuleSet;
     const rules = rruleSet.rrules();
-    baseRule = rules[0] || new RRule();
+    baseRule = rules[0] || new RRulePkg.RRule();
   } else {
-    baseRule = originalRule as RRule;
+    baseRule = originalRule as RRulePkg.RRule;
   }
 
   const options = baseRule.options;
@@ -677,7 +677,7 @@ function calculateAvailabilityModifications(
  * Preserves the original availability's UNTIL if it had one, otherwise continues indefinitely.
  */
 function createAvailabilityAfterSchedulePeriod(
-  originalOptions: Partial<Options>,
+  originalOptions: Partial<RRulePkg.Options>,
   originalDtstart: Date,
   scheduleUntil: Date,
   originalUntil: Date | null | undefined
@@ -695,14 +695,14 @@ function createAvailabilityAfterSchedulePeriod(
   // Add 1 second to scheduleUntil to ensure we get the next occurrence after it ends
   const scheduleUntilPlusOne = new Date(scheduleUntil);
   scheduleUntilPlusOne.setSeconds(scheduleUntilPlusOne.getSeconds() + 1);
-  const tempRule = new RRule({
+  const tempRule = new RRulePkg.RRule({
     ...originalOptions,
     dtstart: originalDtstart,
   });
   const nextOccurrence = tempRule.after(scheduleUntilPlusOne, true);
   const finalDtstart = nextOccurrence || dtstart;
 
-  const newOptions: Partial<Options> = {
+  const newOptions: Partial<RRulePkg.Options> = {
     bymonth: originalOptions.bymonth,
     bymonthday: originalOptions.bymonthday,
     bysetpos: originalOptions.bysetpos,
@@ -719,7 +719,7 @@ function createAvailabilityAfterSchedulePeriod(
   // Remove count if present (we're using UNTIL if it exists)
   delete newOptions.count;
 
-  const newRule = new RRule(newOptions);
+  const newRule = new RRulePkg.RRule(newOptions);
   return newRule.toString();
 }
 
@@ -730,7 +730,7 @@ function createAvailabilityAfterSchedulePeriod(
  * during the schedule period.
  */
 function createAvailabilityForSchedulePeriod(
-  originalOptions: Partial<Options>,
+  originalOptions: Partial<RRulePkg.Options>,
   timeStart: Date,
   scheduleDtstart: Date,
   scheduleUntil: Date
@@ -744,7 +744,7 @@ function createAvailabilityForSchedulePeriod(
   const dtstart = new Date(scheduleDtstart);
   dtstart.setUTCHours(hour, minute, second, 0);
 
-  const newOptions: Partial<Options> = {
+  const newOptions: Partial<RRulePkg.Options> = {
     bymonth: originalOptions.bymonth,
     bymonthday: originalOptions.bymonthday,
     bysetpos: originalOptions.bysetpos,
@@ -761,7 +761,7 @@ function createAvailabilityForSchedulePeriod(
   // Remove count if present (we're using UNTIL instead)
   delete newOptions.count;
 
-  const newRule = new RRule(newOptions);
+  const newRule = new RRulePkg.RRule(newOptions);
   return newRule.toString();
 }
 
@@ -769,10 +769,10 @@ function createAvailabilityForSchedulePeriod(
  * Creates an availability RRULE with a new UNTIL date.
  */
 function createAvailabilityWithUntil(
-  originalOptions: Partial<Options>,
+  originalOptions: Partial<RRulePkg.Options>,
   until: Date
 ): string {
-  const newOptions: Partial<Options> = {
+  const newOptions: Partial<RRulePkg.Options> = {
     ...originalOptions,
     until,
   };
@@ -780,7 +780,7 @@ function createAvailabilityWithUntil(
   // Remove count if present (we're using UNTIL instead)
   delete newOptions.count;
 
-  const newRule = new RRule(newOptions);
+  const newRule = new RRulePkg.RRule(newOptions);
   return newRule.toString();
 }
 
@@ -793,16 +793,16 @@ function extractScheduleDates(
   missionDtstart: Date,
   missionUntil: Date
 ): { dtstart: Date; until: Date } {
-  const rule = rrulestr(scheduleRrule);
+  const rule = RRulePkg.rrulestr(scheduleRrule);
 
   let scheduleDtstart: Date = missionDtstart;
   let scheduleUntil: Date = missionUntil;
 
   if (
-    rule instanceof RRuleSet ||
-    typeof (rule as RRuleSet).rrules === 'function'
+    rule instanceof RRulePkg.RRuleSet ||
+    typeof (rule as RRulePkg.RRuleSet).rrules === 'function'
   ) {
-    const rruleSet = rule as RRuleSet;
+    const rruleSet = rule as RRulePkg.RRuleSet;
     const rules = rruleSet.rrules();
     if (rules.length > 0) {
       const firstRule = rules[0];
@@ -814,7 +814,7 @@ function extractScheduleDates(
           : missionUntil;
     }
   } else {
-    const rrule = rule as RRule;
+    const rrule = rule as RRulePkg.RRule;
     scheduleDtstart = rrule.options.dtstart || missionDtstart;
     scheduleUntil =
       rrule.options.until !== undefined && rrule.options.until !== null
@@ -834,16 +834,16 @@ function generateAvailabilityOccurrences(
   missionDtstart: Date,
   missionUntil: Date
 ): Date[] {
-  const rule = rrulestr(availability.rrule);
+  const rule = RRulePkg.rrulestr(availability.rrule);
 
   let availabilityStart: Date | null = null;
   let availabilityUntil: Date | null = null;
 
   if (
-    rule instanceof RRuleSet ||
-    typeof (rule as RRuleSet).rrules === 'function'
+    rule instanceof RRulePkg.RRuleSet ||
+    typeof (rule as RRulePkg.RRuleSet).rrules === 'function'
   ) {
-    const rruleSet = rule as RRuleSet;
+    const rruleSet = rule as RRulePkg.RRuleSet;
     const rules = rruleSet.rrules();
     if (rules.length > 0) {
       const firstRule = rules[0];
@@ -851,7 +851,7 @@ function generateAvailabilityOccurrences(
       availabilityUntil = firstRule.options.until || null;
     }
   } else {
-    const rrule = rule as RRule;
+    const rrule = rule as RRulePkg.RRule;
     availabilityStart = rrule.options.dtstart || null;
     availabilityUntil = rrule.options.until || null;
   }
@@ -880,17 +880,17 @@ function generateMissionOccurrences(
   missionDtstart: Date,
   missionUntil: Date
 ): Date[] {
-  const rule = rrulestr(schedule.rrule);
+  const rule = RRulePkg.rrulestr(schedule.rrule);
 
   // Get the effective date range
   let scheduleStart: Date = missionDtstart;
   let scheduleUntil: Date = missionUntil;
 
   if (
-    rule instanceof RRuleSet ||
-    typeof (rule as RRuleSet).rrules === 'function'
+    rule instanceof RRulePkg.RRuleSet ||
+    typeof (rule as RRulePkg.RRuleSet).rrules === 'function'
   ) {
-    const rruleSet = rule as RRuleSet;
+    const rruleSet = rule as RRulePkg.RRuleSet;
     const rules = rruleSet.rrules();
     if (rules.length > 0) {
       const firstRule = rules[0];
@@ -898,7 +898,7 @@ function generateMissionOccurrences(
       scheduleUntil = firstRule.options.until || missionUntil;
     }
   } else {
-    const rrule = rule as RRule;
+    const rrule = rule as RRulePkg.RRule;
     scheduleStart = rrule.options.dtstart || missionDtstart;
     scheduleUntil = rrule.options.until || missionUntil;
   }
