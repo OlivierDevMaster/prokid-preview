@@ -837,6 +837,8 @@
       "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update.",
       "emailUpdateSuccessMessage": "Your email address has been successfully updated!",
       "professionalInformation": "Professional information",
+      "structureInformation": "Structure information",
+      "structureName": "Structure name",
       "interventionRadius": "Intervention radius",
       "experienceYears": "Years of experience",
       "hourlyRate": "Hourly rate",

@@ -838,6 +838,8 @@
       "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
       "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !",
       "professionalInformation": "Informations professionnelles",
+      "structureInformation": "Informations de la structure",
+      "structureName": "Nom de la structure",
       "interventionRadius": "Rayon d'intervention",
       "experienceYears": "Années d'expérience",
       "hourlyRate": "Tarif horaire",
