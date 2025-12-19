@@ -13,16 +13,20 @@ import { PersonalInfoForm } from '@/features/professional/settings/components/Pe
 import { useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
-type TabType = 'disponibilites' | 'facturation' | 'profil';
+const Tab = {
+  billing: 'billing',
+  profile: 'profile',
+} as const;
+type Tab = (typeof Tab)[keyof typeof Tab];
 
 export default function SettingsPage() {
   const router = useRouter();
   const t = useTranslations('admin');
-  const [activeTab, setActiveTab] = useState<TabType>('profil');
+  const [activeTab, setActiveTab] = useState<Tab>(Tab.profile);
 
   const tabs = [
-    { id: 'profil' as TabType, label: t('setting.profile') },
-    { id: 'facturation' as TabType, label: t('setting.billing') },
+    { id: Tab.profile, label: t('setting.profile') },
+    { id: Tab.billing, label: t('setting.billing') },
   ];
 
   const handleSave = () => {
@@ -75,14 +79,14 @@ export default function SettingsPage() {
       {/* Content */}
       <Card className='rounded-lg border border-gray-200 bg-white'>
         <div className='space-y-6 p-6'>
-          {activeTab === 'profil' && (
+          {activeTab === Tab.profile && (
             <>
               <PersonalInfoForm />
               <PasswordChangeForm />
               <NotificationPreferences />
             </>
           )}
-          {activeTab === 'facturation' && <BillingTabContent />}
+          {activeTab === Tab.billing && <BillingTabContent />}
         </div>
       </Card>
     </div>
