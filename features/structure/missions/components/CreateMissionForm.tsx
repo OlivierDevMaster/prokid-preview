@@ -292,33 +292,33 @@ export function CreateMissionForm() {
     });
 
     console.info({ matchingAvailability });
-    // // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
-    // const isAvailabilityRecurrent = matchingAvailability?.rrule
-    //   ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
-    //     matchingAvailability.rrule.includes('FREQ=DAILY') ||
-    //     matchingAvailability.rrule.includes('FREQ=MONTHLY')
-    //   : false;
+    // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
+    const isAvailabilityRecurrent = matchingAvailability?.rrule
+      ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
+        matchingAvailability.rrule.includes('FREQ=DAILY') ||
+        matchingAvailability.rrule.includes('FREQ=MONTHLY')
+      : false;
 
-    // // Always use rrule from matching availability if found, otherwise create a simple one
-    // let rrule = matchingAvailability?.rrule;
-    // if (!rrule) {
-    //   const dayOfWeek = start.getDay();
-    //   const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-    //   rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
-    // }
+    // Always use rrule from matching availability if found, otherwise create a simple one
+    let rrule = matchingAvailability?.rrule;
+    if (!rrule) {
+      const dayOfWeek = start.getDay();
+      const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+      rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
+    }
 
-    // append({
-    //   availabilityEndAt: slot.endAt,
-    //   availabilityStartAt: slot.startAt,
-    //   dtstart: slot.startAt,
-    //   duration_mn: durationMn,
-    //   endAt: slot.endAt,
-    //   isAvailabilityRecurrent: isAvailabilityRecurrent,
-    //   isRecurrent: false,
-    //   rrule: rrule,
-    //   startAt: slot.startAt,
-    //   until: null,
-    // });
+    append({
+      availabilityEndAt: slot.endAt,
+      availabilityStartAt: slot.startAt,
+      dtstart: slot.startAt,
+      duration_mn: durationMn,
+      endAt: slot.endAt,
+      isAvailabilityRecurrent: isAvailabilityRecurrent,
+      isRecurrent: false,
+      rrule: rrule,
+      startAt: slot.startAt,
+      until: null,
+    });
   };
 
   const selectedProfessional = professionals.find(
