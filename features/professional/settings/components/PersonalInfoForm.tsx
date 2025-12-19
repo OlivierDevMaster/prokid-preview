@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
-
-import { useUpdatePersonalInfo } from '../hooks/useUpdatePersonalInfo';
+import { useUpdateProfessional } from '@/features/professionals/hooks/useUpdateProfessional';
+import { useUpdateProfile } from '@/features/profiles/hooks/useUpdateProfile';
 
 export function PersonalInfoForm() {
   const t = useTranslations('common');
@@ -19,7 +19,8 @@ export function PersonalInfoForm() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
-  const updatePersonalInfoMutation = useUpdatePersonalInfo();
+  const updateProfileMutation = useUpdateProfile();
+  const updateProfessionalMutation = useUpdateProfessional();
 
   const { data: professional } = useFindProfessional(session?.user?.id);
 
@@ -42,7 +43,7 @@ export function PersonalInfoForm() {
   };
 
   const handleSave = async () => {
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !professional) {
       return;
     }
 
@@ -60,12 +61,32 @@ export function PersonalInfoForm() {
     }
 
     try {
-      await updatePersonalInfoMutation.mutateAsync({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        phone: phone.trim() || null,
-        userId: session.user.id,
-      });
+      const updatePromises = [];
+
+      if (firstName !== currentFirstName || lastName !== currentLastName) {
+        updatePromises.push(
+          updateProfileMutation.mutateAsync({
+            updateData: {
+              first_name: firstName.trim(),
+              last_name: lastName.trim(),
+            },
+            userId: session.user.id,
+          })
+        );
+      }
+
+      if (phone !== currentPhone) {
+        updatePromises.push(
+          updateProfessionalMutation.mutateAsync({
+            professionalId: session.user.id,
+            updateData: {
+              phone: phone.trim() || null,
+            },
+          })
+        );
+      }
+
+      await Promise.all(updatePromises);
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating personal info:', error);
@@ -149,14 +170,16 @@ export function PersonalInfoForm() {
           <Button
             className='bg-blue-500 text-white hover:bg-blue-600'
             disabled={
-              updatePersonalInfoMutation.isPending ||
+              updateProfileMutation.isPending ||
+              updateProfessionalMutation.isPending ||
               !firstName.trim() ||
               !lastName.trim()
             }
             onClick={handleSave}
             size='sm'
           >
-            {updatePersonalInfoMutation.isPending
+            {updateProfileMutation.isPending ||
+            updateProfessionalMutation.isPending
               ? t('messages.saving')
               : t('actions.save')}
           </Button>
