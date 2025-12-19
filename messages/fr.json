@@ -762,6 +762,7 @@
       "availabilities": "Disponibilités",
       "profile": "Profil",
       "personalData": "Informations personnelles",
+      "identifiers": "Mes identifiants",
       "changePassword": "Changer de mot de passe",
       "passwordRequirements": {
         "title": "Le mot de passe doit contenir :",

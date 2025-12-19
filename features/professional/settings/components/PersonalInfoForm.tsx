@@ -47,18 +47,6 @@ export function PersonalInfoForm() {
         </div>
 
         <div className='space-y-2'>
-          <Label className='text-sm font-medium text-gray-700' htmlFor='email'>
-            {t('label.email')} *
-          </Label>
-          <Input
-            className='w-full'
-            id='email'
-            placeholder='marie.joux@prokid.fr'
-            type='email'
-          />
-        </div>
-
-        <div className='space-y-2'>
           <Label className='text-sm font-medium text-gray-700' htmlFor='phone'>
             {t('label.phone')}
           </Label>

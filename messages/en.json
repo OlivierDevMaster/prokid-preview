@@ -761,6 +761,7 @@
       "availabilities": "Availabilities",
       "profile": "Profile",
       "personalData": "Personal data",
+      "identifiers": "My identifiers",
       "changePassword": "Change password",
       "passwordRequirements": {
         "title": "The password must contain:",
