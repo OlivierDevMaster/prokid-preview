@@ -3,6 +3,7 @@
 import { format } from 'date-fns';
 import { Clock, FileText, MapPin, Phone, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -80,6 +81,15 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
     : t('unknownProfessional');
 
   const professionalEmail = mission.professional?.profile?.email;
+  const professionalAvatarUrl = mission.professional?.profile?.avatar_url;
+  const professionalInitials = professionalName
+    ? professionalName
+        .split(' ')
+        .map(n => n.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '';
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -87,8 +97,27 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
         {/* Header */}
         <div className='mb-4 flex items-start justify-between'>
           <div className='flex items-start gap-4'>
-            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200'>
-              <User className='h-6 w-6 text-white' />
+            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-200'>
+              {professionalAvatarUrl ? (
+                <Image
+                  alt={professionalName}
+                  className='h-full w-full object-cover'
+                  height={48}
+                  src={professionalAvatarUrl}
+                  unoptimized
+                  width={48}
+                />
+              ) : (
+                <div className='flex h-full w-full items-center justify-center bg-blue-200'>
+                  {professionalInitials ? (
+                    <span className='text-sm font-semibold text-white'>
+                      {professionalInitials}
+                    </span>
+                  ) : (
+                    <User className='h-6 w-6 text-white' />
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <h3 className='mb-1 text-lg font-bold text-gray-900'>

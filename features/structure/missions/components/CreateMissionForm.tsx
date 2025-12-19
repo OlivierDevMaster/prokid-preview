@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
@@ -243,46 +244,81 @@ export function CreateMissionForm() {
     const end = new Date(slot.endAt);
     const durationMn = Math.round((end.getTime() - start.getTime()) / 60000);
 
-    // Try to find matching availability to get rrule
-    // Match by time and duration
-    const matchingAvailability = availabilities.find(avail => {
-      if (!avail.dtstart) return false;
-      const availStart = new Date(avail.dtstart);
-      const slotStartTime = format(start, 'HH:mm');
-      const availStartTime = format(availStart, 'HH:mm');
-      return (
-        availStartTime === slotStartTime && avail.duration_mn === durationMn
+    // // Helper function to extract DTSTART from rrule string
+    const extractDtstartFromRrule = (rruleString: string): Date | null => {
+      if (!rruleString) return null;
+
+      // Look for DTSTART in the rrule string
+      // Format: DTSTART:20240101T090000 or DTSTART;TZID=Europe/Paris:20240101T090000
+      const dtstartMatch = rruleString.match(
+        /DTSTART[^:]*:(\d{8})T(\d{2})(\d{2})(\d{2})/
       );
+
+      if (dtstartMatch) {
+        const [, dateStr, hours, minutes, seconds] = dtstartMatch;
+        const year = parseInt(dateStr.substring(0, 4), 10);
+        const month = parseInt(dateStr.substring(4, 6), 10) - 1; // Month is 0-indexed
+        const day = parseInt(dateStr.substring(6, 8), 10);
+        const hour = parseInt(hours, 10);
+        const minute = parseInt(minutes, 10);
+        const second = parseInt(seconds, 10);
+        return new Date(year, month, day, hour, minute, second);
+      }
+
+      return null;
+    };
+
+    // Try to find matching availability to get rrule
+    // Match by time and duration, using dtstart or extracting from rrule
+    const slotStartTime = format(start, 'HH:mm');
+    const matchingAvailability = availabilities.find(avail => {
+      // Try to get start time from dtstart or rrule
+      let availStart: Date | null = null;
+      if (avail.dtstart) {
+        availStart = new Date(avail.dtstart);
+      } else if (avail.rrule) {
+        availStart = extractDtstartFromRrule(avail.rrule);
+      }
+
+      console.info({
+        d: availStart && format(availStart, 'dd/MM/yyyy HH:mm'),
+        slotStartTime,
+      });
+      // If we can't determine start time, skip this availability
+      if (!availStart) return false;
+
+      const availStartTime = format(availStart, 'HH:mm');
+      return availStartTime === slotStartTime;
     });
 
-    console.info({ availabilities, matchingAvailability });
-    // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
-    const isAvailabilityRecurrent = matchingAvailability?.rrule
-      ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
-        matchingAvailability.rrule.includes('FREQ=DAILY') ||
-        matchingAvailability.rrule.includes('FREQ=MONTHLY')
-      : false;
+    console.info({ matchingAvailability });
+    // // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
+    // const isAvailabilityRecurrent = matchingAvailability?.rrule
+    //   ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
+    //     matchingAvailability.rrule.includes('FREQ=DAILY') ||
+    //     matchingAvailability.rrule.includes('FREQ=MONTHLY')
+    //   : false;
 
-    // Use rrule from availability if found, otherwise create a simple one
-    let rrule = matchingAvailability?.rrule;
-    if (!rrule) {
-      const dayOfWeek = start.getDay();
-      const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-      rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
-    }
+    // // Always use rrule from matching availability if found, otherwise create a simple one
+    // let rrule = matchingAvailability?.rrule;
+    // if (!rrule) {
+    //   const dayOfWeek = start.getDay();
+    //   const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+    //   rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
+    // }
 
-    append({
-      availabilityEndAt: slot.endAt,
-      availabilityStartAt: slot.startAt,
-      dtstart: slot.startAt,
-      duration_mn: durationMn,
-      endAt: slot.endAt,
-      isAvailabilityRecurrent: isAvailabilityRecurrent,
-      isRecurrent: false,
-      rrule: rrule,
-      startAt: slot.startAt,
-      until: null,
-    });
+    // append({
+    //   availabilityEndAt: slot.endAt,
+    //   availabilityStartAt: slot.startAt,
+    //   dtstart: slot.startAt,
+    //   duration_mn: durationMn,
+    //   endAt: slot.endAt,
+    //   isAvailabilityRecurrent: isAvailabilityRecurrent,
+    //   isRecurrent: false,
+    //   rrule: rrule,
+    //   startAt: slot.startAt,
+    //   until: null,
+    // });
   };
 
   const selectedProfessional = professionals.find(
@@ -489,17 +525,17 @@ export function CreateMissionForm() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={format(new Date(), 'yyyy-MM-dd HH:mm')}
                         onChange={e => {
                           const date = e.target.value
                             ? new Date(e.target.value)
                             : undefined;
                           field.onChange(date);
                         }}
-                        type='datetime-local'
+                        type='datetime'
                         value={
                           field.value
-                            ? new Date(field.value).toISOString().slice(0, 16)
+                            ? format(new Date(field.value), 'yyyy-MM-dd HH:mm')
                             : ''
                         }
                       />
@@ -537,7 +573,7 @@ export function CreateMissionForm() {
                               : undefined;
                             field.onChange(date);
                           }}
-                          type='datetime-local'
+                          type='datetime'
                           value={
                             field.value
                               ? new Date(field.value).toISOString().slice(0, 16)
@@ -834,7 +870,7 @@ export function CreateMissionForm() {
                                           newStart.toISOString()
                                         );
                                       }}
-                                      type='datetime-local'
+                                      type='datetime'
                                       value={
                                         startField.value
                                           ? new Date(startField.value)
@@ -884,7 +920,7 @@ export function CreateMissionForm() {
                                           durationMn
                                         );
                                       }}
-                                      type='datetime-local'
+                                      type='datetime'
                                       value={
                                         endField.value
                                           ? new Date(endField.value)
