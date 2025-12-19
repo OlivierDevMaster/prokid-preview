@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { useUpdateProfessional } from '@/features/professionals/hooks/useUpdateProfessional';
-import { useUpdateProfile } from '@/features/profiles/hooks/useUpdateProfile';
+import { useUpdateProfile } from '@/features/profiles/hooks';
 import {
   deleteProfilePhoto,
   uploadProfilePhoto,

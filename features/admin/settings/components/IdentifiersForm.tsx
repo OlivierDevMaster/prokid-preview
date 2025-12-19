@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,9 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useUpdateEmail } from '@/features/admin/settings/hooks/useUpdateEmail';
 import { useFindProfile } from '@/features/profiles/hooks';
-
-import { useUpdateEmail } from '../hooks/useUpdateEmail';
 
 export function IdentifiersForm() {
   const t = useTranslations('common');
@@ -35,11 +35,13 @@ export function IdentifiersForm() {
   const handleUpdateClick = () => {
     setEmail(currentEmail);
     setIsEditing(true);
+    updateEmailMutation.reset();
   };
 
   const handleCancel = () => {
     setEmail('');
     setIsEditing(false);
+    updateEmailMutation.reset();
   };
 
   const handleSave = async () => {
@@ -49,16 +51,7 @@ export function IdentifiersForm() {
     }
 
     try {
-      const userRole = profile?.role;
-      let emailRedirectTo: string | undefined;
-
-      if (userRole === 'professional') {
-        emailRedirectTo = `${window.location.origin}/${locale}/professional/settings?tab=profile&emailUpdated=true`;
-      } else if (userRole === 'structure') {
-        emailRedirectTo = `${window.location.origin}/${locale}/structure/settings?tab=profile&emailUpdated=true`;
-      } else if (userRole === 'admin') {
-        emailRedirectTo = `${window.location.origin}/${locale}/admin/settings?tab=profile&emailUpdated=true`;
-      }
+      const emailRedirectTo = `${window.location.origin}/${locale}/admin/settings?emailUpdated=true`;
 
       await updateEmailMutation.mutateAsync({
         email,
@@ -67,7 +60,11 @@ export function IdentifiersForm() {
       setIsEditing(false);
       setShowEmailCheckDialog(true);
     } catch (error) {
-      console.error('Error updating email:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('errors.updateFailed') || 'Failed to update email'
+      );
     }
   };
 

@@ -2,7 +2,9 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { ProfileUpdate, updateProfile } from '../profile.service';
+import type { ProfileUpdate } from '../profile.model';
+
+import { updateProfile } from '../profile.service';
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
@@ -20,6 +22,9 @@ export const useUpdateProfile = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['user-profile', variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['profile', variables.userId],
       });
       queryClient.invalidateQueries({
         queryKey: ['professional', variables.userId],

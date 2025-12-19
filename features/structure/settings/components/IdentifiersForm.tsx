@@ -1,6 +1,5 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -17,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUpdateEmail } from '@/features/professional/settings/hooks/useUpdateEmail';
-import { getUser } from '@/services/auth/auth.service';
+import { useFindProfile } from '@/features/profiles/hooks';
 
 export function IdentifiersForm() {
   const t = useTranslations('common');
@@ -29,22 +28,9 @@ export function IdentifiersForm() {
   const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(false);
   const updateEmailMutation = useUpdateEmail();
 
-  const { data: userProfile } = useQuery({
-    enabled: !!session?.user?.id,
-    queryFn: async () => {
-      if (!session?.user?.id) {
-        return null;
-      }
-      const result = await getUser(session.user.id);
-      if (result.error) {
-        return null;
-      }
-      return result.profile;
-    },
-    queryKey: ['user-profile', session?.user?.id],
-  });
+  const { data: profile } = useFindProfile(session?.user?.id);
 
-  const currentEmail = userProfile?.email || session?.user?.email || '';
+  const currentEmail = profile?.email || session?.user?.email || '';
 
   const handleUpdateClick = () => {
     setEmail(currentEmail);

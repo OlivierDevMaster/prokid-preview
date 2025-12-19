@@ -1,16 +1,29 @@
-import type { TablesUpdate } from '@/types/database/schema';
-
 import { createClient } from '@/lib/supabase/client';
 
-export type ProfileUpdate = TablesUpdate<'profiles'>;
+import type { Profile, ProfileUpdate } from './profile.model';
 
-const PROFILE_PICTURES_BUCKET =
-  process.env.NEXT_PUBLIC_PROFILE_PICTURES_BUCKET || 'profile_pictures';
+import { ProfileConfig } from './profile.config';
+
+export const findProfile = async (userId: string): Promise<null | Profile> => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to find profile: ${error.message}`);
+  }
+
+  return data;
+};
 
 export const updateProfile = async (
   userId: string,
   updateData: ProfileUpdate
-) => {
+): Promise<Profile> => {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -40,7 +53,7 @@ export async function deleteProfilePhoto(avatarUrl: string): Promise<void> {
   }
 
   const { error: deleteError } = await supabase.storage
-    .from(PROFILE_PICTURES_BUCKET)
+    .from(ProfileConfig.PROFILE_PICTURES_BUCKET)
     .remove([fileName]);
 
   if (deleteError) {
@@ -59,7 +72,7 @@ export async function uploadProfilePhoto(
   const filePath = `${fileName}`;
 
   const { error: uploadError } = await supabase.storage
-    .from(PROFILE_PICTURES_BUCKET)
+    .from(ProfileConfig.PROFILE_PICTURES_BUCKET)
     .upload(filePath, file, {
       cacheControl: '3600',
       upsert: false,
@@ -71,7 +84,9 @@ export async function uploadProfilePhoto(
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from(PROFILE_PICTURES_BUCKET).getPublicUrl(filePath);
+  } = supabase.storage
+    .from(ProfileConfig.PROFILE_PICTURES_BUCKET)
+    .getPublicUrl(filePath);
 
   return publicUrl;
 }

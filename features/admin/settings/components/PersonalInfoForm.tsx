@@ -9,12 +9,11 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useUpdateProfile } from '@/features/profiles/hooks';
+import { useFindProfile, useUpdateProfile } from '@/features/profiles/hooks';
 import {
   deleteProfilePhoto,
   uploadProfilePhoto,
 } from '@/features/profiles/profile.service';
-import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
 
 export function PersonalInfoForm() {
   const t = useTranslations('common');
@@ -30,11 +29,11 @@ export function PersonalInfoForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateProfileMutation = useUpdateProfile();
 
-  const { data: structure } = useFindStructure(session?.user?.id);
+  const { data: profile } = useFindProfile(session?.user?.id);
 
-  const currentFirstName = structure?.profile?.first_name || '';
-  const currentLastName = structure?.profile?.last_name || '';
-  const currentAvatarUrl = structure?.profile?.avatar_url || null;
+  const currentFirstName = profile?.first_name || '';
+  const currentLastName = profile?.last_name || '';
+  const currentAvatarUrl = profile?.avatar_url || null;
 
   const handleUpdateClick = () => {
     setFirstName(currentFirstName);
@@ -88,7 +87,7 @@ export function PersonalInfoForm() {
   };
 
   const handleSave = async () => {
-    if (!session?.user?.id || !structure) {
+    if (!session?.user?.id) {
       return;
     }
 
