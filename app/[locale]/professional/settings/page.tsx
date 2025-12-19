@@ -22,7 +22,6 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'profil' as TabType, label: t('setting.profile') },
-    { id: 'disponibilites' as TabType, label: t('setting.availabilities') },
     { id: 'facturation' as TabType, label: t('setting.billing') },
   ];
 
@@ -57,7 +56,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className='grid grid-cols-3 gap-2 rounded-lg bg-green-300/50 p-1'>
+      <div className='grid grid-cols-2 gap-2 rounded-lg bg-green-300/50 p-1'>
         {tabs.map(tab => (
           <Button
             className={cn(
@@ -82,11 +81,6 @@ export default function SettingsPage() {
               <PasswordChangeForm />
               <NotificationPreferences />
             </>
-          )}
-          {activeTab === 'disponibilites' && (
-            <div className='py-12 text-center text-gray-500'>
-              Section Disponibilités à venir
-            </div>
           )}
           {activeTab === 'facturation' && <BillingTabContent />}
         </div>
