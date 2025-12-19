@@ -10,7 +10,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -135,7 +134,14 @@ export function IdentifiersForm() {
         )}
       </div>
 
-      <Dialog open={showEmailCheckDialog}>
+      <Dialog
+        onOpenChange={open => {
+          if (!open) {
+            return;
+          }
+        }}
+        open={showEmailCheckDialog}
+      >
         <DialogContent
           onEscapeKeyDown={e => e.preventDefault()}
           onInteractOutside={e => e.preventDefault()}
@@ -147,14 +153,6 @@ export function IdentifiersForm() {
               {tAdmin('setting.emailUpdateMessage')}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button
-              onClick={() => setShowEmailCheckDialog(false)}
-              variant='default'
-            >
-              {t('actions.ok')}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

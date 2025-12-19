@@ -11,7 +11,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -27,7 +26,7 @@ export function IdentifiersForm() {
   const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState('');
-  const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(false);
+  const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(true);
   const updateEmailMutation = useUpdateEmail();
 
   const { data: userProfile } = useQuery({
@@ -132,7 +131,14 @@ export function IdentifiersForm() {
         )}
       </div>
 
-      <Dialog open={showEmailCheckDialog}>
+      <Dialog
+        onOpenChange={open => {
+          if (!open) {
+            return;
+          }
+        }}
+        open={showEmailCheckDialog}
+      >
         <DialogContent
           onEscapeKeyDown={e => e.preventDefault()}
           onInteractOutside={e => e.preventDefault()}
@@ -144,14 +150,6 @@ export function IdentifiersForm() {
               {tAdmin('setting.emailUpdateMessage')}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button
-              onClick={() => setShowEmailCheckDialog(false)}
-              variant='default'
-            >
-              {t('actions.ok')}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
