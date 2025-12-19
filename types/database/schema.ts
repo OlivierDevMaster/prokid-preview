@@ -243,6 +243,51 @@ export type Database = {
           },
         ]
       }
+      professional_notification_preferences: {
+        Row: {
+          appointment_reminders: boolean
+          created_at: string
+          new_interventions: boolean
+          newsletter: boolean
+          report_confirmation: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          created_at?: string
+          new_interventions?: boolean
+          newsletter?: boolean
+          report_confirmation?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          created_at?: string
+          new_interventions?: boolean
+          newsletter?: boolean
+          report_confirmation?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           city: string
