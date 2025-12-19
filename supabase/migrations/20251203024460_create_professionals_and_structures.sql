@@ -207,3 +207,62 @@ CREATE POLICY "Admins can delete structures" ON "public"."structures"
   TO authenticated
   USING ((SELECT public.is_admin()));
 
+-- ============================================================================
+-- Model: professional_notification_preferences
+-- ============================================================================
+
+-- Declaration
+CREATE TABLE IF NOT EXISTS "public"."professional_notification_preferences" (
+  "user_id" UUID NOT NULL PRIMARY KEY REFERENCES "public"."professionals"("user_id") ON DELETE CASCADE,
+  "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "appointment_reminders" BOOLEAN DEFAULT TRUE NOT NULL,
+  "new_interventions" BOOLEAN DEFAULT TRUE NOT NULL,
+  "report_confirmation" BOOLEAN DEFAULT FALSE NOT NULL,
+  "newsletter" BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- Comments
+COMMENT ON TABLE "public"."professional_notification_preferences" IS 'Notification preferences for professional users';
+COMMENT ON COLUMN "public"."professional_notification_preferences"."user_id" IS 'Reference to the professional user';
+COMMENT ON COLUMN "public"."professional_notification_preferences"."appointment_reminders" IS 'Receive appointment reminders by email (24 hours before)';
+COMMENT ON COLUMN "public"."professional_notification_preferences"."new_interventions" IS 'Receive new intervention requests notifications';
+COMMENT ON COLUMN "public"."professional_notification_preferences"."report_confirmation" IS 'Receive report sending confirmation';
+COMMENT ON COLUMN "public"."professional_notification_preferences"."newsletter" IS 'Receive newsletter and ProKid tips by email';
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS "idx_professional_notification_preferences_user_id" ON "public"."professional_notification_preferences" ("user_id");
+
+-- Triggers
+CREATE TRIGGER update_professional_notification_preferences_updated_at BEFORE UPDATE ON "public"."professional_notification_preferences"
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- RLS
+ALTER TABLE "public"."professional_notification_preferences" ENABLE ROW LEVEL SECURITY;
+
+-- Users can view their own notification preferences
+CREATE POLICY "Users can view their own notification preferences" ON "public"."professional_notification_preferences"
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id");
+
+-- Users can update their own notification preferences
+CREATE POLICY "Users can update their own notification preferences" ON "public"."professional_notification_preferences"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT auth.uid()) = "user_id")
+  WITH CHECK ((SELECT auth.uid()) = "user_id");
+
+-- Admins can view all notification preferences
+CREATE POLICY "Admins can view all notification preferences" ON "public"."professional_notification_preferences"
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT public.is_admin()));
+
+-- Admins can update all notification preferences
+CREATE POLICY "Admins can update all notification preferences" ON "public"."professional_notification_preferences"
+  FOR UPDATE
+  TO authenticated
+  USING ((SELECT public.is_admin()))
+  WITH CHECK ((SELECT public.is_admin()));
+

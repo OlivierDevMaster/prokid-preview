@@ -149,3 +149,46 @@ CREATE TRIGGER prevent_profile_email_role_update_trigger
   FOR EACH ROW
   EXECUTE FUNCTION public.prevent_profile_email_role_update();
 
+-- ============================================================================
+-- Function: create_professional_notification_preferences
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_professional_notification_preferences()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  -- Create default notification preferences when a professional is created
+  INSERT INTO public.professional_notification_preferences (
+    user_id,
+    appointment_reminders,
+    new_interventions,
+    report_confirmation,
+    newsletter
+  )
+  VALUES (
+    NEW.user_id,
+    TRUE,
+    TRUE,
+    FALSE,
+    FALSE
+  )
+  ON CONFLICT (user_id) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.create_professional_notification_preferences() IS 'Creates default notification preferences when a professional profile is created';
+
+-- ============================================================================
+-- Trigger: on_professional_created
+-- ============================================================================
+
+CREATE TRIGGER on_professional_created
+  AFTER INSERT ON public.professionals
+  FOR EACH ROW
+  EXECUTE FUNCTION public.create_professional_notification_preferences();
+

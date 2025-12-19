@@ -29,7 +29,8 @@
       "previous": "Précédent",
       "next": "Suivant",
       "start": "Début",
-      "end": "Fin"
+      "end": "Fin",
+      "profileImage": "Photo de profil"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -44,12 +45,15 @@
       "add": "Ajouter",
       "cancel": "Annuler",
       "save": "Enregistrer",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Télécharger",
+      "reset": "Réinitialiser"
     },
     "messages": {
       "loading": "Chargement...",
       "notFound": "Non trouvé",
-      "saving": "Enregistrement..."
+      "saving": "Enregistrement...",
+      "imageSelected": "Nouvelle image sélectionnée"
     },
     "days": {
       "monday": "Lundi",
@@ -94,7 +98,42 @@
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
       "error": "Email ou mot de passe invalide",
-      "home": "🏠 Accueil"
+      "home": "🏠 Accueil",
+      "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Saisissez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "m@exemple.com",
+      "submitButton": "Envoyer l'e-mail de réinitialisation",
+      "sending": "Envoi en cours...",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "success": {
+        "title": "Vérifiez votre e-mail",
+        "description": "Instructions de réinitialisation envoyées",
+        "message": "Si vous vous êtes inscrit avec votre adresse e-mail et votre mot de passe, vous recevrez un e-mail de réinitialisation de mot de passe."
+      },
+      "errors": {
+        "generic": "Une erreur est survenue"
+      }
+    },
+    "updatePassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+      "passwordLabel": "Nouveau mot de passe",
+      "passwordPlaceholder": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+      "submitButton": "Enregistrer le nouveau mot de passe",
+      "saving": "Enregistrement...",
+      "verifying": "Vérification du token de réinitialisation...",
+      "errors": {
+        "generic": "Une erreur est survenue",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+      }
     },
     "signUp": {
       "welcome": "Bienvenue sur",
@@ -252,6 +291,7 @@
   },
   "professional": {
     "title": "Trouvez votre professionnel",
+    "job": "Profession",
     "label": {
       "profilePhoto": "Photo de profil",
       "profilePhotoPlaceholder": "Choisissez une photo professionnelle et souriante",
@@ -757,11 +797,21 @@
       "afterTrial": "Après l'essai gratuit",
       "subscriptionStart": "Votre abonnement passera automatiquement à 9.99 €/mois",
       "remaining": "Restants",
+      "subscriptionHistory": "Historique des abonnements",
+      "subscriptionHistoryCreated": "Créé le",
+      "subscriptionHistoryPeriod": "Période",
+      "subscriptionHistoryTrialEnds": "Fin de l'essai",
+      "subscriptionHistoryCancelingAtPeriodEnd": "Annulation en fin de période",
+      "loading": "Chargement...",
+      "noActiveSubscription": "Aucun abonnement actif",
+      "creating": "Création...",
+      "opening": "Ouverture...",
       "profileSettings": "Paramètres du profil",
       "saveChanges": "Enregistrer les modifications",
       "availabilities": "Disponibilités",
       "profile": "Profil",
       "personalData": "Informations personnelles",
+      "identifiers": "Mes identifiants",
       "changePassword": "Changer de mot de passe",
       "passwordRequirements": {
         "title": "Le mot de passe doit contenir :",
@@ -769,13 +819,34 @@
         "uppercase": "Au moins une lettre majuscule",
         "number": "Au moins un chiffre"
       },
+      "passwordReset": {
+        "button": "Réinitialiser mon mot de passe",
+        "sending": "Envoi en cours...",
+        "dialogTitle": "Vérifiez votre e-mail",
+        "dialogMessage": "Nous avons envoyé un lien de réinitialisation de mot de passe à {email}. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour définir votre nouveau mot de passe.",
+        "emailNotFound": "Impossible de récupérer votre adresse e-mail. Veuillez réessayer.",
+        "error": "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation. Veuillez réessayer."
+      },
       "notificationPreferences": {
         "title": "Préférences de notification",
         "appointmentReminders": "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
         "newInterventions": "Recevoir les notifications de nouvelles demandes d'intervention",
         "reportConfirmation": "Recevoir une confirmation d'envoi des rapports",
         "newsletter": "Recevoir les actualités et conseils ProKid par e-mail"
-      }
+      },
+      "emailUpdateTitle": "Vérifiez votre e-mail",
+      "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
+      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !",
+      "professionalInformation": "Informations professionnelles",
+      "structureInformation": "Informations de la structure",
+      "structureName": "Nom de la structure",
+      "interventionRadius": "Rayon d'intervention",
+      "experienceYears": "Années d'expérience",
+      "hourlyRate": "Tarif horaire",
+      "selectProfession": "Sélectionner une profession",
+      "isAvailable": "Je suis disponible pour de nouvelles interventions",
+      "noSkills": "Aucune compétence ajoutée pour le moment",
+      "addSkillPlaceholder": "Ajouter une compétence et appuyer sur Entrée"
     },
     "structure": {
       "title": "Mes structures",

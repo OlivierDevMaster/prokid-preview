@@ -2,7 +2,8 @@
 
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,11 +18,23 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const t = useTranslations('auth.signIn');
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<null | string>(null);
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const passwordUpdated = searchParams.get('passwordUpdated');
+    if (passwordUpdated === 'true') {
+      setSuccess(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('passwordUpdated');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +107,11 @@ export function LoginForm({
             <div className='flex justify-center space-y-2 text-blue-500'>
               <Link href='/'>{t('home')}</Link>
             </div>
+            {success && (
+              <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
+                {t('passwordUpdatedSuccess')}
+              </div>
+            )}
             {error && (
               <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
                 {error}

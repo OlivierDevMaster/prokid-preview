@@ -9,9 +9,7 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
-import { useUpdateProfessional } from '@/features/professionals/hooks/useUpdateProfessional';
-import { useUpdateProfile } from '@/features/profiles/hooks';
+import { useFindProfile, useUpdateProfile } from '@/features/profiles/hooks';
 import {
   deleteProfilePhoto,
   uploadProfilePhoto,
@@ -24,26 +22,22 @@ export function PersonalInfoForm() {
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
   const [imagePreview, setImagePreview] = useState<null | string>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateProfileMutation = useUpdateProfile();
-  const updateProfessionalMutation = useUpdateProfessional();
 
-  const { data: professional } = useFindProfessional(session?.user?.id);
+  const { data: profile } = useFindProfile(session?.user?.id);
 
-  const currentFirstName = professional?.profile?.first_name || '';
-  const currentLastName = professional?.profile?.last_name || '';
-  const currentPhone = professional?.phone || '';
-  const currentAvatarUrl = professional?.profile?.avatar_url || null;
+  const currentFirstName = profile?.first_name || '';
+  const currentLastName = profile?.last_name || '';
+  const currentAvatarUrl = profile?.avatar_url || null;
 
   const handleUpdateClick = () => {
     setFirstName(currentFirstName);
     setLastName(currentLastName);
-    setPhone(currentPhone);
     setImagePreview(null);
     setSelectedFile(null);
     setShouldRemoveImage(false);
@@ -53,7 +47,6 @@ export function PersonalInfoForm() {
   const handleCancel = () => {
     setFirstName('');
     setLastName('');
-    setPhone('');
     setImagePreview(null);
     setSelectedFile(null);
     setShouldRemoveImage(false);
@@ -94,14 +87,12 @@ export function PersonalInfoForm() {
   };
 
   const handleSave = async () => {
-    if (!session?.user?.id || !professional) {
+    if (!session?.user?.id) {
       return;
     }
 
     const hasFormChanges =
-      firstName !== currentFirstName ||
-      lastName !== currentLastName ||
-      phone !== currentPhone;
+      firstName !== currentFirstName || lastName !== currentLastName;
     const hasImageChange = selectedFile !== null;
     const hasImageRemoval = shouldRemoveImage && currentAvatarUrl !== null;
 
@@ -147,17 +138,6 @@ export function PersonalInfoForm() {
           updateProfileMutation.mutateAsync({
             updateData: profileUpdates,
             userId: session.user.id,
-          })
-        );
-      }
-
-      if (phone !== currentPhone) {
-        updatePromises.push(
-          updateProfessionalMutation.mutateAsync({
-            professionalId: session.user.id,
-            updateData: {
-              phone: phone.trim() || null,
-            },
           })
         );
       }
@@ -297,22 +277,6 @@ export function PersonalInfoForm() {
             value={isEditing ? lastName : currentLastName}
           />
         </div>
-
-        <div className='space-y-2'>
-          <Label className='text-sm font-medium text-gray-700' htmlFor='phone'>
-            {t('label.phone')}
-          </Label>
-          <Input
-            className='w-full'
-            disabled={!isEditing}
-            id='phone'
-            onChange={e => setPhone(e.target.value)}
-            placeholder='06 12 34 56 78'
-            readOnly={!isEditing}
-            type='tel'
-            value={isEditing ? phone : currentPhone}
-          />
-        </div>
       </div>
 
       {isEditing && (
@@ -324,7 +288,6 @@ export function PersonalInfoForm() {
             className='bg-blue-500 text-white hover:bg-blue-600'
             disabled={
               updateProfileMutation.isPending ||
-              updateProfessionalMutation.isPending ||
               isUploadingImage ||
               !firstName.trim() ||
               !lastName.trim()
@@ -332,9 +295,7 @@ export function PersonalInfoForm() {
             onClick={handleSave}
             size='sm'
           >
-            {updateProfileMutation.isPending ||
-            updateProfessionalMutation.isPending ||
-            isUploadingImage
+            {updateProfileMutation.isPending || isUploadingImage
               ? t('messages.saving')
               : t('actions.save')}
           </Button>

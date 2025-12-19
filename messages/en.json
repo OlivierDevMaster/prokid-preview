@@ -21,7 +21,8 @@
       "availability": "Availability",
       "km": "km",
       "start": "Start",
-      "end": "End"
+      "end": "End",
+      "profileImage": "Profile image"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -36,12 +37,15 @@
       "add": "Add",
       "cancel": "Cancel",
       "save": "Save",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Upload",
+      "reset": "Reset"
     },
     "messages": {
       "loading": "Loading...",
       "notFound": "Not found",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "imageSelected": "New image selected"
     },
     "days": {
       "monday": "Monday",
@@ -86,7 +90,42 @@
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
       "error": "Invalid email or password",
-      "home": "🏠 Home"
+      "home": "🏠 Home",
+      "passwordUpdatedSuccess": "Password updated successfully! You can now log in with your new password."
+    },
+    "forgotPassword": {
+      "title": "Reset Your Password",
+      "description": "Type in your email and we'll send you a link to reset your password",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "submitButton": "Send reset email",
+      "sending": "Sending...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "success": {
+        "title": "Check Your Email",
+        "description": "Password reset instructions sent",
+        "message": "If you registered using your email and password, you will receive a password reset email."
+      },
+      "errors": {
+        "generic": "An error occurred"
+      }
+    },
+    "updatePassword": {
+      "title": "Reset Your Password",
+      "description": "Please enter your new password below.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submitButton": "Save new password",
+      "saving": "Saving...",
+      "verifying": "Verifying reset token...",
+      "errors": {
+        "generic": "An error occurred",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "signUp": {
       "welcome": "Welcome to",
@@ -243,6 +282,7 @@
   },
   "professional": {
     "title": "Find your professional",
+    "job": "Job",
     "label": {
       "profilePhoto": "Profile photo",
       "profilePhotoPlaceholder": "Choose a professional and smiling photo",
@@ -756,11 +796,21 @@
       "afterTrial": "After the free trial",
       "subscriptionStart": "Your subscription will automatically switch to €9.99/month",
       "remaining": "Remaining",
+      "subscriptionHistory": "Subscription History",
+      "subscriptionHistoryCreated": "Created",
+      "subscriptionHistoryPeriod": "Period",
+      "subscriptionHistoryTrialEnds": "Trial ends",
+      "subscriptionHistoryCancelingAtPeriodEnd": "Canceling at period end",
+      "loading": "Loading...",
+      "noActiveSubscription": "No active subscription",
+      "creating": "Creating...",
+      "opening": "Opening...",
       "profileSettings": "Profile settings",
       "saveChanges": "Save changes",
       "availabilities": "Availabilities",
       "profile": "Profile",
       "personalData": "Personal data",
+      "identifiers": "My identifiers",
       "changePassword": "Change password",
       "passwordRequirements": {
         "title": "The password must contain:",
@@ -768,13 +818,34 @@
         "uppercase": "At least one uppercase letter",
         "number": "At least one number"
       },
+      "passwordReset": {
+        "button": "Reset my password",
+        "sending": "Sending...",
+        "dialogTitle": "Check your email",
+        "dialogMessage": "We've sent a password reset link to {email}. Please check your inbox and click the link to set your new password.",
+        "emailNotFound": "Unable to retrieve your email address. Please try again.",
+        "error": "An error occurred while sending the reset email. Please try again."
+      },
       "notificationPreferences": {
         "title": "Notification preferences",
         "appointmentReminders": "Receive appointment reminders by email (24 hours before)",
         "newInterventions": "Receive new intervention requests notifications",
         "reportConfirmation": "Receive report sending confirmation",
         "newsletter": "Receive newsletter and ProKid tips by email"
-      }
+      },
+      "emailUpdateTitle": "Check your email",
+      "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update.",
+      "emailUpdateSuccessMessage": "Your email address has been successfully updated!",
+      "professionalInformation": "Professional information",
+      "structureInformation": "Structure information",
+      "structureName": "Structure name",
+      "interventionRadius": "Intervention radius",
+      "experienceYears": "Years of experience",
+      "hourlyRate": "Hourly rate",
+      "selectProfession": "Select a profession",
+      "isAvailable": "I am available for new interventions",
+      "noSkills": "No skills added yet",
+      "addSkillPlaceholder": "Add a skill and press Enter"
     },
     "subscription": {
       "launchOffer": "Launch offer",
