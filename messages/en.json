@@ -162,7 +162,10 @@
         "passwordMismatch": "Passwords do not match",
         "passwordTooShort": "Password must be at least 8 characters",
         "emailAlreadyExists": "This email is already in use",
-        "hasAccount": "Already have an account? Log in"
+        "hasAccount": "Already have an account? Log in",
+        "profilePhotoLabel": "Profile Photo",
+        "profilePhotoDescription": "Upload a profile picture (optional)",
+        "removePhoto": "Remove"
       }
     }
   },

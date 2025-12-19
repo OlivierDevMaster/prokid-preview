@@ -79,7 +79,8 @@ export async function POST(
     }
 
     // Profile is automatically created by the database trigger handle_new_user()
-    // No need to manually insert the profile
+    // Structure record is also automatically created if role = 'structure'
+    // No need to manually insert the profile or structure
 
     return NextResponse.json(
       {

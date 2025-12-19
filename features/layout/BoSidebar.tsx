@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,6 @@ type BoSidebarProps = {
 export function BoSidebar({ navItems }: BoSidebarProps) {
   const t = useTranslations('admin');
   const pathname = usePathname();
-  const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -35,7 +34,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
-    router.push(`/${locale}/auth/login`);
+    router.push('/auth/login');
   };
 
   const isActive = (href: string) => {

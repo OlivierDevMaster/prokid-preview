@@ -171,7 +171,10 @@
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
         "emailAlreadyExists": "Cet email est déjà utilisé",
-        "hasAccount": "Déjà un compte ? Connectez-vous"
+        "hasAccount": "Déjà un compte ? Connectez-vous",
+        "profilePhotoLabel": "Photo de profil",
+        "profilePhotoDescription": "Télécharger une photo de profil (optionnel)",
+        "removePhoto": "Supprimer"
       }
     }
   },
