@@ -1,5 +1,6 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
@@ -23,12 +24,15 @@ interface NotificationPreference {
 
 export function NotificationPreferences() {
   const tAdmin = useTranslations('admin');
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   const {
     data: preferences,
     error,
     isLoading,
-  } = useProfessionalNotificationPreferences();
-  const updateMutation = useUpdateProfessionalNotificationPreferences();
+  } = useProfessionalNotificationPreferences(userId);
+  const updateMutation = useUpdateProfessionalNotificationPreferences(userId);
 
   const preferenceItems: NotificationPreference[] = useMemo(
     () => [

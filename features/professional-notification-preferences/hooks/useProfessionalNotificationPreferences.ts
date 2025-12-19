@@ -1,7 +1,6 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 
 import type {
   ProfessionalNotificationPreferences,
@@ -13,44 +12,41 @@ import {
   updateProfessionalNotificationPreferences,
 } from '../services/professional-notification-preferences.service';
 
-export function useProfessionalNotificationPreferences() {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-
+export function useProfessionalNotificationPreferences(id: string | undefined) {
   return useQuery<null | ProfessionalNotificationPreferences, Error>({
-    enabled: !!userId,
+    enabled: !!id,
     queryFn: async () => {
-      if (!userId) {
+      if (!id) {
         return null;
       }
 
-      const preferences = await getProfessionalNotificationPreferences(userId);
+      const preferences = await getProfessionalNotificationPreferences(id);
 
       return preferences;
     },
-    queryKey: ['professional-notification-preferences', userId],
+    queryKey: ['professional-notification-preferences', id],
   });
 }
 
-export function useUpdateProfessionalNotificationPreferences() {
+export function useUpdateProfessionalNotificationPreferences(
+  id: string | undefined
+) {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
 
   return useMutation({
     mutationFn: async (
       preferences: ProfessionalNotificationPreferencesUpdate
     ): Promise<ProfessionalNotificationPreferences> => {
-      if (!userId) {
+      if (!id) {
         throw new Error('User ID is required');
       }
 
-      return updateProfessionalNotificationPreferences(userId, preferences);
+      return updateProfessionalNotificationPreferences(id, preferences);
     },
     onSuccess: () => {
-      if (userId) {
+      if (id) {
         queryClient.invalidateQueries({
-          queryKey: ['professional-notification-preferences', userId],
+          queryKey: ['professional-notification-preferences', id],
         });
       }
     },
