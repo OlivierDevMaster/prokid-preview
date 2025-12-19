@@ -1,8 +1,8 @@
 'use client';
 
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { createParser, useQueryState } from 'nuqs';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,44 +19,41 @@ const Tab = {
 } as const;
 type Tab = (typeof Tab)[keyof typeof Tab];
 
+const tabParser = createParser({
+  parse: (value: string): null | Tab => {
+    if (value === Tab.profile || value === Tab.billing) {
+      return value;
+    }
+    return null;
+  },
+  serialize: (value: Tab): string => value,
+}).withDefault(Tab.profile);
+
 export default function SettingsPage() {
   const router = useRouter();
   const t = useTranslations('admin');
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.profile);
+  const [activeTab, setActiveTab] = useQueryState('tab', tabParser);
 
   const tabs = [
     { id: Tab.profile, label: t('setting.profile') },
     { id: Tab.billing, label: t('setting.billing') },
   ];
 
-  const handleSave = () => {
-    console.log('Saving changes...');
-  };
-
   return (
     <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-4'>
-          <Button
-            className='h-9 w-9'
-            onClick={() => router.back()}
-            size='icon'
-            variant='ghost'
-          >
-            <ArrowLeft className='h-5 w-5' />
-          </Button>
-          <h1 className='text-2xl font-bold text-gray-900'>
-            {t('setting.profileSettings')}
-          </h1>
-        </div>
+      <div className='flex items-center gap-4'>
         <Button
-          className='bg-blue-600 text-white hover:bg-blue-700'
-          onClick={handleSave}
+          className='h-9 w-9'
+          onClick={() => router.back()}
+          size='icon'
+          variant='ghost'
         >
-          <FileText className='mr-2 h-4 w-4' />
-          {t('setting.saveChanges')}
+          <ArrowLeft className='h-5 w-5' />
         </Button>
+        <h1 className='text-2xl font-bold text-gray-900'>
+          {t('setting.profileSettings')}
+        </h1>
       </div>
 
       {/* Tabs */}
