@@ -5,11 +5,8 @@ import { useTranslations } from 'next-intl';
 import { createParser, useQueryState } from 'nuqs';
 
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import BillingTabContent from '@/features/professional/settings/components/BillingTabContent';
-import { NotificationPreferences } from '@/features/professional/settings/components/NotificationPreferences';
-import { PasswordChangeForm } from '@/features/professional/settings/components/PasswordChangeForm';
-import { PersonalInfoForm } from '@/features/professional/settings/components/PersonalInfoForm';
+import { ProfileTabContent } from '@/features/professional/settings/components/ProfileTabContent';
 import { useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
@@ -74,18 +71,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Content */}
-      <Card className='rounded-lg border border-gray-200 bg-white'>
-        <div className='space-y-6 p-6'>
-          {activeTab === Tab.profile && (
-            <>
-              <PersonalInfoForm />
-              <PasswordChangeForm />
-              <NotificationPreferences />
-            </>
-          )}
-          {activeTab === Tab.billing && <BillingTabContent />}
-        </div>
-      </Card>
+      <div>
+        {activeTab === Tab.profile && <ProfileTabContent />}
+        {activeTab === Tab.billing && <BillingTabContent />}
+      </div>
     </div>
   );
 }

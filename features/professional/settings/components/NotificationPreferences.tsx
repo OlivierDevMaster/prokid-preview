@@ -46,7 +46,7 @@ export function NotificationPreferences() {
   };
 
   return (
-    <div className='space-y-4 border-t border-gray-200 pt-6'>
+    <div className='space-y-4'>
       <h2 className='text-lg font-bold text-blue-900'>
         {tAdmin('setting.notificationPreferences.title')}
       </h2>

@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { useSubscriptionStatus } from '@/features/subscriptions/hooks/useSubscriptionStatus';
 
 const BillingTabContent = () => {
@@ -10,42 +11,47 @@ const BillingTabContent = () => {
   console.info({ subscriptionData });
 
   return (
-    <div>
-      <h1 className='text-2xl font-bold text-gray-900'>
-        {t('setting.billing')}
-      </h1>
-      <div className='my-2 flex justify-between gap-4 rounded-md border border-gray-200 bg-blue-50/30 p-4'>
-        <div>
-          <h2 className='text-lg font-bold text-gray-800'>
-            {t('setting.subscriptionStatus')}
-          </h2>
-          <p className='text-sm text-gray-600'>{t('setting.trialActivated')}</p>
+    <div className='space-y-6'>
+      <Card className='rounded-lg border border-gray-200 bg-blue-50/30 p-6'>
+        <div className='flex justify-between gap-4'>
+          <div>
+            <h2 className='text-lg font-bold text-gray-800'>
+              {t('setting.subscriptionStatus')}
+            </h2>
+            <p className='text-sm text-gray-600'>
+              {t('setting.trialActivated')}
+            </p>
+          </div>
+          <div>
+            <h2 className='text-end text-lg font-bold text-gray-800'>69</h2>
+            <p className='text-sm text-gray-600'>{t('setting.remaining')}</p>
+          </div>
         </div>
-        <div>
-          <h2 className='text-end text-lg font-bold text-gray-800'>69</h2>
-          <p className='text-sm text-gray-600'>{t('setting.remaining')}</p>
+      </Card>
+
+      <Card className='rounded-lg border border-gray-200 bg-green-50/30 p-6'>
+        <div className='flex flex-col justify-between gap-4'>
+          <div>
+            <h2 className='text-lg font-bold text-gray-800'>
+              {t('setting.afterTrial')}
+            </h2>
+            <p className='text-sm text-gray-600'>
+              {t('setting.subscriptionStart')}
+            </p>
+          </div>
+          <div className='grid grid-cols-2 gap-2'>
+            <Button className='rounded-lg bg-blue-600 text-white hover:bg-blue-700'>
+              {t('setting.activate')}
+            </Button>
+            <Button className='rounded-lg' variant='outline'>
+              {t('setting.manageMySubscription')}
+            </Button>
+          </div>
         </div>
-      </div>
-      <div className='my-2 flex flex-col justify-between gap-4 rounded-md border border-gray-200 bg-green-50/30 p-4'>
-        <div>
-          <h2 className='text-lg font-bold text-gray-800'>
-            {t('setting.afterTrial')}
-          </h2>
-          <p className='text-sm text-gray-600'>
-            {t('setting.subscriptionStart')}
-          </p>
-        </div>
-        <div className='grid grid-cols-2 gap-2'>
-          <Button className='rounded-lg bg-blue-600 text-white hover:bg-blue-700'>
-            {t('setting.activate')}
-          </Button>
-          <Button className='rounded-lg' variant='outline'>
-            {t('setting.manageMySubscription')}
-          </Button>
-        </div>
-      </div>
-      <div>
-        <div className='flex-start flex flex-col'>
+      </Card>
+
+      <Card className='rounded-lg border border-gray-200 bg-white p-6'>
+        <div className='flex flex-col'>
           <div className='text-lg font-bold text-gray-800'>
             {t('setting.information')}
           </div>
@@ -64,7 +70,7 @@ const BillingTabContent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
