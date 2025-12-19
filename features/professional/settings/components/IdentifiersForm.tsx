@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { useUpdateEmail } from '../hooks/useUpdateEmail';
 export function IdentifiersForm() {
   const t = useTranslations('common');
   const tAdmin = useTranslations('admin');
+  const locale = useLocale();
   const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState('');
@@ -63,7 +64,21 @@ export function IdentifiersForm() {
     }
 
     try {
-      await updateEmailMutation.mutateAsync(email);
+      const userRole = userProfile?.role;
+      let emailRedirectTo: string | undefined;
+
+      if (userRole === 'professional') {
+        emailRedirectTo = `${window.location.origin}/${locale}/professional/settings?tab=profile&emailUpdated=true`;
+      } else if (userRole === 'structure') {
+        emailRedirectTo = `${window.location.origin}/${locale}/structure/settings?tab=profile&emailUpdated=true`;
+      } else if (userRole === 'admin') {
+        emailRedirectTo = `${window.location.origin}/${locale}/admin/settings?tab=profile&emailUpdated=true`;
+      }
+
+      await updateEmailMutation.mutateAsync({
+        email,
+        emailRedirectTo,
+      });
       setIsEditing(false);
       setShowEmailCheckDialog(true);
     } catch (error) {

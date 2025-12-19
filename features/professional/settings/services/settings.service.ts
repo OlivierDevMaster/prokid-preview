@@ -1,11 +1,14 @@
 import { createClient } from '@/lib/supabase/client';
 
-export async function updateEmail(newEmail: string) {
+export async function updateEmail(newEmail: string, emailRedirectTo?: string) {
   const supabase = createClient();
 
-  const { data, error } = await supabase.auth.updateUser({
-    email: newEmail,
-  });
+  const options = emailRedirectTo ? { emailRedirectTo } : undefined;
+
+  const { data, error } = await supabase.auth.updateUser(
+    { email: newEmail },
+    options
+  );
 
   if (error) {
     throw new Error(error.message);

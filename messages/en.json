@@ -777,7 +777,8 @@
         "newsletter": "Receive newsletter and ProKid tips by email"
       },
       "emailUpdateTitle": "Check your email",
-      "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update."
+      "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update.",
+      "emailUpdateSuccessMessage": "Your email address has been successfully updated!"
     },
     "subscription": {
       "launchOffer": "Launch offer",

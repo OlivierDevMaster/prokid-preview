@@ -778,7 +778,8 @@
         "newsletter": "Recevoir les actualités et conseils ProKid par e-mail"
       },
       "emailUpdateTitle": "Vérifiez votre e-mail",
-      "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail."
+      "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
+      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !"
     },
     "structure": {
       "title": "Mes structures",
