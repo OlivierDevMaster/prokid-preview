@@ -2,8 +2,9 @@
 
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
@@ -23,9 +24,17 @@ interface NotificationPreference {
 }
 
 export function NotificationPreferences() {
+  const t = useTranslations('common');
   const tAdmin = useTranslations('admin');
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [localPreferences, setLocalPreferences] = useState<{
+    appointment_reminders: boolean;
+    new_interventions: boolean;
+    newsletter: boolean;
+    report_confirmation: boolean;
+  } | null>(null);
 
   const {
     data: preferences,
@@ -34,42 +43,79 @@ export function NotificationPreferences() {
   } = useProfessionalNotificationPreferences(userId);
   const updateMutation = useUpdateProfessionalNotificationPreferences(userId);
 
-  const preferenceItems: NotificationPreference[] = useMemo(
-    () => [
+  const preferenceItems: NotificationPreference[] = useMemo(() => {
+    const currentPrefs =
+      isEditing && localPreferences ? localPreferences : preferences;
+    return [
       {
-        checked: preferences?.appointment_reminders ?? true,
+        checked: currentPrefs?.appointment_reminders ?? true,
         field: 'appointment_reminders',
         id: 'appointment_reminders',
         label: tAdmin('setting.notificationPreferences.appointmentReminders'),
       },
       {
-        checked: preferences?.new_interventions ?? true,
+        checked: currentPrefs?.new_interventions ?? true,
         field: 'new_interventions',
         id: 'new_interventions',
         label: tAdmin('setting.notificationPreferences.newInterventions'),
       },
       {
-        checked: preferences?.report_confirmation ?? false,
+        checked: currentPrefs?.report_confirmation ?? false,
         field: 'report_confirmation',
         id: 'report_confirmation',
         label: tAdmin('setting.notificationPreferences.reportConfirmation'),
       },
       {
-        checked: preferences?.newsletter ?? false,
+        checked: currentPrefs?.newsletter ?? false,
         field: 'newsletter',
         id: 'newsletter',
         label: tAdmin('setting.notificationPreferences.newsletter'),
       },
-    ],
-    [preferences, tAdmin]
-  );
+    ];
+  }, [preferences, localPreferences, isEditing, tAdmin]);
+
+  const handleEditClick = () => {
+    if (preferences) {
+      setLocalPreferences({
+        appointment_reminders: preferences.appointment_reminders ?? true,
+        new_interventions: preferences.new_interventions ?? true,
+        newsletter: preferences.newsletter ?? false,
+        report_confirmation: preferences.report_confirmation ?? false,
+      });
+    } else {
+      setLocalPreferences({
+        appointment_reminders: true,
+        new_interventions: true,
+        newsletter: false,
+        report_confirmation: false,
+      });
+    }
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setLocalPreferences(null);
+    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    if (!localPreferences) return;
+
+    try {
+      await updateMutation.mutateAsync(localPreferences);
+      setIsEditing(false);
+      setLocalPreferences(null);
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+    }
+  };
 
   const handleToggle = (field: NotificationPreference['field']) => {
-    if (!preferences) return;
+    if (!isEditing || !localPreferences) return;
 
-    const currentValue = preferences[field];
-    updateMutation.mutate({
-      [field]: !currentValue,
+    setLocalPreferences({
+      ...localPreferences,
+      [field]: !localPreferences[field],
     });
   };
 
@@ -99,9 +145,16 @@ export function NotificationPreferences() {
 
   return (
     <div className='space-y-4'>
-      <h2 className='text-lg font-bold text-blue-900'>
-        {tAdmin('setting.notificationPreferences.title')}
-      </h2>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-lg font-bold text-blue-900'>
+          {tAdmin('setting.notificationPreferences.title')}
+        </h2>
+        {!isEditing && (
+          <Button onClick={handleEditClick} size='sm' variant='outline'>
+            {t('actions.edit')}
+          </Button>
+        )}
+      </div>
 
       <div className='space-y-4'>
         {preferenceItems.map(preference => (
@@ -109,7 +162,7 @@ export function NotificationPreferences() {
             <Checkbox
               checked={preference.checked}
               className='mt-1'
-              disabled={updateMutation.isPending}
+              disabled={!isEditing || updateMutation.isPending}
               id={preference.id}
               onCheckedChange={() => handleToggle(preference.field)}
             />
@@ -122,6 +175,24 @@ export function NotificationPreferences() {
           </div>
         ))}
       </div>
+
+      {isEditing && (
+        <div className='flex justify-end gap-2'>
+          <Button onClick={handleCancel} size='sm' variant='outline'>
+            {t('actions.cancel')}
+          </Button>
+          <Button
+            className='bg-blue-500 text-white hover:bg-blue-600'
+            disabled={updateMutation.isPending}
+            onClick={handleSave}
+            size='sm'
+          >
+            {updateMutation.isPending
+              ? t('messages.saving')
+              : t('actions.save')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
