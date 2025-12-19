@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,8 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
+  const t = useTranslations('auth.forgotPassword');
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<null | string>(null);
   const [success, setSuccess] = useState(false);
@@ -32,14 +35,16 @@ export function ForgotPasswordForm({
     setError(null);
 
     try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
+      const redirectTo = `${window.location.origin}${
+        locale === 'en' ? '' : `/${locale}`
+      }/auth/update-password`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
+        redirectTo,
       });
       if (error) throw error;
       setSuccess(true);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      setError(error instanceof Error ? error.message : t('errors.generic'));
     } finally {
       setIsLoading(false);
     }
@@ -50,34 +55,30 @@ export function ForgotPasswordForm({
       {success ? (
         <Card>
           <CardHeader>
-            <CardTitle className='text-2xl'>Check Your Email</CardTitle>
-            <CardDescription>Password reset instructions sent</CardDescription>
+            <CardTitle className='text-2xl'>{t('success.title')}</CardTitle>
+            <CardDescription>{t('success.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className='text-sm text-muted-foreground'>
-              If you registered using your email and password, you will receive
-              a password reset email.
+              {t('success.message')}
             </p>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className='text-2xl'>Reset Your Password</CardTitle>
-            <CardDescription>
-              Type in your email and we&apos;ll send you a link to reset your
-              password
-            </CardDescription>
+            <CardTitle className='text-2xl'>{t('title')}</CardTitle>
+            <CardDescription>{t('description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleForgotPassword}>
               <div className='flex flex-col gap-6'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='email'>Email</Label>
+                  <Label htmlFor='email'>{t('emailLabel')}</Label>
                   <Input
                     id='email'
                     onChange={e => setEmail(e.target.value)}
-                    placeholder='m@example.com'
+                    placeholder={t('emailPlaceholder')}
                     required
                     type='email'
                     value={email}
@@ -85,16 +86,16 @@ export function ForgotPasswordForm({
                 </div>
                 {error && <p className='text-sm text-red-500'>{error}</p>}
                 <Button className='w-full' disabled={isLoading} type='submit'>
-                  {isLoading ? 'Sending...' : 'Send reset email'}
+                  {isLoading ? t('sending') : t('submitButton')}
                 </Button>
               </div>
               <div className='mt-4 text-center text-sm'>
-                Already have an account?{' '}
+                {t('hasAccount')}{' '}
                 <Link
                   className='underline underline-offset-4'
                   href='/auth/login'
                 >
-                  Login
+                  {t('loginLink')}
                 </Link>
               </div>
             </form>

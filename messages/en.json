@@ -86,7 +86,42 @@
       "noAccount": "Don't have an account yet?",
       "signUp": "Sign up",
       "error": "Invalid email or password",
-      "home": "🏠 Home"
+      "home": "🏠 Home",
+      "passwordUpdatedSuccess": "Password updated successfully! You can now log in with your new password."
+    },
+    "forgotPassword": {
+      "title": "Reset Your Password",
+      "description": "Type in your email and we'll send you a link to reset your password",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "submitButton": "Send reset email",
+      "sending": "Sending...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "success": {
+        "title": "Check Your Email",
+        "description": "Password reset instructions sent",
+        "message": "If you registered using your email and password, you will receive a password reset email."
+      },
+      "errors": {
+        "generic": "An error occurred"
+      }
+    },
+    "updatePassword": {
+      "title": "Reset Your Password",
+      "description": "Please enter your new password below.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submitButton": "Save new password",
+      "saving": "Saving...",
+      "verifying": "Verifying reset token...",
+      "errors": {
+        "generic": "An error occurred",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match"
+      }
     },
     "signUp": {
       "welcome": "Welcome to",
@@ -768,6 +803,14 @@
         "length": "At least 8 characters",
         "uppercase": "At least one uppercase letter",
         "number": "At least one number"
+      },
+      "passwordReset": {
+        "button": "Reset my password",
+        "sending": "Sending...",
+        "dialogTitle": "Check your email",
+        "dialogMessage": "We've sent a password reset link to {email}. Please check your inbox and click the link to set your new password.",
+        "emailNotFound": "Unable to retrieve your email address. Please try again.",
+        "error": "An error occurred while sending the reset email. Please try again."
       },
       "notificationPreferences": {
         "title": "Notification preferences",

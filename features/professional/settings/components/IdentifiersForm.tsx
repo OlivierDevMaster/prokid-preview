@@ -122,6 +122,7 @@ export function IdentifiersForm() {
               {t('actions.cancel')}
             </Button>
             <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
               disabled={updateEmailMutation.isPending}
               onClick={handleSave}
               size='sm'
@@ -134,11 +135,12 @@ export function IdentifiersForm() {
         )}
       </div>
 
-      <Dialog
-        onOpenChange={setShowEmailCheckDialog}
-        open={showEmailCheckDialog}
-      >
-        <DialogContent>
+      <Dialog open={showEmailCheckDialog}>
+        <DialogContent
+          onEscapeKeyDown={e => e.preventDefault()}
+          onInteractOutside={e => e.preventDefault()}
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle>{tAdmin('setting.emailUpdateTitle')}</DialogTitle>
             <DialogDescription>
