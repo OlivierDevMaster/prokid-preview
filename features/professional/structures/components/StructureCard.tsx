@@ -3,6 +3,7 @@
 import { Building2, Clock, FileText, Mail } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useState } from 'react';
 
 import type { StructureMemberWithStructure } from '@/features/structure-members/structureMember.model';
@@ -46,8 +47,21 @@ export function StructureCard({ structureMember }: StructureCardProps) {
         {/* Header */}
         <div className='mb-4 flex items-start justify-between'>
           <div className='flex items-start gap-4'>
-            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200'>
-              <Building2 className='h-6 w-6 text-white' />
+            <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-200'>
+              {structure.profile?.avatar_url ? (
+                <Image
+                  alt={structure.name}
+                  className='h-full w-full object-cover'
+                  height={48}
+                  src={structure.profile.avatar_url}
+                  unoptimized
+                  width={48}
+                />
+              ) : (
+                <div className='flex h-full w-full items-center justify-center bg-blue-200'>
+                  <Building2 className='h-6 w-6 text-white' />
+                </div>
+              )}
             </div>
             <div>
               <h3 className='mb-1 text-lg font-bold text-gray-900'>

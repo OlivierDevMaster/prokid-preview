@@ -132,7 +132,9 @@ export async function getUserReports(): Promise<Report[]> {
   }
 }
 
-export async function getUserReports2(): Promise<Report[]> {
+export async function getUserReports2(
+  structureId?: null | string
+): Promise<Report[]> {
   try {
     const supabase = await createClient();
     const {
@@ -145,7 +147,28 @@ export async function getUserReports2(): Promise<Report[]> {
     }
 
     const userId = session?.user.id ?? '';
-    const { data: reports, error: reportError } = await supabase
+
+    // If structureId is provided and not 'all', first get mission IDs for that structure
+    let missionIds: string[] | undefined;
+    if (structureId && structureId !== 'all') {
+      const { data: missions, error: missionsError } = await supabase
+        .from('missions')
+        .select('id')
+        .eq('structure_id', structureId);
+
+      if (missionsError) {
+        throw missionsError;
+      }
+
+      missionIds = missions?.map(m => m.id) ?? [];
+
+      // If no missions found for this structure, return empty array
+      if (missionIds.length === 0) {
+        return [];
+      }
+    }
+
+    let query = supabase
       .from('reports')
       .select(
         `
@@ -166,11 +189,18 @@ export async function getUserReports2(): Promise<Report[]> {
       )
       .eq('author_id', userId);
 
+    // Filter by structure if provided
+    if (missionIds && missionIds.length > 0) {
+      query = query.in('mission_id', missionIds);
+    }
+
+    const { data: reports, error: reportError } = await query;
+
     if (reportError) {
       throw reportError;
     }
 
-    return reports;
+    return reports || [];
   } catch (error) {
     console.error('Unexpected error fetching reports:', error);
     throw error;

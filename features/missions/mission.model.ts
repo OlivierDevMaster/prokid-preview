@@ -60,6 +60,11 @@ export interface MissionFilters {
 
 export type MissionInsert = TablesInsert<'missions'>;
 
+export interface MissionSchedule {
+  duration_mn: number;
+  rrule: string;
+}
+
 export type MissionUpdate = TablesUpdate<'missions'>;
 
 export type MissionWithProfessional = {

@@ -220,7 +220,10 @@
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
         "emailAlreadyExists": "Cet email est déjà utilisé",
-        "hasAccount": "Déjà un compte ? Connectez-vous"
+        "hasAccount": "Déjà un compte ? Connectez-vous",
+        "profilePhotoLabel": "Photo de profil",
+        "profilePhotoDescription": "Télécharger une photo de profil (optionnel)",
+        "removePhoto": "Supprimer"
       }
     }
   },
@@ -416,7 +419,8 @@
       "contact": "Contact",
       "createdAt": "Créé le",
       "close": "Fermer",
-      "noReport": "Aucun compte rendu"
+      "noReport": "Aucun compte rendu",
+      "reportsList": "Liste des rapports"
     },
     "missions": {
       "title": "Mes missions",
@@ -468,7 +472,8 @@
     "navigation": {
       "missions": "Missions",
       "professionals": "Professionnels",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "reports": "Rapports"
     },
     "missions": {
       "title": "Mes missions",
@@ -476,11 +481,48 @@
       "addMission": "Ajouter une mission",
       "noMissions": "Aucune mission trouvée.",
       "loading": "Chargement...",
+      "createMission": "Créer une mission",
+      "titlePlaceholder": "Entrez le titre de la mission",
+      "selectProfessional": "Sélectionner un professionnel",
+      "selectProfessionalPlaceholder": "Sélectionner un professionnel",
+      "selectAvailability": "Sélectionner une disponibilité",
+      "selectAvailabilityPlaceholder": "Sélectionner une disponibilité",
+      "noAvailabilities": "Aucune disponibilité trouvée",
+      "availabilityDescription": "Sélectionnez la disponibilité du professionnel pour cette mission",
+      "missionStartDate": "Date de début de mission",
+      "missionEndDate": "Date de fin de mission",
+      "descriptionLabel": "Description",
+      "optional": "Optionnel",
+      "descriptionPlaceholder": "Entrez la description de la mission",
+      "cancel": "Annuler",
+      "creating": "Création en cours...",
+      "create": "Créer la mission",
+      "createSuccess": "Mission créée avec succès",
+      "createError": "Échec de la création de la mission",
+      "filterByProfessional": "Filtrer par professionnel",
+      "allProfessionals": "Tous les professionnels",
+      "step": "Étape",
+      "next": "Suivant",
+      "back": "Retour",
+      "selectAvailabilities": "Sélectionner les disponibilités du professionnel",
+      "selectedSchedules": "Créneaux sélectionnés",
+      "previousWeek": "Semaine précédente",
+      "nextWeek": "Semaine suivante",
+      "weekOf": "Semaine du",
+      "noSlots": "Aucun créneau",
+      "recurrent": "Récurrent",
+      "recurrentDescription": "Si coché, ce créneau se répétera jusqu'à la date de fin de mission",
+      "recurrentNotAvailable": "Cette option n'est disponible que pour les disponibilités récurrentes",
+      "availabilityRange": "Plage de disponibilité",
+      "scheduleStartTime": "Heure de début",
+      "scheduleEndTime": "Heure de fin",
+      "noProfessionals": "Aucun professionnel trouvé",
       "hoursCompleted": "Heures effectuées",
       "lastReport": "Dernier compte rendu",
       "noReport": "Aucun compte rendu",
       "period": "Période",
       "viewDetails": "Voir les détails",
+      "close": "Fermer",
       "unknownProfessional": "Professionnel inconnu"
     },
     "professionals": {
@@ -489,6 +531,7 @@
       "loading": "Chargement...",
       "noProfessionals": "Aucun professionnel trouvé.",
       "viewProfile": "Voir le profil",
+      "sendInvitation": "Envoyer une invitation",
       "details": {
         "loading": "Chargement...",
         "notFound": "Professionnel non trouvé",
@@ -772,6 +815,8 @@
       "tableTitle": "Liste des rapports",
       "titleColumn": "Titre",
       "contentsColumn": "Contenu",
+      "structureColumn": "Structure",
+      "professionalColumn": "Professionnel",
       "createdAt": "Date de création",
       "previous": "Précédent",
       "next": "Suivant",
@@ -782,6 +827,11 @@
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
       "view": "Voir",
+      "filterByStructure": "Filtrer par structure",
+      "filterByProfessional": "Filtrer par professionnel",
+      "allStructures": "Toutes les structures",
+      "allProfessionals": "Tous les professionnels",
+      "unknownStructure": "Structure inconnue",
       "mission": "Mission"
     },
     "setting": {

@@ -1,7 +1,8 @@
 -- Migration: handle_new_user
 -- Purpose: Create function and trigger to automatically create profiles when new users are created
--- Affected tables: profiles
+-- Affected tables: profiles, structures
 -- Special considerations: Only handles 'professional' and 'structure' roles from user metadata
+-- Automatically creates structure record when role = 'structure' (structure name is constructed from first_name and last_name)
 -- Uses SECURITY DEFINER to allow the trigger to insert/update profiles when called by auth admin role
 
 -- ============================================================================
@@ -20,6 +21,7 @@ DECLARE
   user_last_name text;
   user_avatar_url text;
   user_preferred_language text;
+  structure_name text;
 BEGIN
   -- Extract role from raw_user_meta_data only
   user_role := NEW.raw_user_meta_data->>'role';
@@ -58,13 +60,41 @@ BEGIN
       user_avatar_url,
       user_preferred_language::public.locale
     );
+
+    -- If role is 'structure', automatically create structure record
+    IF user_role = 'structure' THEN
+      -- Construct structure name from first_name and last_name
+      -- If both are present, combine them with a space
+      -- If only one is present, use that one
+      -- If neither is present, use email as fallback
+      IF user_first_name IS NOT NULL AND user_last_name IS NOT NULL THEN
+        structure_name := TRIM(user_first_name || ' ' || user_last_name);
+      ELSIF user_first_name IS NOT NULL THEN
+        structure_name := user_first_name;
+      ELSIF user_last_name IS NOT NULL THEN
+        structure_name := user_last_name;
+      ELSE
+        -- Fallback to email if no name is provided
+        structure_name := NEW.email;
+      END IF;
+
+      -- Insert structure record
+      INSERT INTO public.structures (
+        user_id,
+        name
+      )
+      VALUES (
+        NEW.id,
+        structure_name
+      );
+    END IF;
   END IF;
 
   RETURN NEW;
 END;
 $$;
 
-COMMENT ON FUNCTION public.handle_new_user() IS 'Creates a profile entry when a new user is created, based on role metadata';
+COMMENT ON FUNCTION public.handle_new_user() IS 'Creates a profile entry when a new user is created, based on role metadata. Also creates a structure record if role is structure.';
 
 -- ============================================================================
 -- Trigger: on_auth_user_created

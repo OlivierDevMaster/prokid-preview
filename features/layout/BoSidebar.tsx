@@ -12,9 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from '@/i18n/routing';
-import { usePathname } from '@/i18n/routing';
-import { Link } from '@/i18n/routing';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from '@/modeles/navigation.modele';
 

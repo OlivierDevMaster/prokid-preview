@@ -79,7 +79,7 @@ export function LoginForm({
 
       // Redirect based on role
       if (role === 'professional') {
-        router.push('/professional');
+        router.push('/professionals');
       } else if (role === 'structure') {
         router.push('/structure/dashboard');
       } else if (role === 'admin') {
