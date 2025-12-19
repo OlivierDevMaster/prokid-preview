@@ -2,7 +2,7 @@
 
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,7 +21,41 @@ export function LoginForm({
   const [password, setPassword] = useState('');
   const [error, setError] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
+
+  // Check if user is already authenticated on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const session = await getSession();
+
+        if (session?.user?.id) {
+          // Fetch user profile to get role
+          const userResult = await getUser(session.user.id);
+
+          if (!userResult.error && userResult.profile) {
+            const role = userResult.profile.role;
+
+            // Redirect based on role
+            if (role === 'professional') {
+              router.push('/professionals');
+            } else if (role === 'structure') {
+              router.push('/structure/dashboard');
+            } else if (role === 'admin') {
+              router.push('/admin');
+            }
+          }
+        }
+      } catch {
+        // Silently fail - user will see login form
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +100,7 @@ export function LoginForm({
 
       // Redirect based on role
       if (role === 'professional') {
-        router.push('/professional');
+        router.push('/professionals');
       } else if (role === 'structure') {
         router.push('/structure/dashboard');
       } else if (role === 'admin') {
@@ -80,6 +114,24 @@ export function LoginForm({
       setIsLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div
+        className={cn('flex min-h-screen flex-col gap-6', className)}
+        {...props}
+      >
+        <Card className='w-full'>
+          <CardContent className='p-6'>
+            <div className='flex items-center justify-center py-8'>
+              <div className='text-sm text-gray-600'>Loading...</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>

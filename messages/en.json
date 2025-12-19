@@ -461,6 +461,10 @@
       "schedule": "Schedule",
       "recurrent": "Recurrent",
       "recurrentDescription": "If checked, this schedule will repeat until the mission end date",
+      "recurrentNotAvailable": "This option is only available for recurrent availabilities",
+      "availabilityRange": "Availability range",
+      "scheduleStartTime": "Start Time",
+      "scheduleEndTime": "End Time",
       "duration": "Duration (minutes)",
       "noProfessionals": "No professionals found"
     },

@@ -228,7 +228,9 @@ export function CreateMissionForm() {
   const handleAddSchedule = (slot: AvailabilitySlot) => {
     // Check if slot is already added
     const existingIndex = fields.findIndex(
-      field => field.startAt === slot.startAt && field.endAt === slot.endAt
+      field =>
+        field.availabilityStartAt === slot.startAt &&
+        field.availabilityEndAt === slot.endAt
     );
 
     if (existingIndex !== -1) {
@@ -253,6 +255,14 @@ export function CreateMissionForm() {
       );
     });
 
+    console.info({ availabilities, matchingAvailability });
+    // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
+    const isAvailabilityRecurrent = matchingAvailability?.rrule
+      ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
+        matchingAvailability.rrule.includes('FREQ=DAILY') ||
+        matchingAvailability.rrule.includes('FREQ=MONTHLY')
+      : false;
+
     // Use rrule from availability if found, otherwise create a simple one
     let rrule = matchingAvailability?.rrule;
     if (!rrule) {
@@ -262,9 +272,12 @@ export function CreateMissionForm() {
     }
 
     append({
+      availabilityEndAt: slot.endAt,
+      availabilityStartAt: slot.startAt,
       dtstart: slot.startAt,
       duration_mn: durationMn,
       endAt: slot.endAt,
+      isAvailabilityRecurrent: isAvailabilityRecurrent,
       isRecurrent: false,
       rrule: rrule,
       startAt: slot.startAt,
@@ -646,7 +659,7 @@ export function CreateMissionForm() {
                         }`}
                         key={index}
                       >
-                        <div className='p-4'>
+                        <div className='p-2'>
                           <div className='mb-1 text-sm font-bold text-blue-900'>
                             {dayName}
                           </div>
@@ -668,13 +681,13 @@ export function CreateMissionForm() {
 
                                 return (
                                   <Button
-                                    className='w-full justify-start border border-green-300 bg-green-50 text-green-700 hover:bg-green-100'
+                                    className='w-full justify-start border border-green-300 bg-green-50 px-2 text-green-700 hover:bg-green-100'
                                     key={slotIndex}
                                     onClick={() => handleAddSchedule(slot)}
                                     size='sm'
                                     type='button'
                                   >
-                                    <Plus className='mr-2 h-3 w-3' />
+                                    <Plus className='h-3 w-3' />
                                     {startTime} - {endTime}
                                   </Button>
                                 );
@@ -701,61 +714,244 @@ export function CreateMissionForm() {
                   {t('selectedSchedules') || 'Selected Schedules'}
                 </h3>
                 <div className='space-y-3'>
-                  {fields.map((field, index) => (
-                    <Card className='p-4' key={field.id}>
-                      <div className='flex items-start justify-between gap-4'>
-                        <div className='flex-1 space-y-2'>
-                          <div className='font-medium text-gray-900'>
-                            {format(
-                              new Date(field.startAt),
-                              'EEEE, d MMMM yyyy',
-                              { locale: fr }
-                            )}
-                          </div>
-                          <div className='text-sm text-gray-600'>
-                            {format(new Date(field.startAt), 'HH:mm')} -{' '}
-                            {format(new Date(field.endAt), 'HH:mm')}
-                          </div>
-                          <div className='text-sm text-gray-500'>
-                            {Math.floor(field.duration_mn / 60)}h{' '}
-                            {field.duration_mn % 60}min
-                          </div>
-                          <FormField
-                            control={step2Form.control}
-                            name={`schedules.${index}.isRecurrent`}
-                            render={({ field: checkboxField }) => (
-                              <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                                <FormControl>
-                                  <Checkbox
-                                    checked={checkboxField.value}
-                                    onCheckedChange={checkboxField.onChange}
-                                  />
-                                </FormControl>
-                                <div className='space-y-1 leading-none'>
-                                  <FormLabel className='cursor-pointer text-sm font-normal'>
-                                    {t('recurrent') || 'Recurrent'}
+                  {fields.map((field, index) => {
+                    const availabilityStart = new Date(
+                      field.availabilityStartAt
+                    );
+                    const availabilityEnd = new Date(field.availabilityEndAt);
+                    const availabilityStartTime = format(
+                      availabilityStart,
+                      'HH:mm'
+                    );
+                    const availabilityEndTime = format(
+                      availabilityEnd,
+                      'HH:mm'
+                    );
+
+                    // Get current start time
+                    const currentStart = new Date(field.startAt);
+
+                    // Create min/max datetime strings for time pickers
+                    const minStartTime = format(
+                      availabilityStart,
+                      "yyyy-MM-dd'T'HH:mm"
+                    );
+                    const maxStartTime = format(
+                      availabilityEnd,
+                      "yyyy-MM-dd'T'HH:mm"
+                    );
+                    const minEndTime = format(
+                      currentStart,
+                      "yyyy-MM-dd'T'HH:mm"
+                    );
+                    const maxEndTime = format(
+                      availabilityEnd,
+                      "yyyy-MM-dd'T'HH:mm"
+                    );
+
+                    return (
+                      <Card className='p-4' key={field.id}>
+                        <div className='flex items-start justify-between gap-4'>
+                          <div className='flex-1 space-y-4'>
+                            <div>
+                              <div className='font-medium text-gray-900'>
+                                {format(
+                                  new Date(field.startAt),
+                                  'EEEE, d MMMM yyyy',
+                                  { locale: fr }
+                                )}
+                              </div>
+                              <div className='mt-1 text-xs text-gray-500'>
+                                {t('availabilityRange') || 'Availability range'}
+                                : {availabilityStartTime} -{' '}
+                                {availabilityEndTime}
+                              </div>
+                            </div>
+
+                            {/* Start Time Picker */}
+                            <FormField
+                              control={step2Form.control}
+                              name={`schedules.${index}.startAt`}
+                              render={({ field: startField }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    {t('scheduleStartTime') || 'Start Time'}
                                   </FormLabel>
-                                  <FormDescription className='text-xs'>
-                                    {t('recurrentDescription') ||
-                                      'If checked, this schedule will repeat until the mission end date'}
-                                  </FormDescription>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
+                                  <FormControl>
+                                    <Input
+                                      max={maxStartTime}
+                                      min={minStartTime}
+                                      onChange={e => {
+                                        const newStart = e.target.value
+                                          ? new Date(e.target.value)
+                                          : availabilityStart;
+                                        startField.onChange(
+                                          newStart.toISOString()
+                                        );
+
+                                        // Update end time if it's before new start
+                                        const currentEndDate = new Date(
+                                          step2Form.getValues(
+                                            `schedules.${index}.endAt`
+                                          )
+                                        );
+                                        if (currentEndDate <= newStart) {
+                                          // Set end time to min of (new start + 1 minute, availability end)
+                                          const newEnd = new Date(newStart);
+                                          newEnd.setMinutes(
+                                            newEnd.getMinutes() + 1
+                                          );
+                                          if (newEnd > availabilityEnd) {
+                                            step2Form.setValue(
+                                              `schedules.${index}.endAt`,
+                                              availabilityEnd.toISOString()
+                                            );
+                                          } else {
+                                            step2Form.setValue(
+                                              `schedules.${index}.endAt`,
+                                              newEnd.toISOString()
+                                            );
+                                          }
+                                        }
+
+                                        // Recalculate duration
+                                        const endDate = new Date(
+                                          step2Form.getValues(
+                                            `schedules.${index}.endAt`
+                                          )
+                                        );
+                                        const durationMn = Math.round(
+                                          (endDate.getTime() -
+                                            newStart.getTime()) /
+                                            60000
+                                        );
+                                        step2Form.setValue(
+                                          `schedules.${index}.duration_mn`,
+                                          durationMn
+                                        );
+                                        step2Form.setValue(
+                                          `schedules.${index}.dtstart`,
+                                          newStart.toISOString()
+                                        );
+                                      }}
+                                      type='datetime-local'
+                                      value={
+                                        startField.value
+                                          ? new Date(startField.value)
+                                              .toISOString()
+                                              .slice(0, 16)
+                                          : ''
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* End Time Picker */}
+                            <FormField
+                              control={step2Form.control}
+                              name={`schedules.${index}.endAt`}
+                              render={({ field: endField }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    {t('scheduleEndTime') || 'End Time'}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      max={maxEndTime}
+                                      min={minEndTime}
+                                      onChange={e => {
+                                        const newEnd = e.target.value
+                                          ? new Date(e.target.value)
+                                          : availabilityEnd;
+                                        endField.onChange(newEnd.toISOString());
+
+                                        // Recalculate duration
+                                        const startDate = new Date(
+                                          step2Form.getValues(
+                                            `schedules.${index}.startAt`
+                                          )
+                                        );
+                                        const durationMn = Math.round(
+                                          (newEnd.getTime() -
+                                            startDate.getTime()) /
+                                            60000
+                                        );
+                                        step2Form.setValue(
+                                          `schedules.${index}.duration_mn`,
+                                          durationMn
+                                        );
+                                      }}
+                                      type='datetime-local'
+                                      value={
+                                        endField.value
+                                          ? new Date(endField.value)
+                                              .toISOString()
+                                              .slice(0, 16)
+                                          : ''
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className='text-sm text-gray-500'>
+                              {Math.floor(field.duration_mn / 60)}h{' '}
+                              {field.duration_mn % 60}min
+                            </div>
+
+                            {/* Recurrent Checkbox - Only enabled if availability is recurrent */}
+                            <FormField
+                              control={step2Form.control}
+                              name={`schedules.${index}.isRecurrent`}
+                              render={({ field: checkboxField }) => (
+                                <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={checkboxField.value}
+                                      disabled={!field.isAvailabilityRecurrent}
+                                      onCheckedChange={checkboxField.onChange}
+                                    />
+                                  </FormControl>
+                                  <div className='space-y-1 leading-none'>
+                                    <FormLabel
+                                      className={`cursor-pointer text-sm font-normal ${
+                                        !field.isAvailabilityRecurrent
+                                          ? 'text-gray-400'
+                                          : ''
+                                      }`}
+                                    >
+                                      {t('recurrent') || 'Recurrent'}
+                                    </FormLabel>
+                                    <FormDescription className='text-xs'>
+                                      {field.isAvailabilityRecurrent
+                                        ? t('recurrentDescription') ||
+                                          'If checked, this schedule will repeat until the mission end date'
+                                        : t('recurrentNotAvailable') ||
+                                          'This option is only available for recurrent availabilities'}
+                                    </FormDescription>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <Button
+                            className='text-red-600 hover:text-red-700'
+                            onClick={() => remove(index)}
+                            size='sm'
+                            type='button'
+                            variant='ghost'
+                          >
+                            <Trash2 className='h-4 w-4' />
+                          </Button>
                         </div>
-                        <Button
-                          className='text-red-600 hover:text-red-700'
-                          onClick={() => remove(index)}
-                          size='sm'
-                          type='button'
-                          variant='ghost'
-                        >
-                          <Trash2 className='h-4 w-4' />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}

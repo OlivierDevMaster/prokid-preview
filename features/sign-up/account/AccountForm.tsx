@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link, useRouter } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 import { createAccount } from '../signUp.service';
@@ -19,6 +19,8 @@ type AccountFormProps = {
 export function AccountForm({ className, role, ...props }: AccountFormProps) {
   const t = useTranslations('auth.signUp');
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<null | string>(null);
@@ -46,6 +48,8 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
     try {
       await createAccount({
         email,
+        firstName,
+        lastName,
         password,
         role,
       });
@@ -83,6 +87,41 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             {error && (
               <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
                 {error}
+              </div>
+            )}
+
+            {role === 'structure' && (
+              <div className='grid grid-cols-2 gap-2'>
+                <div>
+                  <Label className='text-gray-700' htmlFor='email'>
+                    {t('structureForm.firstNameLabel')}
+                  </Label>
+                  <Input
+                    className='border-gray-300'
+                    disabled={isLoading}
+                    id='firstName'
+                    onChange={e => setFirstName(e.target.value)}
+                    placeholder={t('structureForm.firstNamePlaceholder')}
+                    required
+                    type='text'
+                    value={firstName}
+                  />
+                </div>
+                <div>
+                  <Label className='text-gray-700' htmlFor='email'>
+                    {t('structureForm.lastNameLabel')}
+                  </Label>
+                  <Input
+                    className='border-gray-300'
+                    disabled={isLoading}
+                    id='lastName'
+                    onChange={e => setLastName(e.target.value)}
+                    placeholder={t('structureForm.lastNamePlaceholder')}
+                    required
+                    type='text'
+                    value={lastName}
+                  />
+                </div>
               </div>
             )}
 
@@ -143,16 +182,6 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
                 ? 'Creating account...'
                 : t('professionalForm.submitButton')}
             </Button>
-
-            <div className='text-center text-sm text-gray-600'>
-              {t('professionalForm.hasAccount')}{' '}
-              <Link
-                className='font-medium text-blue-500 transition-colors hover:text-blue-600'
-                href='/auth/login'
-              >
-                {t('loginLink')}
-              </Link>
-            </div>
           </form>
         </CardContent>
       </Card>

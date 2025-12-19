@@ -2,22 +2,35 @@ import { createClient } from '@/lib/supabase/client';
 
 export interface SignUpData {
   email: string;
+  firstName?: string;
+  lastName?: string;
   password: string;
   preferredLanguage?: 'en' | 'fr';
   role: 'professional' | 'structure';
 }
 
-export async function createAccount(
-  data: SignUpData
-): Promise<{ email: string; userId: string }> {
+export async function createAccount(data: SignUpData): Promise<{
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  userId: string;
+}> {
   const supabase = createClient();
+
+  const parsedData: Record<string, string> = {
+    role: data.role,
+  };
+  if (data.firstName) {
+    parsedData.firstName = data.firstName;
+  }
+  if (data.lastName) {
+    parsedData.lastName = data.lastName;
+  }
 
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     options: {
-      data: {
-        role: data.role,
-      },
+      data: parsedData,
     },
     password: data.password,
   });
