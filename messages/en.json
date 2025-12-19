@@ -775,7 +775,9 @@
         "newInterventions": "Receive new intervention requests notifications",
         "reportConfirmation": "Receive report sending confirmation",
         "newsletter": "Receive newsletter and ProKid tips by email"
-      }
+      },
+      "emailUpdateTitle": "Check your email",
+      "emailUpdateMessage": "We've sent a confirmation email to your new address. Please check your inbox and click the confirmation link to complete the email update."
     },
     "subscription": {
       "launchOffer": "Launch offer",
