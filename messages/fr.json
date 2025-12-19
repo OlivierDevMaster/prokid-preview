@@ -29,7 +29,8 @@
       "previous": "Précédent",
       "next": "Suivant",
       "start": "Début",
-      "end": "Fin"
+      "end": "Fin",
+      "profileImage": "Photo de profil"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -44,12 +45,15 @@
       "add": "Ajouter",
       "cancel": "Annuler",
       "save": "Enregistrer",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Télécharger",
+      "reset": "Réinitialiser"
     },
     "messages": {
       "loading": "Chargement...",
       "notFound": "Non trouvé",
-      "saving": "Enregistrement..."
+      "saving": "Enregistrement...",
+      "imageSelected": "Nouvelle image sélectionnée"
     },
     "days": {
       "monday": "Lundi",

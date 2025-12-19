@@ -21,7 +21,8 @@
       "availability": "Availability",
       "km": "km",
       "start": "Start",
-      "end": "End"
+      "end": "End",
+      "profileImage": "Profile image"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -36,12 +37,15 @@
       "add": "Add",
       "cancel": "Cancel",
       "save": "Save",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Upload",
+      "reset": "Reset"
     },
     "messages": {
       "loading": "Loading...",
       "notFound": "Not found",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "imageSelected": "New image selected"
     },
     "days": {
       "monday": "Monday",
