@@ -2,13 +2,14 @@
 
 import { ArrowLeft, FileText, Paperclip, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSendReport } from '@/features/reports/hooks/useSendReport';
+import { useRouter } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 
 import { useGetReport } from '../hooks/useGetReport';

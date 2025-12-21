@@ -11,7 +11,6 @@ import {
   Trash2,
   UserX,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 import type { User } from '@/services/admin/users/user.types';
 
@@ -24,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useRouter } from '@/i18n/routing';
 
 type UseGetUserColumnDefsProps = {
   locale?: string;

@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
 import { EditProfessionalDialog } from '@/features/admin/professionals/components/EditProfessionalDialog';
 import { useDeleteProfessional } from '@/features/professionals/hooks/useDeleteProfessional';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { useRouter } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
 
 export default function AdminProfessionalDetailsPage() {

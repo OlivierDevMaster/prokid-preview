@@ -8,6 +8,7 @@ import type {
   CreateCheckoutSessionResponse,
   CreatePortalSessionRequestBody,
   CreatePortalSessionResponse,
+  ProfessionalSubscription,
   SubscriptionStatusResponse,
 } from './subscription.model';
 
@@ -80,4 +81,30 @@ export const cancelSubscription = async (
     body,
     method: 'POST',
   });
+};
+
+export const listSubscriptions = async (): Promise<
+  ProfessionalSubscription[]
+> => {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('professional_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch subscriptions: ${error.message}`);
+  }
+
+  return data ?? [];
 };

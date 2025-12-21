@@ -29,7 +29,8 @@
       "previous": "Précédent",
       "next": "Suivant",
       "start": "Début",
-      "end": "Fin"
+      "end": "Fin",
+      "profileImage": "Photo de profil"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -44,12 +45,15 @@
       "add": "Ajouter",
       "cancel": "Annuler",
       "save": "Enregistrer",
-      "ok": "OK"
+      "ok": "OK",
+      "upload": "Télécharger",
+      "reset": "Réinitialiser"
     },
     "messages": {
       "loading": "Chargement...",
       "notFound": "Non trouvé",
-      "saving": "Enregistrement..."
+      "saving": "Enregistrement...",
+      "imageSelected": "Nouvelle image sélectionnée"
     },
     "days": {
       "monday": "Lundi",
@@ -59,6 +63,16 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche"
+    },
+    "pagination": {
+      "itemsPerPage": "Éléments par page",
+      "next": "Suivant",
+      "of": "sur",
+      "ofItems": "sur",
+      "page": "Page",
+      "previous": "Précédent",
+      "showing": "Affichage",
+      "to": "à"
     }
   },
   "navigation": {
@@ -84,7 +98,42 @@
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
       "error": "Email ou mot de passe invalide",
-      "home": "🏠 Accueil"
+      "home": "🏠 Accueil",
+      "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Saisissez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "m@exemple.com",
+      "submitButton": "Envoyer l'e-mail de réinitialisation",
+      "sending": "Envoi en cours...",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "success": {
+        "title": "Vérifiez votre e-mail",
+        "description": "Instructions de réinitialisation envoyées",
+        "message": "Si vous vous êtes inscrit avec votre adresse e-mail et votre mot de passe, vous recevrez un e-mail de réinitialisation de mot de passe."
+      },
+      "errors": {
+        "generic": "Une erreur est survenue"
+      }
+    },
+    "updatePassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+      "passwordLabel": "Nouveau mot de passe",
+      "passwordPlaceholder": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+      "submitButton": "Enregistrer le nouveau mot de passe",
+      "saving": "Enregistrement...",
+      "verifying": "Vérification du token de réinitialisation...",
+      "errors": {
+        "generic": "Une erreur est survenue",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+      }
     },
     "signUp": {
       "welcome": "Bienvenue sur",
@@ -245,6 +294,7 @@
   },
   "professional": {
     "title": "Trouvez votre professionnel",
+    "job": "Profession",
     "label": {
       "profilePhoto": "Photo de profil",
       "profilePhotoPlaceholder": "Choisissez une photo professionnelle et souriante",
@@ -797,11 +847,21 @@
       "afterTrial": "Après l'essai gratuit",
       "subscriptionStart": "Votre abonnement passera automatiquement à 9.99 €/mois",
       "remaining": "Restants",
+      "subscriptionHistory": "Historique des abonnements",
+      "subscriptionHistoryCreated": "Créé le",
+      "subscriptionHistoryPeriod": "Période",
+      "subscriptionHistoryTrialEnds": "Fin de l'essai",
+      "subscriptionHistoryCancelingAtPeriodEnd": "Annulation en fin de période",
+      "loading": "Chargement...",
+      "noActiveSubscription": "Aucun abonnement actif",
+      "creating": "Création...",
+      "opening": "Ouverture...",
       "profileSettings": "Paramètres du profil",
       "saveChanges": "Enregistrer les modifications",
       "availabilities": "Disponibilités",
       "profile": "Profil",
       "personalData": "Informations personnelles",
+      "identifiers": "Mes identifiants",
       "changePassword": "Changer de mot de passe",
       "passwordRequirements": {
         "title": "Le mot de passe doit contenir :",
@@ -809,13 +869,34 @@
         "uppercase": "Au moins une lettre majuscule",
         "number": "Au moins un chiffre"
       },
+      "passwordReset": {
+        "button": "Réinitialiser mon mot de passe",
+        "sending": "Envoi en cours...",
+        "dialogTitle": "Vérifiez votre e-mail",
+        "dialogMessage": "Nous avons envoyé un lien de réinitialisation de mot de passe à {email}. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour définir votre nouveau mot de passe.",
+        "emailNotFound": "Impossible de récupérer votre adresse e-mail. Veuillez réessayer.",
+        "error": "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation. Veuillez réessayer."
+      },
       "notificationPreferences": {
         "title": "Préférences de notification",
         "appointmentReminders": "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
         "newInterventions": "Recevoir les notifications de nouvelles demandes d'intervention",
         "reportConfirmation": "Recevoir une confirmation d'envoi des rapports",
         "newsletter": "Recevoir les actualités et conseils ProKid par e-mail"
-      }
+      },
+      "emailUpdateTitle": "Vérifiez votre e-mail",
+      "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
+      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !",
+      "professionalInformation": "Informations professionnelles",
+      "structureInformation": "Informations de la structure",
+      "structureName": "Nom de la structure",
+      "interventionRadius": "Rayon d'intervention",
+      "experienceYears": "Années d'expérience",
+      "hourlyRate": "Tarif horaire",
+      "selectProfession": "Sélectionner une profession",
+      "isAvailable": "Je suis disponible pour de nouvelles interventions",
+      "noSkills": "Aucune compétence ajoutée pour le moment",
+      "addSkillPlaceholder": "Ajouter une compétence et appuyer sur Entrée"
     },
     "structure": {
       "title": "Mes structures",
@@ -890,6 +971,8 @@
     "viewAll": "Toutes les notifications",
     "unread": "Non lue(s)",
     "read": "Lue(s)",
+    "unreadSingular": "Non lue",
+    "readSingular": "Lue",
     "filterAll": "Toutes",
     "filterUnread": "Non lues",
     "filterRead": "Lues",
@@ -906,7 +989,48 @@
     "expired": "Expiré",
     "pending": "En attente",
     "ended": "Terminé",
+    "actions": {
+      "joinStructure": "Rejoindre la structure",
+      "acceptMission": "Accepter la mission",
+      "declineInvitation": "Refuser l'invitation",
+      "declineMission": "Refuser la mission"
+    },
     "subtitle": "{total} notification(s), {unread} non lue(s)",
-    "noNotifications": "Aucune notification"
+    "noNotifications": "Aucune notification",
+    "titles": {
+      "invitation_accepted": "Invitation acceptée par {professional_name}",
+      "invitation_declined": "Invitation refusée par {professional_name}",
+      "invitation_received": "Invitation de {structure_name}",
+      "member_fired": "{professional_name} a été retiré de la structure",
+      "member_quit": "{professional_name} a quitté la structure",
+      "mission_accepted": "Mission acceptée : {mission_title}",
+      "mission_cancelled": "Mission annulée : {mission_title}",
+      "mission_declined": "Mission refusée : {mission_title}",
+      "mission_ended": "Mission terminée : {mission_title}",
+      "mission_expired": "Mission expirée : {mission_title}",
+      "mission_received": "Nouvelle mission : {mission_title}",
+      "report_sent": "Rapport reçu : {report_title}",
+      "default": "Notification"
+    },
+    "descriptions": {
+      "invitation_accepted": "{professional_name} a accepté votre invitation",
+      "invitation_declined": "{professional_name} a refusé votre invitation",
+      "invitation_received": "Vous avez été invité à rejoindre {structure_name}",
+      "member_fired": "{professional_name} a été retiré de votre structure",
+      "member_quit": "{professional_name} a quitté votre structure",
+      "mission_accepted": "{professional_name} a accepté la mission : {mission_title}",
+      "mission_cancelled": "La mission \"{mission_title}\" a été annulée",
+      "mission_declined": "{professional_name} a refusé la mission : {mission_title}",
+      "mission_expired_professional": "La mission \"{mission_title}\" de {structure_name} a expiré",
+      "mission_expired_structure": "{professional_name} n'a pas répondu à la mission : {mission_title}",
+      "mission_ended_professional": "La mission \"{mission_title}\" de {structure_name} s'est terminée",
+      "mission_ended_structure": "La mission \"{mission_title}\" avec {professional_name} s'est terminée",
+      "mission_received": "Vous avez reçu une nouvelle mission : {mission_title}",
+      "report_sent": "Vous avez reçu un rapport : {report_title} de {professional_name}",
+      "default": "Vous avez une nouvelle notification"
+    },
+    "sender": {
+      "system": "Système"
+    }
   }
 }

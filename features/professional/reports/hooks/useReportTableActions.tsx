@@ -1,8 +1,8 @@
 import { Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 
 import { TableActionType } from '@/features/admin/models/table.modele';
+import { useRouter } from '@/i18n/routing';
 
 export default function useReportTableActions() {
   const t = useTranslations('admin.report');

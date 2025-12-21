@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { ArrowUpDown, Edit, Eye, Send, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import type { Report as ReportWithRelations } from '@/features/reports/report.model';
@@ -21,6 +20,7 @@ import {
 import TableActions from '@/features/admin/components/TableActions';
 import { TableActionType } from '@/features/admin/models/table.modele';
 import { useDeleteReport } from '@/features/reports/hooks/useDeleteReport';
+import { useRouter } from '@/i18n/routing';
 
 type UseReportColumnDefsProps = {
   locale?: string;

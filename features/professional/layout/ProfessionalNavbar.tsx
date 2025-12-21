@@ -1,8 +1,8 @@
 'use client';
 
 import { Bell, Settings } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import ProkidLogo from '@/features/layout/ProkidLogo';
+import { useNotificationUnreadCount } from '@/features/notifications/hooks';
+import { useRouter } from '@/i18n/routing';
 
 import { type Notification, NotificationPanel } from './NotificationPanel';
 
@@ -43,10 +45,12 @@ const mockNotifications: Notification[] = [
 export function ProfessionalNavbar({
   userRole = 'Professionnel(le) petite enfance',
 }: ProfessionalNavbarProps) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [notifications] = useState<Notification[]>(mockNotifications);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const router = useRouter();
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const { data: unreadCount = 0 } = useNotificationUnreadCount(userId ?? '');
 
   const handleAccept = (id: string) => {
     console.log('Accept notification:', id);

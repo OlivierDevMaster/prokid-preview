@@ -2,6 +2,7 @@
 
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -17,45 +18,23 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
   const t = useTranslations('auth.signIn');
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<null | string>(null);
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
 
-  // Check if user is already authenticated on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const session = await getSession();
-
-        if (session?.user?.id) {
-          // Fetch user profile to get role
-          const userResult = await getUser(session.user.id);
-
-          if (!userResult.error && userResult.profile) {
-            const role = userResult.profile.role;
-
-            // Redirect based on role
-            if (role === 'professional') {
-              router.push('/professionals');
-            } else if (role === 'structure') {
-              router.push('/structure/dashboard');
-            } else if (role === 'admin') {
-              router.push('/admin');
-            }
-          }
-        }
-      } catch {
-        // Silently fail - user will see login form
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+    const passwordUpdated = searchParams.get('passwordUpdated');
+    if (passwordUpdated === 'true') {
+      setSuccess(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('passwordUpdated');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,24 +94,6 @@ export function LoginForm({
     }
   };
 
-  // Show loading state while checking authentication
-  if (isCheckingAuth) {
-    return (
-      <div
-        className={cn('flex min-h-screen flex-col gap-6', className)}
-        {...props}
-      >
-        <Card className='w-full'>
-          <CardContent className='p-6'>
-            <div className='flex items-center justify-center py-8'>
-              <div className='text-sm text-gray-600'>Loading...</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className='w-full'>
@@ -146,6 +107,11 @@ export function LoginForm({
             <div className='flex justify-center space-y-2 text-blue-500'>
               <Link href='/'>{t('home')}</Link>
             </div>
+            {success && (
+              <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
+                {t('passwordUpdatedSuccess')}
+              </div>
+            )}
             {error && (
               <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
                 {error}

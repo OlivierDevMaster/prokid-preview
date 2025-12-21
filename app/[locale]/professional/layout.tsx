@@ -2,11 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { BoNavbar } from '@/features/layout/BoNavbar';
 import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
+import { usePathname } from '@/i18n/routing';
 import { useRouter } from '@/i18n/routing';
 import { getUser } from '@/services/auth/auth.service';
 

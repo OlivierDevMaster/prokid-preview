@@ -12,6 +12,9 @@ export const useMarkNotificationAsRead = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notification'] });
+      queryClient.invalidateQueries({
+        queryKey: ['notification-unread-count'],
+      });
     },
   });
 };
