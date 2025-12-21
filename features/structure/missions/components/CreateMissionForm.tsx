@@ -24,7 +24,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { rrulestr } from 'rrule';
+import { RRuleSet, rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
@@ -244,28 +244,37 @@ export function CreateMissionForm() {
     const end = new Date(slot.endAt);
     const durationMn = Math.round((end.getTime() - start.getTime()) / 60000);
 
-    // // Helper function to extract DTSTART from rrule string
+    // Helper function to extract DTSTART from rrule string using rrule library
+    // Follows rrule.js best practices: let rrulestr parse the full string and handle both RRule and RRuleSet
     const extractDtstartFromRrule = (rruleString: string): Date | null => {
       if (!rruleString) return null;
 
-      // Look for DTSTART in the rrule string
-      // Format: DTSTART:20240101T090000 or DTSTART;TZID=Europe/Paris:20240101T090000
-      const dtstartMatch = rruleString.match(
-        /DTSTART[^:]*:(\d{8})T(\d{2})(\d{2})(\d{2})/
-      );
+      try {
+        // Parse the full RRULE string - rrulestr handles DTSTART, RRULE, EXDATE, etc.
+        const rule = rrulestr(rruleString);
 
-      if (dtstartMatch) {
-        const [, dateStr, hours, minutes, seconds] = dtstartMatch;
-        const year = parseInt(dateStr.substring(0, 4), 10);
-        const month = parseInt(dateStr.substring(4, 6), 10) - 1; // Month is 0-indexed
-        const day = parseInt(dateStr.substring(6, 8), 10);
-        const hour = parseInt(hours, 10);
-        const minute = parseInt(minutes, 10);
-        const second = parseInt(seconds, 10);
-        return new Date(year, month, day, hour, minute, second);
+        // Check if it's an RRuleSet (when EXDATE is present, rrulestr returns an RRuleSet)
+        if (
+          rule instanceof RRuleSet ||
+          typeof (rule as RRuleSet).rrules === 'function'
+        ) {
+          const rruleSet = rule as RRuleSet;
+          const rules = rruleSet.rrules();
+
+          // Get dtstart from the first rule (main rule)
+          if (rules.length > 0 && rules[0].options.dtstart) {
+            return rules[0].options.dtstart;
+          }
+
+          return null;
+        }
+
+        // It's a regular RRule - access dtstart directly
+        return rule.options.dtstart || null;
+      } catch (error) {
+        console.error('Error parsing rrule:', error);
+        return null;
       }
-
-      return null;
     };
 
     // Try to find matching availability to get rrule
@@ -518,31 +527,39 @@ export function CreateMissionForm() {
               <FormField
                 control={step1Form.control}
                 name='mission_dtstart'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {t('missionStartDate') || 'Mission Start Date'}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        min={format(new Date(), 'yyyy-MM-dd HH:mm')}
-                        onChange={e => {
-                          const date = e.target.value
-                            ? new Date(e.target.value)
-                            : undefined;
-                          field.onChange(date);
-                        }}
-                        type='datetime'
-                        value={
-                          field.value
-                            ? format(new Date(field.value), 'yyyy-MM-dd HH:mm')
-                            : ''
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const now = new Date();
+                  const minDateTime = format(now, "yyyy-MM-dd'T'HH:mm");
+
+                  return (
+                    <FormItem>
+                      <FormLabel>
+                        {t('missionStartDate') || 'Mission Start Date'}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          min={minDateTime}
+                          onChange={e => {
+                            const date = e.target.value
+                              ? new Date(e.target.value)
+                              : undefined;
+                            field.onChange(date);
+                          }}
+                          type='datetime-local'
+                          value={
+                            field.value
+                              ? format(
+                                  new Date(field.value),
+                                  "yyyy-MM-dd'T'HH:mm"
+                                )
+                              : ''
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               {/* Mission End Date */}
@@ -551,13 +568,15 @@ export function CreateMissionForm() {
                 name='mission_until'
                 render={({ field }) => {
                   const startDate = step1Form.watch('mission_dtstart');
+                  const now = new Date();
                   const minDate = startDate
                     ? (() => {
                         const date = new Date(startDate);
                         date.setMinutes(date.getMinutes() + 1);
                         return date;
                       })()
-                    : new Date();
+                    : now;
+                  const minDateTime = format(minDate, "yyyy-MM-dd'T'HH:mm");
 
                   return (
                     <FormItem>
@@ -566,17 +585,20 @@ export function CreateMissionForm() {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          min={minDate.toISOString().slice(0, 16)}
+                          min={minDateTime}
                           onChange={e => {
                             const date = e.target.value
                               ? new Date(e.target.value)
                               : undefined;
                             field.onChange(date);
                           }}
-                          type='datetime'
+                          type='datetime-local'
                           value={
                             field.value
-                              ? new Date(field.value).toISOString().slice(0, 16)
+                              ? format(
+                                  new Date(field.value),
+                                  "yyyy-MM-dd'T'HH:mm"
+                                )
                               : ''
                           }
                         />
@@ -870,12 +892,13 @@ export function CreateMissionForm() {
                                           newStart.toISOString()
                                         );
                                       }}
-                                      type='datetime'
+                                      type='datetime-local'
                                       value={
                                         startField.value
-                                          ? new Date(startField.value)
-                                              .toISOString()
-                                              .slice(0, 16)
+                                          ? format(
+                                              new Date(startField.value),
+                                              "yyyy-MM-dd'T'HH:mm"
+                                            )
                                           : ''
                                       }
                                     />
@@ -920,12 +943,13 @@ export function CreateMissionForm() {
                                           durationMn
                                         );
                                       }}
-                                      type='datetime'
+                                      type='datetime-local'
                                       value={
                                         endField.value
-                                          ? new Date(endField.value)
-                                              .toISOString()
-                                              .slice(0, 16)
+                                          ? format(
+                                              new Date(endField.value),
+                                              "yyyy-MM-dd'T'HH:mm"
+                                            )
                                           : ''
                                       }
                                     />
