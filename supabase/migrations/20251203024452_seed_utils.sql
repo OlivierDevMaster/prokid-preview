@@ -24,26 +24,42 @@ END;
 $$ LANGUAGE plpgsql STABLE SET search_path = '';
 
 -- Function to get next occurrence of a day of week
+-- days_ahead can be negative to get past dates
 CREATE OR REPLACE FUNCTION public.seeds_get_next_weekday(target_dow INTEGER, days_ahead INTEGER DEFAULT 0)
 RETURNS DATE AS $$
 DECLARE
   current_dow INTEGER;
   days_to_add INTEGER;
   result_date DATE;
+  base_date DATE;
 BEGIN
-  current_dow := EXTRACT(DOW FROM CURRENT_DATE + (days_ahead || ' days')::INTERVAL);
+  base_date := CURRENT_DATE + (days_ahead || ' days')::INTERVAL;
+  current_dow := EXTRACT(DOW FROM base_date);
   days_to_add := (target_dow - current_dow + 7) % 7;
-  IF days_to_add = 0 AND days_ahead = 0 THEN
-    days_to_add := 7; -- If today is the target day and days_ahead is 0, get next week
-  ELSIF days_to_add = 0 THEN
-    days_to_add := 0; -- If we're already on the target day with days_ahead > 0, use that day
+
+  IF days_ahead >= 0 THEN
+    -- For future dates (or today)
+    IF days_to_add = 0 AND days_ahead = 0 THEN
+      days_to_add := 7; -- If today is the target day and days_ahead is 0, get next week
+    ELSIF days_to_add = 0 THEN
+      days_to_add := 0; -- If we're already on the target day with days_ahead > 0, use that day
+    END IF;
+  ELSE
+    -- For past dates
+    IF days_to_add = 0 THEN
+      days_to_add := 0; -- Use the current day if it matches
+    ELSE
+      -- If we need to go forward to reach the target day, go back a week instead
+      days_to_add := days_to_add - 7;
+    END IF;
   END IF;
-  result_date := CURRENT_DATE + (days_ahead + days_to_add || ' days')::INTERVAL;
+
+  result_date := base_date + (days_to_add || ' days')::INTERVAL;
   RETURN result_date;
 END;
 $$ LANGUAGE plpgsql STABLE SET search_path = '';
 
-COMMENT ON FUNCTION public.seeds_get_next_weekday(INTEGER, INTEGER) IS 'Returns the next occurrence of a specified day of week (0=Sunday, 1=Monday, etc.). days_ahead parameter allows getting occurrences in future weeks.';
+COMMENT ON FUNCTION public.seeds_get_next_weekday(INTEGER, INTEGER) IS 'Returns the next occurrence of a specified day of week (0=Sunday, 1=Monday, etc.). days_ahead parameter allows getting occurrences in future weeks (positive) or past weeks (negative).';
 
 -- Function to create recurring availability with optional EXDATE
 CREATE OR REPLACE FUNCTION public.seeds_create_recurring_availability(
@@ -368,9 +384,236 @@ BEGIN
     duration_minutes
   );
 
+  -- If mission is accepted, update availabilities to prevent overlaps
+  IF status_param = 'accepted' THEN
+    PERFORM public.seeds_update_availabilities_for_mission(mission_id_result);
+  END IF;
+
   RETURN mission_id_result;
 END;
 $$ LANGUAGE plpgsql SET search_path = '';
 
-COMMENT ON FUNCTION public.seeds_create_mission_from_availability(UUID, UUID, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, TEXT, TEXT, TEXT) IS 'Creates a mission with schedule from matching availability. Used for seeding. Finds availability by day/hour/duration and generates schedule RRULE with mission date constraints.';
+COMMENT ON FUNCTION public.seeds_create_mission_from_availability(UUID, UUID, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER, TEXT, TEXT, TEXT) IS 'Creates a mission with schedule from matching availability. Used for seeding. Finds availability by day/hour/duration and generates schedule RRULE with mission date constraints. Automatically updates availabilities if mission status is accepted.';
+
+-- Function to update availabilities when a mission is accepted (for seeder use)
+-- This function processes all accepted missions for each availability to ensure correct UNTIL dates
+-- It finds the earliest mission affecting each availability and sets UNTIL to just before it
+-- It also creates post-mission availabilities after the latest mission ends
+-- Note: This function assumes missions are created within availabilities (as per seeder design)
+CREATE OR REPLACE FUNCTION public.seeds_update_availabilities_for_mission(mission_id_param UUID)
+RETURNS VOID AS $$
+DECLARE
+  mission_record RECORD;
+  availability_record RECORD;
+  mission_dtstart_ts TIMESTAMP WITH TIME ZONE;
+  mission_until_ts TIMESTAMP WITH TIME ZONE;
+  earliest_mission_start TIMESTAMP WITH TIME ZONE;
+  latest_mission_end TIMESTAMP WITH TIME ZONE;
+  until_before_earliest TIMESTAMP WITH TIME ZONE;
+  dtstart_after_latest TIMESTAMP WITH TIME ZONE;
+  updated_rrule TEXT;
+  new_rrule TEXT;
+  rrule_lines TEXT[];
+  line TEXT;
+  dtstart_line TEXT;
+  rrule_line TEXT;
+  until_in_rrule TEXT;
+  has_until BOOLEAN;
+  original_until_ts TIMESTAMP WITH TIME ZONE;
+  time_str TEXT;
+  byday_str TEXT;
+  freq_str TEXT;
+  mission_dow INTEGER;
+  mission_dow_str TEXT;
+  affected_missions_count INTEGER;
+BEGIN
+  -- Get mission details
+  SELECT m.id, m.professional_id, m.status, m.mission_dtstart, m.mission_until
+  INTO mission_record
+  FROM public.missions m
+  WHERE m.id = mission_id_param;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Mission not found: %', mission_id_param;
+  END IF;
+
+  IF mission_record.status != 'accepted' THEN
+    -- Only update availabilities for accepted missions
+    RETURN;
+  END IF;
+
+  mission_dtstart_ts := mission_record.mission_dtstart;
+  mission_until_ts := mission_record.mission_until;
+  mission_dow := EXTRACT(DOW FROM mission_dtstart_ts)::INTEGER;
+  mission_dow_str := CASE mission_dow
+    WHEN 0 THEN 'SU'
+    WHEN 1 THEN 'MO'
+    WHEN 2 THEN 'TU'
+    WHEN 3 THEN 'WE'
+    WHEN 4 THEN 'TH'
+    WHEN 5 THEN 'FR'
+    WHEN 6 THEN 'SA'
+  END;
+
+  -- Find availabilities that might overlap with this mission
+  -- Check availabilities that have the same day pattern (BYDAY matches mission day)
+  FOR availability_record IN
+    SELECT a.id, a.rrule, a.duration_mn, a.user_id
+    FROM public.availabilities a
+    WHERE a.user_id = mission_record.professional_id
+      AND a.rrule ~* ('BYDAY=' || mission_dow_str)
+  LOOP
+    -- Find ALL accepted missions that affect this availability (same day pattern)
+    -- Get the earliest mission start and latest mission end
+    SELECT
+      MIN(m.mission_dtstart) AS earliest_start,
+      MAX(m.mission_until) AS latest_end,
+      COUNT(*) AS missions_count
+    INTO earliest_mission_start, latest_mission_end, affected_missions_count
+    FROM public.missions m
+    WHERE m.professional_id = mission_record.professional_id
+      AND m.status = 'accepted'
+      AND EXTRACT(DOW FROM m.mission_dtstart)::INTEGER = mission_dow;
+
+    -- Skip if no missions found (shouldn't happen, but safety check)
+    IF affected_missions_count = 0 OR earliest_mission_start IS NULL THEN
+      CONTINUE;
+    END IF;
+
+    -- Parse availability RRULE
+    rrule_lines := string_to_array(availability_record.rrule, E'\n');
+    dtstart_line := NULL;
+    rrule_line := NULL;
+    until_in_rrule := NULL;
+    has_until := FALSE;
+    original_until_ts := NULL;
+
+    FOREACH line IN ARRAY rrule_lines
+    LOOP
+      IF line ~* '^DTSTART:' THEN
+        dtstart_line := line;
+      ELSIF line ~* '^RRULE:' THEN
+        rrule_line := line;
+        -- Check if UNTIL is in RRULE line
+        IF rrule_line ~* 'UNTIL=([^;]+)' THEN
+          has_until := TRUE;
+          until_in_rrule := substring(rrule_line from 'UNTIL=([^;]+)');
+          -- Parse UNTIL timestamp (format: YYYYMMDDTHHMMSSZ)
+          BEGIN
+            original_until_ts := TO_TIMESTAMP(
+              substring(until_in_rrule from '(\d{8})T(\d{6})Z'),
+              'YYYYMMDDHH24MISS'
+            ) AT TIME ZONE 'UTC';
+          EXCEPTION
+            WHEN OTHERS THEN
+              original_until_ts := NULL;
+          END;
+        END IF;
+      END IF;
+    END LOOP;
+
+    -- Set UNTIL to just before the EARLIEST mission starts
+    until_before_earliest := earliest_mission_start - INTERVAL '1 second';
+
+    -- Only update if current UNTIL is after the earliest mission or doesn't exist
+    IF NOT has_until OR original_until_ts IS NULL OR original_until_ts > until_before_earliest THEN
+      -- Update the availability to end before earliest mission starts
+      IF rrule_line IS NOT NULL AND dtstart_line IS NOT NULL THEN
+        -- Remove existing UNTIL from RRULE line if present
+        rrule_line := regexp_replace(rrule_line, ';UNTIL=[^;]+', '', 'g');
+        rrule_line := regexp_replace(rrule_line, '^UNTIL=[^;]+;?', '', 'g');
+        rrule_line := regexp_replace(rrule_line, 'UNTIL=[^;]+$', '', 'g');
+
+        -- Extract time from DTSTART
+        time_str := substring(dtstart_line from 'T(\d{6})Z');
+        IF time_str IS NULL THEN
+          time_str := '000000';
+        END IF;
+
+        -- Build updated RRULE with new UNTIL (just before earliest mission)
+        updated_rrule := dtstart_line || E'\n' || rrule_line ||
+          ';UNTIL=' || TO_CHAR(until_before_earliest, 'YYYYMMDD') || 'T' || time_str || 'Z';
+
+        -- Add EXDATE lines if present
+        FOREACH line IN ARRAY rrule_lines
+        LOOP
+          IF line ~* '^EXDATE:' THEN
+            updated_rrule := updated_rrule || E'\n' || line;
+          END IF;
+        END LOOP;
+
+        -- Update availability
+        UPDATE public.availabilities
+        SET rrule = updated_rrule
+        WHERE id = availability_record.id;
+      END IF;
+    END IF;
+
+    -- Create new availability after the LATEST mission ends
+    -- Only create if original had no UNTIL or UNTIL was after the latest mission
+    IF NOT has_until OR original_until_ts IS NULL OR original_until_ts > latest_mission_end THEN
+      -- Calculate dtstart for new availability (after latest mission ends, same day of week)
+      -- Find next occurrence of the same day after latest mission ends
+      dtstart_after_latest := latest_mission_end + INTERVAL '1 second';
+      -- Adjust to next occurrence of the same weekday
+      WHILE EXTRACT(DOW FROM dtstart_after_latest)::INTEGER != mission_dow LOOP
+        dtstart_after_latest := dtstart_after_latest + INTERVAL '1 day';
+      END LOOP;
+
+      -- Extract time pattern from original availability
+      IF dtstart_line IS NOT NULL THEN
+        time_str := substring(dtstart_line from 'T(\d{6})Z');
+      END IF;
+      IF time_str IS NULL THEN
+        time_str := '000000';
+      END IF;
+
+      -- Extract BYDAY and FREQ from original RRULE
+      IF rrule_line IS NOT NULL THEN
+        byday_str := substring(rrule_line from 'BYDAY=([^;]+)');
+        freq_str := substring(rrule_line from 'FREQ=([^;]+)');
+      END IF;
+
+      IF byday_str IS NULL THEN
+        byday_str := mission_dow_str;
+      END IF;
+      IF freq_str IS NULL THEN
+        freq_str := 'WEEKLY';
+      END IF;
+
+      -- Build new RRULE starting after latest mission
+      new_rrule := 'DTSTART:' || TO_CHAR(dtstart_after_latest, 'YYYYMMDD') || 'T' || time_str || 'Z' ||
+        E'\nRRULE:FREQ=' || freq_str || ';BYDAY=' || byday_str;
+
+      -- Add original UNTIL if it existed and was after latest mission
+      IF has_until AND original_until_ts IS NOT NULL AND original_until_ts > latest_mission_end THEN
+        new_rrule := new_rrule || ';UNTIL=' || TO_CHAR(original_until_ts, 'YYYYMMDD') || 'T' || time_str || 'Z';
+      END IF;
+
+      -- Add EXDATE lines if present
+      FOREACH line IN ARRAY rrule_lines
+      LOOP
+        IF line ~* '^EXDATE:' THEN
+          new_rrule := new_rrule || E'\n' || line;
+        END IF;
+      END LOOP;
+
+      -- Check if this post-mission availability already exists to avoid duplicates
+      -- (This can happen if the function is called multiple times for different missions)
+      IF NOT EXISTS (
+        SELECT 1 FROM public.availabilities
+        WHERE user_id = availability_record.user_id
+          AND duration_mn = availability_record.duration_mn
+          AND rrule = new_rrule
+      ) THEN
+        -- Create new availability
+        INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+        VALUES (new_rrule, availability_record.duration_mn, availability_record.user_id);
+      END IF;
+    END IF;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql SET search_path = '';
+
+COMMENT ON FUNCTION public.seeds_update_availabilities_for_mission(UUID) IS 'Updates availabilities to prevent overlaps with accepted missions. Used in seeding. For each availability, finds all accepted missions affecting it, sets UNTIL to just before the earliest mission, and creates post-mission availability after the latest mission ends.';
 
