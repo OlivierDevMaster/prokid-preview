@@ -1,17 +1,17 @@
-import './availability-exceptions.test.ts';
-import './basic-validation.test.ts';
-import './complex-multi-availability.test.ts';
-import './constraint-behavior.test.ts';
-import './date-range-constraints.test.ts';
-import './edge-cases.test.ts';
-import './long-duration.test.ts';
-import './multiple-schedules.test.ts';
-import './one-time-mission.test.ts';
-import './overlapping-availabilities.test.ts';
-import './rrule-frequencies.test.ts';
-import './time-boundaries.test.ts';
-import './violation-details.test.ts';
-import { stats, tests } from './test-utils.ts';
+import './availability-exceptions.test';
+import './basic-validation.test';
+import './complex-multi-availability.test';
+import './constraint-behavior.test';
+import './date-range-constraints.test';
+import './edge-cases.test';
+import './long-duration.test';
+import './multiple-schedules.test';
+import './one-time-mission.test';
+import './overlapping-availabilities.test';
+import './rrule-frequencies.test';
+import './time-boundaries.test';
+import './violation-details.test';
+import { stats, tests } from './test-utils';
 
 // Run all tests
 console.log('Running validateMissionAvailability tests...\n');

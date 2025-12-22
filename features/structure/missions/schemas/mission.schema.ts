@@ -4,26 +4,34 @@ import { z } from 'zod';
 export const missionFormSchema = z
   .object({
     description: z.string().optional(),
-    mission_dtstart: z.date().refine(
-      date => {
-        const now = new Date();
-        now.setSeconds(0, 0);
-        return date >= now;
-      },
-      {
-        message: 'Mission start date cannot be in the past',
-      }
-    ),
-    mission_until: z.date().refine(
-      date => {
-        const now = new Date();
-        now.setSeconds(0, 0);
-        return date >= now;
-      },
-      {
-        message: 'Mission end date cannot be in the past',
-      }
-    ),
+    mission_dtstart: z
+      .date({
+        message: 'Mission start date is required',
+      })
+      .refine(
+        date => {
+          const now = new Date();
+          now.setSeconds(0, 0);
+          return date >= now;
+        },
+        {
+          message: 'Mission start date cannot be in the past',
+        }
+      ),
+    mission_until: z
+      .date({
+        message: 'Mission end date is required',
+      })
+      .refine(
+        date => {
+          const now = new Date();
+          now.setSeconds(0, 0);
+          return date >= now;
+        },
+        {
+          message: 'Mission end date cannot be in the past',
+        }
+      ),
     professional_id: z.string().min(1, 'Professional selection is required'),
     structure_id: z.string().min(1, 'Structure ID is required'),
     title: z.string().min(1, 'Mission title is required'),

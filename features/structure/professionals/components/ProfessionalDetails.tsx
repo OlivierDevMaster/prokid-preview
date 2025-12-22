@@ -7,7 +7,6 @@ import {
   Mail,
   MapPin,
   Phone,
-  Star,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -125,19 +124,6 @@ export function ProfessionalDetails() {
                         </Badge>
                       )}
                     </div>
-
-                    {/* Rating */}
-                    {professional.rating && professional.rating > 0 && (
-                      <div className='mb-4 flex items-center justify-center gap-1'>
-                        <Star className='h-5 w-5 fill-yellow-400 text-yellow-400' />
-                        <span className='text-lg font-semibold text-gray-800'>
-                          {professional.rating.toFixed(1)}
-                        </span>
-                        <span className='text-sm text-gray-500'>
-                          ({professional.reviews_count} {t('reviews')})
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 

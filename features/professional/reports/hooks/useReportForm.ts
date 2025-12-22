@@ -53,6 +53,7 @@ export function useReportForm() {
 
   const submitReport = async (data: ReportFormData): Promise<Report> => {
     const supabase = createClient();
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -66,7 +67,7 @@ export function useReportForm() {
     const parsedData: ReportInsert = {
       ...rest,
       author_id: authorId,
-      status: 'draft', // Ensure status is set to draft
+      status: 'draft',
     };
 
     const result = await sendReportMutation.mutateAsync(parsedData);

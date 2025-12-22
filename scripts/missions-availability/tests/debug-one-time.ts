@@ -2,7 +2,7 @@ import {
   type MissionSchedule,
   ProfessionalAvailability,
   validateMissionAvailability,
-} from '../validateMissionAvailability.ts';
+} from '../validateMissionAvailability';
 
 // Debug test to see what's happening
 const missionSchedule: MissionSchedule = {
