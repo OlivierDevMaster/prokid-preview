@@ -7,7 +7,7 @@
 -- ============================================================================
 -- Step 1: Create ratings for a subset of active memberships
 -- Each structure rates some of their active members
--- Ratings are realistic (between 3.5 and 5.0) with varied comments
+-- Ratings are integers (1, 2, 3, 4, or 5) with varied comments
 -- ============================================================================
 
 -- Structure 1 (Happy Kids Daycare) - rates some of its members
@@ -22,7 +22,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Excellent professional with great communication skills and dedication to children. Highly recommend!'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869af9'
@@ -41,7 +41,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.9,
+  5,
   'Outstanding work with special needs children. Very patient and understanding.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869af9'
@@ -60,7 +60,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional, reliable and punctual. Children enjoy working with them.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869af9'
@@ -80,7 +80,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Very professional and caring. Great with organizing activities.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afa'
@@ -99,7 +99,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Excellent educator with strong language development skills.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afa'
@@ -118,7 +118,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.4,
+  4,
   'Good professional, always on time and well-prepared.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afa'
@@ -137,7 +137,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Very creative and engaging with children. Parents love their approach.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afa'
@@ -157,7 +157,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.9,
+  5,
   'Exceptional professional. Goes above and beyond for the children.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afb'
@@ -176,7 +176,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Great team player and very reliable. Excellent communication skills.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afb'
@@ -195,7 +195,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Very knowledgeable and patient with children. Highly recommended.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afb'
@@ -214,7 +214,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional with solid experience. Works well with the team.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afb'
@@ -233,7 +233,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.3,
+  4,
   'Satisfactory performance. Could improve on time management.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afb'
@@ -253,7 +253,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Excellent professional with great rapport with children and parents.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -272,7 +272,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Very dedicated and caring. Always puts children first.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -291,7 +291,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.9,
+  5,
   'Outstanding educator. Children learn a lot and have fun at the same time.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -310,7 +310,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Reliable and professional. Good communication with parents.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -329,7 +329,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.4,
+  4,
   'Good professional. Works well with children of different ages.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -348,7 +348,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.2,
+  4,
   'Adequate performance. Could benefit from more training in child psychology.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afc'
@@ -368,7 +368,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Very creative and engaging. Children love the activities they organize.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -387,7 +387,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Excellent professional. Very organized and always prepared.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -406,7 +406,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional with solid experience. Reliable and punctual.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -425,7 +425,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Very patient and understanding. Great with children who need extra attention.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -444,7 +444,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.3,
+  4,
   'Satisfactory work. Good team member.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -463,7 +463,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.1,
+  4,
   'Adequate performance. Could improve on activity planning.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -482,7 +482,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.0,
+  4,
   'Meets expectations. Reliable but could be more proactive.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afd'
@@ -502,7 +502,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.9,
+  5,
   'Exceptional professional. Parents consistently give positive feedback.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afe'
@@ -521,7 +521,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Very dedicated and professional. Great communication skills.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afe'
@@ -540,7 +540,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Excellent educator. Children are always engaged and learning.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afe'
@@ -559,7 +559,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional. Reliable and works well with the team.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afe'
@@ -578,7 +578,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.4,
+  4,
   'Solid performance. Good with children and parents.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869afe'
@@ -598,7 +598,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Outstanding professional. Very creative and innovative in teaching methods.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -617,7 +617,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Excellent work. Very organized and always prepared for activities.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -636,7 +636,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Great professional. Children love working with them.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -655,7 +655,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional. Reliable and punctual.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -674,7 +674,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.3,
+  4,
   'Satisfactory performance. Good team member.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -693,7 +693,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.2,
+  4,
   'Adequate work. Could improve on communication with parents.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869aff'
@@ -713,7 +713,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Very professional and caring. Excellent with children.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b00'
@@ -732,7 +732,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Great educator. Very patient and understanding.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b00'
@@ -751,7 +751,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Outstanding professional. Always goes the extra mile.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b00'
@@ -770,7 +770,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional. Reliable and works well with the team.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b00'
@@ -789,7 +789,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.4,
+  4,
   'Solid performance. Good communication skills.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b00'
@@ -809,7 +809,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.9,
+  5,
   'Exceptional professional. Very creative and engaging.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -828,7 +828,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Excellent work. Very dedicated and professional.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -847,7 +847,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Great professional. Children learn a lot and have fun.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -866,7 +866,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional. Reliable and punctual.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -885,7 +885,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.3,
+  4,
   'Satisfactory performance. Good team member.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -904,7 +904,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.2,
+  4,
   'Adequate work. Could improve on activity planning.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b01'
@@ -924,7 +924,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.8,
+  5,
   'Excellent professional. Very knowledgeable and patient.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b02'
@@ -943,7 +943,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.7,
+  5,
   'Great educator. Children are always engaged and learning.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b02'
@@ -962,7 +962,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.6,
+  5,
   'Very professional and caring. Excellent communication skills.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b02'
@@ -981,7 +981,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.5,
+  5,
   'Good professional. Reliable and works well with the team.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b02'
@@ -1000,7 +1000,7 @@ SELECT
   sm.structure_id,
   sm.professional_id,
   sm.id AS membership_id,
-  4.4,
+  4,
   'Solid performance. Good with children and parents.'
 FROM public.structure_members sm
 WHERE sm.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869b02'
