@@ -17,6 +17,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import TableActions from '@/features/admin/components/TableActions';
 import { TableActionType } from '@/features/admin/models/table.modele';
 import { useDeleteReport } from '@/features/reports/hooks/useDeleteReport';
@@ -25,6 +31,7 @@ import { useRouter } from '@/i18n/routing';
 type UseReportColumnDefsProps = {
   locale?: string;
   translations: {
+    actions?: string;
     contents: string;
     createdAt: string;
     mission?: string;
@@ -132,12 +139,18 @@ export default function useReportColumnDefs({
       cell: ({ row }) => {
         const contents = row.original.content;
         return (
-          <div
-            className='line-clamp-2 max-w-md text-sm text-gray-600'
-            title={contents}
-          >
-            {contents}
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='line-clamp-2 max-w-md text-sm text-gray-600'>
+                  {contents}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className='max-w-md'>{contents}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       },
       header: translations.contents,
@@ -147,21 +160,25 @@ export default function useReportColumnDefs({
       cell: ({ row }) => {
         const date = row.getValue('created_at') as string;
         return (
-          <div className='text-sm'>
+          <div className='text-center text-sm'>
             {format(new Date(date), 'dd/MM/yyyy', { locale: dateLocale })}
           </div>
         );
       },
       header: ({ column }) => {
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.createdAt}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex justify-center'>
+            <Button
+              className='h-8 px-2 lg:px-3'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              variant='ghost'
+            >
+              {translations.createdAt}
+              <ArrowUpDown className='ml-2 h-4 w-4' />
+            </Button>
+          </div>
         );
       },
     },
@@ -198,6 +215,7 @@ export default function useReportColumnDefs({
           });
 
           actions.push({
+            className: 'text-destructive focus:text-destructive',
             icon: <Trash className='h-4 w-4' />,
             label: t('delete'),
             onClick: () => {
@@ -208,7 +226,9 @@ export default function useReportColumnDefs({
 
         return <TableActions actions={actions} />;
       },
-      header: '',
+      header: () => (
+        <div className='text-center'>{translations.actions || 'Actions'}</div>
+      ),
       id: 'actions',
     },
   ];
