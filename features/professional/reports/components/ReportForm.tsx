@@ -49,8 +49,7 @@ type ReportFormProps = {
 
 export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const t = useTranslations('admin.report');
-  const { form, handleUploadFiles, isLoading, onSubmit, submitReport } =
-    useReportForm();
+  const { form, isLoading, onSubmit, submitReport } = useReportForm();
   const router = useRouter();
   const { data: missionsData } = useGetMissions();
   const missions = missionsData?.data ?? [];
