@@ -114,7 +114,7 @@ export default function ProfessionalProfilePage() {
                     {/* Badges */}
                     <div className='mb-4 flex flex-wrap gap-2'>
                       {professional.is_certified && (
-                        <Badge className='bg-green-400/60 text-white hover:bg-green-400'>
+                        <Badge className='bg-green-100 text-green-700 hover:bg-green-200'>
                           <CheckCircle2 className='mr-1 h-3 w-3' />
                           {t('verified')}
                         </Badge>
