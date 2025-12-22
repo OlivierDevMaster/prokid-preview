@@ -60,6 +60,7 @@ export default function useReportColumnDefs({
           </Button>
         );
       },
+      id: 'report-title',
     },
     {
       accessorKey: 'title',
@@ -84,6 +85,7 @@ export default function useReportColumnDefs({
           </Button>
         );
       },
+      id: 'mission-title',
     },
     {
       accessorKey: 'title',
@@ -112,6 +114,7 @@ export default function useReportColumnDefs({
           </Button>
         );
       },
+      id: 'professional-name',
     },
     {
       accessorKey: 'contents',
