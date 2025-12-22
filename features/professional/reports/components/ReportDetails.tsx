@@ -173,9 +173,7 @@ export function ReportDetails() {
 
           {/* Attachments */}
           <div className='mt-4 space-y-2'>
-            <label className='text-sm font-semibold text-gray-700'>
-              {t('attachments')}
-            </label>
+            <h5 className='pb-2 font-bold'>{t('attachments')}</h5>
             {report.attachments && report.attachments.length > 0 ? (
               <div className='space-y-2'>
                 {report.attachments.map(attachment => (
