@@ -1,7 +1,8 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -11,24 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useFindProfile } from '@/features/profiles/hooks';
 import { createClient } from '@/lib/supabase/client';
 
 export function PasswordChangeForm() {
   const tAdmin = useTranslations('admin');
   const locale = useLocale();
-  const [userEmail, setUserEmail] = useState<null | string>(null);
+  const { data: session } = useSession();
+  const { data: profile } = useFindProfile(session?.user?.id);
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [error, setError] = useState<null | string>(null);
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email) {
-        setUserEmail(user.email);
-      }
-    });
-  }, []);
+  const userEmail = profile?.email || session?.user?.email || null;
 
   const handleRequestPasswordReset = async () => {
     if (!userEmail) {

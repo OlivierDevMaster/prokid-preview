@@ -27,18 +27,14 @@ export default function ConditionalWrapper({
   const isStructureRoute = parsedPathname === 'structure';
 
   if (isProfessionalRoute || isStructureRoute || isAdminRoute || isAuthRoute) {
-    return (
-      <div className='flex min-h-screen flex-col'>
-        <main>{children}</main>
-      </div>
-    );
+    return <>{children}</>;
   }
 
   return (
-    <div className='flex min-h-screen flex-col'>
+    <>
       <Navigation />
-      <main className='flex-1'>{children}</main>
+      {children}
       <Footer />
-    </div>
+    </>
   );
 }

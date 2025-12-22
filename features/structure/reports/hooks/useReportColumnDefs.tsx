@@ -117,11 +117,12 @@ export default function useReportColumnDefs({
       accessorKey: 'contents',
       cell: ({ row }) => {
         const contents = row.original.content;
-        const truncated =
-          contents.length > 100 ? contents.substring(0, 100) + '...' : contents;
         return (
-          <div className='max-w-md text-sm text-gray-600' title={contents}>
-            {truncated}
+          <div
+            className='line-clamp-2 max-w-md text-sm text-gray-600'
+            title={contents}
+          >
+            {contents}
           </div>
         );
       },

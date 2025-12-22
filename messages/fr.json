@@ -437,7 +437,10 @@
       "close": "Fermer",
       "descriptionLabel": "Description",
       "filterByStructure": "Filtrer par structure",
-      "allStructures": "Toutes les structures"
+      "allStructures": "Toutes les structures",
+      "filterByStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "viewReports": "Voir les rapports"
     },
     "subscription": {
       "title": "Abonnement ProKid Pro",
@@ -501,6 +504,8 @@
       "createError": "Échec de la création de la mission",
       "filterByProfessional": "Filtrer par professionnel",
       "allProfessionals": "Tous les professionnels",
+      "filterByStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
       "step": "Étape",
       "next": "Suivant",
       "back": "Retour",
@@ -522,6 +527,7 @@
       "noReport": "Aucun compte rendu",
       "period": "Période",
       "viewDetails": "Voir les détails",
+      "viewReports": "Voir les rapports",
       "close": "Fermer",
       "unknownProfessional": "Professionnel inconnu"
     },
@@ -742,7 +748,9 @@
       "notRecurrenceTitle": "Ce créneau ne provient pas d'une récurrence",
       "notRecurrenceMessage": "Ce créneau ne provient pas d'une récurrence. Seuls les créneaux récurrents peuvent avoir leur récurrence arrêtée.",
       "errorTitle": "Une erreur est survenue",
-      "errorMessage": "Une erreur est survenue lors de l'arrêt de la récurrence"
+      "errorMessage": "Une erreur est survenue lors de l'arrêt de la récurrence",
+      "mission": "Mission",
+      "structure": "Structure"
     },
     "report": {
       "title": "Créer un rapport",
@@ -807,7 +815,10 @@
       "deleteReportDescription": "Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.",
       "cancel": "Annuler",
       "delete": "Supprimer",
-      "deleting": "Suppression en cours..."
+      "deleting": "Suppression en cours...",
+      "send": "Envoyer",
+      "edit": "Modifier",
+      "view": "Voir"
     },
     "reports": {
       "title": "Mes Rapports",
@@ -829,9 +840,12 @@
       "view": "Voir",
       "filterByStructure": "Filtrer par structure",
       "filterByProfessional": "Filtrer par professionnel",
+      "filterByMission": "Filtrer par mission",
       "allStructures": "Toutes les structures",
       "allProfessionals": "Tous les professionnels",
+      "allMissions": "Toutes les missions",
       "unknownStructure": "Structure inconnue",
+      "unknownMission": "Mission inconnue",
       "mission": "Mission"
     },
     "setting": {

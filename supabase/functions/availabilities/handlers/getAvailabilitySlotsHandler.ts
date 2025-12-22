@@ -62,222 +62,216 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
         );
       }
 
-      const { data: availabilities, error } = await supabaseClient
-        .from('availabilities')
-        .select('duration_mn, dtstart, id, rrule, until')
-        .eq('user_id', professionalId)
-        .or(`dtstart.lte.${endAt},until.gte.${startAt},until.is.null`);
-
-      if (error) {
-        console.error('Error fetching availabilities:', error);
-        return apiResponse.internalServerError(
-          'Failed to fetch availabilities'
-        );
-      }
-
-      if (!availabilities || availabilities.length === 0) {
-        return apiResponse.ok([]);
-      }
-
       const adminSupabaseClient = createClient<Database>(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
 
-      // Fetch all missions for the professional that overlap with the date range
-      // A mission overlaps if: mission_dtstart <= endAt AND (mission_until >= startAt OR mission_until IS NULL)
-      // We need to fetch missions with their schedules to check overlaps
-      // Use separate queries to handle the OR condition properly
-      const { data: missionsWithUntil, error: missionsWithUntilError } =
-        await adminSupabaseClient
-          .from('missions')
-          .select(
-            `
+      // Fetch all availabilities for the professional
+      // RRULE is the single source of truth - dates are extracted from RRULE only
+      const { data: availabilities, error: availabilitiesError } =
+        await supabaseClient
+          .from('availabilities')
+          .select('duration_mn, id, rrule')
+          .eq('user_id', professionalId);
+
+      if (availabilitiesError) {
+        console.error('Error fetching availabilities:', availabilitiesError);
+        return apiResponse.internalServerError(
+          'Failed to fetch availabilities'
+        );
+      }
+
+      // Fetch all accepted missions for the professional
+      // RRULE is the single source of truth - dates are extracted from RRULE only
+      // Note: We assume availabilities have been properly updated by acceptMissionHandler
+      // to exclude mission periods. No overlap checking is performed here.
+      const { data: missions, error: missionsError } = await adminSupabaseClient
+        .from('missions')
+        .select(
+          `
             *,
             mission_schedules (
               id,
               rrule,
-              duration_mn,
-              dtstart,
-              until
+              duration_mn
             )
           `
-          )
-          .eq('professional_id', professionalId)
-          .lte('mission_dtstart', endAt)
-          .gte('mission_until', startAt);
+        )
+        .eq('professional_id', professionalId)
+        .eq('status', 'accepted');
 
-      const { data: missionsWithoutUntil, error: missionsWithoutUntilError } =
-        await adminSupabaseClient
-          .from('missions')
-          .select(
-            `
-            *,
-            mission_schedules (
-              id,
-              rrule,
-              duration_mn,
-              dtstart,
-              until
-            )
-          `
-          )
-          .eq('professional_id', professionalId)
-          .lte('mission_dtstart', endAt)
-          .is('mission_until', null);
-
-      if (missionsWithUntilError || missionsWithoutUntilError) {
-        console.error('Error fetching missions:', {
-          withoutUntil: missionsWithoutUntilError,
-          withUntil: missionsWithUntilError,
-        });
+      if (missionsError) {
+        console.error('Error fetching missions:', missionsError);
         return apiResponse.internalServerError('Failed to fetch missions');
       }
 
-      // Combine and deduplicate missions (in case a mission appears in both queries)
-      const missionMap = new Map<string, (typeof missionsWithUntil)[0]>();
-      if (missionsWithUntil) {
-        for (const mission of missionsWithUntil) {
-          missionMap.set(mission.id, mission);
-        }
-      }
-      if (missionsWithoutUntil) {
-        for (const mission of missionsWithoutUntil) {
-          if (!missionMap.has(mission.id)) {
-            missionMap.set(mission.id, mission);
-          }
-        }
-      }
-      const missions = Array.from(missionMap.values());
-
       const slots: AvailabilitySlot[] = [];
 
-      for (const availability of availabilities) {
-        try {
-          const rule = rrulestr(availability.rrule);
+      // Generate slots from availabilities (free slots)
+      // Extract dates from RRULE only - RRULE is the single source of truth
+      if (availabilities && availabilities.length > 0) {
+        for (const availability of availabilities) {
+          try {
+            const rule = rrulestr(availability.rrule);
 
-          const occurrences = rule.between(startDate, endDate, true);
+            // Extract dtstart and until from RRULE
+            // If until is null/undefined, availability continues indefinitely
+            const availabilityDtstart = rule.options.dtstart;
+            const availabilityUntil = rule.options.until;
 
-          for (const occurrence of occurrences) {
-            const slotStartAt = formatISO(occurrence);
-            const slotEndAt = formatISO(
-              addMinutes(occurrence, availability.duration_mn)
-            );
+            // Only process if availability overlaps with requested date range
+            // Overlap occurs when: availability starts before/at endDate AND (availability ends after/at startDate OR continues indefinitely)
+            const hasOverlap =
+              (!availabilityDtstart || availabilityDtstart <= endDate) &&
+              (!availabilityUntil || availabilityUntil >= startDate);
 
-            const slotStart = parseISO(slotStartAt);
-            const slotEnd = parseISO(slotEndAt);
+            if (hasOverlap) {
+              const occurrences = rule.between(startDate, endDate, true);
 
-            // Find mission that overlaps with this slot
-            // Missions have schedules, so we need to check each schedule's RRULE
-            let overlappingMission = null;
-            let overlappingSchedule = null;
+              for (const occurrence of occurrences) {
+                const slotStartAt = formatISO(occurrence);
+                const slotEndAt = formatISO(
+                  addMinutes(occurrence, availability.duration_mn)
+                );
 
-            if (missions && missions.length > 0) {
-              for (const mission of missions) {
-                // Check each schedule of this mission
-                if (
-                  mission.mission_schedules &&
-                  mission.mission_schedules.length > 0
-                ) {
-                  for (const schedule of mission.mission_schedules) {
-                    try {
-                      const missionRule = rrulestr(schedule.rrule);
-                      const missionDtstart =
-                        missionRule.options.dtstart ||
-                        (schedule.dtstart
-                          ? parseISO(schedule.dtstart)
-                          : parseISO(mission.mission_dtstart));
-                      const missionUntil =
-                        missionRule.options.until ||
-                        (schedule.until
-                          ? parseISO(schedule.until)
-                          : parseISO(mission.mission_until));
-
-                      // Generate occurrences for this mission schedule in the time range
-                      const missionOccurrences = missionRule.between(
-                        slotStart < missionDtstart ? missionDtstart : slotStart,
-                        slotEnd > missionUntil ? missionUntil : slotEnd,
-                        true
-                      );
-
-                      // Check if any occurrence overlaps with this slot
-                      for (const missionOcc of missionOccurrences) {
-                        const missionOccEnd = new Date(
-                          missionOcc.getTime() +
-                            schedule.duration_mn * 60 * 1000
-                        );
-
-                        // Check overlap: slotStart < missionOccEnd AND slotEnd > missionOcc
-                        if (
-                          slotStart.getTime() < missionOccEnd.getTime() &&
-                          slotEnd.getTime() > missionOcc.getTime()
-                        ) {
-                          overlappingMission = mission;
-                          overlappingSchedule = schedule;
-                          break;
-                        }
-                      }
-
-                      if (overlappingMission) {
-                        break;
-                      }
-                    } catch (rruleError) {
-                      console.error(
-                        `Error parsing mission schedule ${schedule.id} RRULE:`,
-                        rruleError
-                      );
-                      // Continue checking other schedules
-                    }
-                  }
-                }
-
-                if (overlappingMission) {
-                  break;
-                }
+                slots.push({
+                  durationMn: availability.duration_mn,
+                  endAt: slotEndAt,
+                  isAvailable: true,
+                  mission: null,
+                  startAt: slotStartAt,
+                });
               }
             }
-
-            // Determine if slot is available (no accepted mission)
-            const isAvailable =
-              !overlappingMission || overlappingMission.status !== 'accepted';
-
-            slots.push({
-              durationMn: availability.duration_mn,
-              endAt: slotEndAt,
-              isAvailable,
-              mission:
-                overlappingMission && overlappingSchedule
-                  ? {
-                      created_at: overlappingMission.created_at,
-                      description: overlappingMission.description,
-                      // duration_mn: overlappingSchedule.duration_mn,
-                      id: overlappingMission.id,
-                      mission_dtstart: overlappingSchedule.dtstart ?? '',
-                      mission_until: overlappingSchedule.until ?? '',
-                      professional_id: overlappingMission.professional_id,
-                      // rrule: overlappingSchedule.rrule,
-                      status: overlappingMission.status,
-                      structure_id: overlappingMission.structure_id,
-                      title: overlappingMission.title,
-                      updated_at: overlappingMission.updated_at,
-                    }
-                  : null,
-              startAt: slotStartAt,
-            });
+          } catch (rruleError) {
+            console.error(
+              `Error parsing rrule for availability ${availability.id}:`,
+              rruleError
+            );
           }
-        } catch (rruleError) {
-          console.error(
-            `Error parsing rrule for availability ${availability.id}:`,
-            rruleError
-          );
         }
       }
 
-      slots.sort((a, b) =>
+      // Generate slots from accepted missions (booked slots)
+      if (missions && missions.length > 0) {
+        for (const mission of missions) {
+          if (
+            !mission.mission_schedules ||
+            mission.mission_schedules.length === 0
+          ) {
+            continue;
+          }
+
+          for (const schedule of mission.mission_schedules) {
+            try {
+              const missionRule = rrulestr(schedule.rrule);
+
+              // Extract dtstart and until from RRULE only - RRULE is the single source of truth
+              // If until is null/undefined, mission schedule continues indefinitely
+              const missionDtstart = missionRule.options.dtstart;
+              const missionUntil = missionRule.options.until;
+
+              // Only process if mission schedule overlaps with requested date range
+              // Overlap occurs when: mission starts before/at endDate AND (mission ends after/at startDate OR continues indefinitely)
+              const hasOverlap =
+                (!missionDtstart || missionDtstart <= endDate) &&
+                (!missionUntil || missionUntil >= startDate);
+
+              if (hasOverlap) {
+                // Generate occurrences for this mission schedule in the time range
+                const effectiveStart = missionDtstart
+                  ? startDate < missionDtstart
+                    ? missionDtstart
+                    : startDate
+                  : startDate;
+                const effectiveEnd = missionUntil
+                  ? endDate > missionUntil
+                    ? missionUntil
+                    : endDate
+                  : endDate;
+
+                const missionOccurrences = missionRule.between(
+                  effectiveStart,
+                  effectiveEnd,
+                  true
+                );
+
+                for (const missionOcc of missionOccurrences) {
+                  const slotStartAt = formatISO(missionOcc);
+                  const slotEndAt = formatISO(
+                    addMinutes(missionOcc, schedule.duration_mn)
+                  );
+
+                  // Extract dtstart and until from RRULE for mission metadata
+                  const scheduleDtstart = missionRule.options.dtstart
+                    ? formatISO(missionRule.options.dtstart)
+                    : '';
+                  const scheduleUntil = missionRule.options.until
+                    ? formatISO(missionRule.options.until)
+                    : '';
+
+                  slots.push({
+                    durationMn: schedule.duration_mn,
+                    endAt: slotEndAt,
+                    isAvailable: false,
+                    mission: {
+                      created_at: mission.created_at,
+                      description: mission.description,
+                      id: mission.id,
+                      mission_dtstart: scheduleDtstart,
+                      mission_until: scheduleUntil,
+                      professional_id: mission.professional_id,
+                      status: mission.status,
+                      structure_id: mission.structure_id,
+                      title: mission.title,
+                      updated_at: mission.updated_at,
+                    },
+                    startAt: slotStartAt,
+                  });
+                }
+              }
+            } catch (rruleError) {
+              console.error(
+                `Error parsing mission schedule ${schedule.id} RRULE:`,
+                rruleError
+              );
+              // Continue with other schedules
+            }
+          }
+        }
+      }
+
+      // Deduplicate slots by preferring booked slots over free slots
+      // This handles edge cases where availability updates might have failed
+      const slotMap = new Map<string, AvailabilitySlot>();
+      for (const slot of slots) {
+        const key = `${slot.startAt}-${slot.endAt}`;
+        const existingSlot = slotMap.get(key);
+
+        if (!existingSlot) {
+          slotMap.set(key, slot);
+        } else if (!slot.isAvailable && existingSlot.isAvailable) {
+          // Prefer booked slot over free slot
+          slotMap.set(key, slot);
+        }
+      }
+
+      const deduplicatedSlots = Array.from(slotMap.values());
+
+      // Log warning if overlaps are detected (should not happen in normal operation)
+      if (deduplicatedSlots.length < slots.length) {
+        console.warn(
+          `Detected ${slots.length - deduplicatedSlots.length} overlapping slots. This may indicate availability updates failed.`
+        );
+      }
+
+      // Sort all slots by start time
+      deduplicatedSlots.sort((a, b) =>
         compareAsc(parseISO(a.startAt), parseISO(b.startAt))
       );
 
-      return apiResponse.ok(slots);
+      return apiResponse.ok(deduplicatedSlots);
     } catch (error) {
       console.error('Error in getAvailabilitySlotsHandler:', error);
       return apiResponse.internalServerError();

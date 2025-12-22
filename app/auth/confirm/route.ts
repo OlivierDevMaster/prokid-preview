@@ -24,16 +24,10 @@ export async function GET(request: NextRequest) {
       redirect({ href: next, locale });
     } else {
       // redirect the user to an error page with some instructions
-      redirect({
-        href: `/auth/error?error=${error?.message}`,
-        locale,
-      });
+      redirect({ href: `/auth/error?error=${error?.message}`, locale });
     }
   }
 
   // redirect the user to an error page with some instructions
-  redirect({
-    href: `/auth/error?error=No token hash or type`,
-    locale,
-  });
+  redirect({ href: `/auth/error?error=No token hash or type`, locale });
 }

@@ -114,7 +114,9 @@ export function StructureCard({ structureMember }: StructureCardProps) {
               <span className='text-gray-500'>...</span>
             ) : lastReport?.title ? (
               <span className='text-gray-500'>{lastReport.title}</span>
-            ) : null}
+            ) : (
+              <span className='italic text-gray-400'>{t('noReport')}</span>
+            )}
           </div>
         </div>
 

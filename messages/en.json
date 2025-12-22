@@ -428,7 +428,10 @@
       "close": "Close",
       "descriptionLabel": "Description",
       "filterByStructure": "Filter by structure",
-      "allStructures": "All structures"
+      "allStructures": "All structures",
+      "filterByStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "viewReports": "View Reports"
     },
     "subscription": {
       "title": "Abonnement ProKid Pro",
@@ -477,6 +480,7 @@
       "noReport": "No report",
       "period": "Period",
       "viewDetails": "View details",
+      "viewReports": "View Reports",
       "close": "Close",
       "unknownProfessional": "Unknown professional",
       "createMission": "Create Mission",
@@ -499,6 +503,8 @@
       "createError": "Failed to create mission",
       "filterByProfessional": "Filter by professional",
       "allProfessionals": "All professionals",
+      "filterByStatus": "Filter by status",
+      "allStatuses": "All statuses",
       "step": "Step",
       "next": "Next",
       "back": "Back",
@@ -803,7 +809,10 @@
       "deleteReportDescription": "Are you sure you want to delete this report? This action cannot be undone.",
       "cancel": "Cancel",
       "delete": "Delete",
-      "deleting": "Deleting..."
+      "deleting": "Deleting...",
+      "send": "Send",
+      "edit": "Edit",
+      "view": "View"
     },
     "reports": {
       "title": "My Reports",
@@ -820,9 +829,12 @@
       "of": "of",
       "filterByStructure": "Filter by structure",
       "filterByProfessional": "Filter by professional",
+      "filterByMission": "Filter by mission",
       "allStructures": "All structures",
       "allProfessionals": "All professionals",
+      "allMissions": "All missions",
       "unknownStructure": "Unknown structure",
+      "unknownMission": "Unknown mission",
       "noResults": "No results.",
       "noReports": "No reports found.",
       "loading": "Loading...",
