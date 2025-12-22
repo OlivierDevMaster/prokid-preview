@@ -1040,5 +1040,87 @@
     "sender": {
       "system": "System"
     }
+  },
+  "landing": {
+    "hero": {
+      "title": "The platform for early childhood professionals",
+      "description": "Connect structures and professionals to provide the best support for children",
+      "ctaPrimary": "Start for free",
+      "ctaSecondary": "Discover professionals"
+    },
+    "features": {
+      "title": "What you get",
+      "subtitle": "Powerful tools to grow your business",
+      "items": {
+        "maxVisibility": {
+          "title": "Maximum visibility",
+          "description": "Your profile appears in all structure searches"
+        },
+        "qualifiedRequests": {
+          "title": "Qualified requests",
+          "description": "Receive direct requests from interested structures"
+        },
+        "integratedMessaging": {
+          "title": "Integrated messaging",
+          "description": "Easily exchange with structures via the platform"
+        },
+        "simpleAnalytics": {
+          "title": "Simple analytics",
+          "description": "Track your profile views and requests"
+        }
+      }
+    },
+    "subscription": {
+      "launchOffer": "Launch offer",
+      "title": "ProKid Pro",
+      "tagline": "Develop your professional activity with ProKid",
+      "price": "€9.99",
+      "priceUnit": "/month",
+      "trialInfo": "After 3 months free trial",
+      "benefit1": "3 months free to test",
+      "benefit2": "No commitment",
+      "benefit3": "Cancellable at any time",
+      "activateButton": "Activate my subscription",
+      "paymentDisclaimer": "Secure payment via Stripe. Cancellation at any time."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": {
+        "whoCanUse": {
+          "question": "Who can use ProKid?",
+          "answer": "ProKid is intended for structures (EAJE, nurseries, micro-nurseries, MAM) and non-medical professionals (RSAI, Technical Referent, Psychomotor therapist, EJE, AP, Dietitian). Families will arrive later."
+        },
+        "professionalTypes": {
+          "question": "What types of professionals can I find?",
+          "answer": "You can find a wide range of early childhood professionals: RSAI, Technical Referents, Psychomotor therapists, EJE, Childcare Assistants, Dietitians and many other qualified specialists."
+        },
+        "publicStructures": {
+          "question": "Do structures appear publicly?",
+          "answer": "No, structures are not publicly visible. Only professionals can see and contact structures that interest them."
+        },
+        "freeTrial": {
+          "question": "How does the free trial work?",
+          "answer": "The free trial lasts 3 months. You can test all features without commitment. No credit card is required to get started."
+        },
+        "automaticAppointments": {
+          "question": "Are appointments automatic?",
+          "answer": "No, appointments are not automatic. Structures and professionals communicate directly via the integrated messaging to plan their missions."
+        },
+        "payments": {
+          "question": "Do payments go through ProKid?",
+          "answer": "No, ProKid does not handle payments directly. Structures and professionals agree on payment terms outside the platform."
+        },
+        "availability": {
+          "question": "Is ProKid available everywhere in France?",
+          "answer": "Yes, ProKid is available throughout France. Professionals can indicate their intervention zone and structures can search for professionals in their region."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "description": "Join the ProKid community and grow your business today",
+      "primaryButton": "Create an account",
+      "secondaryButton": "Learn more"
+    }
   }
 }
