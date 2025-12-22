@@ -428,7 +428,8 @@ export default function SubscriptionTestPage() {
           </div>
 
           {subscriptionData?.subscription &&
-            subscriptionData.subscription.status !== 'canceled' &&
+            (subscriptionData.subscription.status as SubscriptionStatusType) !==
+              SubscriptionStatus.canceled &&
             !subscriptionData.subscription.cancel_at_period_end && (
               <div className='mt-4 space-y-3'>
                 <p className='text-sm font-medium text-gray-700'>
@@ -440,7 +441,9 @@ export default function SubscriptionTestPage() {
                     disabled={
                       isCanceling ||
                       !subscriptionData?.subscription ||
-                      subscriptionData.subscription.status === 'canceled' ||
+                      (subscriptionData.subscription
+                        .status as SubscriptionStatusType) ===
+                        SubscriptionStatus.canceled ||
                       subscriptionData.subscription.cancel_at_period_end
                     }
                     onClick={() => handleCancelSubscription(true)}
@@ -465,7 +468,9 @@ export default function SubscriptionTestPage() {
                     disabled={
                       isCanceling ||
                       !subscriptionData?.subscription ||
-                      subscriptionData.subscription.status === 'canceled' ||
+                      (subscriptionData.subscription
+                        .status as SubscriptionStatusType) ===
+                        SubscriptionStatus.canceled ||
                       subscriptionData.subscription.cancel_at_period_end
                     }
                     onClick={() => handleCancelSubscription(false)}

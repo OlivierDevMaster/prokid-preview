@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useUploadReportAttachment } from '@/features/report-attachments';
 import { useDeleteReportAttachment } from '@/features/report-attachments/hooks/useDeleteReportAttachment';
 import { useSendReport } from '@/features/reports/hooks/useSendReport';
 import { useUpdateReport } from '@/features/reports/hooks/useUpdateReport';
@@ -55,6 +56,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const { isPending: isSending, mutate: sendReport } = useSendReport();
   const { isPending: isUpdating, mutate: updateReport } = useUpdateReport();
   const { mutate: deleteAttachment } = useDeleteReportAttachment();
+  const { mutate: uploadAttachment } = useUploadReportAttachment();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [currentReport, setCurrentReport] = useState<null | Report>(
     report || null
@@ -107,6 +109,30 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
       return;
     }
     deleteAttachment(attachmentId);
+  };
+
+  const handleUploadFiles = async (reportId: string) => {
+    if (selectedFiles.length === 0) return;
+
+    // Upload files one by one (since useUploadReportAttachment only accepts one file)
+    for (const file of selectedFiles) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          uploadAttachment(
+            { file, reportId },
+            {
+              onError: error => reject(error),
+              onSuccess: () => resolve(),
+            }
+          );
+        });
+      } catch (error) {
+        console.error(`Error uploading file ${file.name}:`, error);
+        throw error;
+      }
+    }
+    // Clear selected files after successful upload
+    setSelectedFiles([]);
   };
 
   const handleFormSubmit = async () => {

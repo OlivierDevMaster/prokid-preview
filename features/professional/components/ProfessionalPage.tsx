@@ -154,8 +154,6 @@ export default function ProfessionalPage() {
               key={professional.id}
               location={professional.location}
               name={professional.name}
-              rating={professional.rating}
-              reviewsCount={professional.reviewsCount}
               role={professional.role}
               skills={professional.skills}
             />

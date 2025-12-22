@@ -1,5 +1,5 @@
-import './one-time-mission.test.ts';
-import { stats, tests } from './test-utils.ts';
+import './one-time-mission.test';
+import { stats, tests } from './test-utils';
 
 // Run only one-time mission tests
 console.log('Running one-time mission tests...\n');

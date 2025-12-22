@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, MapPin, Star } from 'lucide-react';
+import { Calendar, Eye, MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -18,8 +18,6 @@ interface ProfessionalCardProps {
   imageUrl?: string;
   location: string;
   name: string;
-  rating: number;
-  reviewsCount: number;
   role: string;
   skills: string[];
 }
@@ -33,8 +31,6 @@ export function ProfessionalCard({
   imageUrl,
   location,
   name,
-  rating,
-  reviewsCount,
   role,
   skills,
 }: ProfessionalCardProps) {
@@ -100,15 +96,6 @@ export function ProfessionalCard({
               </div>
 
               <div className='flex-shrink-0 text-right'>
-                <div className='mb-2 flex items-center gap-1'>
-                  <Star className='h-4 w-4 fill-yellow-400 text-yellow-400' />
-                  <span className='text-sm font-semibold text-gray-800'>
-                    {rating}
-                  </span>
-                  <span className='text-sm text-gray-500'>
-                    ({reviewsCount} {t('reviews')})
-                  </span>
-                </div>
                 <p className='mb-4 text-lg font-bold text-gray-800'>
                   {hourlyRate}€{t('hourlyRate')}
                 </p>

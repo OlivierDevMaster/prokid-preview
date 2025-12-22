@@ -22,6 +22,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { RRuleSet, rrulestr } from 'rrule';
@@ -69,8 +70,10 @@ export function CreateMissionForm() {
   const t = useTranslations('structure.missions');
   const tCommon = useTranslations('common');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const structureId = session?.user?.id;
+  const professionalIdFromUrl = searchParams.get('professional_id');
 
   const [step, setStep] = useState<1 | 2>(1);
   const [createdMissionId, setCreatedMissionId] = useState<null | string>(null);
@@ -87,7 +90,7 @@ export function CreateMissionForm() {
       description: '',
       mission_dtstart: undefined,
       mission_until: undefined,
-      professional_id: '',
+      professional_id: professionalIdFromUrl || '',
       structure_id: structureId || '',
       title: '',
     },
@@ -120,6 +123,12 @@ export function CreateMissionForm() {
       step1Form.setValue('structure_id', structureId);
     }
   }, [structureId, step1Form]);
+
+  useEffect(() => {
+    if (professionalIdFromUrl) {
+      step1Form.setValue('professional_id', professionalIdFromUrl);
+    }
+  }, [professionalIdFromUrl, step1Form]);
 
   useEffect(() => {
     if (createdMissionId) {

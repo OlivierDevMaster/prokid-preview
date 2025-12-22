@@ -1,4 +1,5 @@
 import { type EmailOtpType } from '@supabase/supabase-js';
+import { getLocale } from 'next-intl/server';
 import { type NextRequest } from 'next/server';
 
 import { redirect } from '@/i18n/routing';
@@ -9,6 +10,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get('token_hash');
   const type = searchParams.get('type') as EmailOtpType | null;
   const next = searchParams.get('next') ?? '/';
+  const locale = await getLocale();
 
   if (token_hash && type) {
     const supabase = await createClient();
@@ -19,13 +21,19 @@ export async function GET(request: NextRequest) {
     });
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      redirect(next);
+      redirect({ href: next, locale });
     } else {
       // redirect the user to an error page with some instructions
-      redirect(`/auth/error?error=${error?.message}`);
+      redirect({
+        href: `/auth/error?error=${error?.message}`,
+        locale,
+      });
     }
   }
 
   // redirect the user to an error page with some instructions
-  redirect(`/auth/error?error=No token hash or type`);
+  redirect({
+    href: `/auth/error?error=No token hash or type`,
+    locale,
+  });
 }
