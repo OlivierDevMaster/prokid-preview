@@ -3,27 +3,62 @@ import {
   Calendar as CalendarIcon,
   CheckCircle2,
   Euro,
-  Heart,
-  Mail,
   MapPin,
-  Star,
+  Plus,
+  Send,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
-import { Link } from '@/i18n/routing';
+import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
+import { useCreateInvitation } from '@/features/structure/invitations/hooks/useCreateInvitation';
+import { useRole } from '@/hooks/useRole';
+import { Link, useRouter } from '@/i18n/routing';
 
 export default function ProfessionalProfilePage() {
   const { id } = useParams();
   const t = useTranslations('professional.profile');
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { isStructure, userId } = useRole();
+  const professionalId = id as string;
 
-  const { data: professional } = useFindProfessional(id as string);
+  const { data: professional } = useFindProfessional(professionalId);
+  const { data: hasMembership, isLoading: isLoadingMembership } =
+    useCheckStructureMembership(userId, professionalId);
+  const createInvitation = useCreateInvitation();
+
+  const handleSendInvitation = async () => {
+    if (!userId || !professionalId) {
+      toast.error('Unable to send invitation');
+      return;
+    }
+
+    try {
+      await createInvitation.mutateAsync({
+        professional_id: professionalId,
+        status: 'pending',
+      });
+      toast.success('Invitation sent successfully');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to send invitation'
+      );
+    }
+  };
+
+  const handleCreateMission = () => {
+    router.push(`/structure/missions/new?professional_id=${professionalId}`);
+  };
+
   if (!professional) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-white'>
@@ -90,17 +125,6 @@ export default function ProfessionalProfilePage() {
                         </Badge>
                       )}
                     </div>
-
-                    {/* Note */}
-                    <div className='mb-4 flex items-center gap-1'>
-                      <Star className='h-5 w-5 fill-yellow-400 text-yellow-400' />
-                      <span className='text-lg font-semibold text-gray-800'>
-                        {professional.rating}
-                      </span>
-                      <span className='text-sm text-gray-500'>
-                        ({professional.reviews_count} {t('reviews')})
-                      </span>
-                    </div>
                   </div>
                 </div>
 
@@ -161,19 +185,30 @@ export default function ProfessionalProfilePage() {
                 <div className='my-4 w-full border'></div>
 
                 {/* Boutons d'action */}
-                <div className='mb-8 flex flex-col gap-3'>
-                  <Button className='flex-1 bg-blue-500 text-white hover:bg-blue-600'>
-                    <Mail className='mr-2 h-4 w-4' />
-                    {t('sendMessage')}
-                  </Button>
-                  <Button
-                    className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                    variant='outline'
-                  >
-                    <Heart className='h-4 w-4' />
-                    {t('addFavorite')}
-                  </Button>
-                </div>
+                {session && isStructure && !isLoadingMembership && (
+                  <div className='mb-8 flex flex-col gap-3'>
+                    {hasMembership ? (
+                      <Button
+                        className='flex-1 bg-blue-500 text-white hover:bg-blue-600'
+                        onClick={handleCreateMission}
+                      >
+                        <Plus className='mr-2 h-4 w-4' />
+                        Create Mission
+                      </Button>
+                    ) : (
+                      <Button
+                        className='flex-1 bg-green-500 text-white hover:bg-green-600'
+                        disabled={createInvitation.isPending}
+                        onClick={handleSendInvitation}
+                      >
+                        <Send className='mr-2 h-4 w-4' />
+                        {createInvitation.isPending
+                          ? 'Sending...'
+                          : 'Send Invitation'}
+                      </Button>
+                    )}
+                  </div>
+                )}
 
                 {/* Section À propos */}
                 <div className='border-t pt-6'>

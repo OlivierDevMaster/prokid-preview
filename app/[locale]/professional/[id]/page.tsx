@@ -5,7 +5,6 @@ import {
   Heart,
   Mail,
   MapPin,
-  Star,
 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
@@ -148,17 +147,6 @@ export default async function ProfessionalProfilePage({
                           {t('available')}
                         </Badge>
                       )}
-                    </div>
-
-                    {/* Note */}
-                    <div className='mb-4 flex items-center gap-1'>
-                      <Star className='h-5 w-5 fill-yellow-400 text-yellow-400' />
-                      <span className='text-lg font-semibold text-gray-800'>
-                        {professional.rating}
-                      </span>
-                      <span className='text-sm text-gray-500'>
-                        ({professional.reviewsCount} {t('reviews')})
-                      </span>
                     </div>
                   </div>
                 </div>

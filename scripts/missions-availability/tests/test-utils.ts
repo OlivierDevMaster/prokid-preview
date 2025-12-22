@@ -1,4 +1,4 @@
-import { RRule } from 'rrule';
+import { RRule, type Weekday } from 'rrule';
 
 /**
  * Simple test runner utilities
@@ -78,7 +78,7 @@ export function createWeeklyRRULE(
   until: Date | null,
   byday: string
 ): string {
-  const weekdayMap: Record<string, number> = {
+  const weekdayMap: Record<string, Weekday> = {
     FR: RRule.FR,
     MO: RRule.MO,
     SA: RRule.SA,

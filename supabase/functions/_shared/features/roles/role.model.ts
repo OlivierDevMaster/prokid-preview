@@ -1,7 +1,7 @@
-import type { Enums } from '../../../../../types/database/schema.ts';
+import type { Enums } from '../../../../../types/database/schema';
 
-import { Constants } from '../../../../../types/database/schema.ts';
-import { createEnumConstants } from '../../utils/enums.ts';
+import { Constants } from '../../../../../types/database/schema';
+import { createEnumConstants } from '../../utils/enums';
 
 export type Role = Enums<'role'>;
 

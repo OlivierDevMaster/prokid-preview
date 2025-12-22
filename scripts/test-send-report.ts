@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-import { Database } from '../types/database/schema.ts';
+import { Database } from '../types/database/schema';
 
 const TEST_EMAIL = 'delivered@resend.dev';
 

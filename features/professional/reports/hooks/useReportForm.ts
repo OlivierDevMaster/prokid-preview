@@ -30,7 +30,13 @@ export function useReportForm() {
   const sendReportMutation = useCreateReport();
   const { mutate: uploadAttachment } = useUploadReportAttachment();
 
-  const onSubmit = form.handleSubmit(async data => {
+  const onSubmit = async () => {
+    const isValid = await form.trigger();
+    if (!isValid) {
+      return undefined;
+    }
+
+    const data = form.getValues();
     const supabase = createClient();
     const {
       data: { session },
@@ -45,7 +51,7 @@ export function useReportForm() {
     const parsedData: ReportInsert = {
       ...rest,
       author_id: authorId,
-      status: 'draft', // Ensure status is set to draft
+      status: 'draft',
     };
 
     const result = await sendReportMutation.mutateAsync(parsedData);
@@ -53,7 +59,9 @@ export function useReportForm() {
     if (files && files.length > 0) {
       await handleUploadFiles(result.id, files);
     }
-  });
+
+    return result;
+  };
 
   const handleUploadFiles = async (reportId: string, selectedFiles: File[]) => {
     if (selectedFiles.length === 0) return;

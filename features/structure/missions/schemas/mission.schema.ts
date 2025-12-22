@@ -6,7 +6,7 @@ export const missionFormSchema = z
     description: z.string().optional(),
     mission_dtstart: z
       .date({
-        required_error: 'Mission start date is required',
+        message: 'Mission start date is required',
       })
       .refine(
         date => {
@@ -20,7 +20,7 @@ export const missionFormSchema = z
       ),
     mission_until: z
       .date({
-        required_error: 'Mission end date is required',
+        message: 'Mission end date is required',
       })
       .refine(
         date => {
