@@ -48,7 +48,8 @@ type ReportFormProps = {
 
 export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const t = useTranslations('admin.report');
-  const { form, isLoading, onSubmit } = useReportForm();
+  const { form, handleUploadFiles, isLoading, onSubmit, submitReport } =
+    useReportForm();
   const router = useRouter();
   const { data: missionsData } = useGetMissions();
   const missions = missionsData?.data ?? [];
@@ -143,13 +144,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     // If report doesn't exist yet, create it first
     if (!currentReport?.id) {
       try {
-        const result = await onSubmit();
-        if (!result) {
-          toast.error(
-            t('messages.errorCreatingReport') || 'Failed to create report'
-          );
-          return;
-        }
+        const result = await submitReport(formValues);
         setCurrentReport(result);
         reportId = result.id;
       } catch (error) {
@@ -205,7 +200,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     // Upload any pending files before sending
     if (selectedFiles.length > 0) {
       try {
-        await handleUploadFiles(reportId);
+        await handleUploadFiles(reportId, selectedFiles);
       } catch (error) {
         console.error('Error uploading files:', error);
         toast.error('Failed to upload some files. Please try again.');

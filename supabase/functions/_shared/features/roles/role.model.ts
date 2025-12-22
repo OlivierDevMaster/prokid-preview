@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck This file should not be checked
 import type { Enums } from '../../../../../types/database/schema.ts';
 
 import { Constants } from '../../../../../types/database/schema.ts';

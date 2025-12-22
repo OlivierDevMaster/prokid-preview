@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 
-import type { ReportInsert } from '@/features/reports/report.model';
+import type { Report, ReportInsert } from '@/features/reports/report.model';
 
 import { useUploadReportAttachment } from '@/features/report-attachments';
 import { useCreateReport } from '@/features/reports/hooks';
@@ -30,7 +30,28 @@ export function useReportForm() {
   const sendReportMutation = useCreateReport();
   const { mutate: uploadAttachment } = useUploadReportAttachment();
 
-  const onSubmit = form.handleSubmit(async data => {
+  const handleUploadFiles = async (reportId: string, selectedFiles: File[]) => {
+    if (selectedFiles.length === 0) return;
+
+    // Upload files one by one (since useUploadReportAttachment only accepts one file)
+    for (const file of selectedFiles) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          uploadAttachment(
+            { file, reportId },
+            {
+              onError: error => reject(error),
+              onSuccess: () => resolve(),
+            }
+          );
+        });
+      } catch (error) {
+        console.error(`Error uploading file ${file.name}:`, error);
+      }
+    }
+  };
+
+  const submitReport = async (data: ReportFormData): Promise<Report> => {
     const supabase = createClient();
     const {
       data: { session },
@@ -53,31 +74,17 @@ export function useReportForm() {
     if (files && files.length > 0) {
       await handleUploadFiles(result.id, files);
     }
-  });
 
-  const handleUploadFiles = async (reportId: string, selectedFiles: File[]) => {
-    if (selectedFiles.length === 0) return;
-
-    // Upload files one by one (since useUploadReportAttachment only accepts one file)
-    for (const file of selectedFiles) {
-      try {
-        await new Promise<void>((resolve, reject) => {
-          uploadAttachment(
-            { file, reportId },
-            {
-              onError: error => reject(error),
-              onSuccess: () => resolve(),
-            }
-          );
-        });
-      } catch (error) {
-        console.error(`Error uploading file ${file.name}:`, error);
-      }
-    }
+    return result;
   };
+
+  const onSubmit = form.handleSubmit(submitReport);
+
   return {
     form,
+    handleUploadFiles,
     isLoading: sendReportMutation.isPending,
     onSubmit,
+    submitReport,
   };
 }

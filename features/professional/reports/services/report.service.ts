@@ -133,7 +133,8 @@ export async function getUserReports(): Promise<Report[]> {
 }
 
 export async function getUserReports2(
-  structureId?: null | string
+  structureId?: null | string,
+  missionId?: null | string
 ): Promise<Report[]> {
   try {
     const supabase = await createClient();
@@ -147,6 +148,39 @@ export async function getUserReports2(
     }
 
     const userId = session?.user.id ?? '';
+
+    // If missionId is provided, filter directly by mission
+    if (missionId && missionId !== 'all') {
+      const query = supabase
+        .from('reports')
+        .select(
+          `
+        *,
+        author:professionals(
+          *,
+          profile:profiles(*)
+        ),
+        mission:missions(
+          *,
+          structure:structures(
+            *,
+            profile:profiles(*)
+          )
+        ),
+        attachments:report_attachments(*)
+      `
+        )
+        .eq('author_id', userId)
+        .eq('mission_id', missionId);
+
+      const { data: reports, error: reportError } = await query;
+
+      if (reportError) {
+        throw reportError;
+      }
+
+      return reports || [];
+    }
 
     // If structureId is provided and not 'all', first get mission IDs for that structure
     let missionIds: string[] | undefined;

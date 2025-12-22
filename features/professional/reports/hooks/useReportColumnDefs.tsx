@@ -128,12 +128,12 @@ export default function useReportColumnDefs({
       accessorKey: 'contents',
       cell: ({ row }) => {
         const contents = row.original.content;
-        // Limiter l'affichage à 100 caractères
-        const truncated =
-          contents.length > 100 ? contents.substring(0, 100) + '...' : contents;
         return (
-          <div className='max-w-md text-sm text-gray-600' title={contents}>
-            {truncated}
+          <div
+            className='line-clamp-2 max-w-md text-sm text-gray-600'
+            title={contents}
+          >
+            {contents}
           </div>
         );
       },
@@ -168,7 +168,7 @@ export default function useReportColumnDefs({
 
         actions.push({
           icon: <Eye className='h-4 w-4' />,
-          label: translations.view || 'View',
+          label: t('view'),
           onClick: () => {
             router.push(`/professional/reports/${row.original.id}`);
           },
@@ -180,7 +180,7 @@ export default function useReportColumnDefs({
         if (status === 'draft') {
           actions.push({
             icon: <Send className='h-4 w-4' />,
-            label: 'Send',
+            label: t('send'),
             onClick: () => {
               router.push(`/professional/reports/${row.original.id}`);
             },
@@ -188,7 +188,7 @@ export default function useReportColumnDefs({
 
           actions.push({
             icon: <Edit className='h-4 w-4' />,
-            label: 'Edit',
+            label: t('edit'),
             onClick: () => {
               router.push(`/professional/reports/${row.original.id}/edit`);
             },
@@ -196,7 +196,7 @@ export default function useReportColumnDefs({
 
           actions.push({
             icon: <Trash className='h-4 w-4' />,
-            label: 'Delete',
+            label: t('delete'),
             onClick: () => {
               setReportToDelete(row.original.id);
             },

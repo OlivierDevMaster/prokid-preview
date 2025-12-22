@@ -26,7 +26,7 @@ export default function ProfessionalProfilePage() {
   const { data: professional } = useFindProfessional(id as string);
   if (!professional) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-white'>
+      <main className='flex min-h-screen items-center justify-center bg-white'>
         <Card className='p-8'>
           <h1 className='mb-4 text-2xl font-bold text-gray-800'>
             {t('notFound')}
@@ -35,12 +35,12 @@ export default function ProfessionalProfilePage() {
             <Button>{t('backToList')}</Button>
           </Link>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className='min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-8'>
+    <main className='min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-7xl'>
         <div className='grid grid-cols-1 gap-4 lg:grid-cols-3'>
           {/* Colonne gauche - Profil du professionnel */}
@@ -194,6 +194,6 @@ export default function ProfessionalProfilePage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

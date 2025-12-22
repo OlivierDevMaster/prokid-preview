@@ -24,7 +24,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';

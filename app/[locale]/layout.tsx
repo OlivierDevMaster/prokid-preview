@@ -12,20 +12,55 @@ import ConditionalWrapper from '@/features/layout/ConditionalWrapper';
 import QueryProvider from '@/features/providers/QueryProvider';
 import { AuthSessionProvider } from '@/features/providers/SessionProvider';
 import { routing } from '@/i18n/routing';
+import { getAppUrl } from '@/lib/utils';
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000';
+const appUrl = getAppUrl();
 
 export const metadata: Metadata = {
+  applicationName: 'ProKid',
+  authors: [{ name: 'ProKid' }],
   description: 'La plateforme des pros de la petite enfance',
   icons: {
     apple: '/icons/logo-bg-dark-blue-circle.svg',
     icon: '/icons/logo-bg-dark-blue-circle.svg',
     shortcut: '/icons/logo-bg-dark-blue-circle.svg',
   },
-  metadataBase: new URL(defaultUrl),
-  title: 'prokid',
+  keywords: [
+    'petite enfance',
+    'professionnel',
+    "garde d'enfants",
+    'crèche',
+    'assistant maternel',
+    'early childhood',
+    'childcare',
+  ],
+  metadataBase: new URL(appUrl),
+  openGraph: {
+    description: 'La plateforme des pros de la petite enfance',
+    images: [
+      {
+        alt: 'ProKid - La plateforme des pros de la petite enfance',
+        height: 630,
+        url: '/opengraph-image.png',
+        width: 1200,
+      },
+    ],
+    locale: 'fr_FR',
+    siteName: 'ProKid',
+    title: 'ProKid - La plateforme des pros de la petite enfance',
+    type: 'website',
+    url: appUrl,
+  },
+  title: {
+    default: 'ProKid - La plateforme des pros de la petite enfance',
+    template: '%s | ProKid',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    description: 'La plateforme des pros de la petite enfance',
+    images: ['/twitter-image.png'],
+    title: 'ProKid - La plateforme des pros de la petite enfance',
+  },
 };
 
 const geistSans = Geist({

@@ -15,9 +15,12 @@ import {
 } from '@/components/ui/dialog';
 import { useMissionDuration } from '@/features/mission-durations';
 import { MissionStatusLabel } from '@/features/missions/mission.model';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 import type { StructureMission } from '../modeles/mission.modele';
+
+import { useLastReportForMission } from '../hooks/useLastReportForMission';
 
 interface MissionDetailsContentProps {
   locale: 'en' | 'fr';
@@ -72,6 +75,9 @@ function MissionDetailsContent({
 }: MissionDetailsContentProps) {
   const { data: missionDuration, isLoading: isLoadingDuration } =
     useMissionDuration(mission.id);
+
+  const { data: lastReport, isLoading: isLoadingLastReport } =
+    useLastReportForMission(mission.id);
 
   const progressPercentage = missionDuration?.percentage ?? 0;
   const pastDurationHours = missionDuration?.past_duration_mn
@@ -224,15 +230,40 @@ function MissionDetailsContent({
 
         {/* Last Report */}
         <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <div className='flex items-center gap-2 text-sm text-gray-600'>
-            <FileText className='h-4 w-4 text-gray-400' />
-            <span>{t('lastReport')}</span>
-            <span className='text-gray-500'>
-              {mission.updated_at
-                ? format(new Date(mission.updated_at), 'dd/MM/yyyy')
-                : t('noReport')}
-            </span>
+          <h3 className='mb-2 text-sm font-semibold text-gray-700'>
+            {t('lastReport')}
+          </h3>
+          <div className='space-y-1'>
+            {isLoadingLastReport ? (
+              <div className='text-sm text-gray-600'>...</div>
+            ) : lastReport ? (
+              <>
+                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                  <FileText className='h-4 w-4 text-gray-400' />
+                  <span className='font-medium'>{lastReport.title}</span>
+                </div>
+                <div className='flex items-center gap-2 text-sm text-gray-500'>
+                  <Calendar className='h-4 w-4 text-gray-400' />
+                  <span>
+                    {format(new Date(lastReport.created_at), 'dd/MM/yyyy')}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className='text-sm text-gray-500'>{t('noReport')}</div>
+            )}
           </div>
+        </div>
+
+        {/* View Reports Link */}
+        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
+          <Link
+            className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
+            href={`/structure/reports?mission=${mission.id}`}
+          >
+            <FileText className='h-4 w-4' />
+            <span>{t('viewReports')}</span>
+          </Link>
         </div>
       </div>
 

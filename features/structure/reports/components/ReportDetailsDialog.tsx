@@ -172,7 +172,7 @@ export function ReportDetailsDialog({
                           >
                             <Paperclip className='h-4 w-4 text-gray-400' />
                             <span className='text-sm text-gray-700'>
-                              {attachment.filename || attachment.file_path}
+                              {attachment.file_name || attachment.file_path}
                             </span>
                           </div>
                         ))}

@@ -7,13 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from '@/i18n/routing';
@@ -95,11 +89,11 @@ export function UpdatePasswordForm({
   if (isVerifying) {
     return (
       <div className={cn('flex flex-col gap-6', className)} {...props}>
-        <Card>
+        <Card className='w-full'>
           <CardContent className='p-6'>
-            <p className='text-center text-sm text-muted-foreground'>
-              {t('verifying')}
-            </p>
+            <div className='space-y-2 text-center'>
+              <p className='text-sm text-gray-600'>{t('verifying')}</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -108,73 +102,89 @@ export function UpdatePasswordForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-2xl'>{t('title')}</CardTitle>
-          <CardDescription>{t('description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleUpdatePassword}>
-            <div className='flex flex-col gap-6'>
-              <div className='grid gap-2'>
-                <Label htmlFor='password'>{t('passwordLabel')}</Label>
-                <div className='relative'>
-                  <Input
-                    id='password'
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder={t('passwordPlaceholder')}
-                    required
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                  />
-                  <Button
-                    className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
-                    onClick={() => setShowPassword(!showPassword)}
-                    size='icon'
-                    type='button'
-                    variant='ghost'
-                  >
-                    {showPassword ? (
-                      <EyeOff className='h-4 w-4 text-gray-500' />
-                    ) : (
-                      <Eye className='h-4 w-4 text-gray-500' />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div className='grid gap-2'>
-                <Label htmlFor='confirmPassword'>
-                  {t('confirmPasswordLabel')}
-                </Label>
-                <div className='relative'>
-                  <Input
-                    id='confirmPassword'
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder={t('confirmPasswordPlaceholder')}
-                    required
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                  />
-                  <Button
-                    className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    size='icon'
-                    type='button'
-                    variant='ghost'
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className='h-4 w-4 text-gray-500' />
-                    ) : (
-                      <Eye className='h-4 w-4 text-gray-500' />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              {error && <p className='text-sm text-red-500'>{error}</p>}
-              <Button className='w-full' disabled={isLoading} type='submit'>
-                {isLoading ? t('saving') : t('submitButton')}
-              </Button>
+      <Card className='w-full'>
+        <CardContent className='p-6'>
+          <form className='space-y-6' onSubmit={handleUpdatePassword}>
+            <div className='space-y-2 text-center'>
+              <h1 className='text-2xl font-bold text-gray-800'>{t('title')}</h1>
+              <p className='text-sm text-gray-600'>{t('description')}</p>
             </div>
+
+            {error && (
+              <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
+                {error}
+              </div>
+            )}
+
+            <div className='space-y-2'>
+              <Label className='text-gray-700' htmlFor='password'>
+                {t('passwordLabel')}
+              </Label>
+              <div className='relative'>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='password'
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={t('passwordPlaceholder')}
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                />
+                <Button
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowPassword(!showPassword)}
+                  size='icon'
+                  type='button'
+                  variant='ghost'
+                >
+                  {showPassword ? (
+                    <EyeOff className='h-4 w-4 text-gray-500' />
+                  ) : (
+                    <Eye className='h-4 w-4 text-gray-500' />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <Label className='text-gray-700' htmlFor='confirmPassword'>
+                {t('confirmPasswordLabel')}
+              </Label>
+              <div className='relative'>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='confirmPassword'
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder={t('confirmPasswordPlaceholder')}
+                  required
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                />
+                <Button
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  size='icon'
+                  type='button'
+                  variant='ghost'
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className='h-4 w-4 text-gray-500' />
+                  ) : (
+                    <Eye className='h-4 w-4 text-gray-500' />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              className='w-full bg-blue-500 text-white hover:bg-blue-600'
+              disabled={isLoading}
+              type='submit'
+            >
+              {isLoading ? t('saving') : t('submitButton')}
+            </Button>
           </form>
         </CardContent>
       </Card>

@@ -39,7 +39,7 @@ export default function ProfessionalsPage() {
   const resultsCount = professionals.length;
 
   return (
-    <div className='min-h-screen bg-[#f5f7f5] px-4 py-8 sm:px-6 lg:px-8'>
+    <main className='min-h-screen bg-[#f5f7f5] px-4 py-8 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-7xl'>
         <div className='mb-8'>
           <h1 className='mb-2 text-4xl font-bold text-gray-800'>
@@ -166,6 +166,6 @@ export default function ProfessionalsPage() {
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

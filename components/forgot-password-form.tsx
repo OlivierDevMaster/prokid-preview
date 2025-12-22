@@ -4,16 +4,9 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
@@ -52,56 +45,64 @@ export function ForgotPasswordForm({
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      {success ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-2xl'>{t('success.title')}</CardTitle>
-            <CardDescription>{t('success.description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className='text-sm text-muted-foreground'>
-              {t('success.message')}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-2xl'>{t('title')}</CardTitle>
-            <CardDescription>{t('description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleForgotPassword}>
-              <div className='flex flex-col gap-6'>
-                <div className='grid gap-2'>
-                  <Label htmlFor='email'>{t('emailLabel')}</Label>
-                  <Input
-                    id='email'
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder={t('emailPlaceholder')}
-                    required
-                    type='email'
-                    value={email}
-                  />
+      <Card className='w-full'>
+        <CardContent className='p-6'>
+          {success ? (
+            <div className='space-y-6'>
+              <div className='space-y-2 text-center'>
+                <h1 className='text-2xl font-bold text-gray-800'>
+                  {t('success.title')}
+                </h1>
+                <p className='text-sm text-gray-600'>
+                  {t('success.description')}
+                </p>
+              </div>
+              <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
+                {t('success.message')}
+              </div>
+            </div>
+          ) : (
+            <form className='space-y-6' onSubmit={handleForgotPassword}>
+              <div className='space-y-2 text-center'>
+                <h1 className='text-2xl font-bold text-gray-800'>
+                  {t('title')}
+                </h1>
+                <p className='text-sm text-gray-600'>{t('description')}</p>
+              </div>
+
+              {error && (
+                <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
+                  {error}
                 </div>
-                {error && <p className='text-sm text-red-500'>{error}</p>}
-                <Button className='w-full' disabled={isLoading} type='submit'>
-                  {isLoading ? t('sending') : t('submitButton')}
-                </Button>
+              )}
+
+              <div className='space-y-2'>
+                <Label className='text-gray-700' htmlFor='email'>
+                  {t('emailLabel')}
+                </Label>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='email'
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder={t('emailPlaceholder')}
+                  required
+                  type='email'
+                  value={email}
+                />
               </div>
-              <div className='mt-4 text-center text-sm'>
-                {t('hasAccount')}{' '}
-                <Link
-                  className='underline underline-offset-4'
-                  href='/auth/login'
-                >
-                  {t('loginLink')}
-                </Link>
-              </div>
+
+              <Button
+                className='w-full bg-blue-500 text-white hover:bg-blue-600'
+                disabled={isLoading}
+                type='submit'
+              >
+                {isLoading ? t('sending') : t('submitButton')}
+              </Button>
             </form>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

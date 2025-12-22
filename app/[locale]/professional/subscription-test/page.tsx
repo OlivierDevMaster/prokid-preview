@@ -440,7 +440,6 @@ export default function SubscriptionTestPage() {
                     disabled={
                       isCanceling ||
                       !subscriptionData?.subscription ||
-                      subscriptionData.subscription.status === 'canceled' ||
                       subscriptionData.subscription.cancel_at_period_end
                     }
                     onClick={() => handleCancelSubscription(true)}
@@ -465,7 +464,6 @@ export default function SubscriptionTestPage() {
                     disabled={
                       isCanceling ||
                       !subscriptionData?.subscription ||
-                      subscriptionData.subscription.status === 'canceled' ||
                       subscriptionData.subscription.cancel_at_period_end
                     }
                     onClick={() => handleCancelSubscription(false)}

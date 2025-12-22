@@ -42,9 +42,13 @@ export const MissionStatusLabel: Record<
 
 export interface CreateMissionRequestBody {
   description?: string;
-  duration_mn: number;
+  mission_dtstart: string;
+  mission_until: string;
   professional_id: string;
-  rrule: string;
+  schedules: Array<{
+    duration_mn: number;
+    rrule: string;
+  }>;
   status?: MissionStatus;
   structure_id: string;
   title: string;

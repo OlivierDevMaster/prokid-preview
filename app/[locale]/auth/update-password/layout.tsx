@@ -5,13 +5,13 @@ import Image from 'next/image';
 
 import { Link } from '@/i18n/routing';
 
-export default function ProfessionalSignUpLayout({
+export default function UpdatePasswordLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const t = useTranslations('auth.signUp');
-  const tProfessional = useTranslations('professional.label');
+  const t = useTranslations('auth.updatePassword');
+  const tSignIn = useTranslations('auth.signIn');
   return (
     <main className='min-h-screen'>
       <div className='min-h-screen overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100'>
@@ -22,7 +22,7 @@ export default function ProfessionalSignUpLayout({
                 <div className='space-y-4 text-center'>
                   <div className='flex items-center justify-center'>
                     <h1 className='text-4xl font-bold text-gray-800 md:text-5xl'>
-                      {t('welcome')}
+                      {t('title')}
                     </h1>
                     <Image
                       alt='ProKid'
@@ -31,20 +31,16 @@ export default function ProfessionalSignUpLayout({
                       src='/icons/logo.svg'
                       width={200}
                     />
-                    <div className='text-4xl'>👋</div>
                   </div>
-                  <p className='text-sm text-gray-600'>
-                    {tProfessional('profileConfiguration')}
-                  </p>
+                  <p className='text-sm text-gray-600'>{t('description')}</p>
                 </div>
                 <div>{children}</div>
                 <div className='text-center text-gray-700'>
-                  {t('hasAccount')}{' '}
                   <Link
                     className='font-medium text-blue-500 transition-colors hover:text-blue-600'
                     href='/auth/login'
                   >
-                    {t('loginLink')}
+                    {tSignIn('title')}
                   </Link>
                 </div>
               </div>

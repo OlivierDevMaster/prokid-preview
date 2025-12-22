@@ -15,7 +15,7 @@ export function useGetMissions() {
       }
       const supabase = createClient();
 
-      // Get all accepted missions for the professional with structure info
+      // Get all accepted and ended missions for the professional with structure info
       const { data, error } = await supabase
         .from('missions')
         .select(
@@ -28,7 +28,6 @@ export function useGetMissions() {
         `
         )
         .eq('professional_id', professionalId)
-        .eq('status', 'accepted')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
