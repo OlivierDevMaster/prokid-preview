@@ -2,7 +2,7 @@ import { Building2, MessageSquare, Users } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { StatCard } from '@/features/admin/StatCard';
-import { findMissions } from '@/features/missions/mission.service';
+import { getMissionsCount } from '@/features/missions/mission.service';
 import { getProfessionals } from '@/features/professionals/professional.service';
 import { getStructures } from '@/features/structures/structure.service';
 
@@ -14,12 +14,12 @@ export default async function DashboardPage() {
     await Promise.all([
       getProfessionals({}, { limit: 1, page: 1 }),
       getStructures({}, { limit: 1, page: 1 }),
-      findMissions({}, { limit: 1, page: 1 }),
+      getMissionsCount(),
     ]);
 
   const professionalsCount = professionalsResult.count ?? 0;
   const structuresCount = structuresResult.count ?? 0;
-  const missionsCount = missionsResult.count ?? 0;
+  const missionsCount = missionsResult;
 
   return (
     <div className='min-h-screen space-y-8 overflow-hidden bg-blue-50/30 p-8'>

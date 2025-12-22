@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { ThemeSwitcher } from '@/components/theme-switcher';
+// import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
 import { useRouter } from '@/i18n/routing';
@@ -72,7 +72,7 @@ export function Navigation() {
           </div>
 
           <div className='flex items-center gap-4'>
-            <ThemeSwitcher />
+            {/* <ThemeSwitcher /> */}
             <LanguageSwitcher />
 
             {session ? (
