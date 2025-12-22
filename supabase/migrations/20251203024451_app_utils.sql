@@ -5,7 +5,11 @@
 
 -- Helper function to get secret from vault
 CREATE OR REPLACE FUNCTION public.get_vault_secret(secret_name TEXT)
-RETURNS TEXT AS $$
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 DECLARE
     secret_value TEXT;
 BEGIN
@@ -19,7 +23,7 @@ EXCEPTION
     WHEN OTHERS THEN
         RETURN NULL;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 COMMENT ON FUNCTION public.get_vault_secret(secret_name TEXT) IS 'Gets a secret from the vault';
 
