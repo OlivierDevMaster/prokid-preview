@@ -288,6 +288,68 @@ export type Database = {
           },
         ]
       }
+      professional_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          membership_id: string
+          professional_id: string
+          rating: number
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          membership_id: string
+          professional_id: string
+          rating: number
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          membership_id?: string
+          professional_id?: string
+          rating?: number
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_ratings_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "structure_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_ratings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_ratings_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           city: string
@@ -880,6 +942,14 @@ export type Database = {
         Returns: string
       }
       seeds_get_rrule_day: { Args: { day_offset: number }; Returns: string }
+      seeds_update_availabilities_for_mission: {
+        Args: { mission_id_param: string }
+        Returns: undefined
+      }
+      update_professional_rating_stats: {
+        Args: { professional_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       invitation_status: "pending" | "accepted" | "declined"
