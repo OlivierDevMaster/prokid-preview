@@ -18,13 +18,12 @@ const ignores = [
   'build/**',
   'next-env.d.ts',
   'types/database/schema.ts',
+  'scripts',
 ];
 
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  {
-    ignores,
-  },
+  { ignores },
   {
     ...eslintPluginPrettierRecommended,
     ignores,
@@ -50,10 +49,7 @@ const eslintConfig = [
       ],
     },
   },
-  {
-    ...perfectionist.configs['recommended-alphabetical'],
-    ignores,
-  },
+  perfectionist.configs['recommended-alphabetical'],
 ];
 
 export default eslintConfig;

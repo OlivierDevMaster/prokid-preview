@@ -51,7 +51,7 @@ export default function FAQPage() {
   ];
 
   return (
-    <div className='min-h-screen bg-green-50/30 px-4 py-12 sm:px-6 lg:px-8'>
+    <main className='min-h-screen bg-green-50/30 px-4 py-12 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-3xl'>
         <h1 className='mb-12 text-center text-3xl font-bold text-gray-700'>
           {t('title')}
@@ -79,6 +79,6 @@ export default function FAQPage() {
           ))}
         </Accordion>
       </div>
-    </div>
+    </main>
   );
 }

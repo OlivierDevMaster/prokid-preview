@@ -72,7 +72,8 @@ export async function getStructureReport(
 }
 
 export async function getStructureReports(
-  professionalId?: null | string
+  professionalId?: null | string,
+  missionId?: null | string
 ): Promise<Report[]> {
   try {
     const supabase = await createClient();
@@ -128,6 +129,11 @@ export async function getStructureReports(
     // Filter by professional if provided
     if (professionalId && professionalId !== 'all') {
       query = query.eq('author_id', professionalId);
+    }
+
+    // Filter by mission if provided
+    if (missionId && missionId !== 'all') {
+      query = query.eq('mission_id', missionId);
     }
 
     const { data: reports, error: reportError } = await query;

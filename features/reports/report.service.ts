@@ -130,6 +130,30 @@ export const findReports = async (
 ): Promise<PaginationResult<Report>> => {
   const supabase = createClient();
 
+  // If filtering by structureId, we need to get mission IDs first
+  // because Supabase doesn't support filtering on nested relationship fields
+  let missionIds: string[] | undefined;
+  if (filters.structureId) {
+    const { data: missions, error: missionsError } = await supabase
+      .from('missions')
+      .select('id')
+      .eq('structure_id', filters.structureId);
+
+    if (missionsError) {
+      throw missionsError;
+    }
+
+    missionIds = missions?.map(m => m.id) ?? [];
+
+    // If no missions found for this structure, return empty result
+    if (missionIds.length === 0) {
+      return {
+        count: 0,
+        data: [],
+      };
+    }
+  }
+
   let query = supabase.from('reports').select(
     `
         *,
@@ -169,8 +193,9 @@ export const findReports = async (
     query = query.eq('mission_id', filters.missionId);
   }
 
-  if (filters.structureId) {
-    query = query.eq('mission.structure_id', filters.structureId);
+  if (filters.structureId && missionIds) {
+    // Filter reports by mission IDs that belong to this structure
+    query = query.in('mission_id', missionIds);
   }
 
   if (filters.authorId) {

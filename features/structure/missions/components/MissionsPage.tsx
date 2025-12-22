@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  MissionStatus,
+  MissionStatusLabel,
+} from '@/features/missions/mission.model';
 import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
 import { useRouter } from '@/i18n/routing';
 
@@ -23,9 +27,13 @@ import { MissionDetailsDialog } from './MissionDetailsDialog';
 export function MissionsPage() {
   const t = useTranslations('structure.missions');
   const router = useRouter();
+  const locale = (useLocale() as 'en' | 'fr') || 'en';
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<
     'all' | string
   >('all');
+  const [selectedStatus, setSelectedStatus] = useState<'all' | MissionStatus>(
+    'all'
+  );
   const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
     null
   );
@@ -41,6 +49,9 @@ export function MissionsPage() {
   const { data: missionsData, isLoading } = useGetMissions({
     ...(selectedProfessionalId && selectedProfessionalId !== 'all'
       ? { professional_id: selectedProfessionalId }
+      : {}),
+    ...(selectedStatus && selectedStatus !== 'all'
+      ? { status: selectedStatus }
       : {}),
   });
 
@@ -67,6 +78,10 @@ export function MissionsPage() {
     setSelectedProfessionalId(value);
   };
 
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value as 'all' | MissionStatus);
+  };
+
   if (isLoading) {
     return (
       <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
@@ -87,22 +102,37 @@ export function MissionsPage() {
 
       {/* Filters */}
       <div className='flex justify-between gap-4'>
-        <Select
-          onValueChange={handleProfessionalChange}
-          value={selectedProfessionalId}
-        >
-          <SelectTrigger className='w-[250px]'>
-            <SelectValue placeholder={t('filterByProfessional')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='all'>{t('allProfessionals')}</SelectItem>
-            {professionals.map(professional => (
-              <SelectItem key={professional.id} value={professional.id}>
-                {professional.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className='flex gap-4'>
+          <Select
+            onValueChange={handleProfessionalChange}
+            value={selectedProfessionalId}
+          >
+            <SelectTrigger className='w-[250px]'>
+              <SelectValue placeholder={t('filterByProfessional')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>{t('allProfessionals')}</SelectItem>
+              {professionals.map(professional => (
+                <SelectItem key={professional.id} value={professional.id}>
+                  {professional.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select onValueChange={handleStatusChange} value={selectedStatus}>
+            <SelectTrigger className='w-[250px]'>
+              <SelectValue placeholder={t('filterByStatus')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>{t('allStatuses')}</SelectItem>
+              {Object.values(MissionStatus).map(status => (
+                <SelectItem key={status} value={status}>
+                  {MissionStatusLabel[locale][status]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button
           className='bg-blue-500 text-white hover:bg-blue-600'
           onClick={handleCreateMission}

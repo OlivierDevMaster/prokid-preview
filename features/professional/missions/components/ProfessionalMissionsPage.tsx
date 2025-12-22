@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
@@ -14,6 +14,10 @@ import {
 } from '@/components/ui/select';
 import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
 import { MissionConfig } from '@/features/missions/mission.config';
+import {
+  MissionStatus,
+  MissionStatusLabel,
+} from '@/features/missions/mission.model';
 import { Pagination } from '@/features/paginations/components/Pagination';
 import { useStructuresForProfessional } from '@/features/structure-members/hooks/useStructuresForProfessional';
 
@@ -23,6 +27,7 @@ import { ProfessionalMissionDetailsDialog } from './ProfessionalMissionDetailsDi
 
 export function ProfessionalMissionsPage() {
   const t = useTranslations('professional.missions');
+  const locale = useLocale() as 'en' | 'fr';
   const { data: session } = useSession();
   const professionalId = session?.user?.id ?? '';
 
@@ -36,6 +41,10 @@ export function ProfessionalMissionsPage() {
   );
   const [structureId, setStructureId] = useQueryState(
     'structure',
+    parseAsString.withDefault('all')
+  );
+  const [status, setStatus] = useQueryState(
+    'status',
     parseAsString.withDefault('all')
   );
   const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
@@ -55,6 +64,9 @@ export function ProfessionalMissionsPage() {
     {
       ...(structureId && structureId !== 'all'
         ? { structure_id: structureId }
+        : {}),
+      ...(status && status !== 'all'
+        ? { status: status as MissionStatus }
         : {}),
     },
     { limit: pageSize, page }
@@ -79,6 +91,11 @@ export function ProfessionalMissionsPage() {
 
   const handleStructureChange = (value: string) => {
     setStructureId(value);
+    setPage(MissionConfig.PAGE_DEFAULT);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value);
     setPage(MissionConfig.PAGE_DEFAULT);
   };
 
@@ -118,6 +135,32 @@ export function ProfessionalMissionsPage() {
                 </SelectItem>
               );
             })}
+          </SelectContent>
+        </Select>
+        <Select onValueChange={handleStatusChange} value={status}>
+          <SelectTrigger className='w-[250px]'>
+            <SelectValue placeholder={t('filterByStatus')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value='all'>{t('allStatuses')}</SelectItem>
+            <SelectItem value={MissionStatus.pending}>
+              {MissionStatusLabel[locale].pending}
+            </SelectItem>
+            <SelectItem value={MissionStatus.accepted}>
+              {MissionStatusLabel[locale].accepted}
+            </SelectItem>
+            <SelectItem value={MissionStatus.declined}>
+              {MissionStatusLabel[locale].declined}
+            </SelectItem>
+            <SelectItem value={MissionStatus.cancelled}>
+              {MissionStatusLabel[locale].cancelled}
+            </SelectItem>
+            <SelectItem value={MissionStatus.expired}>
+              {MissionStatusLabel[locale].expired}
+            </SelectItem>
+            <SelectItem value={MissionStatus.ended}>
+              {MissionStatusLabel[locale].ended}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

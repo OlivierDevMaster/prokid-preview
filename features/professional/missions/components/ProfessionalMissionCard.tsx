@@ -11,6 +11,7 @@ import {
   MissionStatusLabel,
   type MissionWithStructure,
 } from '@/features/missions/mission.model';
+import { useLastReportForMission } from '@/features/professional/missions/hooks/useLastReportForMission';
 import { cn } from '@/lib/utils';
 
 interface ProfessionalMissionCardProps {
@@ -27,6 +28,9 @@ export function ProfessionalMissionCard({
 
   const { data: missionDuration, isLoading: isLoadingDuration } =
     useMissionDuration(mission.id);
+
+  const { data: lastReport, isLoading: isLoadingLastReport } =
+    useLastReportForMission(mission.id);
 
   const progressPercentage = missionDuration?.percentage ?? 0;
   const pastDurationHours = missionDuration?.past_duration_mn
@@ -156,9 +160,11 @@ export function ProfessionalMissionCard({
             <FileText className='h-4 w-4 text-gray-400' />
             <span>{t('lastReport')}</span>
             <span className='text-gray-500'>
-              {mission.updated_at
-                ? format(new Date(mission.updated_at), 'dd/MM/yyyy')
-                : t('noReport')}
+              {isLoadingLastReport
+                ? '...'
+                : lastReport
+                  ? format(new Date(lastReport.created_at), 'dd/MM/yyyy')
+                  : t('noReport')}
             </span>
           </div>
 

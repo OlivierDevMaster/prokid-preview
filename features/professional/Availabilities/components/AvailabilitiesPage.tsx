@@ -16,8 +16,6 @@ import {
   Clock,
   DollarSign,
   Pencil,
-  Repeat2,
-  Trash2,
   TrendingUp,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -36,11 +34,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import ConfirmModal from '@/features/components/ConfirmModal';
 
 import {
@@ -49,6 +42,7 @@ import {
 } from '../availabilities.service';
 import { useGetAvailabilities } from '../hooks/useGetAvailabilities';
 import AvailabilitiesEditPage from './AvailabilitiesEditPage';
+import AvailabilitySlotComponent from './AvailabilitySlot';
 
 export default function AvailabilitiesPage() {
   const t = useTranslations('admin.availabilities');
@@ -375,104 +369,24 @@ export default function AvailabilitiesPage() {
                       </div>
                     ) : (
                       groupedSlots.getSlotsByDay(day).map((slot, slotIndex) => {
-                        const startTime = format(
-                          new Date(slot.startAt),
-                          'HH:mm'
-                        );
-                        const endTime = format(new Date(slot.endAt), 'HH:mm');
-                        const isBooked = !slot.isAvailable;
                         const slotId = `${slot.startAt}-${slot.endAt}`;
-                        const isDeleting = deletingSlotId === slotId;
-                        const isStoppingRecurrence =
-                          stoppingRecurrenceId === slotId;
                         const isPopoverOpen = openPopoverId === slotId;
 
                         return (
-                          <Popover
+                          <AvailabilitySlotComponent
+                            deletingSlotId={deletingSlotId}
+                            isPopoverOpen={isPopoverOpen}
                             key={slotIndex}
+                            onDeleteClick={handleDeleteSlotClick}
                             onOpenChange={open =>
                               setOpenPopoverId(open ? slotId : null)
                             }
-                            open={isPopoverOpen}
-                          >
-                            <PopoverTrigger asChild>
-                              <div
-                                className={`cursor-pointer rounded border p-2 text-xs transition-colors hover:opacity-80 ${
-                                  isBooked
-                                    ? 'border-red-300 bg-red-50 text-red-700'
-                                    : 'border-green-300 bg-green-50 text-green-700'
-                                }`}
-                              >
-                                <div className='flex items-center justify-between gap-2'>
-                                  <div className='flex-1'>
-                                    <div className='font-medium'>
-                                      {startTime} - {endTime}
-                                    </div>
-                                    {isBooked && slot.mission && (
-                                      <div className='mt-1 text-xs opacity-75'>
-                                        {t('booked')}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </PopoverTrigger>
-                            <PopoverContent align='start' className='w-56 p-2'>
-                              <div className='space-y-1'>
-                                {!isBooked && (
-                                  <>
-                                    <Button
-                                      className='w-full justify-start text-sm'
-                                      disabled={isStoppingRecurrence}
-                                      onClick={() =>
-                                        handleStopRecurrenceClick(slot)
-                                      }
-                                      size='sm'
-                                      variant='ghost'
-                                    >
-                                      {isStoppingRecurrence ? (
-                                        <>
-                                          <Clock className='mr-2 h-3 w-3 animate-spin' />
-                                          {tCommon('messages.saving')}
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Repeat2 className='mr-2 h-3 w-3' />
-                                          {t('stopRecurrence')}
-                                        </>
-                                      )}
-                                    </Button>
-                                    <Button
-                                      className='w-full justify-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700'
-                                      disabled={isDeleting}
-                                      onClick={() =>
-                                        handleDeleteSlotClick(slot)
-                                      }
-                                      size='sm'
-                                      variant='ghost'
-                                    >
-                                      {isDeleting ? (
-                                        <>
-                                          <Clock className='mr-2 h-3 w-3 animate-spin' />
-                                          {tCommon('messages.saving')}
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Trash2 className='mr-2 h-3 w-3' />
-                                          {t('deleteSlot')}
-                                        </>
-                                      )}
-                                    </Button>
-                                  </>
-                                )}
-                                {isBooked && (
-                                  <div className='px-2 py-1 text-xs text-gray-500'>
-                                    {t('cannotDeleteBooked')}
-                                  </div>
-                                )}
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                            onStopRecurrenceClick={handleStopRecurrenceClick}
+                            slot={slot}
+                            stoppingRecurrenceId={stoppingRecurrenceId}
+                            t={t}
+                            tCommon={tCommon}
+                          />
                         );
                       })
                     )}
