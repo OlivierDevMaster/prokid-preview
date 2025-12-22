@@ -28,6 +28,8 @@ import useGetProfessionalColumnDefs from '../hooks/useGetProfessionalColumnDefs'
 interface ProfessionalsTableProps {
   data: Professional[];
   locale?: string;
+  onDelete?: (professional: Professional) => void;
+  onEdit?: (professional: Professional) => void;
   translations: {
     actions?: string;
     city: string;
@@ -39,8 +41,6 @@ interface ProfessionalsTableProps {
     next: string;
     noResults?: string;
     of: string;
-    onDelete?: (professional: Professional) => void;
-    onEdit?: (professional: Professional) => void;
     page: string;
     previous: string;
     skills: string;
@@ -55,7 +55,10 @@ export function ProfessionalsTable({
 }: ProfessionalsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const columns = useGetProfessionalColumnDefs({ locale, translations });
+  const columns = useGetProfessionalColumnDefs({
+    locale,
+    translations,
+  });
   const table = useReactTable({
     columns,
     data,

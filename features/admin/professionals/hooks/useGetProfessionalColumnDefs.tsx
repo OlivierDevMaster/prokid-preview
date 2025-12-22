@@ -3,7 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
@@ -13,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useRouter } from '@/i18n/routing';
@@ -31,8 +30,6 @@ type UseGetProfessionalColumnDefsProps = {
     next: string;
     noResults?: string;
     of: string;
-    onDelete?: (professional: Professional) => void;
-    onEdit?: (professional: Professional) => void;
     page: string;
     previous: string;
     skills: string;
@@ -49,18 +46,6 @@ export default function useGetProfessionalColumnDefs({
 
   const onView = (professional: Professional) => {
     router.push(`/admin/professionals/${professional.user_id}`);
-  };
-
-  const onEdit = (professional: Professional) => {
-    if (translations.onEdit) {
-      translations.onEdit(professional);
-    }
-  };
-
-  const onDelete = (professional: Professional) => {
-    if (translations.onDelete) {
-      translations.onDelete(professional);
-    }
   };
 
   const columns: ColumnDef<Professional>[] = [
@@ -150,18 +135,26 @@ export default function useGetProfessionalColumnDefs({
       accessorKey: 'created_at',
       cell: ({ row }) => {
         const date = row.getValue('created_at') as string;
-        return format(new Date(date), 'PPp', { locale: dateLocale });
+        return (
+          <div className='text-center'>
+            {format(new Date(date), 'dd/MM/yyyy', { locale: dateLocale })}
+          </div>
+        );
       },
       header: ({ column }) => {
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.createdAt}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex justify-center'>
+            <Button
+              className='h-8 px-2 lg:px-3'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              variant='ghost'
+            >
+              {translations.createdAt}
+              <ArrowUpDown className='ml-2 h-4 w-4' />
+            </Button>
+          </div>
         );
       },
     },
@@ -169,7 +162,7 @@ export default function useGetProfessionalColumnDefs({
       cell: ({ row }) => {
         const professional = row.original;
         return (
-          <div className='flex justify-end'>
+          <div className='flex justify-center'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className='h-8 w-8' size='icon' variant='ghost'>
@@ -187,33 +180,14 @@ export default function useGetProfessionalColumnDefs({
                   <Eye className='mr-2 h-4 w-4' />
                   {translations.view || 'View'}
                 </DropdownMenuItem>
-                {onEdit && (
-                  <DropdownMenuItem
-                    className='cursor-pointer'
-                    onClick={() => onEdit(professional)}
-                  >
-                    <Edit className='mr-2 h-4 w-4' />
-                    {translations.edit || 'Edit'}
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className='cursor-pointer text-destructive focus:text-destructive'
-                      onClick={() => onDelete(professional)}
-                    >
-                      <Trash2 className='mr-2 h-4 w-4' />
-                      {translations.delete || 'Delete'}
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );
       },
-      header: '',
+      header: () => (
+        <div className='text-center'>{translations.actions || 'Actions'}</div>
+      ),
       id: 'actions',
     },
   ];

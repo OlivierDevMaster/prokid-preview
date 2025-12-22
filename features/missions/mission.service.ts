@@ -112,6 +112,17 @@ export const findMissions = async (
   };
 };
 
+export const getMissionsCount = async (): Promise<number> => {
+  const supabase = createClient();
+
+  const { count, error } = await supabase
+    .from('missions')
+    .select('*', { count: 'exact' });
+
+  if (error) throw error;
+
+  return count ?? 0;
+};
 export const updateMission = async (
   missionId: string,
   updateData: MissionUpdate

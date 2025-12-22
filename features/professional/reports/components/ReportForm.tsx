@@ -271,7 +271,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     // Upload any pending files before sending
     if (selectedFiles.length > 0) {
       try {
-        await handleUploadFiles(reportId, selectedFiles);
+        await handleUploadFiles(reportId);
       } catch (error) {
         console.error('Error uploading files:', error);
         toast.error('Failed to upload some files. Please try again.');

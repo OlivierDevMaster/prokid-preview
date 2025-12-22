@@ -116,7 +116,11 @@ export function EditProfessionalDialog({
             >
               {t('cancel')}
             </Button>
-            <Button disabled={updateProfessional.isPending} type='submit'>
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
+              disabled={updateProfessional.isPending}
+              type='submit'
+            >
               {updateProfessional.isPending ? t('updating') : t('update')}
             </Button>
           </DialogFooter>

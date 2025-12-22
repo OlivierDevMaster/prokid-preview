@@ -3,7 +3,8 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import type { Structure } from '@/features/structures/structure.model';
 
@@ -12,10 +13,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from '@/i18n/routing';
 
 type UseGetStructureColumnDefsProps = {
   locale?: string;
@@ -46,18 +45,6 @@ export default function useGetStructureColumnDefs({
 
   const onView = (structure: Structure) => {
     router.push(`/admin/structures/${structure.user_id}`);
-  };
-
-  const onEdit = (structure: Structure) => {
-    if (translations.onEdit) {
-      translations.onEdit(structure);
-    }
-  };
-
-  const onDelete = (structure: Structure) => {
-    if (translations.onDelete) {
-      translations.onDelete(structure);
-    }
   };
 
   const columns: ColumnDef<Structure>[] = [
@@ -103,18 +90,26 @@ export default function useGetStructureColumnDefs({
       accessorKey: 'created_at',
       cell: ({ row }) => {
         const date = row.getValue('created_at') as string;
-        return format(new Date(date), 'PPp', { locale: dateLocale });
+        return (
+          <div className='text-center'>
+            {format(new Date(date), 'dd/MM/yyyy', { locale: dateLocale })}
+          </div>
+        );
       },
       header: ({ column }) => {
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.createdAt}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex justify-center'>
+            <Button
+              className='h-8 px-2 lg:px-3'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              variant='ghost'
+            >
+              {translations.createdAt}
+              <ArrowUpDown className='ml-2 h-4 w-4' />
+            </Button>
+          </div>
         );
       },
     },
@@ -122,7 +117,7 @@ export default function useGetStructureColumnDefs({
       cell: ({ row }) => {
         const structure = row.original;
         return (
-          <div className='flex justify-end'>
+          <div className='flex justify-center'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className='h-8 w-8' size='icon' variant='ghost'>
@@ -140,33 +135,14 @@ export default function useGetStructureColumnDefs({
                   <Eye className='mr-2 h-4 w-4' />
                   {translations.view || 'View'}
                 </DropdownMenuItem>
-                {onEdit && (
-                  <DropdownMenuItem
-                    className='cursor-pointer'
-                    onClick={() => onEdit(structure)}
-                  >
-                    <Edit className='mr-2 h-4 w-4' />
-                    {translations.edit || 'Edit'}
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className='cursor-pointer text-destructive focus:text-destructive'
-                      onClick={() => onDelete(structure)}
-                    >
-                      <Trash2 className='mr-2 h-4 w-4' />
-                      {translations.delete || 'Delete'}
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );
       },
-      header: '',
+      header: () => (
+        <div className='text-center'>{translations.actions || 'Actions'}</div>
+      ),
       id: 'actions',
     },
   ];
