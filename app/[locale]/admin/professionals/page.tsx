@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AddProfessionalButton } from '@/features/admin/professionals/components/AddProfessionalButton';
 import { ProfessionalsTableWrapper } from '@/features/admin/professionals/components/ProfessionalsTableWrapper';
 
 export default async function ProfessionalsPage({
@@ -35,10 +34,6 @@ export default async function ProfessionalsPage({
       <div>
         <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
         <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
-      </div>
-
-      <div className='flex w-full justify-end'>
-        <AddProfessionalButton />
       </div>
 
       {/* Table */}

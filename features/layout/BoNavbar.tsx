@@ -3,6 +3,7 @@
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
 
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Button } from '@/components/ui/button';
 import ProkidLogo from '@/features/layout/ProkidLogo';
 import { useRouter } from '@/i18n/routing';
@@ -42,6 +43,7 @@ export function BoNavbar({
               {userRole}
             </span>
           </div>
+          <LanguageSwitcher />
           <NotificationsPanel />
           <Button
             className='h-8 w-8 hover:bg-gray-100'
