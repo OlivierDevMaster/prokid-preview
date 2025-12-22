@@ -90,7 +90,11 @@ export function EditStructureDialog({
             >
               {t('cancel')}
             </Button>
-            <Button disabled={updateStructure.isPending} type='submit'>
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
+              disabled={updateStructure.isPending}
+              type='submit'
+            >
               {updateStructure.isPending ? t('updating') : t('update')}
             </Button>
           </DialogFooter>

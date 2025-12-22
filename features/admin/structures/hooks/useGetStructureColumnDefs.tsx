@@ -3,7 +3,8 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import type { Structure } from '@/features/structures/structure.model';
 
@@ -12,10 +13,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from '@/i18n/routing';
 
 type UseGetStructureColumnDefsProps = {
   locale?: string;
@@ -46,18 +45,6 @@ export default function useGetStructureColumnDefs({
 
   const onView = (structure: Structure) => {
     router.push(`/admin/structures/${structure.user_id}`);
-  };
-
-  const onEdit = (structure: Structure) => {
-    if (translations.onEdit) {
-      translations.onEdit(structure);
-    }
-  };
-
-  const onDelete = (structure: Structure) => {
-    if (translations.onDelete) {
-      translations.onDelete(structure);
-    }
   };
 
   const columns: ColumnDef<Structure>[] = [
@@ -140,27 +127,6 @@ export default function useGetStructureColumnDefs({
                   <Eye className='mr-2 h-4 w-4' />
                   {translations.view || 'View'}
                 </DropdownMenuItem>
-                {onEdit && (
-                  <DropdownMenuItem
-                    className='cursor-pointer'
-                    onClick={() => onEdit(structure)}
-                  >
-                    <Edit className='mr-2 h-4 w-4' />
-                    {translations.edit || 'Edit'}
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className='cursor-pointer text-destructive focus:text-destructive'
-                      onClick={() => onDelete(structure)}
-                    >
-                      <Trash2 className='mr-2 h-4 w-4' />
-                      {translations.delete || 'Delete'}
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
