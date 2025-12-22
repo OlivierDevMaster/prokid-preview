@@ -1046,5 +1046,87 @@
     "sender": {
       "system": "Système"
     }
+  },
+  "landing": {
+    "hero": {
+      "title": "La plateforme des pros de la petite enfance",
+      "description": "Connectez les structures et les professionnels pour offrir le meilleur accompagnement aux enfants",
+      "ctaPrimary": "Commencer gratuitement",
+      "ctaSecondary": "Découvrir les professionnels"
+    },
+    "features": {
+      "title": "Ce que vous obtenez",
+      "subtitle": "Des outils puissants pour développer votre activité",
+      "items": {
+        "maxVisibility": {
+          "title": "Visibilité maximale",
+          "description": "Votre profil apparaît dans toutes les recherches des structures"
+        },
+        "qualifiedRequests": {
+          "title": "Demandes qualifiées",
+          "description": "Recevez des demandes directes de structures intéressées"
+        },
+        "integratedMessaging": {
+          "title": "Messagerie intégrée",
+          "description": "Échangez facilement avec les structures via la plateforme"
+        },
+        "simpleAnalytics": {
+          "title": "Analytics simples",
+          "description": "Suivez les vues de votre profil et vos demandes"
+        }
+      }
+    },
+    "subscription": {
+      "launchOffer": "Offre de lancement",
+      "title": "ProKid Pro",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €",
+      "priceUnit": "/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "activateButton": "Activer mon abonnement",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": {
+        "whoCanUse": {
+          "question": "Qui peut utiliser ProKid ?",
+          "answer": "ProKid est destiné aux structures (EAJE, crèches, micro-crèches, MAM) et aux professionnels non médicaux (RSAI, Référente technique, Psychomotricien-ne, EJE, AP, Diététicien-ne). Les familles arriveront plus tard."
+        },
+        "professionalTypes": {
+          "question": "Quels types de professionnels puis-je trouver ?",
+          "answer": "Vous pouvez trouver une large gamme de professionnels de la petite enfance : RSAI, Référentes techniques, Psychomotriciens, EJE, Auxiliaires de puériculture, Diététiciens et bien d'autres spécialistes qualifiés."
+        },
+        "publicStructures": {
+          "question": "Les structures apparaissent-elles publiquement ?",
+          "answer": "Non, les structures ne sont pas visibles publiquement. Seuls les professionnels peuvent voir et contacter les structures qui les intéressent."
+        },
+        "freeTrial": {
+          "question": "Comment fonctionne l'essai gratuit ?",
+          "answer": "L'essai gratuit dure 3 mois. Vous pouvez tester toutes les fonctionnalités sans engagement. Aucune carte bancaire n'est requise pour commencer."
+        },
+        "automaticAppointments": {
+          "question": "Les rendez-vous sont-ils automatiques?",
+          "answer": "Non, les rendez-vous ne sont pas automatiques. Les structures et les professionnels communiquent directement via la messagerie intégrée pour planifier leurs missions."
+        },
+        "payments": {
+          "question": "Les paiements passent-ils par ProKid?",
+          "answer": "Non, ProKid ne gère pas les paiements directement. Les structures et les professionnels s'accordent sur les modalités de paiement en dehors de la plateforme."
+        },
+        "availability": {
+          "question": "ProKid est-il disponible partout en France ?",
+          "answer": "Oui, ProKid est disponible dans toute la France. Les professionnels peuvent indiquer leur zone d'intervention et les structures peuvent rechercher des professionnels dans leur région."
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "description": "Rejoignez la communauté ProKid et développez votre activité dès aujourd'hui",
+      "primaryButton": "Créer un compte",
+      "secondaryButton": "En savoir plus"
+    }
   }
 }
