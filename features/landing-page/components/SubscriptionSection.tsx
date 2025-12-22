@@ -1,15 +1,36 @@
 'use client';
 
 import { Check, Star } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useSubscriptionStatus } from '@/features/subscriptions/hooks/useSubscriptionStatus';
+import { useRole } from '@/hooks/useRole';
 import { Link } from '@/i18n/routing';
 
 export function SubscriptionSection() {
   const t = useTranslations('landing.subscription');
+  const tProfessional = useTranslations('professional.subscription');
+  const { data: session } = useSession();
+  const { isAdmin, isProfessional, isStructure } = useRole();
+  const { data: subscriptionData } = useSubscriptionStatus();
 
+  // Only check subscription if user is a professional
+  const isProfessionalSubscribed =
+    isProfessional && subscriptionData?.isSubscribed;
+
+  const isAuthenticated = !!session;
+  const shouldDisableButton =
+    isStructure || isAdmin || (isProfessional && isProfessionalSubscribed);
+  const shouldShowAlreadySubscribedMessage =
+    isProfessional && isProfessionalSubscribed;
+  const buttonHref = isAuthenticated
+    ? '/professional/subscription'
+    : '/auth/sign-up';
+
+  console.info({ isAuthenticated, shouldShowAlreadySubscribedMessage });
   return (
     <section className='bg-gradient-to-b from-white to-blue-50 py-20 lg:py-32'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -45,18 +66,30 @@ export function SubscriptionSection() {
                   {t('benefit3')}
                 </li>
               </ul>
-              <Button
-                asChild
-                className='mt-8 w-full bg-blue-500 text-white hover:bg-blue-600'
-                size='lg'
-              >
-                <Link href='/professional/subscription'>
-                  {t('activateButton')}
-                </Link>
-              </Button>
-              <p className='mt-4 text-xs text-gray-500'>
-                {t('paymentDisclaimer')}
-              </p>
+              {shouldShowAlreadySubscribedMessage && (
+                <div className='mt-6 rounded-lg bg-green-50 p-4 text-sm text-green-800'>
+                  {tProfessional('alreadySubscribedMessage')}
+                </div>
+              )}
+              {!shouldShowAlreadySubscribedMessage && (
+                <Button
+                  asChild={!shouldDisableButton}
+                  className='mt-8 w-full bg-blue-500 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50'
+                  disabled={shouldDisableButton}
+                  size='lg'
+                >
+                  {shouldDisableButton ? (
+                    <span>{t('activateButton')}</span>
+                  ) : (
+                    <Link href={buttonHref}>{t('activateButton')}</Link>
+                  )}
+                </Button>
+              )}
+              {!shouldShowAlreadySubscribedMessage && (
+                <p className='mt-4 text-xs text-gray-500'>
+                  {t('paymentDisclaimer')}
+                </p>
+              )}
             </div>
           </Card>
         </div>
