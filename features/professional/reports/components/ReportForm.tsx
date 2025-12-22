@@ -111,11 +111,11 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     deleteAttachment(attachmentId);
   };
 
-  const handleUploadFiles = async (reportId: string) => {
-    if (selectedFiles.length === 0) return;
+  const handleUploadFiles = async (reportId: string, filesToUpload: File[]) => {
+    if (filesToUpload.length === 0) return;
 
     // Upload files one by one (since useUploadReportAttachment only accepts one file)
-    for (const file of selectedFiles) {
+    for (const file of filesToUpload) {
       try {
         await new Promise<void>((resolve, reject) => {
           uploadAttachment(
