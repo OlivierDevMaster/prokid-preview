@@ -1,8 +1,19 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Building2, Calendar, FileText, Mail, MapPin } from 'lucide-react';
+import {
+  Building2,
+  Calendar,
+  Check,
+  FileText,
+  Loader2,
+  Mail,
+  MapPin,
+  X,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +25,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useMissionDuration } from '@/features/mission-durations';
+import { useAcceptMission, useDeclineMission } from '@/features/missions/hooks';
 import {
+  MissionStatus,
   MissionStatusLabel,
   type MissionWithStructure,
 } from '@/features/missions/mission.model';
@@ -73,11 +86,19 @@ function MissionDetailsContent({
   onClose,
   t,
 }: MissionDetailsContentProps) {
+  const queryClient = useQueryClient();
   const { data: missionDuration, isLoading: isLoadingDuration } =
     useMissionDuration(mission.id);
 
   const { data: lastReport, isLoading: isLoadingLastReport } =
     useLastReportForMission(mission.id);
+
+  const { isPending: isAccepting, mutate: acceptMission } = useAcceptMission();
+  const { isPending: isDeclining, mutate: declineMission } =
+    useDeclineMission();
+
+  const isProcessing = isAccepting || isDeclining;
+  const canAcceptOrDecline = mission.status === MissionStatus.pending;
 
   const progressPercentage = missionDuration?.percentage ?? 0;
   const pastDurationHours = missionDuration?.past_duration_mn
@@ -138,8 +159,54 @@ function MissionDetailsContent({
 
   const structureEmail = mission.structure?.profile?.email;
 
+  const handleAccept = () => {
+    acceptMission(mission.id, {
+      onError: error => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('acceptError') || 'Failed to accept mission'
+        );
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['professional-missions'] });
+        queryClient.invalidateQueries({
+          queryKey: ['professional-mission', mission.id],
+        });
+        queryClient.invalidateQueries({ queryKey: ['missions'] });
+        queryClient.invalidateQueries({ queryKey: ['mission'] });
+        queryClient.invalidateQueries({ queryKey: ['availability-slots'] });
+        toast.success(t('acceptSuccess') || 'Mission accepted successfully');
+        onClose();
+      },
+    });
+  };
+
+  const handleDecline = () => {
+    declineMission(mission.id, {
+      onError: error => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('declineError') || 'Failed to decline mission'
+        );
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['professional-missions'] });
+        queryClient.invalidateQueries({
+          queryKey: ['professional-mission', mission.id],
+        });
+        queryClient.invalidateQueries({ queryKey: ['missions'] });
+        queryClient.invalidateQueries({ queryKey: ['mission'] });
+        queryClient.invalidateQueries({ queryKey: ['availability-slots'] });
+        toast.success(t('declineSuccess') || 'Mission declined successfully');
+        onClose();
+      },
+    });
+  };
+
   return (
-    <>
+    <div className='max-h-[90vh] max-w-2xl'>
       <DialogHeader>
         <DialogTitle className='flex items-center gap-3'>
           <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200'>
@@ -160,7 +227,7 @@ function MissionDetailsContent({
         </div>
       </DialogHeader>
 
-      <div className='space-y-4'>
+      <div className='my-4 max-h-[60vh] space-y-4 overflow-y-auto'>
         {/* Structure Information */}
         <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
           <h3 className='mb-3 text-sm font-semibold text-gray-700'>
@@ -270,10 +337,43 @@ function MissionDetailsContent({
       </div>
 
       <DialogFooter>
-        <Button onClick={onClose} variant='outline'>
-          {t('close')}
-        </Button>
+        {canAcceptOrDecline ? (
+          <>
+            <Button onClick={onClose} variant='outline'>
+              {t('close')}
+            </Button>
+            <Button
+              className='border-red-300 text-red-700 hover:bg-red-50'
+              disabled={isProcessing}
+              onClick={handleDecline}
+              variant='outline'
+            >
+              {isDeclining ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <X className='mr-2 h-4 w-4' />
+              )}
+              {t('decline') || 'Decline'}
+            </Button>
+            <Button
+              className='bg-green-600 text-white hover:bg-green-700'
+              disabled={isProcessing}
+              onClick={handleAccept}
+            >
+              {isAccepting ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <Check className='mr-2 h-4 w-4' />
+              )}
+              {t('accept') || 'Accept'}
+            </Button>
+          </>
+        ) : (
+          <Button onClick={onClose} variant='outline'>
+            {t('close')}
+          </Button>
+        )}
       </DialogFooter>
-    </>
+    </div>
   );
 }

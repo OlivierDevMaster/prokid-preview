@@ -431,7 +431,13 @@
       "allStructures": "All structures",
       "filterByStatus": "Filter by status",
       "allStatuses": "All statuses",
-      "viewReports": "View Reports"
+      "viewReports": "View Reports",
+      "accept": "Accept",
+      "decline": "Decline",
+      "acceptSuccess": "Mission accepted successfully",
+      "declineSuccess": "Mission declined successfully",
+      "acceptError": "Failed to accept mission",
+      "declineError": "Failed to decline mission"
     },
     "subscription": {
       "title": "Abonnement ProKid Pro",
