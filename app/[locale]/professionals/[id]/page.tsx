@@ -1,16 +1,20 @@
 'use client';
+
 import {
   Calendar as CalendarIcon,
   CheckCircle2,
   Euro,
+  Heart,
   MapPin,
   Plus,
   Send,
+  Star,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
@@ -19,13 +23,20 @@ import { Card } from '@/components/ui/card';
 import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
+import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
 import { useCreateInvitation } from '@/features/structure/invitations/hooks/useCreateInvitation';
+import { RatingModal } from '@/features/structure/ratings/components/RatingModal';
+import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
+import { useRatingForMembership } from '@/features/structure/ratings/hooks/useRatingForMembership';
 import { useRole } from '@/hooks/useRole';
 import { Link, useRouter } from '@/i18n/routing';
 
 export default function ProfessionalProfilePage() {
   const { id } = useParams();
   const t = useTranslations('professional.profile');
+  const tRating = useTranslations('structure.ratings');
+  const tInvitation = useTranslations('structure.invitations');
+  const tMission = useTranslations('structure.missions');
   const router = useRouter();
   const { data: session } = useSession();
   const { isStructure, userId } = useRole();
@@ -34,11 +45,17 @@ export default function ProfessionalProfilePage() {
   const { data: professional } = useFindProfessional(professionalId);
   const { data: hasMembership, isLoading: isLoadingMembership } =
     useCheckStructureMembership(userId, professionalId);
+  const { data: membershipId } = useGetMembershipId(userId, professionalId);
+  const { data: existingRating } = useRatingForMembership(
+    membershipId ?? undefined
+  );
   const createInvitation = useCreateInvitation();
+  const createRating = useCreateRating();
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
   const handleSendInvitation = async () => {
     if (!userId || !professionalId) {
-      toast.error('Unable to send invitation');
+      toast.error(tInvitation('errors.failedToSend'));
       return;
     }
 
@@ -47,10 +64,12 @@ export default function ProfessionalProfilePage() {
         professional_id: professionalId,
         status: 'pending',
       });
-      toast.success('Invitation sent successfully');
+      toast.success(tInvitation('success.invitationSent'));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to send invitation'
+        error instanceof Error
+          ? error.message
+          : tInvitation('errors.failedToSend')
       );
     }
   };
@@ -58,6 +77,40 @@ export default function ProfessionalProfilePage() {
   const handleCreateMission = () => {
     router.push(`/structure/missions/new?professional_id=${professionalId}`);
   };
+
+  const handleOpenRatingModal = () => {
+    setIsRatingModalOpen(true);
+  };
+
+  const handleCloseRatingModal = () => {
+    setIsRatingModalOpen(false);
+  };
+
+  const handleSubmitRating = async (rating: number, comment: string) => {
+    if (!userId || !professionalId || !membershipId) {
+      toast.error(tRating('ratingError'));
+      return;
+    }
+
+    try {
+      await createRating.mutateAsync({
+        comment: comment || null,
+        membershipId,
+        professionalId,
+        rating,
+        structureId: userId,
+      });
+      toast.success(tRating('ratingSuccess'));
+      setIsRatingModalOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : tRating('ratingError')
+      );
+    }
+  };
+
+  const canRate =
+    session && isStructure && hasMembership && membershipId && !existingRating;
 
   if (!professional) {
     return (
@@ -103,16 +156,19 @@ export default function ProfessionalProfilePage() {
                     </div>
                   </div>
 
-                  <div className='flex-1'>
+                  <div className='flex-1 justify-center'>
                     <h1 className='mb-2 text-center text-2xl font-bold text-gray-800'>
                       {professional.profile.first_name}
+                      <span className='pl-2'>
+                        {professional.profile.last_name}
+                      </span>
                     </h1>
-                    <p className='mb-3 text-lg text-gray-700'>
-                      {professional.profile.role}
+                    <p className='mb-3 text-lg text-sm text-blue-500'>
+                      {professional.current_job}
                     </p>
 
                     {/* Badges */}
-                    <div className='mb-4 flex flex-wrap gap-2'>
+                    <div className='mb-4 flex flex-wrap justify-center gap-2'>
                       {professional.is_certified && (
                         <Badge className='bg-green-100 text-green-700 hover:bg-green-200'>
                           <CheckCircle2 className='mr-1 h-3 w-3' />
@@ -124,6 +180,18 @@ export default function ProfessionalProfilePage() {
                           {t('available')}
                         </Badge>
                       )}
+                    </div>
+
+                    <div className='flex items-center justify-center gap-2 text-sm text-gray-600'>
+                      <Star className='h-4 w-4 fill-yellow-500 text-yellow-500' />
+                      <span className='font-semibold text-yellow-500'>
+                        {professional.rating
+                          ? Number(professional.rating).toFixed(1)
+                          : '0.0'}
+                      </span>
+                      <span className='text-gray-500'>
+                        ({professional.reviews_count || 0} {t('reviews')})
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -183,33 +251,50 @@ export default function ProfessionalProfilePage() {
                 </div>
 
                 <div className='my-4 w-full border'></div>
-
                 {/* Boutons d'action */}
                 {session && isStructure && !isLoadingMembership && (
-                  <div className='mb-8 flex flex-col gap-3'>
+                  <div className='mb-4 flex flex-col gap-3'>
                     {hasMembership ? (
-                      <Button
-                        className='flex-1 bg-blue-500 text-white hover:bg-blue-600'
-                        onClick={handleCreateMission}
-                      >
-                        <Plus className='mr-2 h-4 w-4' />
-                        Create Mission
-                      </Button>
+                      <>
+                        <Button
+                          className='flex-1 bg-blue-500 text-white hover:bg-blue-600'
+                          onClick={handleCreateMission}
+                        >
+                          <Plus className='mr-2 h-4 w-4' />
+                          {tMission('createMission')}
+                        </Button>
+                        {canRate && (
+                          <Button
+                            className='flex-1'
+                            onClick={handleOpenRatingModal}
+                            variant='outline'
+                          >
+                            <Heart className='mr-2 h-4 w-4' />
+                            {tRating('rateProfessional')}
+                          </Button>
+                        )}
+                      </>
                     ) : (
                       <Button
-                        className='flex-1 bg-green-500 text-white hover:bg-green-600'
+                        className='flex-1 bg-blue-500 text-white hover:bg-blue-600'
                         disabled={createInvitation.isPending}
                         onClick={handleSendInvitation}
                       >
                         <Send className='mr-2 h-4 w-4' />
                         {createInvitation.isPending
-                          ? 'Sending...'
-                          : 'Send Invitation'}
+                          ? tInvitation('sending')
+                          : tInvitation('sendInvitation')}
                       </Button>
                     )}
                   </div>
                 )}
 
+                <RatingModal
+                  isOpen={isRatingModalOpen}
+                  isSubmitting={createRating.isPending}
+                  onClose={handleCloseRatingModal}
+                  onSubmit={handleSubmitRating}
+                />
                 {/* Section À propos */}
                 <div className='border-t pt-6'>
                   <h2 className='mb-3 text-lg font-bold text-gray-800'>

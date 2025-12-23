@@ -20,8 +20,14 @@ export const useDeclineNotification = () => {
       }
       throw new Error('Notification type does not support decline action');
     },
-    onSuccess: () => {
+    onSuccess: (_, notification) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({
+        queryKey: ['notification', notification.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notification-status', notification.id],
+      });
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['missions'] });
     },

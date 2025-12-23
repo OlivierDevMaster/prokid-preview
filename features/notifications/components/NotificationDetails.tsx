@@ -1,8 +1,16 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Bell, Check, Clock, FileText, UserPlus, X } from 'lucide-react';
+import {
+  Bell,
+  Check,
+  Clock,
+  FileText,
+  Loader2,
+  UserPlus,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -32,10 +40,15 @@ export function NotificationDetails() {
   const { id } = useParams();
   const router = useRouter();
   const t = useTranslations('notifications');
+  const queryClient = useQueryClient();
   const { data: notification, isLoading } = useNotification(id as string);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
-  const { mutate: acceptNotification } = useAcceptNotification();
-  const { mutate: declineNotification } = useDeclineNotification();
+  const { isPending: isAccepting, mutate: acceptNotification } =
+    useAcceptNotification();
+  const { isPending: isDeclining, mutate: declineNotification } =
+    useDeclineNotification();
+
+  const isProcessing = isAccepting || isDeclining;
 
   const { data: notificationStatus } = useQuery({
     enabled: !!notification && canAcceptOrDecline(notification),
@@ -95,6 +108,12 @@ export function NotificationDetails() {
     acceptNotification(typedNotification, {
       onSuccess: () => {
         markAsRead(notification.id);
+        queryClient.invalidateQueries({
+          queryKey: ['notification', notification.id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['notification-status', notification.id],
+        });
       },
     });
   };
@@ -103,6 +122,12 @@ export function NotificationDetails() {
     declineNotification(typedNotification, {
       onSuccess: () => {
         markAsRead(notification.id);
+        queryClient.invalidateQueries({
+          queryKey: ['notification', notification.id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['notification-status', notification.id],
+        });
       },
     });
   };
@@ -217,17 +242,27 @@ export function NotificationDetails() {
                 <div className='flex items-center gap-3'>
                   <Button
                     className='bg-blue-600 text-white hover:bg-blue-700'
+                    disabled={isProcessing}
                     onClick={handleAccept}
                   >
-                    <Check className='mr-2 h-4 w-4' />
+                    {isAccepting ? (
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    ) : (
+                      <Check className='mr-2 h-4 w-4' />
+                    )}
                     {getAcceptButtonLabel(typedNotification, t)}
                   </Button>
                   <Button
                     className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                    disabled={isProcessing}
                     onClick={handleDecline}
                     variant='outline'
                   >
-                    <X className='mr-2 h-4 w-4' />
+                    {isDeclining ? (
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    ) : (
+                      <X className='mr-2 h-4 w-4' />
+                    )}
                     {getDeclineButtonLabel(typedNotification, t)}
                   </Button>
                 </div>

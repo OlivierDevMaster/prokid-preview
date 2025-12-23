@@ -1,9 +1,9 @@
 import {
+  Building2,
   Calendar,
   ClipboardMinus,
   LayoutDashboard,
   Target,
-  Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -35,7 +35,7 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
     },
     {
       href: '/professional/structures',
-      icon: Users,
+      icon: Building2,
       label: tProfessional('navigation.structure'),
     },
   ];
