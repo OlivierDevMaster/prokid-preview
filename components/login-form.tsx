@@ -1,5 +1,6 @@
 'use client';
 
+import { Eye, EyeOff } from 'lucide-react';
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -21,6 +22,7 @@ export function LoginForm({
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -146,15 +148,30 @@ export function LoginForm({
                   {t('forgotPassword')}
                 </Link>
               </div>
-              <Input
-                className='border-gray-300'
-                disabled={isLoading}
-                id='password'
-                onChange={e => setPassword(e.target.value)}
-                required
-                type='password'
-                value={password}
-              />
+              <div className='relative'>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='password'
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                />
+                <Button
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowPassword(!showPassword)}
+                  size='icon'
+                  type='button'
+                  variant='ghost'
+                >
+                  {showPassword ? (
+                    <EyeOff className='h-4 w-4 text-gray-500' />
+                  ) : (
+                    <Eye className='h-4 w-4 text-gray-500' />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <Button
