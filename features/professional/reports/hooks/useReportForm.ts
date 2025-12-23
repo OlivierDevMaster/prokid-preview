@@ -63,9 +63,12 @@ export function useReportForm() {
     }
 
     const authorId = session.user.id;
+    // Exclude id and files from insert data to prevent duplicate key errors
     const { files, ...rest } = data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...restWithoutId } = rest;
     const parsedData: ReportInsert = {
-      ...rest,
+      ...restWithoutId,
       author_id: authorId,
       status: 'draft',
     };

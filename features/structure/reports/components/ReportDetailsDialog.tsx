@@ -1,8 +1,9 @@
 'use client';
 
 import { format } from 'date-fns';
-import { FileText, Paperclip, User } from 'lucide-react';
+import { Download, FileText, Paperclip, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { getReportAttachmentDownloadUrl } from '@/features/report-attachments/report-attachment.service';
 
 import { useGetReport } from '../hooks/useGetReport';
 
@@ -40,6 +42,9 @@ export function ReportDetailsDialog({
   const report = reportData?.report;
 
   const isLoadingData = isLoading || isLoadingReport;
+  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<
+    null | string
+  >(null);
 
   const professionalName = report?.author?.profile
     ? `${report.author.profile.first_name || ''} ${report.author.profile.last_name || ''}`.trim() ||
@@ -48,6 +53,30 @@ export function ReportDetailsDialog({
     : 'Unknown';
 
   const professionalEmail = report?.author?.profile?.email;
+
+  const handleDownloadAttachment = async (
+    attachmentId: string,
+    fileName: string
+  ) => {
+    try {
+      setDownloadingAttachmentId(attachmentId);
+      const downloadUrl = await getReportAttachmentDownloadUrl(attachmentId);
+
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download attachment:', error);
+      // You might want to show a toast notification here
+    } finally {
+      setDownloadingAttachmentId(null);
+    }
+  };
 
   return (
     <Dialog onOpenChange={onClose} open={open}>
@@ -166,15 +195,30 @@ export function ReportDetailsDialog({
                       </label>
                       <div className='space-y-2'>
                         {report.attachments.map(attachment => (
-                          <div
-                            className='flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3'
+                          <button
+                            className='flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50'
+                            disabled={downloadingAttachmentId === attachment.id}
                             key={attachment.id}
+                            onClick={() =>
+                              handleDownloadAttachment(
+                                attachment.id,
+                                attachment.file_name || attachment.file_path
+                              )
+                            }
+                            type='button'
                           >
-                            <Paperclip className='h-4 w-4 text-gray-400' />
-                            <span className='text-sm text-gray-700'>
+                            <Paperclip className='h-4 w-4 flex-shrink-0 text-gray-400' />
+                            <span className='flex-1 text-sm text-gray-700'>
                               {attachment.file_name || attachment.file_path}
                             </span>
-                          </div>
+                            {downloadingAttachmentId === attachment.id ? (
+                              <span className='text-xs text-gray-500'>
+                                {tCommon('messages.loading') || 'Loading...'}
+                              </span>
+                            ) : (
+                              <Download className='h-4 w-4 flex-shrink-0 text-gray-400' />
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>

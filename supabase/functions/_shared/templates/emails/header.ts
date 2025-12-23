@@ -44,7 +44,7 @@ export const headerTemplate = `<!DOCTYPE html>
       <td align="center">
         <table role="presentation" style="width: 100%; max-width: 800px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <!-- Header with logo and tagline -->
-          <tr style="border-bottom: 3px solid #558cc9;>
+          <tr style="border-bottom: 3px solid #558cc9;">
             <td style="background: #ffffff; padding: 40px 40px 30px 40px; text-align: center;">
               <div style="margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; max-width: 200px; width: 100%;">
                 ${logo.replace('<svg', '<svg style="width: 100%; height: auto; max-width: 200px; display: block;"')}

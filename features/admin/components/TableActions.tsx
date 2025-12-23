@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 import { TableActionType } from '../models/table.modele';
 
@@ -16,7 +17,7 @@ type TableActionsProps = {
 
 export default function TableActions({ actions }: TableActionsProps) {
   return (
-    <div className='flex justify-end'>
+    <div className='flex justify-center'>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className='h-8 w-8' size='icon' variant='ghost'>
@@ -26,7 +27,7 @@ export default function TableActions({ actions }: TableActionsProps) {
         <DropdownMenuContent align='end'>
           {actions.map(action => (
             <DropdownMenuItem
-              className='cursor-pointer'
+              className={cn('cursor-pointer', action.className)}
               key={action.label}
               onClick={action.onClick}
             >

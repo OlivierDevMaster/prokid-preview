@@ -111,11 +111,11 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     deleteAttachment(attachmentId);
   };
 
-  const handleUploadFiles = async (reportId: string) => {
-    if (selectedFiles.length === 0) return;
+  const handleUploadFiles = async (reportId: string, filesToUpload: File[]) => {
+    if (filesToUpload.length === 0) return;
 
     // Upload files one by one (since useUploadReportAttachment only accepts one file)
-    for (const file of selectedFiles) {
+    for (const file of filesToUpload) {
       try {
         await new Promise<void>((resolve, reject) => {
           uploadAttachment(
@@ -136,9 +136,55 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   };
 
   const handleFormSubmit = async () => {
-    await onSubmit();
-    toast.success(t('messages.reportSavedSuccessfully'));
-    router.push('/professional/reports');
+    // If editing an existing report, use update instead of create
+    if (isEdit && currentReport?.id) {
+      const formValues = form.getValues();
+      try {
+        const updatedReport = await new Promise<Report>((resolve, reject) => {
+          updateReport(
+            {
+              reportId: currentReport.id,
+              updateData: {
+                content: formValues.content,
+                mission_id: formValues.mission_id,
+                title: formValues.title,
+              },
+            },
+            {
+              onError: error => reject(error),
+              onSuccess: report => resolve(report),
+            }
+          );
+        });
+
+        // Upload any pending files
+        if (selectedFiles.length > 0) {
+          try {
+            await handleUploadFiles(updatedReport.id, selectedFiles);
+          } catch (error) {
+            console.error('Error uploading files:', error);
+            toast.error('Failed to upload some files. Please try again.');
+            return;
+          }
+        }
+
+        setCurrentReport(updatedReport);
+        toast.success(t('messages.reportSavedSuccessfully'));
+        router.push('/professional/reports');
+      } catch (error) {
+        console.error('Error updating report:', error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t('messages.errorCreatingReport') || 'Failed to update report'
+        );
+      }
+    } else {
+      // Create new report
+      await onSubmit();
+      toast.success(t('messages.reportSavedSuccessfully'));
+      router.push('/professional/reports');
+    }
   };
 
   const handleSendReport = async () => {
@@ -225,7 +271,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     // Upload any pending files before sending
     if (selectedFiles.length > 0) {
       try {
-        await handleUploadFiles(reportId);
+        await handleUploadFiles(reportId, selectedFiles);
       } catch (error) {
         console.error('Error uploading files:', error);
         toast.error('Failed to upload some files. Please try again.');

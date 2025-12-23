@@ -1,4 +1,4 @@
-import type { Report } from '@/features/reports/report.model';
+import type { Report, ReportStatus } from '@/features/reports/report.model';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -10,7 +10,7 @@ export async function getStructureReport(
   reportId: string
 ): Promise<GetReportResponse> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     const {
       data: { session },
       error: sessionError,
@@ -73,7 +73,8 @@ export async function getStructureReport(
 
 export async function getStructureReports(
   professionalId?: null | string,
-  missionId?: null | string
+  missionId?: null | string,
+  status?: null | ReportStatus
 ): Promise<Report[]> {
   try {
     const supabase = await createClient();
@@ -125,6 +126,11 @@ export async function getStructureReports(
       `
       )
       .in('mission_id', missionIds);
+
+    // Filter by status if provided
+    if (status) {
+      query = query.eq('status', status);
+    }
 
     // Filter by professional if provided
     if (professionalId && professionalId !== 'all') {

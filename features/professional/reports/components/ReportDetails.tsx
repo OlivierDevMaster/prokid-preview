@@ -1,13 +1,15 @@
 'use client';
 
-import { ArrowLeft, FileText, Paperclip, Send } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Paperclip, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { getReportAttachmentDownloadUrl } from '@/features/report-attachments/report-attachment.service';
 import { useSendReport } from '@/features/reports/hooks/useSendReport';
 import { useRouter } from '@/i18n/routing';
 import { Link } from '@/i18n/routing';
@@ -23,6 +25,37 @@ export function ReportDetails() {
   const { data: reportData, isLoading } = useGetReport(id as string);
   const report = reportData?.report;
   const { isPending: isSending, mutate: sendReport } = useSendReport();
+  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<
+    null | string
+  >(null);
+
+  const handleDownloadAttachment = async (
+    attachmentId: string,
+    fileName: string
+  ) => {
+    try {
+      setDownloadingAttachmentId(attachmentId);
+      const downloadUrl = await getReportAttachmentDownloadUrl(attachmentId);
+
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download attachment:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : tCommon('messages.error') || 'Failed to download attachment'
+      );
+    } finally {
+      setDownloadingAttachmentId(null);
+    }
+  };
 
   const handleSendEmail = () => {
     if (!report?.id) return;
@@ -139,23 +172,42 @@ export function ReportDetails() {
           </div>
 
           {/* Attachments */}
-          <div className='space-y-2'>
-            <label className='text-sm font-semibold text-gray-700'>
-              {t('attachments')}{' '}
-              <span className='text-gray-500'>({t('optional')})</span>
-            </label>
-            <div className='flex items-center gap-4'>
-              <Button
-                className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                disabled
-                type='button'
-                variant='outline'
-              >
-                <Paperclip className='mr-2 h-4 w-4' />
-                {t('addFiles')}
-              </Button>
-              <span className='text-sm text-gray-500'>{t('fileTypes')}</span>
-            </div>
+          <div className='mt-4 space-y-2'>
+            <h5 className='pb-2 font-bold'>{t('attachments')}</h5>
+            {report.attachments && report.attachments.length > 0 ? (
+              <div className='space-y-2'>
+                {report.attachments.map(attachment => (
+                  <button
+                    className='flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50'
+                    disabled={downloadingAttachmentId === attachment.id}
+                    key={attachment.id}
+                    onClick={() =>
+                      handleDownloadAttachment(
+                        attachment.id,
+                        attachment.file_name || attachment.file_path
+                      )
+                    }
+                    type='button'
+                  >
+                    <Paperclip className='h-4 w-4 flex-shrink-0 text-gray-400' />
+                    <span className='flex-1 text-sm text-gray-700'>
+                      {attachment.file_name || attachment.file_path}
+                    </span>
+                    {downloadingAttachmentId === attachment.id ? (
+                      <span className='text-xs text-gray-500'>
+                        {tCommon('messages.loading') || 'Loading...'}
+                      </span>
+                    ) : (
+                      <Download className='h-4 w-4 flex-shrink-0 text-gray-400' />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className='text-sm text-gray-500'>
+                {t('noAttachments') || 'No attachments'}
+              </p>
+            )}
           </div>
         </div>
       </Card>
