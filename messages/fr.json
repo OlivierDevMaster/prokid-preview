@@ -584,6 +584,20 @@
         "selectProfessional": "Veuillez sélectionner un professionnel à inviter",
         "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
       }
+    },
+    "ratings": {
+      "rateProfessional": "Ajouter aux favoris",
+      "rateProfessionalDescription": "Partagez votre expérience avec ce professionnel en le notant et en commentant.",
+      "rating": "Note",
+      "ratingRequired": "Veuillez sélectionner une note",
+      "comment": "Commentaire",
+      "optional": "Optionnel",
+      "commentPlaceholder": "Partagez votre expérience avec ce professionnel...",
+      "cancel": "Annuler",
+      "submit": "Soumettre la note",
+      "submitting": "Envoi en cours...",
+      "ratingSuccess": "Note soumise avec succès",
+      "ratingError": "Échec de la soumission de la note. Veuillez réessayer."
     }
   },
   "admin": {
