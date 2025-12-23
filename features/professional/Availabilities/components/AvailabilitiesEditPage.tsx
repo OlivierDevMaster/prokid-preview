@@ -1,12 +1,13 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addDays, format, parseISO, startOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Clock, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RRuleSet, rrulestr } from 'rrule';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { createClient } from '@/lib/supabase/client';
 
 import { AVAILABILITIES_DAY_NAMES } from '../availabilities.config';
 import { DaySchedule, TimeSlot } from '../availabilities.model';
@@ -64,6 +66,27 @@ export default function AvailabilitiesEditPage({
   );
 
   const { groupedSlots, isLoading } = useGetAvailabilities(weekStart);
+
+  // Fetch recurring availabilities to detect if slots are from recurrences
+  const { data: recurringAvailabilities } = useQuery({
+    enabled: !!userId && open,
+    queryFn: async () => {
+      if (!userId) return [];
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('availabilities')
+        .select('id, rrule, duration_mn')
+        .eq('user_id', userId)
+        .like('rrule', '%FREQ=WEEKLY%');
+      if (error) {
+        console.error('Error fetching recurring availabilities:', error);
+        return [];
+      }
+      return data || [];
+    },
+    queryKey: ['recurring-availabilities', userId],
+  });
+
   const [schedule, setSchedule] = useState<Record<string, DaySchedule>>();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -78,19 +101,105 @@ export default function AvailabilitiesEditPage({
       }
 
       const res: Record<string, DaySchedule> = {};
+      const dayMap: Record<string, number> = {
+        FR: 5,
+        MO: 1,
+        SA: 6,
+        SU: 0,
+        TH: 4,
+        TU: 2,
+        WE: 3,
+      };
 
       AVAILABILITIES_DAY_NAMES.forEach((dayKey: string, index: number) => {
         const day = weekDays[index];
         const daySlots = groupedSlots.getSlotsByDay(day);
+        const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+        // Find recurring availabilities for this day
+        const recurringForDay =
+          recurringAvailabilities?.filter(availability => {
+            const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
+            if (!bydayMatch) return false;
+            const rruleDay = bydayMatch[1];
+            return dayMap[rruleDay] === dayOfWeek;
+          }) || [];
 
         // Convert AvailabilitySlot[] to TimeSlot[]
         const timeSlots: TimeSlot[] = daySlots.map(slot => {
           const startDate = parseISO(slot.startAt);
           const endDate = parseISO(slot.endAt);
+          const startTime = format(startDate, 'HH:mm');
+          const endTime = format(endDate, 'HH:mm');
+          const startMinutes =
+            startDate.getHours() * 60 + startDate.getMinutes();
+          const durationMinutes =
+            (endDate.getTime() - startDate.getTime()) / (1000 * 60);
+
+          // Check if this slot matches a recurring availability
+          let isRecurring = false;
+          for (const recurring of recurringForDay) {
+            try {
+              const rule = rrulestr(recurring.rrule);
+              const ruleDtstart = rule.options.dtstart;
+
+              let rruleStartMinutes: number;
+              if (ruleDtstart) {
+                const ruleHour = ruleDtstart.getUTCHours();
+                const ruleMinute = ruleDtstart.getUTCMinutes();
+                rruleStartMinutes = ruleHour * 60 + ruleMinute;
+              } else {
+                const dtstartMatch = recurring.rrule.match(
+                  /DTSTART:(\d{8})T(\d{2})(\d{2})/
+                );
+                if (!dtstartMatch) continue;
+                const rruleHour = parseInt(dtstartMatch[2], 10);
+                const rruleMinute = parseInt(dtstartMatch[3], 10);
+                rruleStartMinutes = rruleHour * 60 + rruleMinute;
+              }
+
+              const rruleDuration = recurring.duration_mn;
+              const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+
+              // Check if time and duration match (within 15 minutes tolerance)
+              if (timeDiff <= 15 && durationMinutes === rruleDuration) {
+                // Check if this date is excluded via EXDATE
+                let isExcluded = false;
+                if (rule instanceof RRuleSet) {
+                  const exdates = rule.exdates();
+                  const slotDateOnly = new Date(startDate);
+                  slotDateOnly.setHours(0, 0, 0, 0);
+                  isExcluded = exdates.some(exdate => {
+                    const exdateDate = new Date(exdate);
+                    exdateDate.setHours(0, 0, 0, 0);
+                    return exdateDate.getTime() === slotDateOnly.getTime();
+                  });
+                } else {
+                  const exdateMatch = recurring.rrule.match(/EXDATE:([^\n]+)/);
+                  if (exdateMatch) {
+                    const exdates = exdateMatch[1].split(',');
+                    const slotDateStr = format(startDate, 'yyyyMMdd');
+                    isExcluded = exdates.some(exdate =>
+                      exdate.includes(slotDateStr)
+                    );
+                  }
+                }
+
+                if (!isExcluded) {
+                  isRecurring = true;
+                  break;
+                }
+              }
+            } catch {
+              // If parsing fails, skip this recurring
+              continue;
+            }
+          }
 
           return {
-            end: format(endDate, 'HH:mm'),
-            start: format(startDate, 'HH:mm'),
+            end: endTime,
+            recurring: isRecurring,
+            start: startTime,
           };
         });
 
@@ -105,7 +214,7 @@ export default function AvailabilitiesEditPage({
       });
 
       return res;
-    }, [isLoading, groupedSlots, weekDays]);
+    }, [isLoading, groupedSlots, weekDays, recurringAvailabilities]);
 
   // Track previous weekStart to detect changes
   const prevWeekStartRef = useRef<null | number>(null);
@@ -194,8 +303,7 @@ export default function AvailabilitiesEditPage({
 
         // Check if start time is before end time
         if (startMinutes >= endMinutes) {
-          errors[i] =
-            tAuthProfessional('errorSlotInvalidTime') || 'Invalid time range';
+          errors[i] = tAuthProfessional('errorSlotInvalidTime');
           continue;
         }
 
@@ -206,9 +314,7 @@ export default function AvailabilitiesEditPage({
             !slots[j].isDeleted &&
             doSlotsOverlap(slot, slots[j])
           ) {
-            errors[i] =
-              tAuthProfessional('errorSlotOverlap') ||
-              'This slot overlaps with another';
+            errors[i] = tAuthProfessional('errorSlotOverlap');
             break;
           }
         }
@@ -297,8 +403,8 @@ export default function AvailabilitiesEditPage({
   const handleSlotChange = (
     dayKey: string,
     slotIndex: number,
-    field: 'end' | 'start',
-    value: string
+    field: 'end' | 'recurring' | 'start',
+    value: boolean | string
   ) => {
     if (!schedule) return;
     const newSchedule = {
@@ -383,7 +489,7 @@ export default function AvailabilitiesEditPage({
         </DialogHeader>
 
         {isLoading || !schedule ? (
-          <div>Loading...</div>
+          <div>{tAvailabilities('loading')}</div>
         ) : (
           <div className='space-y-4'>
             {AVAILABILITIES_DAY_NAMES.map((dayKey: string, index: number) => {
@@ -489,6 +595,26 @@ export default function AvailabilitiesEditPage({
                                     )}
                                   </div>
                                 </div>
+                              </div>
+                              <div className='mt-2 flex items-center gap-2'>
+                                <Checkbox
+                                  checked={slot.recurring ?? false}
+                                  id={`recurring-${dayKey}-${slotIndex}`}
+                                  onCheckedChange={checked =>
+                                    handleSlotChange(
+                                      dayKey,
+                                      slotIndex,
+                                      'recurring',
+                                      checked === true
+                                    )
+                                  }
+                                />
+                                <Label
+                                  className='cursor-pointer text-sm text-gray-700'
+                                  htmlFor={`recurring-${dayKey}-${slotIndex}`}
+                                >
+                                  {tAvailabilities('recurring')}
+                                </Label>
                               </div>
                               {slotErrors[dayKey]?.[slotIndex] && (
                                 <p className='mt-1 text-sm text-red-600'>

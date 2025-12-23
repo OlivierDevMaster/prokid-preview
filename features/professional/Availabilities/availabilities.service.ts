@@ -7,6 +7,7 @@ import type { AvailabilitySlot } from '@/features/availabilities/availability.mo
 import { createClient } from '@/lib/supabase/client';
 interface DaySchedule {
   enabled: boolean;
+  recurring?: boolean;
   slots: TimeSlot[];
 }
 
@@ -19,6 +20,7 @@ interface SaveWeekAvailabilitiesParams {
 interface TimeSlot {
   end: string;
   isDeleted?: boolean;
+  recurring?: boolean;
   start: string;
 }
 
@@ -503,11 +505,68 @@ export async function saveWeekAvailabilities({
         }
       });
 
+      // Check if slot should be recurring
+      const slotShouldBeRecurring = slot.recurring === true;
+
+      // If slot should be recurring and doesn't match an existing recurrence, create a new weekly recurrence
+      if (slotShouldBeRecurring && !matchesRecurring) {
+        // Check if a recurring availability already exists for this slot
+        const existingRecurring = recurringForDay.find(recurring => {
+          try {
+            const rule = rrulestr(recurring.rrule);
+            const ruleDtstart = rule.options.dtstart;
+
+            let rruleStartMinutes: number;
+            if (ruleDtstart) {
+              const ruleHour = ruleDtstart.getUTCHours();
+              const ruleMinute = ruleDtstart.getUTCMinutes();
+              rruleStartMinutes = ruleHour * 60 + ruleMinute;
+            } else {
+              const dtstartMatch = recurring.rrule.match(
+                /DTSTART:(\d{8})T(\d{2})(\d{2})/
+              );
+              if (!dtstartMatch) return false;
+              const rruleHour = parseInt(dtstartMatch[2], 10);
+              const rruleMinute = parseInt(dtstartMatch[3], 10);
+              rruleStartMinutes = rruleHour * 60 + rruleMinute;
+            }
+
+            const rruleDuration = recurring.duration_mn;
+            const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+            return timeDiff <= 15 && durationMinutes === rruleDuration;
+          } catch {
+            return false;
+          }
+        });
+
+        // Only create if it doesn't already exist
+        if (!existingRecurring) {
+          const hour = parseTimeToHour(slot.start);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error } = await (supabase.rpc as any)(
+            'create_recurring_availability',
+            {
+              day_offset: dayOffset,
+              duration_minutes: durationMinutes,
+              hour,
+              user_id_param: userId,
+            }
+          );
+
+          if (error) {
+            throw new Error(
+              `Failed to create recurring availability for ${dayKey}: ${error.message}`
+            );
+          }
+        }
+        continue; // Skip creating one-time availability for recurring slots
+      }
+
       // Only create one-time availability if it doesn't match an existing recurrence
       // and doesn't already exist as a one-time availability
       // IMPORTANT: If matchesRecurring is true, the slot is already covered by a recurrence
       // and we should NOT create a one-time availability
-      if (!matchesRecurring) {
+      if (!matchesRecurring && !slotShouldBeRecurring) {
         // Check if this slot already exists as a one-time availability
         // Use the same logic as deleteAvailabilityBySlot to extract dtstart from RRULE
         const alreadyExists = oneTimeAvailabilities?.some(oneTime => {
@@ -628,7 +687,6 @@ export async function stopRecurrenceForSlot(
     );
   }
 
-  console.info({ recurringAvailabilities, slot, slotStartDate });
   if (!recurringAvailabilities || recurringAvailabilities.length === 0) {
     throw new Error('No recurring availability found for this slot');
   }
@@ -638,40 +696,45 @@ export async function stopRecurrenceForSlot(
 
   // Find matching recurring availability using RRule
   let matchingAvailability = null;
+  const dayMap: Record<string, number> = {
+    FR: 5,
+    MO: 1,
+    SA: 6,
+    SU: 0,
+    TH: 4,
+    TU: 2,
+    WE: 3,
+  };
+
   for (const availability of recurringAvailabilities) {
     try {
       // Parse the RRULE using rrulestr
-      const rule = rrulestr(availability.rrule);
+      // rrulestr can return either RRule or RRuleSet (when EXDATE is present)
+      const parsedRule = rrulestr(availability.rrule);
 
-      // Check if it's a weekly recurrence
-      if (rule.options.freq !== 2) continue; // 2 = WEEKLY
-
-      // Check if the slot date matches the recurrence pattern
-      // Get the day of week from the rule's byweekday
-      const ruleByWeekday = rule.options.byweekday;
-      if (!ruleByWeekday) continue;
-
-      // Convert RRule weekday to JavaScript day of week
-      // RRule: MO=0, TU=1, WE=2, TH=3, FR=4, SA=5, SU=6
-      // JavaScript: SU=0, MO=1, TU=2, WE=3, TH=4, FR=5, SA=6
-      let rruleWeekdayNum: number;
-      if (Array.isArray(ruleByWeekday)) {
-        if (ruleByWeekday.length === 0) continue;
-        const firstWeekday = ruleByWeekday[0];
-        rruleWeekdayNum =
-          typeof firstWeekday === 'number'
-            ? firstWeekday
-            : (firstWeekday as { weekday: number }).weekday;
+      // Handle RRuleSet: get the first rule from the set
+      let rule: RRule;
+      if (parsedRule instanceof RRuleSet) {
+        const rules = parsedRule.rrules();
+        if (rules.length === 0) continue;
+        rule = rules[0];
       } else {
-        rruleWeekdayNum =
-          typeof ruleByWeekday === 'number'
-            ? ruleByWeekday
-            : (ruleByWeekday as { weekday: number }).weekday;
+        rule = parsedRule;
       }
 
-      // Convert RRule weekday to JS day: RRule MO(0) -> JS MO(1), etc.
-      const jsDayOfWeek = rruleWeekdayNum === 6 ? 0 : rruleWeekdayNum + 1;
+      /**
+       * Only daily recurrences with COUNT=1 are not recurring
+       */
+      if (rule.options.freq === 3 && rule.options.count === 1) continue;
 
+      // Extract BYDAY from RRULE string directly (more reliable than rule.options.byweekday)
+      const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
+      if (!bydayMatch) continue;
+
+      const rruleDay = bydayMatch[1];
+      const jsDayOfWeek = dayMap[rruleDay];
+
+      // Check if the slot's day of week matches the recurrence pattern
       if (jsDayOfWeek !== slotDayOfWeek) continue;
 
       // Check if time matches (within 15 minutes tolerance)
@@ -708,7 +771,20 @@ export async function stopRecurrenceForSlot(
   stopDate.setHours(23, 59, 59, 999); // End of the day before
 
   // Parse the existing RRULE
-  const rule = rrulestr(matchingAvailability.rrule);
+  // rrulestr can return either RRule or RRuleSet (when EXDATE is present)
+  const parsedRule = rrulestr(matchingAvailability.rrule);
+
+  // Handle RRuleSet: get the first rule from the set
+  let rule: RRule;
+  if (parsedRule instanceof RRuleSet) {
+    const rules = parsedRule.rrules();
+    if (rules.length === 0) {
+      throw new Error('Invalid RRULE: RRuleSet has no rules');
+    }
+    rule = rules[0];
+  } else {
+    rule = parsedRule;
+  }
 
   // Create new RRule options with until set to stop date
   // Preserve all existing options except until

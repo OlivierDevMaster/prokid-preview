@@ -764,7 +764,9 @@
       "errorTitle": "Une erreur est survenue",
       "errorMessage": "Une erreur est survenue lors de l'arrêt de la récurrence",
       "mission": "Mission",
-      "structure": "Structure"
+      "structure": "Structure",
+      "loading": "Chargement...",
+      "recurring": "Récurrent"
     },
     "report": {
       "title": "Créer un rapport",
@@ -1108,31 +1110,31 @@
       "items": {
         "whoCanUse": {
           "question": "Qui peut utiliser ProKid ?",
-          "answer": "ProKid est destiné aux structures (EAJE, crèches, micro-crèches, MAM) et aux professionnels non médicaux (RSAI, Référente technique, Psychomotricien-ne, EJE, AP, Diététicien-ne). Les familles arriveront plus tard."
+          "answer": "ProKid est destiné aux structures (EAJE, crèches, micro-crèches, MAM) et aux professionnels non médicaux (RSAI, Référente technique, Psychomotricien·ne, EJE, AP, Diététicien·ne). Les familles arriveront plus tard."
         },
         "professionalTypes": {
           "question": "Quels types de professionnels puis-je trouver ?",
-          "answer": "Vous pouvez trouver une large gamme de professionnels de la petite enfance : RSAI, Référentes techniques, Psychomotriciens, EJE, Auxiliaires de puériculture, Diététiciens et bien d'autres spécialistes qualifiés."
+          "answer": "Actuellement : RSAI, Référente technique, Psychomotricien·ne, EJE, AP, Diététicien·ne."
         },
         "publicStructures": {
           "question": "Les structures apparaissent-elles publiquement ?",
-          "answer": "Non, les structures ne sont pas visibles publiquement. Seuls les professionnels peuvent voir et contacter les structures qui les intéressent."
+          "answer": "Non. Seuls les profils des professionnels sont visibles. Les profils structures restent privés."
         },
         "freeTrial": {
           "question": "Comment fonctionne l'essai gratuit ?",
-          "answer": "L'essai gratuit dure 3 mois. Vous pouvez tester toutes les fonctionnalités sans engagement. Aucune carte bancaire n'est requise pour commencer."
+          "answer": "3 mois gratuits, puis 9,99 €/mois, sans engagement, annulable à tout moment."
         },
         "automaticAppointments": {
           "question": "Les rendez-vous sont-ils automatiques?",
-          "answer": "Non, les rendez-vous ne sont pas automatiques. Les structures et les professionnels communiquent directement via la messagerie intégrée pour planifier leurs missions."
+          "answer": "Non. La structure envoie une demande, le pro accepte/refuse. Une fois acceptée, le RDV est confirmé."
         },
         "payments": {
           "question": "Les paiements passent-ils par ProKid?",
-          "answer": "Non, ProKid ne gère pas les paiements directement. Les structures et les professionnels s'accordent sur les modalités de paiement en dehors de la plateforme."
+          "answer": "Dans le MVP, l'abonnement pro passe par Stripe. Les paiements de prestations arriveront plus tard."
         },
         "availability": {
           "question": "ProKid est-il disponible partout en France ?",
-          "answer": "Oui, ProKid est disponible dans toute la France. Les professionnels peuvent indiquer leur zone d'intervention et les structures peuvent rechercher des professionnels dans leur région."
+          "answer": "Oui. La recherche utilise ville/CP + rayon pour trouver des pros proches."
         }
       }
     },

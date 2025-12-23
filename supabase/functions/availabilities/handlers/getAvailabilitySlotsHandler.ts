@@ -113,6 +113,7 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
       if (availabilities && availabilities.length > 0) {
         for (const availability of availabilities) {
           try {
+            let isRecurring = false;
             const rule = rrulestr(availability.rrule);
 
             // Extract dtstart and until from RRULE
@@ -125,6 +126,23 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
             const hasOverlap =
               (!availabilityDtstart || availabilityDtstart <= endDate) &&
               (!availabilityUntil || availabilityUntil >= startDate);
+
+            /**
+             * Determine if the availability is recurring:
+             * - YEARLY (0), MONTHLY (1), WEEKLY (2) are always recurring
+             * - DAILY (3) is recurring unless COUNT=1 (one-time availability)
+             */
+            const freq = rule.options.freq;
+            const count = rule.options.count;
+
+            // ADD IF THE SLOT IS RECURRING TO DETERMINE IF THE SLOT SHOULD BE STOPPED
+            if (freq === 0 || freq === 1 || freq === 2) {
+              // YEARLY, MONTHLY, or WEEKLY - always recurring
+              isRecurring = true;
+            } else if (freq === 3) {
+              // DAILY - recurring unless COUNT=1 (one-time)
+              isRecurring = count !== 1;
+            }
 
             if (hasOverlap) {
               const occurrences = rule.between(startDate, endDate, true);
@@ -139,6 +157,7 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
                   durationMn: availability.duration_mn,
                   endAt: slotEndAt,
                   isAvailable: true,
+                  isRecurring,
                   mission: null,
                   startAt: slotStartAt,
                 });
