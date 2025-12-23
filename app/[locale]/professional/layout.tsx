@@ -50,8 +50,24 @@ export default function ProtectedLayout({
       userData.role !== 'professional'
     ) {
       router.push('/auth/login');
+      return;
     }
-  }, [status, userData, isLoadingProfile, router]);
+
+    // Check if professional is onboarded (but allow access to onboarding page)
+    const isOnboardingPage = pathname?.includes(
+      '/auth/sign-up/professional/on-boarding'
+    );
+    if (
+      status === 'authenticated' &&
+      !isLoadingProfile &&
+      userData &&
+      userData.role === 'professional' &&
+      !isOnboardingPage &&
+      !userData.isOnboarded
+    ) {
+      router.push('/auth/sign-up/professional/on-boarding');
+    }
+  }, [status, userData, isLoadingProfile, router, pathname]);
 
   if (status === 'loading' || isLoadingProfile) {
     return (
@@ -65,8 +81,19 @@ export default function ProtectedLayout({
     return null;
   }
 
+  // Allow access to subscription page
   if (subscriptionPath === 'professional/subscription') {
     return <div>{children}</div>;
+  }
+
+  // If not onboarded, the useEffect will redirect, but we should still show loading
+  // to prevent flash of content
+  if (!userData.isOnboarded) {
+    return (
+      <main className='flex min-h-screen flex-col items-center justify-center'>
+        <div>Loading...</div>
+      </main>
+    );
   }
 
   return (

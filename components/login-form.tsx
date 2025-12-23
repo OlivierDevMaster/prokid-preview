@@ -88,9 +88,15 @@ export function LoginForm({
       }
 
       const role = userResult.profile.role;
+      const isOnboarded = userResult.profile.isOnboarded ?? false;
 
       // Redirect based on role
       if (role === 'professional') {
+        // Check if onboarding is complete
+        if (!isOnboarded) {
+          router.push('/auth/sign-up/professional/on-boarding');
+          return;
+        }
         router.push('/professionals');
       } else if (role === 'structure') {
         router.push('/structure/dashboard');
