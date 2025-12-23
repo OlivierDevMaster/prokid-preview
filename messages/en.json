@@ -758,7 +758,9 @@
       "notRecurrenceTitle": "This slot does not come from a recurrence",
       "notRecurrenceMessage": "This slot does not come from a recurrence. Only recurring slots can have their recurrence stopped.",
       "errorTitle": "An error occurred",
-      "errorMessage": "An error occurred while stopping the recurrence"
+      "errorMessage": "An error occurred while stopping the recurrence",
+      "loading": "Loading...",
+      "recurring": "Recurring"
     },
     "report": {
       "title": "Create a report",

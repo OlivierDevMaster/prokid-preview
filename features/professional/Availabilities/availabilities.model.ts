@@ -7,5 +7,6 @@ export interface DaySchedule {
 export interface TimeSlot {
   end: string;
   isDeleted?: boolean;
+  recurring?: boolean;
   start: string;
 }
