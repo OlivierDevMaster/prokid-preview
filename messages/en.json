@@ -580,6 +580,20 @@
         "selectProfessional": "Please select a professional to invite",
         "failedToSend": "Failed to send invitation. Please try again."
       }
+    },
+    "ratings": {
+      "rateProfessional": "Rate Professional",
+      "rateProfessionalDescription": "Share your experience with this professional by rating and commenting.",
+      "rating": "Rating",
+      "ratingRequired": "Please select a rating",
+      "comment": "Comment",
+      "optional": "Optional",
+      "commentPlaceholder": "Share your experience with this professional...",
+      "cancel": "Cancel",
+      "submit": "Submit Rating",
+      "submitting": "Submitting...",
+      "ratingSuccess": "Rating submitted successfully",
+      "ratingError": "Failed to submit rating. Please try again."
     }
   },
   "admin": {

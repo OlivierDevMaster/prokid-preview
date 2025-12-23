@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, MapPin } from 'lucide-react';
+import { Calendar, Eye, MapPin, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -87,14 +87,25 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                 </div>
               </div>
 
-              <div className='flex flex-col justify-between text-right'>
+              <div className='align-end flex flex-col justify-between text-right'>
+                <div className='flex items-center justify-end gap-2 text-sm text-gray-600'>
+                  <Star className='h-4 w-4 fill-yellow-500 text-yellow-500' />
+                  <span className='font-semibold text-yellow-500'>
+                    {professional.rating
+                      ? Number(professional.rating).toFixed(1)
+                      : '0.0'}
+                  </span>
+                  <span className='text-gray-500'>
+                    ({professional.reviews_count || 0})
+                  </span>
+                </div>
                 <div className='flex items-center justify-between gap-2'>
                   <p className='text-sm text-gray-800'>
                     {professional.hourly_rate}€{t('hourlyRate')}
                   </p>
                   <Link href={`/professionals/${professional.user_id}`}>
                     <Button
-                      className='w-full rounded-lg bg-blue-400 text-white hover:bg-blue-600'
+                      className='w-full rounded-lg bg-blue-500 text-white hover:bg-blue-600'
                       size='sm'
                     >
                       <Eye className='mr-2 h-4 w-4' />

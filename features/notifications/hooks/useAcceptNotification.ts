@@ -20,8 +20,14 @@ export const useAcceptNotification = () => {
       }
       throw new Error('Notification type does not support accept action');
     },
-    onSuccess: () => {
+    onSuccess: (_, notification) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({
+        queryKey: ['notification', notification.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notification-status', notification.id],
+      });
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['missions'] });
     },
