@@ -102,7 +102,7 @@ export default function NotificationsPanel() {
       </PopoverTrigger>
       <PopoverContent
         align='end'
-        className='w-auto border-gray-200 p-0 shadow-xl'
+        className='w-auto border-gray-200 p-0'
         sideOffset={8}
       >
         <NotificationPopover

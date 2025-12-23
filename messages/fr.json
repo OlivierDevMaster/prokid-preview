@@ -804,6 +804,7 @@
       "structure2": "Structure 2",
       "structure3": "Structure 3",
       "createReport": "Créer un rapport",
+      "backToList": "Retour à la liste",
       "label": {
         "title": "Titre",
         "structure": "Structure",
@@ -1026,10 +1027,10 @@
     "pending": "En attente",
     "ended": "Terminé",
     "actions": {
-      "joinStructure": "Rejoindre la structure",
-      "acceptMission": "Accepter la mission",
-      "declineInvitation": "Refuser l'invitation",
-      "declineMission": "Refuser la mission"
+      "joinStructure": "Rejoindre",
+      "acceptMission": "Accepter",
+      "declineInvitation": "Refuser",
+      "declineMission": "Refuser"
     },
     "subtitle": "{total} notification(s), {unread} non lue(s)",
     "noNotifications": "Aucune notification",

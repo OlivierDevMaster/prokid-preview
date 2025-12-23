@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ export function Step4Finalization({
   const tCommon = useTranslations('common');
   const tProfessional = useTranslations('professional');
   const tAuthProfessional = useTranslations('auth.signUp.professionalForm');
-  const { getValues } = form;
+  const { getValues, watch } = form;
 
   const {
     availabilities,
@@ -35,6 +36,25 @@ export function Step4Finalization({
     phone,
     profession,
   } = getValues();
+
+  const profilePhoto = watch('profilePhoto');
+  const [preview, setPreview] = useState<null | string>(null);
+
+  useEffect(() => {
+    if (profilePhoto) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(profilePhoto);
+    } else {
+      setPreview(null);
+    }
+  }, [profilePhoto]);
+
+  const initials = `${firstName.charAt(0) || ''}${
+    lastName.charAt(0) || ''
+  }`.toUpperCase();
 
   return (
     <div className='space-y-6'>
@@ -49,17 +69,17 @@ export function Step4Finalization({
 
       <div className='space-y-2 rounded-lg border border-blue-200 p-4'>
         <div className='flex items-start'>
-          <div className='h-xl w-xl relative flex items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-white'>
-            {false ? (
+          <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-gray-100'>
+            {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 alt='Profile preview'
                 className='h-full w-full rounded-full object-cover'
-                src=''
+                src={preview}
               />
             ) : (
               <span className='p-8 text-4xl font-semibold text-gray-500'>
-                kk
+                {initials}
               </span>
             )}
           </div>
