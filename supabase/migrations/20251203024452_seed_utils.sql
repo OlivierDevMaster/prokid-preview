@@ -384,10 +384,9 @@ BEGIN
     duration_minutes
   );
 
-  -- If mission is accepted, update availabilities to prevent overlaps
-  IF status_param = 'accepted' THEN
-    PERFORM public.seeds_update_availabilities_for_mission(mission_id_result);
-  END IF;
+  -- Note: Availability updates are handled by the post-seed acceptance script
+  -- This ensures we use the same TypeScript logic as the production acceptMissionHandler
+  -- See scripts/accept-pending-missions.ts
 
   RETURN mission_id_result;
 END;
