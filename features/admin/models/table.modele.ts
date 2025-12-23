@@ -1,4 +1,5 @@
 export type TableActionType = {
+  className?: string;
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
