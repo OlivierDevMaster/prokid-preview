@@ -44,7 +44,7 @@ export function BoNavbar({
             </span>
           </div>
           <LanguageSwitcher />
-          <NotificationsPanel />
+          {userRole !== 'Admin' && <NotificationsPanel />}
           <Button
             className='h-8 w-8 hover:bg-gray-100'
             onClick={() => router.push(getSettingsRoute())}

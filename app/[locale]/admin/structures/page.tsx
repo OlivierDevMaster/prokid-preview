@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AddStructureButton } from '@/features/admin/structures/components/AddStructureButton';
 import { StructuresTableWrapper } from '@/features/admin/structures/components/StructuresTableWrapper';
 
 export default async function StructuresPage({
