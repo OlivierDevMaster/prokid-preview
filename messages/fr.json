@@ -99,7 +99,8 @@
       "signUp": "S'inscrire",
       "error": "Email ou mot de passe invalide",
       "home": "🏠 Accueil",
-      "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+      "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+      "emailVerifiedSuccess": "Email vérifié avec succès ! Vous pouvez maintenant vous connecter à votre compte."
     },
     "forgotPassword": {
       "title": "Réinitialiser votre mot de passe",
@@ -200,6 +201,13 @@
         "nonWorking": "Non travaillé",
         "errorSlotOverlap": "Ce créneau chevauche un autre créneau",
         "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin"
+      },
+      "verifyEmail": {
+        "title": "Vérifiez votre email",
+        "description": "Nous avons envoyé un lien de vérification à {email}",
+        "instructions": "Cliquez sur le lien dans l'email pour vérifier votre compte. Une fois vérifié, vous pourrez vous connecter.",
+        "checkSpam": "Vous n'avez pas reçu l'email ? Vérifiez votre dossier spam.",
+        "closeButton": "Compris"
       },
       "structureForm": {
         "title": "Créer mon compte structure",

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { VerifyEmailModal } from '@/components/verify-email-modal';
 import { useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
   const [photoPreview, setPhotoPreview] = useState<null | string>(null);
   const [error, setError] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerifyEmailModal, setShowVerifyEmailModal] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +52,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
     }
 
     try {
-      await createAccount({
+      const result = await createAccount({
         email,
         firstName,
         lastName,
@@ -59,6 +61,13 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
         role,
       });
 
+      // If email verification is required and not verified, show modal
+      if (!result.emailVerified) {
+        setShowVerifyEmailModal(true);
+        return;
+      }
+
+      // If email is already verified (shouldn't happen with enable_confirmations = true, but handle it)
       if (role === 'professional') {
         router.push('/auth/sign-up/professional/on-boarding');
       } else if (role === 'structure') {
@@ -268,6 +277,8 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
           </form>
         </CardContent>
       </Card>
+
+      <VerifyEmailModal email={email} open={showVerifyEmailModal} />
     </div>
   );
 }

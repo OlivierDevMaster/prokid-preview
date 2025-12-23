@@ -25,18 +25,28 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const passwordUpdated = searchParams.get('passwordUpdated');
+    const verified = searchParams.get('verified');
+
     if (passwordUpdated === 'true') {
       setSuccess(true);
+      setSuccessMessage(t('passwordUpdatedSuccess'));
       const url = new URL(window.location.href);
       url.searchParams.delete('passwordUpdated');
       window.history.replaceState({}, '', url.pathname + url.search);
+    } else if (verified === 'true') {
+      setSuccess(true);
+      setSuccessMessage(t('emailVerifiedSuccess'));
+      const url = new URL(window.location.href);
+      url.searchParams.delete('verified');
+      window.history.replaceState({}, '', url.pathname + url.search);
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,9 +119,9 @@ export function LoginForm({
             <div className='flex justify-center space-y-2 text-blue-500'>
               <Link href='/'>{t('home')}</Link>
             </div>
-            {success && (
+            {success && successMessage && (
               <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
-                {t('passwordUpdatedSuccess')}
+                {successMessage}
               </div>
             )}
             {error && (
