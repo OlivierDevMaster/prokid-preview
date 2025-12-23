@@ -96,7 +96,7 @@ export function Navigation() {
                 <Button asChild size='sm' variant='ghost'>
                   <Link href='/auth/login'>{t('signIn')}</Link>
                 </Button>
-                <Button asChild size='sm'>
+                <Button asChild size='sm' variant='outline'>
                   <Link href='/auth/sign-up'>{t('signUp')}</Link>
                 </Button>
               </div>
