@@ -87,7 +87,7 @@ export function Navigation() {
                 >
                   {tCommon('label.dashboard')}
                 </Button>
-                <Button onClick={handleSignOut} size='sm'>
+                <Button onClick={handleSignOut} size='sm' variant='outline'>
                   {tCommon('actions.signOut')}
                 </Button>
               </div>
