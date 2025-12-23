@@ -440,7 +440,13 @@
       "allStructures": "Toutes les structures",
       "filterByStatus": "Filtrer par statut",
       "allStatuses": "Tous les statuts",
-      "viewReports": "Voir les rapports"
+      "viewReports": "Voir les rapports",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "acceptSuccess": "Mission acceptée avec succès",
+      "declineSuccess": "Mission refusée avec succès",
+      "acceptError": "Échec de l'acceptation de la mission",
+      "declineError": "Échec du refus de la mission"
     },
     "subscription": {
       "title": "Abonnement ProKid Pro",
