@@ -439,7 +439,13 @@
       "allStructures": "All structures",
       "filterByStatus": "Filter by status",
       "allStatuses": "All statuses",
-      "viewReports": "View Reports"
+      "viewReports": "View Reports",
+      "accept": "Accept",
+      "decline": "Decline",
+      "acceptSuccess": "Mission accepted successfully",
+      "declineSuccess": "Mission declined successfully",
+      "acceptError": "Failed to accept mission",
+      "declineError": "Failed to decline mission"
     },
     "subscription": {
       "title": "Abonnement ProKid Pro",
@@ -766,7 +772,9 @@
       "notRecurrenceTitle": "This slot does not come from a recurrence",
       "notRecurrenceMessage": "This slot does not come from a recurrence. Only recurring slots can have their recurrence stopped.",
       "errorTitle": "An error occurred",
-      "errorMessage": "An error occurred while stopping the recurrence"
+      "errorMessage": "An error occurred while stopping the recurrence",
+      "loading": "Loading...",
+      "recurring": "Recurring"
     },
     "report": {
       "title": "Create a report",
@@ -798,6 +806,7 @@
       "structure2": "Structure 2",
       "structure3": "Structure 3",
       "createReport": "Create a report",
+      "backToList": "Back to list",
       "label": {
         "title": "Title",
         "structure": "Structure",
@@ -1020,10 +1029,10 @@
     "pending": "Pending",
     "ended": "Ended",
     "actions": {
-      "joinStructure": "Join structure",
-      "acceptMission": "Accept mission",
-      "declineInvitation": "Decline invitation",
-      "declineMission": "Decline mission"
+      "joinStructure": "Join",
+      "acceptMission": "Accept",
+      "declineInvitation": "Decline",
+      "declineMission": "Decline"
     },
     "subtitle": "{total} notification(s), {unread} unread",
     "noNotifications": "No notifications",
@@ -1114,27 +1123,27 @@
         },
         "professionalTypes": {
           "question": "What types of professionals can I find?",
-          "answer": "You can find a wide range of early childhood professionals: RSAI, Technical Referents, Psychomotor therapists, EJE, Childcare Assistants, Dietitians and many other qualified specialists."
+          "answer": "Currently: RSAI, Technical Referent, Psychomotrician, EJE, AP, Dietitian."
         },
         "publicStructures": {
           "question": "Do structures appear publicly?",
-          "answer": "No, structures are not publicly visible. Only professionals can see and contact structures that interest them."
+          "answer": "No. Only the profiles of professionals are visible. Structure profiles remain private."
         },
         "freeTrial": {
           "question": "How does the free trial work?",
-          "answer": "The free trial lasts 3 months. You can test all features without commitment. No credit card is required to get started."
+          "answer": "3 months free, then 9.99 €/month, no commitment, cancellable at any time."
         },
         "automaticAppointments": {
           "question": "Are appointments automatic?",
-          "answer": "No, appointments are not automatic. Structures and professionals communicate directly via the integrated messaging to plan their missions."
+          "answer": "No. The structure sends a request, the professional accepts/rejects. Once accepted, the appointment is confirmed."
         },
         "payments": {
           "question": "Do payments go through ProKid?",
-          "answer": "No, ProKid does not handle payments directly. Structures and professionals agree on payment terms outside the platform."
+          "answer": "In the MVP, the professional subscription passes through Stripe. Payment for services will arrive later."
         },
         "availability": {
           "question": "Is ProKid available everywhere in France?",
-          "answer": "Yes, ProKid is available throughout France. Professionals can indicate their intervention zone and structures can search for professionals in their region."
+          "answer": "Yes. The search uses city/postcode + radius to find nearby pros."
         }
       }
     },

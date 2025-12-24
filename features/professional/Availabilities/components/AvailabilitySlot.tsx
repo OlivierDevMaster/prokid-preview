@@ -73,25 +73,27 @@ export default function AvailabilitySlotComponent({
         <div className='space-y-1'>
           {!isBooked && (
             <>
-              <Button
-                className='w-full justify-start text-sm'
-                disabled={isStoppingRecurrence}
-                onClick={() => onStopRecurrenceClick(slot)}
-                size='sm'
-                variant='ghost'
-              >
-                {isStoppingRecurrence ? (
-                  <>
-                    <Clock className='mr-2 h-3 w-3 animate-spin' />
-                    {tCommon('messages.saving')}
-                  </>
-                ) : (
-                  <>
-                    <Repeat2 className='mr-2 h-3 w-3' />
-                    {t('stopRecurrence')}
-                  </>
-                )}
-              </Button>
+              {slot.isRecurring && (
+                <Button
+                  className='w-full justify-start text-sm'
+                  disabled={isStoppingRecurrence}
+                  onClick={() => onStopRecurrenceClick(slot)}
+                  size='sm'
+                  variant='ghost'
+                >
+                  {isStoppingRecurrence ? (
+                    <>
+                      <Clock className='mr-2 h-3 w-3 animate-spin' />
+                      {tCommon('messages.saving')}
+                    </>
+                  ) : (
+                    <>
+                      <Repeat2 className='mr-2 h-3 w-3' />
+                      {t('stopRecurrence')}
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 className='w-full justify-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700'
                 disabled={isDeleting}

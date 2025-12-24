@@ -34,6 +34,7 @@ import { Link, useRouter } from '@/i18n/routing';
 export default function ProfessionalProfilePage() {
   const { id } = useParams();
   const t = useTranslations('professional.profile');
+  const tProfessional = useTranslations('professional');
   const tRating = useTranslations('structure.ratings');
   const tInvitation = useTranslations('structure.invitations');
   const tMission = useTranslations('structure.missions');
@@ -112,6 +113,27 @@ export default function ProfessionalProfilePage() {
   const canRate =
     session && isStructure && hasMembership && membershipId && !existingRating;
 
+  const getJobTranslation = (job: null | string | undefined): string => {
+    if (!job) {
+      return job || '';
+    }
+    try {
+      const translationKey = `jobs.${job}`;
+      const translated = tProfessional(translationKey);
+      // If translation doesn't exist, next-intl returns the full key path
+      // Check if it's the same as what we'd expect for a missing key
+      if (
+        translated === translationKey ||
+        translated === `professional.${translationKey}`
+      ) {
+        return job;
+      }
+      return translated;
+    } catch {
+      return job;
+    }
+  };
+
   if (!professional) {
     return (
       <main className='flex min-h-screen items-center justify-center bg-white'>
@@ -163,8 +185,8 @@ export default function ProfessionalProfilePage() {
                         {professional.profile.last_name}
                       </span>
                     </h1>
-                    <p className='mb-3 text-lg text-sm text-blue-500'>
-                      {professional.current_job}
+                    <p className='mb-3 text-center text-lg text-sm text-blue-500'>
+                      {getJobTranslation(professional.current_job)}
                     </p>
 
                     {/* Badges */}

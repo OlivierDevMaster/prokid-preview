@@ -86,7 +86,7 @@ export function ReportDetails() {
             {tCommon('messages.notFound')}
           </h1>
           <Link href='/professional'>
-            <Button>{t('backToList')}</Button>
+            <Button variant='outline'>{t('backToList')}</Button>
           </Link>
         </Card>
       </div>

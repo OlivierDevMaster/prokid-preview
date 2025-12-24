@@ -153,6 +153,7 @@ export default function AvailabilitiesPage() {
       return;
     }
 
+    console.info({ slot });
     // Open confirmation dialog
     setConfirmDialog({
       open: true,

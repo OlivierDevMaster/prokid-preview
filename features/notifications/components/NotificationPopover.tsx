@@ -84,7 +84,7 @@ export function NotificationPopover({
   };
 
   return (
-    <div className='w-96 rounded-lg border border-gray-200 bg-white shadow-lg'>
+    <div className='w-96 border border-gray-200 bg-white'>
       <div className='border-b border-gray-200 p-4'>
         <h3 className='text-base font-bold text-gray-900'>{t('title')}</h3>
         <p className='mt-1 text-sm text-gray-700'>
