@@ -1,7 +1,9 @@
-import { getTranslations } from "next-intl/server";
-import { UserService } from "@/services/admin/users/user.service";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UsersTable } from "@/components/admin/users/UsersTable";
+import { getTranslations } from 'next-intl/server';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AddUserButton } from '@/features/admin/users/components/AddUserButton';
+import { UsersTable } from '@/features/admin/users/components/UsersTable';
+import { User } from '@/features/admin/users/modeles/user.modele';
 
 export default async function UsersPage({
   params,
@@ -9,44 +11,57 @@ export default async function UsersPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("admin.users");
-  const users = await UserService.getAllUsers();
+  const t = await getTranslations({ locale, namespace: 'admin.users' });
+  const users: User[] = [];
 
   const translations = {
-    name: t("name"),
-    email: t("email"),
-    emailVerified: t("emailVerified"),
-    lastSignIn: t("lastSignIn"),
-    createdAt: t("createdAt"),
-    noName: t("noName"),
-    verified: t("verified"),
-    notVerified: t("notVerified"),
-    never: t("never"),
-    previous: t("previous"),
-    next: t("next"),
-    page: t("page"),
-    of: t("of"),
-    noResults: t("noResults"),
+    actions: t('actions'),
+    createdAt: t('createdAt'),
+    delete: t('delete'),
+    edit: t('edit'),
+    email: t('email'),
+    emailVerified: t('emailVerified'),
+    lastSignIn: t('lastSignIn'),
+    name: t('name'),
+    never: t('never'),
+    next: t('next'),
+    noName: t('noName'),
+    noResults: t('noResults'),
+    notVerified: t('notVerified'),
+    of: t('of'),
+    page: t('page'),
+    previous: t('previous'),
+    suspend: t('suspend'),
+    verified: t('verified'),
+    view: t('view'),
   };
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-8 bg-blue-50/30 p-8'>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
-        <p className="text-gray-600 mt-2">{t("subtitle")}</p>
+        <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
+        <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
+      </div>
+
+      <div className='flex w-full justify-end'>
+        <AddUserButton />
       </div>
 
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("tableTitle")}</CardTitle>
+          <CardTitle>{t('tableTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">{t("noUsers")}</p>
+            <p className='py-8 text-center text-gray-500'>{t('noUsers')}</p>
           ) : (
-            <UsersTable data={users} locale={locale} translations={translations} />
+            <UsersTable
+              data={users}
+              locale={locale}
+              translations={translations}
+            />
           )}
         </CardContent>
       </Card>

@@ -1,26 +1,23 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { useState } from "react";
+import { useLocale, useTranslations } from 'next-intl';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
 
 export function ForgotPasswordForm({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
+}: React.ComponentPropsWithoutRef<'div'>) {
+  const t = useTranslations('auth.forgotPassword');
+  const locale = useLocale();
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState<null | string>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,75 +28,81 @@ export function ForgotPasswordForm({
     setError(null);
 
     try {
-      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
+      const redirectTo = `${window.location.origin}${
+        locale === 'en' ? '' : `/${locale}`
+      }/auth/update-password`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
+        redirectTo,
       });
       if (error) throw error;
       setSuccess(true);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      setError(error instanceof Error ? error.message : t('errors.generic'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      {success ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Check Your Email</CardTitle>
-            <CardDescription>Password reset instructions sent</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              If you registered using your email and password, you will receive
-              a password reset email.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Reset Your Password</CardTitle>
-            <CardDescription>
-              Type in your email and we&apos;ll send you a link to reset your
-              password
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleForgotPassword}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
+      <Card className='w-full'>
+        <CardContent className='p-6'>
+          {success ? (
+            <div className='space-y-6'>
+              <div className='space-y-2 text-center'>
+                <h1 className='text-2xl font-bold text-gray-800'>
+                  {t('success.title')}
+                </h1>
+                <p className='text-sm text-gray-600'>
+                  {t('success.description')}
+                </p>
+              </div>
+              <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
+                {t('success.message')}
+              </div>
+            </div>
+          ) : (
+            <form className='space-y-6' onSubmit={handleForgotPassword}>
+              <div className='space-y-2 text-center'>
+                <h1 className='text-2xl font-bold text-gray-800'>
+                  {t('title')}
+                </h1>
+                <p className='text-sm text-gray-600'>{t('description')}</p>
+              </div>
+
+              {error && (
+                <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
+                  {error}
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Sending..." : "Send reset email"}
-                </Button>
+              )}
+
+              <div className='space-y-2'>
+                <Label className='text-gray-700' htmlFor='email'>
+                  {t('emailLabel')}
+                </Label>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='email'
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder={t('emailPlaceholder')}
+                  required
+                  type='email'
+                  value={email}
+                />
               </div>
-              <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
-                <Link
-                  href="/auth/login"
-                  className="underline underline-offset-4"
-                >
-                  Login
-                </Link>
-              </div>
+
+              <Button
+                className='w-full bg-blue-500 text-white hover:bg-blue-600'
+                disabled={isLoading}
+                type='submit'
+              >
+                {isLoading ? t('sending') : t('submitButton')}
+              </Button>
             </form>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

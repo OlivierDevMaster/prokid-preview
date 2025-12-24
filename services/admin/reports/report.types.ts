@@ -1,17 +1,12 @@
+import { Tables } from '@/types/database/schema';
+
+export interface CreateReportInput {
+  contents: string;
+  mission_id?: string;
+  title: string;
+}
+
 /**
  * Types pour les rapports
  */
-export interface Report {
-  id: string;
-  created_at: string;
-  title: string;
-  contents: string;
-  user: string;
-}
-
-export interface CreateReportInput {
-  title: string;
-  contents: string;
-  recipient_structure?: string;
-}
-
+export type Report = Tables<'reports'>;

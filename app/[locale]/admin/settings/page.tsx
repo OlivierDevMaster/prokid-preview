@@ -1,98 +1,52 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "@/i18n/routing";
-import { ArrowLeft, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PersonalInfoForm } from "@/components/admin/settings/PersonalInfoForm";
-import { PasswordChangeForm } from "@/components/admin/settings/PasswordChangeForm";
-import { NotificationPreferences } from "@/components/admin/settings/NotificationPreferences";
-import { cn } from "@/lib/utils";
-import BillingTabContent from "@/components/admin/settings/BillingTabContent";
+import { ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
-type TabType = "profil" | "disponibilites" | "facturation";
+import { Button } from '@/components/ui/button';
+import { ProfileTabContent } from '@/features/admin/settings/components/ProfileTabContent';
+import { useRouter } from '@/i18n/routing';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>("profil");
+  const t = useTranslations('admin');
+  const searchParams = useSearchParams();
 
-  const tabs = [
-    { id: "profil" as TabType, label: "Profil" },
-    { id: "disponibilites" as TabType, label: "Disponibilités" },
-    { id: "facturation" as TabType, label: "Facturation" },
-  ];
-
-  const handleSave = () => {
-    console.log("Saving changes...");
-  };
+  useEffect(() => {
+    const emailUpdated = searchParams.get('emailUpdated');
+    if (emailUpdated === 'true') {
+      toast.success(t('setting.emailUpdateSuccessMessage'));
+      // Clear the query parameter from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('emailUpdated');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+  }, [searchParams, t]);
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="h-9 w-9"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Paramètres du profil
-          </h1>
-        </div>
+      <div className='flex items-center gap-4'>
         <Button
-          onClick={handleSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className='h-9 w-9'
+          onClick={() => router.back()}
+          size='icon'
+          variant='ghost'
         >
-          <FileText className="h-4 w-4 mr-2" />
-          Enregistrer les modifications
+          <ArrowLeft className='h-5 w-5' />
         </Button>
-      </div>
-
-      {/* Tabs */}
-      <div className="grid grid-cols-3 gap-2 bg-green-300/50 p-1 rounded-lg">
-        {tabs.map((tab) => (
-          <Button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            variant={activeTab === tab.id ? "default" : "ghost"}
-            className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-green-50",
-              activeTab === tab.id
-                ? "bg-green-50 text-blue-900"
-                : ""
-            )}
-          >
-            {tab.label}
-          </Button>
-        ))}
+        <h1 className='text-2xl font-bold text-gray-900'>
+          {t('setting.profileSettings')}
+        </h1>
       </div>
 
       {/* Content */}
-      <Card className="border border-gray-200 rounded-lg bg-white">
-        <div className="p-6 space-y-6">
-          {activeTab === "profil" && (
-            <>
-              <PersonalInfoForm />
-              <PasswordChangeForm />
-              <NotificationPreferences />
-            </>
-          )}
-          {activeTab === "disponibilites" && (
-            <div className="text-center py-12 text-gray-500">
-              Section Disponibilités à venir
-            </div>
-          )}
-          {activeTab === "facturation" && (
-            <BillingTabContent />
-          )}
-        </div>
-      </Card>
+      <div>
+        <ProfileTabContent />
+      </div>
     </div>
   );
 }
-

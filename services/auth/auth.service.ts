@@ -1,68 +1,70 @@
+import { Role } from '@/features/roles/role.model';
+
 type SignUpParams = {
-  userType: "professional" | "structure";
   body: {
+    email: string;
     firstName: string;
     lastName: string;
-    email: string;
     password: string;
   };
+  role: Exclude<Role, typeof Role.admin>;
 };
 
-export async function signUp({ userType, body }: SignUpParams) {
+export async function getUser(userId: string) {
   try {
-    const response = await fetch(`/api/auth/sign-up/${userType}`, {
-      method: "POST",
+    const response = await fetch(`/api/auth/user/${userId}`, {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      method: 'GET',
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      if (data.error === "Email already exists") {
-        return { error: "Email already exists" };
+      return { error: data.error || 'Failed to fetch user' };
+    }
+
+    return { profile: data };
+  } catch (err) {
+    console.error('Get user error:', err);
+    return { error: 'Internal server error' };
+  }
+}
+
+export async function signUp({ body, role }: SignUpParams) {
+  try {
+    const response = await fetch(`/api/auth/sign-up/${role}`, {
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (data.error === 'Email already exists') {
+        return { error: 'Email already exists' };
       } else {
         return { error: data.error };
       }
     }
 
-    return { message: "User created successfully" };
+    return { message: 'User created successfully' };
   } catch (err) {
-    console.error("Sign up error:", err);
-    return { error: "Internal server error" };
+    console.error('Sign up error:', err);
+    return { error: 'Internal server error' };
   }
 }
 
 // Fonction helper pour maintenir la compatibilité
-export async function signUpProfessional({ body }: Omit<SignUpParams, "userType">) {
-  return signUp({ userType: "professional", body });
+export async function signUpProfessional({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.professional });
 }
 
 // Fonction helper pour les structures
-export async function signUpStructure({ body }: Omit<SignUpParams, "userType">) {
-  return signUp({ userType: "structure", body });
-}
-
-export async function getUser(userId: string) {
-  try {
-    const response = await fetch(`/api/auth/user/${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { error: data.error || "Failed to fetch user" };
-    }
-
-    return { profile: data };
-  } catch (err) {
-    console.error("Get user error:", err);
-    return { error: "Internal server error" };
-  }
+export async function signUpStructure({ body }: Omit<SignUpParams, 'role'>) {
+  return signUp({ body, role: Role.structure });
 }

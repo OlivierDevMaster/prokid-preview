@@ -4,7 +4,76 @@
   },
   "common": {
     "welcome": "Bienvenue",
-    "hello": "Bonjour"
+    "hello": "Bonjour",
+    "label": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "dashboard": "Tableau de bord",
+      "profession": "Profession",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "description": "Description",
+      "yearsExperience": "Années d'expérience",
+      "hourlyRate": "Taux horaire",
+      "interventionZone": "Zone d'intervention",
+      "certifications": "Certifications",
+      "skills": "Compétences",
+      "contact": "Contact",
+      "availability": "Disponibilitées",
+      "km": "km",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "start": "Début",
+      "end": "Fin",
+      "profileImage": "Photo de profil"
+    },
+    "placeholder": {
+      "currentPassword": "Saisissez votre mot de passe actuel",
+      "newPassword": "Saisissez votre nouveau mot de passe",
+      "confirmPassword": "Confirmez votre nouveau mot de passe"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "signOut": "Déconnexion",
+      "submit": "Soumettre",
+      "addSlot": "Ajouter un créneau",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "ok": "OK",
+      "upload": "Télécharger",
+      "reset": "Réinitialiser"
+    },
+    "messages": {
+      "loading": "Chargement...",
+      "notFound": "Non trouvé",
+      "saving": "Enregistrement...",
+      "imageSelected": "Nouvelle image sélectionnée"
+    },
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "pagination": {
+      "itemsPerPage": "Éléments par page",
+      "next": "Suivant",
+      "of": "sur",
+      "ofItems": "sur",
+      "page": "Page",
+      "previous": "Précédent",
+      "showing": "Affichage",
+      "to": "à"
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -28,7 +97,44 @@
       "submitButton": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "signUp": "S'inscrire",
-      "error": "Email ou mot de passe invalide"
+      "error": "Email ou mot de passe invalide",
+      "home": "🏠 Accueil",
+      "passwordUpdatedSuccess": "Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+      "emailVerifiedSuccess": "Email vérifié avec succès ! Vous pouvez maintenant vous connecter à votre compte."
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Saisissez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "m@exemple.com",
+      "submitButton": "Envoyer l'e-mail de réinitialisation",
+      "sending": "Envoi en cours...",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "success": {
+        "title": "Vérifiez votre e-mail",
+        "description": "Instructions de réinitialisation envoyées",
+        "message": "Si vous vous êtes inscrit avec votre adresse e-mail et votre mot de passe, vous recevrez un e-mail de réinitialisation de mot de passe."
+      },
+      "errors": {
+        "generic": "Une erreur est survenue"
+      }
+    },
+    "updatePassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "description": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+      "passwordLabel": "Nouveau mot de passe",
+      "passwordPlaceholder": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+      "submitButton": "Enregistrer le nouveau mot de passe",
+      "saving": "Enregistrement...",
+      "verifying": "Vérification du token de réinitialisation...",
+      "errors": {
+        "generic": "Une erreur est survenue",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+      }
     },
     "signUp": {
       "welcome": "Bienvenue sur",
@@ -66,7 +172,42 @@
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
         "emailAlreadyExists": "Cet email est déjà utilisé",
-        "hasAccount": "Déjà un compte ? Connectez-vous"
+        "hasAccount": "Déjà un compte ? Connectez-vous",
+        "previous": "Précédent",
+        "completeTheRegistration": "Finaliser l'inscription",
+        "finalization": "Finalisation",
+        "validationInformation": "Vérifiez vos informations avant de finaliser votre inscription",
+        "defaultProfilePicture": "Utiliser une photo par défault",
+        "recommendedFormat": "Format carré recommandé",
+        "job": "Profession",
+        "city": "Ville",
+        "postalCode": "Code postal",
+        "description": "Description",
+        "yearsExperience": "Années d'expérience",
+        "hourlyRate": "Taux horaire",
+        "certifications": "Certifications",
+        "skills": "Compétences",
+        "contact": "Contact",
+        "availability": "Disponibilitées",
+        "km": "km",
+        "interventionZone": "Zone d'intervention",
+        "email": "Email",
+        "phone": "Téléphone",
+        "planningAndAvailability": "Planning & disponibilités",
+        "configureYourDaysAndSlots": "Configurez vos jours et créneaux disponibles",
+        "copyMondaySchedule": "Copier les horaires du lundi à tous les jours",
+        "addSlot": "Ajouter un créneau",
+        "recurring": "Récurrent",
+        "nonWorking": "Non travaillé",
+        "errorSlotOverlap": "Ce créneau chevauche un autre créneau",
+        "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin"
+      },
+      "verifyEmail": {
+        "title": "Vérifiez votre email",
+        "description": "Nous avons envoyé un lien de vérification à {email}",
+        "instructions": "Cliquez sur le lien dans l'email pour vérifier votre compte. Une fois vérifié, vous pourrez vous connecter.",
+        "checkSpam": "Vous n'avez pas reçu l'email ? Vérifiez votre dossier spam.",
+        "closeButton": "Compris"
       },
       "structureForm": {
         "title": "Créer mon compte structure",
@@ -87,7 +228,10 @@
         "passwordMismatch": "Les mots de passe ne correspondent pas",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
         "emailAlreadyExists": "Cet email est déjà utilisé",
-        "hasAccount": "Déjà un compte ? Connectez-vous"
+        "hasAccount": "Déjà un compte ? Connectez-vous",
+        "profilePhotoLabel": "Photo de profil",
+        "profilePhotoDescription": "Télécharger une photo de profil (optionnel)",
+        "removePhoto": "Supprimer"
       }
     }
   },
@@ -117,6 +261,10 @@
     "newsletterDescription": "Restez informé des actualités de la petite enfance",
     "emailPlaceholder": "Votre adresse e-mail",
     "subscribe": "S'abonner",
+    "subscribing": "Abonnement en cours...",
+    "subscriptionSuccess": "Abonnement réussi !",
+    "subscriptionError": "Une erreur est survenue. Veuillez réessayer.",
+    "emailAlreadySubscribed": "Cette adresse e-mail est déjà abonnée à la newsletter",
     "copyright": "© ProKid 2025 — Tous droits réservés"
   },
   "faq": {
@@ -154,6 +302,20 @@
   },
   "professional": {
     "title": "Trouvez votre professionnel",
+    "job": "Profession",
+    "label": {
+      "profilePhoto": "Photo de profil",
+      "profilePhotoPlaceholder": "Choisissez une photo professionnelle et souriante",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "submit": "Soumettre",
+      "recomandedFormat": "Format carré recommandé",
+      "useDefault": "Utiliser une photo par défaut",
+      "profileConfiguration": "Configuration de votre profil professionnel",
+      "filters": "Filtres",
+      "informations": "Identité & informations",
+      "completeProfile": "Complétez votre profil professionnel"
+    },
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
       "placeholder": "Rechercher par nom, rôle ou compétence...",
@@ -171,7 +333,9 @@
       "hourlyRate": "/h",
       "reviews": "avis",
       "upTo": "Jusqu'à",
-      "km": "km"
+      "km": "km",
+      "available": "Disponible",
+      "unavailable": "Indisponible"
     },
     "profile": {
       "notFound": "Professionnel non trouvé",
@@ -208,6 +372,19 @@
         "bookingInstructions": "Cliquez sur un créneau disponible pour sélectionner le motif de consultation et confirmer votre rendez-vous. Vous pouvez aussi envoyer un message pour une demande personnalisée."
       }
     },
+    "structures": {
+      "details": {
+        "loading": "Chargement de la structure...",
+        "notFound": "Structure non trouvée",
+        "backToList": "Retour à la liste",
+        "sendMessage": "Envoyer un message",
+        "additionalInformation": "Informations supplémentaires",
+        "structureId": "ID de la structure",
+        "stripeCustomerId": "ID client Stripe",
+        "createdAt": "Date de création",
+        "updatedAt": "Date de mise à jour"
+      }
+    },
     "roles": {
       "all": "Tous les rôles",
       "rsai": "RSAI",
@@ -223,6 +400,218 @@
       "afternoon": "Après-midi",
       "fullDay": "Journée complète",
       "weekend": "Week-end"
+    },
+    "jobs": {
+      "health_and_inclusive_care_coordinator": "Référent santé et accueil inclusif",
+      "early_childhood_educator": "Éducateur de jeunes enfants",
+      "psychomotor_therapist": "Psychomotricien",
+      "pediatric_nurse": "Infirmière puéricultrice",
+      "childhood_education_and_care_assistant_certificate": "CAP accompagnant éducatif petite enfance",
+      "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
+      "other_early_childhood_profession": "Autre profession de la petite enfance"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de votre activité professionnelle",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales",
+      "totalReports": "Comptes Rendus Totaux"
+    },
+    "structure": {
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "viewDetails": "Voir les détails",
+      "loading": "Chargement...",
+      "noStructure": "Aucune structure trouvée",
+      "contact": "Contact",
+      "createdAt": "Créé le",
+      "close": "Fermer",
+      "noReport": "Aucun compte rendu",
+      "reportsList": "Liste des rapports"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Consultez et gérez toutes vos missions avec les structures.",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "unknownStructure": "Structure inconnue",
+      "structure": "Informations sur la structure",
+      "close": "Fermer",
+      "descriptionLabel": "Description",
+      "filterByStructure": "Filtrer par structure",
+      "allStructures": "Toutes les structures",
+      "filterByStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "viewReports": "Voir les rapports",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "acceptSuccess": "Mission acceptée avec succès",
+      "declineSuccess": "Mission refusée avec succès",
+      "acceptError": "Échec de l'acceptation de la mission",
+      "declineError": "Échec du refus de la mission"
+    },
+    "subscription": {
+      "title": "Abonnement ProKid Pro",
+      "description": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "alreadySubscribed": "Vous êtes déjà abonné",
+      "alreadySubscribedMessage": "Votre abonnement ProKid Pro est actif.",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "activateButton": "Activer mon abonnement",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment.",
+      "featuresTitle": "Ce que vous obtenez",
+      "feature1Title": "Visibilité maximale",
+      "feature1Description": "Votre profil apparaît dans toutes les recherches des structures",
+      "feature2Title": "Demandes qualifiées",
+      "feature2Description": "Recevez des demandes directes de structures intéressées",
+      "feature3Title": "Messagerie intégrée",
+      "feature3Description": "Échangez facilement avec les structures via la plateforme",
+      "feature4Title": "Analytics simples",
+      "feature4Description": "Suivez les vues de votre profil et vos demandes",
+      "launchOffer": "Offre de lancement",
+      "activating": "Activation en cours...",
+      "goToDashboard": "Retour au tableau de bord",
+      "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
+      "checkoutError": "Échec de la création de la session de paiement"
+    }
+  },
+  "structure": {
+    "navigation": {
+      "missions": "Missions",
+      "professionals": "Professionnels",
+      "dashboard": "Tableau de bord",
+      "reports": "Rapports"
+    },
+    "missions": {
+      "title": "Mes missions",
+      "description": "Gérez vos interventions et suivis pour chaque établissement.",
+      "addMission": "Ajouter une mission",
+      "noMissions": "Aucune mission trouvée.",
+      "loading": "Chargement...",
+      "createMission": "Créer une mission",
+      "titlePlaceholder": "Entrez le titre de la mission",
+      "selectProfessional": "Sélectionner un professionnel",
+      "selectProfessionalPlaceholder": "Sélectionner un professionnel",
+      "selectAvailability": "Sélectionner une disponibilité",
+      "selectAvailabilityPlaceholder": "Sélectionner une disponibilité",
+      "noAvailabilities": "Aucune disponibilité trouvée",
+      "availabilityDescription": "Sélectionnez la disponibilité du professionnel pour cette mission",
+      "missionStartDate": "Date de début de mission",
+      "missionEndDate": "Date de fin de mission",
+      "descriptionLabel": "Description",
+      "optional": "Optionnel",
+      "descriptionPlaceholder": "Entrez la description de la mission",
+      "cancel": "Annuler",
+      "creating": "Création en cours...",
+      "create": "Créer la mission",
+      "createSuccess": "Mission créée avec succès",
+      "createError": "Échec de la création de la mission",
+      "filterByProfessional": "Filtrer par professionnel",
+      "allProfessionals": "Tous les professionnels",
+      "filterByStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "step": "Étape",
+      "next": "Suivant",
+      "back": "Retour",
+      "selectAvailabilities": "Sélectionner les disponibilités du professionnel",
+      "selectedSchedules": "Créneaux sélectionnés",
+      "previousWeek": "Semaine précédente",
+      "nextWeek": "Semaine suivante",
+      "weekOf": "Semaine du",
+      "noSlots": "Aucun créneau",
+      "recurrent": "Récurrent",
+      "recurrentDescription": "Si coché, ce créneau se répétera jusqu'à la date de fin de mission",
+      "recurrentNotAvailable": "Cette option n'est disponible que pour les disponibilités récurrentes",
+      "availabilityRange": "Plage de disponibilité",
+      "scheduleStartTime": "Heure de début",
+      "scheduleEndTime": "Heure de fin",
+      "noProfessionals": "Aucun professionnel trouvé",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu",
+      "noReport": "Aucun compte rendu",
+      "period": "Période",
+      "viewDetails": "Voir les détails",
+      "viewReports": "Voir les rapports",
+      "close": "Fermer",
+      "unknownProfessional": "Professionnel inconnu"
+    },
+    "professionals": {
+      "title": "Mes professionnels",
+      "description": "Consultez et gérez tous vos professionnels.",
+      "loading": "Chargement...",
+      "noProfessionals": "Aucun professionnel trouvé.",
+      "viewProfile": "Voir le profil",
+      "sendInvitation": "Envoyer une invitation",
+      "details": {
+        "loading": "Chargement...",
+        "notFound": "Professionnel non trouvé",
+        "backToList": "Retour à la liste",
+        "certified": "Certifié",
+        "available": "Disponible",
+        "reviews": "avis",
+        "skills": "Compétences",
+        "yearsExperience": "années d'expérience",
+        "hour": "heure",
+        "contact": "Contact",
+        "about": "À propos",
+        "additionalInfo": "Informations supplémentaires",
+        "verifiedAt": "Vérifié le",
+        "memberSince": "Membre depuis"
+      }
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "subtitle": "Aperçu de l'activité de votre structure",
+      "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalMissions": "Missions Totales",
+      "totalInvitations": "Invitations Totales"
+    },
+    "invitations": {
+      "title": "Inviter un Professionnel",
+      "description": "Recherchez et invitez un professionnel à rejoindre votre structure.",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "sendInvitation": "Envoyer l'invitation",
+      "sending": "Envoi en cours...",
+      "search": {
+        "label": "Rechercher un professionnel",
+        "placeholder": "Rechercher par nom, email ou description...",
+        "startSearching": "Commencez à taper pour rechercher des professionnels",
+        "noResults": "Aucun professionnel trouvé correspondant à votre recherche.",
+        "results": "{count} professionnel(s) trouvé(s)"
+      },
+      "success": {
+        "invitationSent": "Invitation envoyée avec succès !"
+      },
+      "errors": {
+        "selectProfessional": "Veuillez sélectionner un professionnel à inviter",
+        "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
+      }
+    },
+    "ratings": {
+      "rateProfessional": "Ajouter aux favoris",
+      "rateProfessionalDescription": "Partagez votre expérience avec ce professionnel en le notant et en commentant.",
+      "rating": "Note",
+      "ratingRequired": "Veuillez sélectionner une note",
+      "comment": "Commentaire",
+      "optional": "Optionnel",
+      "commentPlaceholder": "Partagez votre expérience avec ce professionnel...",
+      "cancel": "Annuler",
+      "submit": "Soumettre la note",
+      "submitting": "Envoi en cours...",
+      "ratingSuccess": "Note soumise avec succès",
+      "ratingError": "Échec de la soumission de la note. Veuillez réessayer."
     }
   },
   "admin": {
@@ -240,7 +629,10 @@
       "users": "Utilisateurs",
       "totalAcheteurs": "Acheteurs Totaux",
       "correspondancesPotentielles": "Correspondances Potentielles",
-      "totalAffaires": "Affaires Totales"
+      "totalAffaires": "Affaires Totales",
+      "totalProfessionals": "Professionnels Totaux",
+      "totalStructures": "Structures Totales",
+      "totalMissions": "Missions Totales"
     },
     "users": {
       "title": "Utilisateurs",
@@ -260,9 +652,103 @@
       "next": "Suivant",
       "page": "Page",
       "of": "sur",
-      "noResults": "Aucun résultat."
+      "noResults": "Aucun résultat.",
+      "addUser": "Ajouter un utilisateur",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "suspend": "Suspendre",
+      "view": "Voir"
     },
-    "planning": {
+    "professionals": {
+      "title": "Professionnels",
+      "subtitle": "Gérez tous les professionnels de votre application.",
+      "tableTitle": "Liste des professionnels",
+      "addProfessional": "Ajouter un Professionnel",
+      "addProfessionalDescription": "Créer un nouveau profil professionnel.",
+      "editProfessional": "Modifier le Professionnel",
+      "editProfessionalDescription": "Mettre à jour les informations du professionnel.",
+      "deleteProfessional": "Supprimer le Professionnel",
+      "deleteProfessionalDescription": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteConfirmation": "Cette action ne peut pas être annulée.",
+      "name": "Nom",
+      "email": "Email",
+      "city": "Ville",
+      "postalCode": "Code Postal",
+      "postalCodePlaceholder": "Entrez le code postal",
+      "description": "Description",
+      "descriptionPlaceholder": "Entrez la description",
+      "skills": "Compétences",
+      "createdAt": "Date de création",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat.",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "creating": "Création...",
+      "update": "Mettre à jour",
+      "updating": "Mise à jour...",
+      "deleting": "Suppression...",
+      "userId": "ID Utilisateur",
+      "userIdPlaceholder": "Entrez l'ID utilisateur",
+      "cityPlaceholder": "Entrez la ville",
+      "details": "Détails du Professionnel",
+      "backToList": "Retour à la liste",
+      "notFound": "Professionnel non trouvé",
+      "personalInformation": "Informations Personnelles",
+      "professionalInformation": "Informations Professionnelles",
+      "phone": "Téléphone",
+      "updatedAt": "Date de mise à jour",
+      "additionalInformation": "Informations Supplémentaires"
+    },
+    "structures": {
+      "title": "Structures",
+      "subtitle": "Gérez toutes les structures de votre application.",
+      "tableTitle": "Liste des structures",
+      "addStructure": "Ajouter une Structure",
+      "addStructureDescription": "Créer un nouveau profil de structure.",
+      "editStructure": "Modifier la Structure",
+      "editStructureDescription": "Mettre à jour les informations de la structure.",
+      "deleteStructure": "Supprimer la Structure",
+      "deleteStructureDescription": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteConfirmation": "Cette action ne peut pas être annulée.",
+      "name": "Nom",
+      "email": "Email",
+      "createdAt": "Date de création",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "noResults": "Aucun résultat.",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "creating": "Création...",
+      "update": "Mettre à jour",
+      "updating": "Mise à jour...",
+      "deleting": "Suppression...",
+      "userId": "ID Utilisateur",
+      "userIdPlaceholder": "Entrez l'ID utilisateur",
+      "namePlaceholder": "Entrez le nom de la structure",
+      "details": "Détails de la Structure",
+      "backToList": "Retour à la liste",
+      "notFound": "Structure non trouvée",
+      "personalInformation": "Informations Personnelles",
+      "phone": "Téléphone",
+      "updatedAt": "Date de mise à jour",
+      "additionalInformation": "Informations Supplémentaires",
+      "stripeCustomerId": "ID Client Stripe"
+    },
+    "availabilities": {
       "title": "Mon Planning",
       "modifyAvailabilities": "Modifier mes disponibilités",
       "fillRate": "Taux de remplissage",
@@ -273,13 +759,36 @@
       "toBook": "à réserver",
       "weekOf": "Semaine du",
       "previousWeek": "Semaine précédente",
-      "nextWeek": "Semaine suivante"
+      "nextWeek": "Semaine suivante",
+      "notWorking": "Non travaillé",
+      "noSlots": "Aucun créneau",
+      "stopRecurrence": "Arrêter la récurrence",
+      "stopRecurrenceConfirm": "Êtes-vous sûr de vouloir arrêter la récurrence pour ce créneau ? Cette action exclura uniquement cette date de la récurrence.",
+      "stopRecurrenceError": "Une erreur est survenue lors de l'arrêt de la récurrence",
+      "stopRecurrenceSuccess": "Récurrence arrêtée avec succès pour ce créneau",
+      "notRecurring": "Ce créneau ne provient pas d'une récurrence",
+      "booked": "Réservé",
+      "deleteSlot": "Supprimer ce créneau",
+      "deleteSlotConfirm": "Êtes-vous sûr de vouloir supprimer ce créneau de disponibilité ?",
+      "cannotDeleteBooked": "Impossible de supprimer un créneau réservé",
+      "deleteError": "Une erreur est survenue lors de la suppression du créneau",
+      "deleteSuccess": "Créneau supprimé avec succès",
+      "notRecurrenceTitle": "Ce créneau ne provient pas d'une récurrence",
+      "notRecurrenceMessage": "Ce créneau ne provient pas d'une récurrence. Seuls les créneaux récurrents peuvent avoir leur récurrence arrêtée.",
+      "errorTitle": "Une erreur est survenue",
+      "errorMessage": "Une erreur est survenue lors de l'arrêt de la récurrence",
+      "mission": "Mission",
+      "structure": "Structure",
+      "loading": "Chargement...",
+      "recurring": "Récurrent"
     },
     "report": {
       "title": "Créer un rapport",
+      "details": "Détail du rapport",
       "saveDraft": "Enregistrer brouillon",
       "sendEmail": "Envoyer par e-mail",
       "newReport": "Nouveau rapport",
+      "editReport": "Modifier le rapport",
       "reportTitle": "Titre du rapport",
       "selectTemplate": "Sélectionner un modèle ou saisir",
       "customTitlePlaceholder": "Ou saisir un titre personnalisé",
@@ -301,7 +810,46 @@
       "template2": "Rapport d'observation",
       "template3": "Rapport de suivi",
       "structure2": "Structure 2",
-      "structure3": "Structure 3"
+      "structure3": "Structure 3",
+      "createReport": "Créer un rapport",
+      "backToList": "Retour à la liste",
+      "label": {
+        "title": "Titre",
+        "structure": "Structure",
+        "content": "Description",
+        "mission": "Mission"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "sent": "Envoyé"
+      },
+      "selectMission": "Mission",
+      "selectMissionPlaceholder": "Sélectionner une mission",
+      "emailSentSuccessfully": "Email envoyé avec succès",
+      "emailSendError": "Échec de l'envoi de l'email",
+      "sending": "Envoi en cours...",
+      "messages": {
+        "unauthenticated": "Utilisateur non authentifié",
+        "errorCreatingReport": "Une erreur est survenue lors de la création du rapport",
+        "reportCreatedSuccessfully": "Rapport créé avec succès",
+        "reportSavedSuccessfully": "Rapport enregistré avec succès",
+        "impossibleToCreateReport": "Impossible de créer le rapport",
+        "data": "Données",
+        "dataDescription": "Données du rapport",
+        "attachmentUploadedSuccessfully": "Pièce jointe ajoutée avec succès",
+        "attachmentUploadedError": "Erreur lors de l'ajout de la pièce jointe",
+        "attachmentDeletedSuccessfully": "Pièce jointe supprimée avec succès",
+        "errorDeletingReport": "Erreur lors de la suppression du rapport",
+        "reportDeletedSuccessfully": "Rapport supprimé avec succès"
+      },
+      "deleteReport": "Supprimer le rapport",
+      "deleteReportDescription": "Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression en cours...",
+      "send": "Envoyer",
+      "edit": "Modifier",
+      "view": "Voir"
     },
     "reports": {
       "title": "Mes Rapports",
@@ -309,6 +857,8 @@
       "tableTitle": "Liste des rapports",
       "titleColumn": "Titre",
       "contentsColumn": "Contenu",
+      "structureColumn": "Structure",
+      "professionalColumn": "Professionnel",
       "createdAt": "Date de création",
       "previous": "Précédent",
       "next": "Suivant",
@@ -318,7 +868,296 @@
       "noReports": "Aucun rapport trouvé.",
       "loading": "Chargement...",
       "error": "Erreur lors du chargement des rapports",
-      "view": "Voir"
+      "view": "Voir",
+      "filterByStructure": "Filtrer par structure",
+      "filterByProfessional": "Filtrer par professionnel",
+      "filterByMission": "Filtrer par mission",
+      "allStructures": "Toutes les structures",
+      "allProfessionals": "Tous les professionnels",
+      "allMissions": "Toutes les missions",
+      "unknownStructure": "Structure inconnue",
+      "unknownMission": "Mission inconnue",
+      "mission": "Mission"
+    },
+    "setting": {
+      "activate": "Activer maintenant",
+      "manageMySubscription": "Gérer mon abonnement",
+      "stripePayment": "Paiement sécurisé via stripe",
+      "freeCancellation": "Annulation à tout moment sans frais.",
+      "invoicesAvailableInStripePortal": "Factures disponibles dans votre portail stripe",
+      "billing": "Facturation",
+      "information": "Informations",
+      "subscriptionStatus": "Status de l'abonnement",
+      "trialActivated": "Essai gratuit actif",
+      "afterTrial": "Après l'essai gratuit",
+      "subscriptionStart": "Votre abonnement passera automatiquement à 9.99 €/mois",
+      "remaining": "Restants",
+      "subscriptionHistory": "Historique des abonnements",
+      "subscriptionHistoryCreated": "Créé le",
+      "subscriptionHistoryPeriod": "Période",
+      "subscriptionHistoryTrialEnds": "Fin de l'essai",
+      "subscriptionHistoryCancelingAtPeriodEnd": "Annulation en fin de période",
+      "loading": "Chargement...",
+      "noActiveSubscription": "Aucun abonnement actif",
+      "creating": "Création...",
+      "opening": "Ouverture...",
+      "profileSettings": "Paramètres du profil",
+      "saveChanges": "Enregistrer les modifications",
+      "availabilities": "Disponibilités",
+      "profile": "Profil",
+      "personalData": "Informations personnelles",
+      "identifiers": "Mes identifiants",
+      "changePassword": "Changer de mot de passe",
+      "passwordRequirements": {
+        "title": "Le mot de passe doit contenir :",
+        "length": "Au moins 8 caractères",
+        "uppercase": "Au moins une lettre majuscule",
+        "number": "Au moins un chiffre"
+      },
+      "passwordReset": {
+        "button": "Réinitialiser mon mot de passe",
+        "sending": "Envoi en cours...",
+        "dialogTitle": "Vérifiez votre e-mail",
+        "dialogMessage": "Nous avons envoyé un lien de réinitialisation de mot de passe à {email}. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour définir votre nouveau mot de passe.",
+        "emailNotFound": "Impossible de récupérer votre adresse e-mail. Veuillez réessayer.",
+        "error": "Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation. Veuillez réessayer."
+      },
+      "notificationPreferences": {
+        "title": "Préférences de notification",
+        "appointmentReminders": "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
+        "newInterventions": "Recevoir les notifications de nouvelles demandes d'intervention",
+        "reportConfirmation": "Recevoir une confirmation d'envoi des rapports",
+        "newsletter": "Recevoir les actualités et conseils ProKid par e-mail"
+      },
+      "emailUpdateTitle": "Vérifiez votre e-mail",
+      "emailUpdateMessage": "Nous avons envoyé un e-mail de confirmation à votre nouvelle adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour finaliser la mise à jour de votre e-mail.",
+      "emailUpdateSuccessMessage": "Votre adresse e-mail a été mise à jour avec succès !",
+      "professionalInformation": "Informations professionnelles",
+      "structureInformation": "Informations de la structure",
+      "structureName": "Nom de la structure",
+      "interventionRadius": "Rayon d'intervention",
+      "experienceYears": "Années d'expérience",
+      "hourlyRate": "Tarif horaire",
+      "selectProfession": "Sélectionner une profession",
+      "isAvailable": "Je suis disponible pour de nouvelles interventions",
+      "noSkills": "Aucune compétence ajoutée pour le moment",
+      "addSkillPlaceholder": "Ajouter une compétence et appuyer sur Entrée"
+    },
+    "structure": {
+      "title": "Mes structures",
+      "description": "Gérez vos interventions et suivis pour chaque établissement",
+      "addStructure": "Ajouter une structure",
+      "noStructures": "Aucune structure pour le moment.",
+      "hoursCompleted": "Heures effectuées",
+      "lastReport": "Dernier compte rendu"
+    },
+    "subscription": {
+      "launchOffer": "Offre de lancement",
+      "title": "ProKid Pro",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "activateButton": "Activer mon abonnement",
+      "activating": "Activation en cours...",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment.",
+      "featuresTitle": "Ce que vous obtenez",
+      "feature1Title": "Visibilité maximale",
+      "feature1Description": "Votre profil apparaît dans toutes les recherches des structures",
+      "feature2Title": "Demandes qualifiées",
+      "feature2Description": "Recevez des demandes directes de structures intéressées",
+      "feature3Title": "Messagerie intégrée",
+      "feature3Description": "Échangez facilement avec les structures via la plateforme",
+      "feature4Title": "Analytics simples",
+      "feature4Description": "Suivez les vues de votre profil et vos demandes",
+      "alreadySubscribed": "Vous êtes déjà abonné",
+      "alreadySubscribedMessage": "Votre abonnement ProKid Pro est actif.",
+      "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
+      "checkoutError": "Échec de la création de la session de paiement"
+    },
+    "navigation": {
+      "planning": "Mon Planning",
+      "reports": "Mes Rapports",
+      "structure": "Structure",
+      "users": "Utilisateurs",
+      "professionals": "Professionnels",
+      "structures": "Structures",
+      "availabilities": "Disponibilités",
+      "dashboard": "Tableau de bord",
+      "missions": "Missions"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "{total} notification(s), {unread} non lue(s)",
+      "loading": "Chargement...",
+      "noNotifications": "Aucune notification",
+      "notFound": "Notification non trouvée",
+      "back": "Retour",
+      "unread": "Non lue",
+      "read": "Lue",
+      "from": "De",
+      "description": "Description",
+      "readAt": "Lue le",
+      "accept": "Accepter",
+      "decline": "Décliner",
+      "filter": "Filtrer",
+      "filterAll": "Toutes",
+      "filterUnread": "Non lues",
+      "filterRead": "Lues",
+      "unreadCount": "{count} notification(s) non lue(s)",
+      "viewAll": "Voir toutes les notifications"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} notification(s) non lue(s)",
+    "viewAll": "Toutes les notifications",
+    "unread": "Non lue(s)",
+    "read": "Lue(s)",
+    "unreadSingular": "Non lue",
+    "readSingular": "Lue",
+    "filterAll": "Toutes",
+    "filterUnread": "Non lues",
+    "filterRead": "Lues",
+    "loading": "Chargement...",
+    "description": "Description",
+    "from": "De",
+    "readAt": "Lue le",
+    "back": "Retour",
+    "accept": "Accepter",
+    "decline": "Décliner",
+    "accepted": "Accepté",
+    "declined": "Décliné",
+    "cancelled": "Annulé",
+    "expired": "Expiré",
+    "pending": "En attente",
+    "ended": "Terminé",
+    "actions": {
+      "joinStructure": "Rejoindre",
+      "acceptMission": "Accepter",
+      "declineInvitation": "Refuser",
+      "declineMission": "Refuser"
+    },
+    "subtitle": "{total} notification(s), {unread} non lue(s)",
+    "noNotifications": "Aucune notification",
+    "titles": {
+      "invitation_accepted": "Invitation acceptée par {professional_name}",
+      "invitation_declined": "Invitation refusée par {professional_name}",
+      "invitation_received": "Invitation de {structure_name}",
+      "member_fired": "{professional_name} a été retiré de la structure",
+      "member_quit": "{professional_name} a quitté la structure",
+      "mission_accepted": "Mission acceptée : {mission_title}",
+      "mission_cancelled": "Mission annulée : {mission_title}",
+      "mission_declined": "Mission refusée : {mission_title}",
+      "mission_ended": "Mission terminée : {mission_title}",
+      "mission_expired": "Mission expirée : {mission_title}",
+      "mission_received": "Nouvelle mission : {mission_title}",
+      "report_sent": "Rapport reçu : {report_title}",
+      "default": "Notification"
+    },
+    "descriptions": {
+      "invitation_accepted": "{professional_name} a accepté votre invitation",
+      "invitation_declined": "{professional_name} a refusé votre invitation",
+      "invitation_received": "Vous avez été invité à rejoindre {structure_name}",
+      "member_fired": "{professional_name} a été retiré de votre structure",
+      "member_quit": "{professional_name} a quitté votre structure",
+      "mission_accepted": "{professional_name} a accepté la mission : {mission_title}",
+      "mission_cancelled": "La mission \"{mission_title}\" a été annulée",
+      "mission_declined": "{professional_name} a refusé la mission : {mission_title}",
+      "mission_expired_professional": "La mission \"{mission_title}\" de {structure_name} a expiré",
+      "mission_expired_structure": "{professional_name} n'a pas répondu à la mission : {mission_title}",
+      "mission_ended_professional": "La mission \"{mission_title}\" de {structure_name} s'est terminée",
+      "mission_ended_structure": "La mission \"{mission_title}\" avec {professional_name} s'est terminée",
+      "mission_received": "Vous avez reçu une nouvelle mission : {mission_title}",
+      "report_sent": "Vous avez reçu un rapport : {report_title} de {professional_name}",
+      "default": "Vous avez une nouvelle notification"
+    },
+    "sender": {
+      "system": "Système"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "La plateforme des pros de la petite enfance",
+      "description": "Connectez les structures et les professionnels pour offrir le meilleur accompagnement aux enfants",
+      "ctaPrimary": "Commencer gratuitement",
+      "ctaSecondary": "Découvrir les professionnels"
+    },
+    "features": {
+      "title": "Ce que vous obtenez",
+      "subtitle": "Des outils puissants pour développer votre activité",
+      "items": {
+        "maxVisibility": {
+          "title": "Visibilité maximale",
+          "description": "Votre profil apparaît dans toutes les recherches des structures"
+        },
+        "qualifiedRequests": {
+          "title": "Demandes qualifiées",
+          "description": "Recevez des demandes directes de structures intéressées"
+        },
+        "integratedMessaging": {
+          "title": "Messagerie intégrée",
+          "description": "Échangez facilement avec les structures via la plateforme"
+        },
+        "simpleAnalytics": {
+          "title": "Analytics simples",
+          "description": "Suivez les vues de votre profil et vos demandes"
+        }
+      }
+    },
+    "subscription": {
+      "launchOffer": "Offre de lancement",
+      "title": "ProKid Pro",
+      "tagline": "Développez votre activité professionnelle avec ProKid",
+      "price": "9,99 €",
+      "priceUnit": "/mois",
+      "trialInfo": "Après 3 mois d'essai gratuit",
+      "benefit1": "3 mois gratuits pour tester",
+      "benefit2": "Sans engagement",
+      "benefit3": "Annulable à tout moment",
+      "activateButton": "Activer mon abonnement",
+      "paymentDisclaimer": "Paiement sécurisé via Stripe. Annulation à tout moment."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": {
+        "whoCanUse": {
+          "question": "Qui peut utiliser ProKid ?",
+          "answer": "ProKid est destiné aux structures (EAJE, crèches, micro-crèches, MAM) et aux professionnels non médicaux (RSAI, Référente technique, Psychomotricien·ne, EJE, AP, Diététicien·ne). Les familles arriveront plus tard."
+        },
+        "professionalTypes": {
+          "question": "Quels types de professionnels puis-je trouver ?",
+          "answer": "Actuellement : RSAI, Référente technique, Psychomotricien·ne, EJE, AP, Diététicien·ne."
+        },
+        "publicStructures": {
+          "question": "Les structures apparaissent-elles publiquement ?",
+          "answer": "Non. Seuls les profils des professionnels sont visibles. Les profils structures restent privés."
+        },
+        "freeTrial": {
+          "question": "Comment fonctionne l'essai gratuit ?",
+          "answer": "3 mois gratuits, puis 9,99 €/mois, sans engagement, annulable à tout moment."
+        },
+        "automaticAppointments": {
+          "question": "Les rendez-vous sont-ils automatiques?",
+          "answer": "Non. La structure envoie une demande, le pro accepte/refuse. Une fois acceptée, le RDV est confirmé."
+        },
+        "payments": {
+          "question": "Les paiements passent-ils par ProKid?",
+          "answer": "Dans le MVP, l'abonnement pro passe par Stripe. Les paiements de prestations arriveront plus tard."
+        },
+        "availability": {
+          "question": "ProKid est-il disponible partout en France ?",
+          "answer": "Oui. La recherche utilise ville/CP + rayon pour trouver des pros proches."
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "description": "Rejoignez la communauté ProKid et développez votre activité dès aujourd'hui",
+      "primaryButton": "Créer un compte",
+      "secondaryButton": "En savoir plus"
     }
   }
 }

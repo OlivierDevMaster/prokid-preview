@@ -1,0 +1,18 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { declineStructureInvitation } from '../structureInvitation.service';
+
+export const useDeclineStructureInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (invitationId: string) => {
+      return declineStructureInvitation(invitationId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['structure-invitation'] });
+      queryClient.invalidateQueries({ queryKey: ['structure-members'] });
+    },
+  });
+};

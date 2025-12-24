@@ -1,0 +1,660 @@
+'use client';
+
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { addDays, format, parseISO, startOfWeek } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Clock, Trash2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RRuleSet, rrulestr } from 'rrule';
+
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { createClient } from '@/lib/supabase/client';
+
+import { AVAILABILITIES_DAY_NAMES } from '../availabilities.config';
+import { DaySchedule, TimeSlot } from '../availabilities.model';
+import { saveWeekAvailabilities } from '../availabilities.service';
+import { useGetAvailabilities } from '../hooks/useGetAvailabilities';
+
+type AvailabilitiesEditPageProps = {
+  onClose: () => void;
+  open: boolean;
+  weekStart: Date;
+};
+
+export default function AvailabilitiesEditPage({
+  onClose,
+  open,
+  weekStart,
+}: AvailabilitiesEditPageProps) {
+  const tAvailabilities = useTranslations('admin.availabilities');
+  const tCommon = useTranslations('common');
+  const tAuthProfessional = useTranslations('auth.signUp.professionalForm');
+  const queryClient = useQueryClient();
+  const [initialized, setInitialized] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { data: session } = useSession();
+  const userId = session?.user?.id || '';
+
+  // Ensure component is mounted on client to avoid hydration mismatches
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Memoize weekStartDate to prevent infinite loops
+  const weekStartTimestamp = weekStart.getTime();
+  const weekStartDate = useMemo(
+    () => startOfWeek(weekStart, { weekStartsOn: 1 }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [weekStartTimestamp]
+  );
+  const weekDays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStartDate, i)),
+    [weekStartDate]
+  );
+
+  const { groupedSlots, isLoading } = useGetAvailabilities(weekStart);
+
+  // Fetch recurring availabilities to detect if slots are from recurrences
+  const { data: recurringAvailabilities } = useQuery({
+    enabled: !!userId && open,
+    queryFn: async () => {
+      if (!userId) return [];
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('availabilities')
+        .select('id, rrule, duration_mn')
+        .eq('user_id', userId)
+        .like('rrule', '%FREQ=WEEKLY%');
+      if (error) {
+        console.error('Error fetching recurring availabilities:', error);
+        return [];
+      }
+      return data || [];
+    },
+    queryKey: ['recurring-availabilities', userId],
+  });
+
+  const [schedule, setSchedule] = useState<Record<string, DaySchedule>>();
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [slotErrors, setSlotErrors] = useState<
+    Record<string, Record<number, null | string>>
+  >({});
+
+  const initializeSchedule: Record<string, DaySchedule> | undefined =
+    useMemo(() => {
+      if (isLoading || !groupedSlots) {
+        return;
+      }
+
+      const res: Record<string, DaySchedule> = {};
+      const dayMap: Record<string, number> = {
+        FR: 5,
+        MO: 1,
+        SA: 6,
+        SU: 0,
+        TH: 4,
+        TU: 2,
+        WE: 3,
+      };
+
+      AVAILABILITIES_DAY_NAMES.forEach((dayKey: string, index: number) => {
+        const day = weekDays[index];
+        const daySlots = groupedSlots.getSlotsByDay(day);
+        const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+        // Find recurring availabilities for this day
+        const recurringForDay =
+          recurringAvailabilities?.filter(availability => {
+            const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
+            if (!bydayMatch) return false;
+            const rruleDay = bydayMatch[1];
+            return dayMap[rruleDay] === dayOfWeek;
+          }) || [];
+
+        // Convert AvailabilitySlot[] to TimeSlot[]
+        const timeSlots: TimeSlot[] = daySlots.map(slot => {
+          const startDate = parseISO(slot.startAt);
+          const endDate = parseISO(slot.endAt);
+          const startTime = format(startDate, 'HH:mm');
+          const endTime = format(endDate, 'HH:mm');
+          const startMinutes =
+            startDate.getHours() * 60 + startDate.getMinutes();
+          const durationMinutes =
+            (endDate.getTime() - startDate.getTime()) / (1000 * 60);
+
+          // Check if this slot matches a recurring availability
+          let isRecurring = false;
+          for (const recurring of recurringForDay) {
+            try {
+              const rule = rrulestr(recurring.rrule);
+              const ruleDtstart = rule.options.dtstart;
+
+              let rruleStartMinutes: number;
+              if (ruleDtstart) {
+                const ruleHour = ruleDtstart.getUTCHours();
+                const ruleMinute = ruleDtstart.getUTCMinutes();
+                rruleStartMinutes = ruleHour * 60 + ruleMinute;
+              } else {
+                const dtstartMatch = recurring.rrule.match(
+                  /DTSTART:(\d{8})T(\d{2})(\d{2})/
+                );
+                if (!dtstartMatch) continue;
+                const rruleHour = parseInt(dtstartMatch[2], 10);
+                const rruleMinute = parseInt(dtstartMatch[3], 10);
+                rruleStartMinutes = rruleHour * 60 + rruleMinute;
+              }
+
+              const rruleDuration = recurring.duration_mn;
+              const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
+
+              // Check if time and duration match (within 15 minutes tolerance)
+              if (timeDiff <= 15 && durationMinutes === rruleDuration) {
+                // Check if this date is excluded via EXDATE
+                let isExcluded = false;
+                if (rule instanceof RRuleSet) {
+                  const exdates = rule.exdates();
+                  const slotDateOnly = new Date(startDate);
+                  slotDateOnly.setHours(0, 0, 0, 0);
+                  isExcluded = exdates.some(exdate => {
+                    const exdateDate = new Date(exdate);
+                    exdateDate.setHours(0, 0, 0, 0);
+                    return exdateDate.getTime() === slotDateOnly.getTime();
+                  });
+                } else {
+                  const exdateMatch = recurring.rrule.match(/EXDATE:([^\n]+)/);
+                  if (exdateMatch) {
+                    const exdates = exdateMatch[1].split(',');
+                    const slotDateStr = format(startDate, 'yyyyMMdd');
+                    isExcluded = exdates.some(exdate =>
+                      exdate.includes(slotDateStr)
+                    );
+                  }
+                }
+
+                if (!isExcluded) {
+                  isRecurring = true;
+                  break;
+                }
+              }
+            } catch {
+              // If parsing fails, skip this recurring
+              continue;
+            }
+          }
+
+          return {
+            end: endTime,
+            recurring: isRecurring,
+            start: startTime,
+          };
+        });
+
+        res[dayKey] = {
+          enabled: timeSlots.length > 0,
+          recurring: false,
+          slots:
+            timeSlots.length > 0
+              ? timeSlots
+              : [{ end: '17:00', start: '09:00' }],
+        };
+      });
+
+      return res;
+    }, [isLoading, groupedSlots, weekDays, recurringAvailabilities]);
+
+  // Track previous weekStart to detect changes
+  const prevWeekStartRef = useRef<null | number>(null);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setInitialized(false);
+      setSchedule(undefined);
+      setSlotErrors({});
+      prevWeekStartRef.current = null;
+    }
+  }, [open]);
+
+  // Reset state when weekStart changes while dialog is open
+  useEffect(() => {
+    const currentWeekStartTime = weekStart.getTime();
+    if (open) {
+      if (prevWeekStartRef.current === null) {
+        // First time opening with this weekStart
+        prevWeekStartRef.current = currentWeekStartTime;
+      } else if (prevWeekStartRef.current !== currentWeekStartTime) {
+        // WeekStart changed while dialog is open
+        prevWeekStartRef.current = currentWeekStartTime;
+        setInitialized(false);
+        setSchedule(undefined);
+        setSlotErrors({});
+      }
+    }
+  }, [open, weekStart]);
+
+  const dayLabels = [
+    tCommon('days.monday'),
+    tCommon('days.tuesday'),
+    tCommon('days.wednesday'),
+    tCommon('days.thursday'),
+    tCommon('days.friday'),
+    tCommon('days.saturday'),
+    tCommon('days.sunday'),
+  ];
+
+  /**
+   * Validate slots for a specific day and return errors
+   */
+  const validateDaySlots = useCallback(
+    (dayKey: string, slots: TimeSlot[]): Record<number, null | string> => {
+      /**
+       * Convert time string (HH:MM) to minutes since midnight
+       */
+      const timeToMinutes = (time: string): number => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+
+      /**
+       * Check if two time slots overlap
+       * Two slots overlap if: slot1.start < slot2.end && slot1.end > slot2.start
+       */
+      const doSlotsOverlap = (slot1: TimeSlot, slot2: TimeSlot): boolean => {
+        const start1 = timeToMinutes(slot1.start);
+        const end1 = timeToMinutes(slot1.end);
+        const start2 = timeToMinutes(slot2.start);
+        const end2 = timeToMinutes(slot2.end);
+
+        // Check if start time is before end time (valid slot)
+        if (start1 >= end1 || start2 >= end2) {
+          return false;
+        }
+
+        // Check overlap: slot1.start < slot2.end && slot1.end > slot2.start
+        return start1 < end2 && end1 > start2;
+      };
+
+      const errors: Record<number, null | string> = {};
+
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i];
+
+        // Skip deleted slots
+        if (slot.isDeleted) {
+          continue;
+        }
+
+        const startMinutes = timeToMinutes(slot.start);
+        const endMinutes = timeToMinutes(slot.end);
+
+        // Check if start time is before end time
+        if (startMinutes >= endMinutes) {
+          errors[i] = tAuthProfessional('errorSlotInvalidTime');
+          continue;
+        }
+
+        // Check for overlaps with other slots
+        for (let j = 0; j < slots.length; j++) {
+          if (
+            i !== j &&
+            !slots[j].isDeleted &&
+            doSlotsOverlap(slot, slots[j])
+          ) {
+            errors[i] = tAuthProfessional('errorSlotOverlap');
+            break;
+          }
+        }
+      }
+
+      return errors;
+    },
+    [tAuthProfessional]
+  );
+
+  /**
+   * Check if there are any validation errors across all days
+   */
+  const hasValidationErrors = (): boolean => {
+    return Object.values(slotErrors).some(dayErrors =>
+      Object.values(dayErrors).some(error => error !== null)
+    );
+  };
+
+  // Initialize schedule when data is ready and dialog is open
+  useEffect(() => {
+    if (!open || initialized || !initializeSchedule) return;
+    setSchedule(initializeSchedule);
+    setInitialized(true);
+
+    // Validate initial schedule
+    const initialErrors: Record<string, Record<number, null | string>> = {};
+    AVAILABILITIES_DAY_NAMES.forEach(dayKey => {
+      if (initializeSchedule[dayKey].enabled) {
+        initialErrors[dayKey] = validateDaySlots(
+          dayKey,
+          initializeSchedule[dayKey].slots
+        );
+      }
+    });
+    setSlotErrors(initialErrors);
+  }, [initializeSchedule, initialized, open, validateDaySlots]);
+
+  const handleDayToggle = (dayKey: string) => {
+    if (!schedule) return;
+    setSchedule({
+      ...schedule,
+      [dayKey]: {
+        ...schedule[dayKey],
+        enabled: !schedule[dayKey].enabled,
+      },
+    });
+  };
+
+  const handleAddSlot = (dayKey: string) => {
+    if (!schedule) return;
+    const newSchedule = {
+      ...schedule,
+      [dayKey]: {
+        ...schedule[dayKey],
+        slots: [...schedule[dayKey].slots, { end: '17:00', start: '09:00' }],
+      },
+    };
+    setSchedule(newSchedule);
+
+    // Validate slots after adding
+    const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+    setSlotErrors(prev => ({
+      ...prev,
+      [dayKey]: errors,
+    }));
+  };
+
+  const handleRemoveSlot = (dayKey: string, slotIndex: number) => {
+    if (!schedule) return;
+    setSchedule(prevSchedule => {
+      const newSchedule = { ...prevSchedule };
+      newSchedule[dayKey].slots[slotIndex].isDeleted = true;
+
+      // Validate slots after removing
+      const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+      setSlotErrors(prev => ({
+        ...prev,
+        [dayKey]: errors,
+      }));
+
+      return newSchedule;
+    });
+  };
+
+  const handleSlotChange = (
+    dayKey: string,
+    slotIndex: number,
+    field: 'end' | 'recurring' | 'start',
+    value: boolean | string
+  ) => {
+    if (!schedule) return;
+    const newSchedule = {
+      ...schedule,
+      [dayKey]: {
+        ...schedule[dayKey],
+        slots: schedule[dayKey].slots.map((slot: TimeSlot, idx: number) =>
+          idx === slotIndex ? { ...slot, [field]: value } : slot
+        ),
+      },
+    };
+    setSchedule(newSchedule);
+
+    // Validate slots after change
+    const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+    setSlotErrors(prev => ({
+      ...prev,
+      [dayKey]: errors,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!userId || !schedule) {
+      return;
+    }
+
+    // Validate all days before saving
+    const allErrors: Record<string, Record<number, null | string>> = {};
+    AVAILABILITIES_DAY_NAMES.forEach(dayKey => {
+      if (schedule[dayKey].enabled) {
+        allErrors[dayKey] = validateDaySlots(dayKey, schedule[dayKey].slots);
+      }
+    });
+    setSlotErrors(allErrors);
+
+    // Check if there are any errors
+    const hasErrors = Object.values(allErrors).some(dayErrors =>
+      Object.values(dayErrors).some(error => error !== null)
+    );
+
+    // Only proceed if there are no errors
+    if (hasErrors) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await saveWeekAvailabilities({
+        schedule,
+        userId,
+        weekDays,
+      });
+      // Invalidate queries to refresh the data
+      await queryClient.invalidateQueries({
+        queryKey: ['availability-slots'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['availabilities'],
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error saving availabilities:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : tCommon('messages.errorSaving');
+      alert(errorMessage);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Dialog onOpenChange={onClose} open={open && mounted}>
+      <DialogContent className='max-h-[90vh] max-w-4xl overflow-y-auto'>
+        <DialogHeader>
+          <DialogTitle>{tAvailabilities('modifyAvailabilities')}</DialogTitle>
+          <DialogDescription>
+            {tAvailabilities('weekOf')}{' '}
+            {mounted && format(weekStartDate, 'd MMMM yyyy', { locale: fr })}
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading || !schedule ? (
+          <div>{tAvailabilities('loading')}</div>
+        ) : (
+          <div className='space-y-4'>
+            {AVAILABILITIES_DAY_NAMES.map((dayKey: string, index: number) => {
+              const day = weekDays[index];
+              const dayLabel = dayLabels[index];
+              const daySchedule = schedule[dayKey];
+
+              return (
+                <div
+                  className='space-y-3 rounded-lg border border-gray-200 bg-white p-4'
+                  key={dayKey}
+                >
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                      <Checkbox
+                        checked={daySchedule.enabled}
+                        id={dayKey}
+                        onCheckedChange={() => handleDayToggle(dayKey)}
+                      />
+                      <Label
+                        className='cursor-pointer text-lg font-bold text-gray-900'
+                        htmlFor={dayKey}
+                      >
+                        {dayLabel} ({format(day, 'd MMM', { locale: fr })})
+                      </Label>
+                    </div>
+                    {!daySchedule.enabled && (
+                      <span className='text-sm text-gray-500'>
+                        {tAvailabilities('notWorking')}
+                      </span>
+                    )}
+                  </div>
+
+                  {daySchedule.enabled && (
+                    <div className='space-y-3 pl-8'>
+                      {daySchedule.slots.map(
+                        (slot: TimeSlot, slotIndex: number) =>
+                          !slot.isDeleted && (
+                            <div key={slotIndex}>
+                              <div className='grid grid-cols-2 items-end gap-4'>
+                                <div className='space-y-2'>
+                                  <Label className='text-sm text-gray-700'>
+                                    {tCommon('label.start')}
+                                  </Label>
+                                  <div className='relative'>
+                                    <Input
+                                      className={`pr-10 ${
+                                        slotErrors[dayKey]?.[slotIndex]
+                                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                          : 'border-gray-300'
+                                      }`}
+                                      onChange={e =>
+                                        handleSlotChange(
+                                          dayKey,
+                                          slotIndex,
+                                          'start',
+                                          e.target.value
+                                        )
+                                      }
+                                      type='time'
+                                      value={slot.start}
+                                    />
+                                    <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                                  </div>
+                                </div>
+                                <div className='space-y-2'>
+                                  <Label className='text-sm text-gray-700'>
+                                    {tCommon('label.end')}
+                                  </Label>
+                                  <div className='relative flex items-center gap-2'>
+                                    <div className='relative flex-1'>
+                                      <Input
+                                        className={`pr-10 ${
+                                          slotErrors[dayKey]?.[slotIndex]
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                            : 'border-gray-300'
+                                        }`}
+                                        onChange={e =>
+                                          handleSlotChange(
+                                            dayKey,
+                                            slotIndex,
+                                            'end',
+                                            e.target.value
+                                          )
+                                        }
+                                        type='time'
+                                        value={slot.end}
+                                      />
+                                      <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                                    </div>
+                                    {daySchedule.slots.length > 1 && (
+                                      <Button
+                                        className='text-red-600 hover:text-red-700'
+                                        onClick={() =>
+                                          handleRemoveSlot(dayKey, slotIndex)
+                                        }
+                                        size='sm'
+                                        type='button'
+                                        variant='ghost'
+                                      >
+                                        <Trash2 className='h-4 w-4' />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='mt-2 flex items-center gap-2'>
+                                <Checkbox
+                                  checked={slot.recurring ?? false}
+                                  id={`recurring-${dayKey}-${slotIndex}`}
+                                  onCheckedChange={checked =>
+                                    handleSlotChange(
+                                      dayKey,
+                                      slotIndex,
+                                      'recurring',
+                                      checked === true
+                                    )
+                                  }
+                                />
+                                <Label
+                                  className='cursor-pointer text-sm text-gray-700'
+                                  htmlFor={`recurring-${dayKey}-${slotIndex}`}
+                                >
+                                  {tAvailabilities('recurring')}
+                                </Label>
+                              </div>
+                              {slotErrors[dayKey]?.[slotIndex] && (
+                                <p className='mt-1 text-sm text-red-600'>
+                                  {slotErrors[dayKey][slotIndex]}
+                                </p>
+                              )}
+                            </div>
+                          )
+                      )}
+                      <Button
+                        className='text-sm font-medium text-blue-500 hover:text-blue-600'
+                        onClick={() => handleAddSlot(dayKey)}
+                        size='sm'
+                        type='button'
+                        variant='ghost'
+                      >
+                        + {tCommon('actions.add')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button onClick={onClose} type='button' variant='outline'>
+            {tCommon('actions.cancel')}
+          </Button>
+          <Button
+            className='bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+            disabled={isSaving || hasValidationErrors()}
+            onClick={handleSave}
+            type='button'
+          >
+            {isSaving ? tCommon('messages.saving') : tCommon('actions.save')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

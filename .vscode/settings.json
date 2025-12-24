@@ -1,0 +1,101 @@
+{
+  // Force LF line endings
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // EditorConfig
+  "editorconfig.enable": true,
+
+  // Prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // TypeScript/JavaScript
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // JSON
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+
+  // Markdown
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // Ignore TypeScript errors for Deno functions
+  "typescript.validate.enable": true,
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true
+  },
+
+  // Deno configuration (if Deno extension is installed)
+  "deno.enable": true,
+  "deno.enablePaths": ["supabase/functions", "tests/supabase"],
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "cSpell.words": [
+    "BYDAY",
+    "byweekday",
+    "dtstart",
+    "DTSTART",
+    "dtstarts",
+    "exdate",
+    "Exdate",
+    "EXDATE",
+    "Exdates",
+    "exrule",
+    "EXRULE",
+    "exrules",
+    "parseable",
+    "rdate",
+    "rrule",
+    "rrules",
+    "Rruleset",
+    "rrulestr",
+    "untils",
+    "WKST"
+  ],
+  "[sql]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[svg]": {
+    "editor.defaultFormatter": "jock.svg"
+  }
+}

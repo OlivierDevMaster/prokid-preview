@@ -1,0 +1,68 @@
+import { createFactory } from '@hono/hono/factory';
+import { SupabaseClient, User } from '@supabase/supabase-js';
+
+import { isProfileProfessional } from '../../_shared/features/profiles/index.ts';
+import { findProfile } from '../../_shared/features/profiles/index.ts';
+import { getStripeClient } from '../../_shared/features/stripe/stripe.util.ts';
+import {
+  createPortalSession,
+  CreatePortalSessionRequestBodySchema,
+} from '../../_shared/features/subscriptions/index.ts';
+import { validateRequestBody } from '../../_shared/utils/requests.ts';
+import { apiResponse } from '../../_shared/utils/responses.ts';
+import { Database } from '../../../../types/database/schema.ts';
+
+type Variables = {
+  supabaseAdminClient: SupabaseClient<Database>;
+  supabaseClient: SupabaseClient<Database>;
+  user: User;
+};
+
+const factory = createFactory<{ Variables: Variables }>();
+
+export const createPortalSessionHandler = factory.createHandlers(
+  async ({ get, req }) => {
+    try {
+      const user = get('user');
+      const supabaseClient = get('supabaseClient');
+
+      const profile = await findProfile(supabaseClient, user.id);
+
+      if (!profile) {
+        return apiResponse.unauthorized();
+      }
+
+      if (!isProfileProfessional(profile)) {
+        return apiResponse.forbidden(
+          'Only professionals can access customer portal'
+        );
+      }
+
+      const validationResult = await validateRequestBody(
+        CreatePortalSessionRequestBodySchema,
+        req
+      );
+
+      if (!validationResult.success) {
+        return validationResult.response;
+      }
+
+      const stripe = getStripeClient();
+      const session = await createPortalSession(
+        stripe,
+        supabaseClient,
+        user.id,
+        validationResult.data.returnUrl
+      );
+
+      return apiResponse.ok({
+        url: session.url,
+      });
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      return apiResponse.internalServerError(
+        error instanceof Error ? error.message : 'Error creating portal session'
+      );
+    }
+  }
+);

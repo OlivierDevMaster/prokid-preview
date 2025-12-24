@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Dev only migrations
+supabase/migrations/*_dev_*.sql
+
+# logs
+*.log
