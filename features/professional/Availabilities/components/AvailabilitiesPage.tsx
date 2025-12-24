@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
 
@@ -35,6 +35,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import ConfirmModal from '@/features/components/ConfirmModal';
+import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 
 import {
   deleteAvailabilityBySlot,
@@ -91,6 +92,9 @@ export default function AvailabilitiesPage() {
   // Fetch availabilities for the current week
   const { groupedSlots, isFetched, isLoading, slots } =
     useGetAvailabilities(weekStart);
+
+  // Fetch professional data to get hourly rate
+  const { data: professional } = useFindProfessional(userId || undefined);
 
   const goToPreviousWeek = () => {
     setCurrentWeek(subWeeks(currentWeek, 1));
@@ -212,22 +216,31 @@ export default function AvailabilitiesPage() {
   ];
 
   // Calculate stats from real data
-  const stats = {
-    availableSlots: slots.filter(slot => slot.isAvailable).length,
-    bookedHours: slots
-      .filter(slot => !slot.isAvailable && slot.mission)
-      .reduce((total, slot) => total + slot.durationMn / 60, 0),
-    estimatedRevenue: slots
-      .filter(slot => !slot.isAvailable && slot.mission)
-      .reduce((total, slot) => total + (slot.durationMn / 60) * 0, 0), // TODO: Add hourly rate
-    fillRate:
+  const stats = useMemo(() => {
+    const availableSlots = slots.filter(slot => slot.isAvailable).length;
+    const bookedSlots = slots.filter(slot => !slot.isAvailable && slot.mission);
+    const bookedHours = bookedSlots.reduce(
+      (total, slot) => total + slot.durationMn / 60,
+      0
+    );
+    const hourlyRate = professional?.hourly_rate || 0;
+    const estimatedRevenue = bookedSlots.reduce(
+      (total, slot) => total + (slot.durationMn / 60) * hourlyRate,
+      0
+    );
+    const unavailableSlots = slots.filter(slot => !slot.isAvailable).length;
+    const fillRate =
       slots.length > 0
-        ? Math.round(
-            (slots.filter(slot => !slot.isAvailable).length / slots.length) *
-              100
-          )
-        : 0,
-  };
+        ? Math.round((unavailableSlots / slots.length) * 100)
+        : 0;
+
+    return {
+      availableSlots,
+      bookedHours,
+      estimatedRevenue,
+      fillRate,
+    };
+  }, [slots, professional?.hourly_rate]);
 
   return (
     <div className='space-y-6 bg-blue-50/30 p-8'>

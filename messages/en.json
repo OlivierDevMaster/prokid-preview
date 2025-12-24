@@ -91,7 +91,8 @@
       "signUp": "Sign up",
       "error": "Invalid email or password",
       "home": "🏠 Home",
-      "passwordUpdatedSuccess": "Password updated successfully! You can now log in with your new password."
+      "passwordUpdatedSuccess": "Password updated successfully! You can now log in with your new password.",
+      "emailVerifiedSuccess": "Email verified successfully! You can now log in to your account."
     },
     "forgotPassword": {
       "title": "Reset Your Password",
@@ -191,6 +192,13 @@
         "nonWorking": "Non working",
         "errorSlotOverlap": "This slot overlaps with another slot",
         "errorSlotInvalidTime": "Start time must be before end time"
+      },
+      "verifyEmail": {
+        "title": "Check your email",
+        "description": "We've sent a verification link to {email}",
+        "instructions": "Click the link in the email to verify your account. Once verified, you can log in.",
+        "checkSpam": "Didn't receive the email? Check your spam folder.",
+        "closeButton": "Got it"
       },
       "structureForm": {
         "title": "Create my structure account",

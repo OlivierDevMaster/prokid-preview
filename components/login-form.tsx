@@ -1,5 +1,6 @@
 'use client';
 
+import { Eye, EyeOff } from 'lucide-react';
 import { getSession, signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -21,20 +22,31 @@ export function LoginForm({
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const passwordUpdated = searchParams.get('passwordUpdated');
+    const verified = searchParams.get('verified');
+
     if (passwordUpdated === 'true') {
       setSuccess(true);
+      setSuccessMessage(t('passwordUpdatedSuccess'));
       const url = new URL(window.location.href);
       url.searchParams.delete('passwordUpdated');
       window.history.replaceState({}, '', url.pathname + url.search);
+    } else if (verified === 'true') {
+      setSuccess(true);
+      setSuccessMessage(t('emailVerifiedSuccess'));
+      const url = new URL(window.location.href);
+      url.searchParams.delete('verified');
+      window.history.replaceState({}, '', url.pathname + url.search);
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,9 +88,15 @@ export function LoginForm({
       }
 
       const role = userResult.profile.role;
+      const isOnboarded = userResult.profile.isOnboarded ?? false;
 
       // Redirect based on role
       if (role === 'professional') {
+        // Check if onboarding is complete
+        if (!isOnboarded) {
+          router.push('/auth/sign-up/professional/on-boarding');
+          return;
+        }
         router.push('/professionals');
       } else if (role === 'structure') {
         router.push('/structure/dashboard');
@@ -107,9 +125,9 @@ export function LoginForm({
             <div className='flex justify-center space-y-2 text-blue-500'>
               <Link href='/'>{t('home')}</Link>
             </div>
-            {success && (
+            {success && successMessage && (
               <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>
-                {t('passwordUpdatedSuccess')}
+                {successMessage}
               </div>
             )}
             {error && (
@@ -146,15 +164,30 @@ export function LoginForm({
                   {t('forgotPassword')}
                 </Link>
               </div>
-              <Input
-                className='border-gray-300'
-                disabled={isLoading}
-                id='password'
-                onChange={e => setPassword(e.target.value)}
-                required
-                type='password'
-                value={password}
-              />
+              <div className='relative'>
+                <Input
+                  className='border-gray-300'
+                  disabled={isLoading}
+                  id='password'
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                />
+                <Button
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowPassword(!showPassword)}
+                  size='icon'
+                  type='button'
+                  variant='ghost'
+                >
+                  {showPassword ? (
+                    <EyeOff className='h-4 w-4 text-gray-500' />
+                  ) : (
+                    <Eye className='h-4 w-4 text-gray-500' />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <Button

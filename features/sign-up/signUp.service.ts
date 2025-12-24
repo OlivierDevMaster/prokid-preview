@@ -14,6 +14,7 @@ export interface SignUpData {
 
 export async function createAccount(data: SignUpData): Promise<{
   email: string;
+  emailVerified: boolean;
   firstName?: string;
   lastName?: string;
   userId: string;
@@ -30,10 +31,14 @@ export async function createAccount(data: SignUpData): Promise<{
     parsedData.last_name = data.lastName;
   }
 
+  // Set email redirect to login page after verification
+  const emailRedirectTo = `${window.location.origin}/auth/login?verified=true`;
+
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     options: {
       data: parsedData,
+      emailRedirectTo,
     },
     password: data.password,
   });
@@ -77,8 +82,15 @@ export async function createAccount(data: SignUpData): Promise<{
     }
   }
 
+  // When enable_confirmations = true, email_confirmed_at will be null for new signups
+  // The user needs to verify their email via the confirmation link
+  const emailConfirmedAt = authData.user.email_confirmed_at;
+  const emailVerified =
+    emailConfirmedAt !== null && emailConfirmedAt !== undefined;
+
   return {
     email: authData.user.email!,
+    emailVerified,
     userId: authData.user.id,
   };
 }

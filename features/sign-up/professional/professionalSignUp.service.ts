@@ -46,6 +46,7 @@ export async function registerProfessionalProfile(
     .update({
       avatar_url: avatarUrl,
       first_name: formData.firstName,
+      is_onboarded: true,
       last_name: formData.lastName,
     })
     .eq('user_id', userId);
