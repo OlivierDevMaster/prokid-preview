@@ -322,7 +322,8 @@
       "locationPlaceholder": "Ville ou code postal",
       "role": "Rôle",
       "availability": "Dispon.",
-      "activeFilters": "Filtres actifs :"
+      "activeFilters": "Filtres actifs :",
+      "clearAll": "Tout effacer"
     },
     "results": {
       "found": "professionnels trouvés",

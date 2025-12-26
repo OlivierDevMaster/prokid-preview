@@ -313,7 +313,8 @@
       "locationPlaceholder": "City or postal code",
       "role": "Role",
       "availability": "Avail.",
-      "activeFilters": "Active filters:"
+      "activeFilters": "Active filters:",
+      "clearAll": "Clear all"
     },
     "results": {
       "found": "professionals found",

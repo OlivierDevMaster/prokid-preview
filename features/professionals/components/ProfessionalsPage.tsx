@@ -4,6 +4,7 @@ import { Funnel, MapPin, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,6 +40,19 @@ export default function ProfessionalsPage() {
   const professionals: Professional[] = useMemo(() => data?.data ?? [], [data]);
 
   const resultsCount = professionals.length;
+
+  const handleClearAllFilters = () => {
+    setSearchQuery('');
+    setLocationQuery('');
+    setSelectedRole('all');
+    setSelectedAvailability('all');
+  };
+
+  const hasActiveFilters =
+    searchQuery ||
+    locationQuery ||
+    selectedRole !== 'all' ||
+    selectedAvailability !== 'all';
 
   return (
     <main className='min-h-screen bg-[#f5f7f5] px-4 py-8 sm:px-6 lg:px-8'>
@@ -134,13 +148,94 @@ export default function ProfessionalsPage() {
             </Select>
           </div>
 
-          {(searchQuery ||
-            locationQuery ||
-            selectedRole !== 'all' ||
-            selectedAvailability !== 'all') && (
-            <div className='flex items-center gap-2 text-sm text-gray-600'>
-              <Funnel className='h-4 w-4' />
-              {t('search.activeFilters')}
+          {hasActiveFilters && (
+            <div className='flex flex-wrap items-center gap-2'>
+              <div className='flex items-center gap-2 text-sm text-gray-600'>
+                <Funnel className='h-4 w-4' />
+                <span>{t('search.activeFilters')}</span>
+              </div>
+
+              {searchQuery && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  variant='outline'
+                >
+                  <span>
+                    {t('search.placeholder')}: {searchQuery}
+                  </span>
+                  <button
+                    className='ml-1 rounded-full hover:bg-blue-300'
+                    onClick={() => setSearchQuery('')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {locationQuery && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  variant='outline'
+                >
+                  <span>
+                    {t('search.locationPlaceholder')}: {locationQuery}
+                  </span>
+                  <button
+                    className='ml-1 rounded-full hover:bg-blue-300'
+                    onClick={() => setLocationQuery('')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {selectedRole !== 'all' && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  variant='outline'
+                >
+                  <span>
+                    {t('search.role')}: {t(`jobs.${selectedRole}`)}
+                  </span>
+                  <button
+                    className='ml-1 rounded-full hover:bg-blue-300'
+                    onClick={() => setSelectedRole('all')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {selectedAvailability !== 'all' && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  variant='outline'
+                >
+                  <span>
+                    {t('search.availability')}:{' '}
+                    {t(`availability.${selectedAvailability}`)}
+                  </span>
+                  <button
+                    className='ml-1 rounded-full hover:bg-blue-300'
+                    onClick={() => setSelectedAvailability('all')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              <Button
+                className='h-7 text-xs'
+                onClick={handleClearAllFilters}
+                size='sm'
+                variant='ghost'
+              >
+                {t('search.clearAll') || 'Clear all'}
+              </Button>
             </div>
           )}
         </div>
