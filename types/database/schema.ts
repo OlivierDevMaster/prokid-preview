@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -39,6 +34,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointment_reminders: {
+        Row: {
+          created_at: string
+          id: string
+          mission_id: string
+          mission_schedule_id: string
+          occurrence_date: string
+          sent_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mission_id: string
+          mission_schedule_id: string
+          occurrence_date: string
+          sent_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mission_id?: string
+          mission_schedule_id?: string
+          occurrence_date?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_reminders_mission_schedule_id_fkey"
+            columns: ["mission_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "mission_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availabilities: {
         Row: {
           created_at: string
@@ -951,6 +988,7 @@ export type Database = {
         Args: { mission_id_param: string }
         Returns: undefined
       }
+      send_appointment_reminders: { Args: never; Returns: number }
       update_professional_rating_stats: {
         Args: { professional_user_id: string }
         Returns: undefined
@@ -1170,3 +1208,4 @@ export const Constants = {
     },
   },
 } as const
+

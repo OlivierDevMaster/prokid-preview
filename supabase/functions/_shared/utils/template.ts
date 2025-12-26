@@ -1,10 +1,28 @@
 import Mustache from 'mustache';
 
+import { appointmentReminderBodyTemplate } from '../templates/emails/appointment-reminder/body.ts';
 import { footerTemplate } from '../templates/emails/footer.ts';
 import { headerTemplate } from '../templates/emails/header.ts';
 import { layoutTemplate } from '../templates/emails/layout.ts';
 import { reportBodyTemplate } from '../templates/emails/report/body.ts';
 import { sanitizeHtml, sanitizeText } from './htmlSanitizer.ts';
+
+/**
+ * Renders the appointment reminder email template with all partials
+ */
+export function renderAppointmentReminderEmailTemplate(data: {
+  appointment_date_time: string;
+  appointment_duration: string;
+  footer_text: string;
+  mission_description: string;
+  mission_title: string;
+  professional_email: string;
+  professional_name: string;
+  structure_name: string;
+  title: string;
+}): string {
+  return renderEmailTemplate('appointment-reminder', data);
+}
 
 /**
  * Renders an email using the shared layout with a specific body template
@@ -20,6 +38,8 @@ export function renderEmailTemplate(
   let body: string;
   if (emailType === 'report') {
     body = reportBodyTemplate;
+  } else if (emailType === 'appointment-reminder') {
+    body = appointmentReminderBodyTemplate;
   } else {
     throw new Error(`Unknown email type: ${emailType}`);
   }
