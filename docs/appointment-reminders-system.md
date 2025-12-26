@@ -15,29 +15,42 @@ The appointment reminders system automatically sends email reminders to professi
 
 ## Architecture
 
-The system consists of several components working together:
+The system uses a queue-based architecture for better scalability and flexibility. All RRULE expansion and manipulation happens exclusively in Edge Functions, not in the database.
 
 ```
 ┌─────────────────┐
-│  pg_cron Job    │  (Runs hourly)
-│  (Hourly @ :00) │
+│  pg_cron Job    │  (Runs hourly @ :00)
+│  queue-appointment-reminders│
 └────────┬────────┘
          │
          ▼
 ┌─────────────────────────────┐
-│  send_appointment_reminders()│  (Database Function)
+│  queue_appointment_reminders()│  (Database Function)
 │  - Queries accepted missions │
-│  - Calls Edge Function       │
+│  - Calls expand-rrules       │
 └────────┬────────────────────┘
          │
          ▼
 ┌──────────────────────────────┐
-│  appointment-reminders        │  (Edge Function)
-│  Edge Function                │
+│  expand-rrules               │  (Edge Function)
 │  - Expands RRULEs            │
-│  - Filters 24h window         │
-│  - Sends emails               │
-│  - Records reminders          │
+│  - Filters 24h window        │
+│  - Populates queue           │
+└────────┬─────────────────────┘
+         │
+         ▼
+┌──────────────────────────────┐
+│  appointment_reminders_pending│  (Queue Table)
+│  - Status tracking           │
+│  - Retry logic               │
+└────────┬─────────────────────┘
+         │
+         ▼
+┌──────────────────────────────┐
+│  process-reminders            │  (Edge Function)
+│  - Processes queue           │
+│  - Sends emails              │
+│  - Updates status            │
 └────────┬─────────────────────┘
          │
          ▼
@@ -49,9 +62,40 @@ The system consists of several components working together:
 
 ## Components
 
-### 1. Database Table: `appointment_reminders`
+### 1. Database Table: `appointment_reminders_pending`
 
-Tracks which reminders have been sent to prevent duplicates.
+Queue table for reminders waiting to be processed. All RRULE expansion happens in Edge Functions, and results are stored here.
+
+**Schema:**
+```sql
+CREATE TABLE appointment_reminders_pending (
+  id UUID PRIMARY KEY,
+  mission_id UUID REFERENCES missions(id) ON DELETE CASCADE,
+  mission_schedule_id UUID REFERENCES mission_schedules(id) ON DELETE CASCADE,
+  occurrence_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', -- pending, processing, sent, failed, cancelled
+  attempts INTEGER DEFAULT 0,
+  last_attempt_at TIMESTAMP WITH TIME ZONE,
+  next_retry_at TIMESTAMP WITH TIME ZONE,
+  error_message TEXT,
+  reminder_type TEXT DEFAULT 'email', -- email, sms, push (for future)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  processed_at TIMESTAMP WITH TIME ZONE,
+  UNIQUE (mission_schedule_id, occurrence_date, reminder_type)
+);
+```
+
+**Key Features:**
+- Status tracking for queue processing
+- Retry logic with exponential backoff
+- Support for multiple reminder types (email, SMS, push)
+- Unique constraint prevents duplicates per reminder type
+- CASCADE delete when mission ends
+- Indexed for efficient queue queries
+
+### 2. Database Table: `appointment_reminders`
+
+Tracks which reminders have been successfully sent (history table).
 
 **Schema:**
 ```sql
@@ -67,29 +111,57 @@ CREATE TABLE appointment_reminders (
 ```
 
 **Key Features:**
-- Unique constraint prevents duplicate reminders for the same occurrence
+- Historical record of sent reminders
+- Unique constraint prevents duplicate reminders
 - Indexed for efficient queries
 - RLS policies allow professionals to view their own reminders
 
-### 2. Database Function: `send_appointment_reminders()`
+### 3. Database Function: `queue_appointment_reminders()`
 
-Called by the cron job to identify missions needing reminders.
+Queues missions for RRULE expansion (which happens in Edge Function).
 
 **Functionality:**
 1. Queries all accepted missions with their schedules
 2. Filters missions that haven't ended yet
-3. Calls the Edge Function via `pg_net` with mission data
-4. Returns count of missions queued
+3. Calls `expand-rrules` Edge Function via `pg_net` with mission data
+4. Edge Function expands RRULEs and populates `appointment_reminders_pending`
+5. Returns count of missions queued
 
 **Schedule:**
 - Runs every hour at minute 0 (`'0 * * * *'`)
-- Cron job name: `send-appointment-reminders`
+- Cron job name: `queue-appointment-reminders`
 
-### 3. Edge Function: `appointment-reminders`
+### 4. Database Function: `cleanup_ended_mission_reminders()`
 
-Processes reminders and sends emails.
+Cleans up pending reminders for ended/cancelled/declined/expired missions.
 
-**Endpoint:** `POST /functions/v1/appointment-reminders`
+**Functionality:**
+1. Deletes pending and processing reminders for ended missions
+2. Keeps sent reminders for history
+3. Returns count of reminders cleaned up
+
+**Schedule:**
+- Runs every hour at minute 5 (`'5 * * * *'`)
+- Cron job name: `cleanup-ended-mission-reminders`
+
+### 5. Database Function: `process_appointment_reminders()`
+
+Calls the process-reminders Edge Function to process the queue.
+
+**Functionality:**
+1. Calls `process-reminders` Edge Function via `pg_net`
+2. Edge Function processes the queue and sends reminders
+3. Returns success/failure status
+
+**Schedule:**
+- Runs every 10 minutes (`'*/10 * * * *'`)
+- Cron job name: `process-appointment-reminders`
+
+### 6. Edge Function: `expand-rrules`
+
+Expands RRULEs and populates the pending queue.
+
+**Endpoint:** `POST /functions/v1/expand-rrules`
 
 **Authentication:** Uses service role key (called by database cron)
 
@@ -100,30 +172,53 @@ Processes reminders and sends emails.
    - Validates request body using Zod schemas
 
 2. **For Each Mission:**
-   - Fetches full mission details (professional, structure, preferences)
-   - Checks if professional has `appointment_reminders` enabled
-   - Skips if disabled
+   - For each schedule:
+     - Expands RRULE using `rrule` library
+     - Filters occurrences in 23-25 hour window (24h ± 1h)
+     - Checks if already in queue or already sent
+     - Inserts into `appointment_reminders_pending` with status='pending'
 
-3. **For Each Schedule:**
-   - Expands RRULE to get all occurrences
-   - Filters occurrences in 23-25 hour window (24h ± 1h buffer)
-   - Checks if reminder already sent (via `appointment_reminders` table)
+3. **Returns:**
+   - Count of reminders queued
+   - Any errors encountered
 
-4. **For Each Occurrence Needing Reminder:**
-   - Renders email template with mission details
-   - Sends email via Resend
-   - Records reminder in database
-   - Handles errors gracefully (logs but continues)
+**Key Points:**
+- All RRULE manipulation happens here (not in database)
+- Only expands occurrences in the reminder window
+- Prevents duplicates by checking existing queue and sent reminders
 
-**Response:**
-```typescript
-{
-  total_processed: number;
-  total_sent: number;
-  total_failed: number;
-  results: ReminderResult[];
-}
-```
+### 7. Edge Function: `process-reminders`
+
+Processes the queue and sends reminders.
+
+**Endpoint:** `POST /functions/v1/process-reminders`
+
+**Authentication:** Uses service role key (called by database cron)
+
+**Process Flow:**
+
+1. **Select Pending Reminders**
+   - Uses `SELECT FOR UPDATE SKIP LOCKED` for concurrent processing
+   - Selects up to batch_size (default: 50) pending reminders
+   - Filters by status='pending' and next_retry_at
+
+2. **For Each Reminder:**
+   - Update status to 'processing'
+   - Fetch mission details (professional, structure, preferences)
+   - Check notification preferences (skip if disabled)
+   - Send reminder based on `reminder_type` (email/SMS/push)
+   - Update status to 'sent' or 'failed'
+   - If failed, set `next_retry_at` with exponential backoff
+   - Record in `appointment_reminders` (history) if sent
+
+3. **Returns:**
+   - Count of reminders processed, sent, and failed
+
+**Key Features:**
+- `SKIP LOCKED` allows concurrent processing
+- Exponential backoff for retries (1h, 2h, 4h, 8h, max 24h)
+- Supports multiple reminder types
+- Graceful error handling
 
 ### 4. Email Template
 
@@ -147,42 +242,83 @@ Located at: `supabase/functions/_shared/templates/emails/appointment-reminder/bo
 
 ## Data Flow
 
-### Hourly Execution
+### Queue Population (Hourly)
 
 1. **Cron Job Triggers** (every hour at :00)
    ```
-   cron.schedule('send-appointment-reminders', '0 * * * *', ...)
+   cron.schedule('queue-appointment-reminders', '0 * * * *', ...)
    ```
 
 2. **Database Function Executes**
    ```sql
-   SELECT public.send_appointment_reminders()
+   SELECT public.queue_appointment_reminders()
    ```
    - Queries: `SELECT * FROM missions WHERE status = 'accepted' AND mission_until > NOW()`
    - Collects mission data with schedules
-   - Calls Edge Function via `pg_net`
+   - Calls `expand-rrules` Edge Function via `pg_net`
 
-3. **Edge Function Processes**
+3. **Edge Function Expands RRULEs**
    - Receives mission data
-   - Expands RRULEs to get occurrences
+   - Expands RRULEs to get occurrences (using `rrule` library)
    - Filters: `occurrence >= now + 23h AND occurrence <= now + 25h`
-   - Checks: `SELECT * FROM appointment_reminders WHERE ...`
-   - Sends emails for new reminders
-   - Records: `INSERT INTO appointment_reminders ...`
+   - Checks: `SELECT * FROM appointment_reminders_pending WHERE ...` (already queued)
+   - Checks: `SELECT * FROM appointment_reminders WHERE ...` (already sent)
+   - Inserts: `INSERT INTO appointment_reminders_pending ...` (status='pending')
+
+### Queue Processing (Every 10 Minutes)
+
+1. **Cron Job Triggers** (every 10 minutes)
+   ```
+   cron.schedule('process-appointment-reminders', '*/10 * * * *', ...)
+   ```
+
+2. **Database Function Executes**
+   ```sql
+   SELECT public.process_appointment_reminders()
+   ```
+   - Calls `process-reminders` Edge Function via `pg_net`
+
+3. **Edge Function Processes Queue**
+   - Selects pending reminders using `SELECT FOR UPDATE SKIP LOCKED`
+   - For each reminder:
+     - Updates status to 'processing'
+     - Fetches mission details
+     - Checks notification preferences
+     - Sends email via Resend
+     - Updates status to 'sent' or 'failed'
+     - Records in `appointment_reminders` (history) if sent
 
 4. **Email Sent**
    - Professional receives email 24 hours before appointment
    - Email includes mission details and appointment time
 
+### Cleanup (Hourly)
+
+1. **Cron Job Triggers** (every hour at :05)
+   ```
+   cron.schedule('cleanup-ended-mission-reminders', '5 * * * *', ...)
+   ```
+
+2. **Database Function Executes**
+   ```sql
+   SELECT public.cleanup_ended_mission_reminders()
+   ```
+   - Deletes pending/processing reminders for ended/cancelled/declined/expired missions
+   - Keeps sent reminders for history
+
 ## RRULE Expansion
 
-The system uses the `rrule` library to expand recurring patterns:
+**Important:** All RRULE expansion and manipulation happens exclusively in Edge Functions, not in the database. This ensures we have access to the full `rrule` library capabilities.
+
+The system uses the `rrule` library in the `expand-rrules` Edge Function:
 
 ```typescript
 function generateMissionOccurrences(
   schedule: MissionSchedule,
   missionDtstart: Date,
-  missionUntil: Date
+  missionUntil: Date,
+  reminderWindowStart: Date,
+  reminderWindowEnd: Date
 ): Date[]
 ```
 
@@ -195,7 +331,8 @@ function generateMissionOccurrences(
 
 **Filtering:**
 - Only includes occurrences within mission date range
-- Filters to 23-25 hour window for reminders
+- Filters to 23-25 hour window for reminders (24h ± 1h)
+- Results are stored in `appointment_reminders_pending` queue
 
 ## Notification Preferences
 
@@ -290,9 +427,19 @@ SELECT cron.schedule('send-appointment-reminders', '0 * * * *', $$SELECT public.
    INSERT INTO missions (..., status = 'accepted', mission_dtstart = NOW() + INTERVAL '25 hours', ...);
    ```
 
-2. **Trigger Reminder Check:**
+2. **Trigger Queue Population:**
    ```sql
-   SELECT public.send_appointment_reminders();
+   SELECT public.queue_appointment_reminders();
+   ```
+
+3. **Check Queue:**
+   ```sql
+   SELECT * FROM appointment_reminders_pending WHERE status = 'pending';
+   ```
+
+4. **Trigger Processing:**
+   ```sql
+   SELECT public.process_appointment_reminders();
    ```
 
 3. **Verify:**
@@ -348,7 +495,32 @@ LIMIT 50;
 
 ### Check Failed Reminders
 
-The Edge Function response includes `total_failed` and `results` with error details. Check Edge Function logs for detailed error messages.
+```sql
+-- Failed reminders with error messages
+SELECT
+  arp.*,
+  m.title as mission_title
+FROM appointment_reminders_pending arp
+JOIN missions m ON m.id = arp.mission_id
+WHERE arp.status = 'failed'
+ORDER BY arp.last_attempt_at DESC
+LIMIT 50;
+```
+
+### Check Reminders Needing Retry
+
+```sql
+-- Reminders ready for retry
+SELECT
+  arp.*,
+  m.title as mission_title
+FROM appointment_reminders_pending arp
+JOIN missions m ON m.id = arp.mission_id
+WHERE arp.status = 'pending'
+  AND arp.next_retry_at <= NOW()
+ORDER BY arp.next_retry_at
+LIMIT 50;
+```
 
 ## Troubleshooting
 
@@ -418,8 +590,9 @@ Potential improvements:
 
 ## Migration
 
-The system is created by migration:
-- `supabase/migrations/20251226104946_create_appointment_reminders.sql`
+The system is created by migrations:
+- `supabase/migrations/20251226104946_create_appointment_reminders.sql` - Initial system
+- `supabase/migrations/20251226115129_refactor_appointment_reminders_queue.sql` - Queue-based refactor
 
 To apply:
 ```bash
@@ -430,4 +603,25 @@ To rollback:
 ```bash
 supabase migration down
 ```
+
+## Queue-Based Architecture Benefits
+
+1. **Scalability**: Edge Function processes reminders one at a time, avoiding payload limits even with millions of occurrences
+2. **Flexibility**: Easy to add SMS, push notifications by adding handlers without changing database functions
+3. **Reliability**: Failed reminders can be retried automatically with exponential backoff (1h, 2h, 4h, 8h, max 24h)
+4. **Observability**: Queue status visible in database with detailed status tracking
+5. **Cleanup**: Automatic cleanup of stale reminders for ended/cancelled missions
+6. **Separation of Concerns**: RRULE expansion separate from reminder sending, all RRULE manipulation in Edge Functions
+7. **Concurrency**: Multiple Edge Function instances can process queue safely using `SELECT FOR UPDATE SKIP LOCKED`
+8. **Performance**: Only expands occurrences in the reminder window (23-25h), not all future occurrences
+
+## Queue-Based Architecture Benefits
+
+1. **Scalability**: Edge Function processes reminders one at a time, avoiding payload limits
+2. **Flexibility**: Easy to add SMS, push notifications by adding handlers
+3. **Reliability**: Failed reminders can be retried automatically with exponential backoff
+4. **Observability**: Queue status visible in database
+5. **Cleanup**: Automatic cleanup of stale reminders for ended missions
+6. **Separation of Concerns**: RRULE expansion separate from reminder sending
+7. **Concurrency**: Multiple Edge Function instances can process queue safely using `SELECT FOR UPDATE SKIP LOCKED`
 

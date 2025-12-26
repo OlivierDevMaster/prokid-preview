@@ -76,6 +76,66 @@ export type Database = {
           },
         ]
       }
+      appointment_reminders_pending: {
+        Row: {
+          attempts: number
+          created_at: string
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          mission_id: string
+          mission_schedule_id: string
+          next_retry_at: string | null
+          occurrence_date: string
+          processed_at: string | null
+          reminder_type: string
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          mission_id: string
+          mission_schedule_id: string
+          next_retry_at?: string | null
+          occurrence_date: string
+          processed_at?: string | null
+          reminder_type?: string
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          mission_id?: string
+          mission_schedule_id?: string
+          next_retry_at?: string | null
+          occurrence_date?: string
+          processed_at?: string | null
+          reminder_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_pending_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_reminders_pending_mission_schedule_id_fkey"
+            columns: ["mission_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "mission_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availabilities: {
         Row: {
           created_at: string
@@ -906,6 +966,7 @@ export type Database = {
         Args: { availability_id_param: string; date_to_exclude: string }
         Returns: string
       }
+      cleanup_ended_mission_reminders: { Args: never; Returns: number }
       create_onetime_availability: {
         Args: {
           day_offset: number
@@ -934,6 +995,8 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: boolean
       }
+      process_appointment_reminders: { Args: never; Returns: number }
+      queue_appointment_reminders: { Args: never; Returns: number }
       seeds_create_mission_from_availability: {
         Args: {
           day_offset: number
@@ -987,6 +1050,17 @@ export type Database = {
       seeds_update_availabilities_for_mission: {
         Args: { mission_id_param: string }
         Returns: undefined
+      }
+      select_pending_reminders: {
+        Args: { batch_size_param?: number }
+        Returns: {
+          attempts: number
+          id: string
+          mission_id: string
+          mission_schedule_id: string
+          occurrence_date: string
+          reminder_type: string
+        }[]
       }
       send_appointment_reminders: { Args: never; Returns: number }
       update_professional_rating_stats: {

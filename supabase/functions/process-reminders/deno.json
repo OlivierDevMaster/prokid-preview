@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.10.7",
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2.86.0",
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@^2.86.0",
+    "date-fns": "npm:date-fns@^4.1.0",
+    "html-minifier-terser": "npm:html-minifier-terser@7.2.0",
+    "http-status-codes": "npm:http-status-codes@2.3.0",
+    "mustache": "npm:mustache@4.2.0",
+    "resend": "npm:resend@^6.6.0",
+    "xss": "npm:xss@1.0.15",
+    "zod": "npm:zod@^4.1.13"
+  }
+}
+
