@@ -124,6 +124,7 @@ COMMENT ON FUNCTION public.cleanup_ended_mission_reminders() IS 'Cleans up pendi
 
 -- Replace send_appointment_reminders() with queue_appointment_reminders()
 -- This function queues missions for RRULE expansion (which happens in Edge Function)
+-- Processes one mission at a time to avoid CPU time limits
 CREATE OR REPLACE FUNCTION public.queue_appointment_reminders()
 RETURNS INTEGER
 LANGUAGE plpgsql
@@ -135,8 +136,9 @@ DECLARE
   supabase_service_role_key TEXT;
   api_url TEXT;
   request_body JSONB;
-  missions_data JSONB;
+  mission_record RECORD;
   missions_count INTEGER := 0;
+  processed_count INTEGER := 0;
 BEGIN
   -- Get Supabase URL and service role key from vault
   supabase_url := public.get_vault_secret('supabase_url');
@@ -154,14 +156,14 @@ BEGIN
     RETURN 0;
   END IF;
 
-  -- Query accepted missions with their schedules
-  -- Edge Function will expand RRULEs and populate appointment_reminders_pending
-  SELECT jsonb_agg(
-    jsonb_build_object(
-      'mission_id', m.id,
-      'mission_dtstart', m.mission_dtstart,
-      'mission_until', m.mission_until,
-      'schedules', (
+  -- Process each mission individually to avoid CPU time limits
+  -- A mission can have multiple schedules, and each schedule can have many recurrences
+  FOR mission_record IN
+    SELECT
+      m.id as mission_id,
+      m.mission_dtstart,
+      m.mission_until,
+      (
         SELECT jsonb_agg(
           jsonb_build_object(
             'schedule_id', ms.id,
@@ -171,49 +173,60 @@ BEGIN
         )
         FROM public.mission_schedules ms
         WHERE ms.mission_id = m.id
+      ) as schedules
+    FROM public.missions m
+    WHERE m.status = 'accepted'
+      AND m.mission_until > NOW()
+      AND EXISTS (
+        SELECT 1 FROM public.mission_schedules ms
+        WHERE ms.mission_id = m.id
       )
-    )
-  )
-  INTO missions_data
-  FROM public.missions m
-  WHERE m.status = 'accepted'
-    AND m.mission_until > NOW()
-    AND EXISTS (
-      SELECT 1 FROM public.mission_schedules ms
-      WHERE ms.mission_id = m.id
+  LOOP
+    -- Skip if no schedules
+    IF mission_record.schedules IS NULL OR jsonb_array_length(mission_record.schedules) = 0 THEN
+      CONTINUE;
+    END IF;
+
+    -- Prepare request body for single mission
+    request_body := jsonb_build_object(
+      'missions', jsonb_build_array(
+        jsonb_build_object(
+          'mission_id', mission_record.mission_id,
+          'mission_dtstart', mission_record.mission_dtstart,
+          'mission_until', mission_record.mission_until,
+          'schedules', mission_record.schedules
+        )
+      )
     );
 
-  -- If no missions found, return 0
-  IF missions_data IS NULL OR jsonb_array_length(missions_data) = 0 THEN
-    RETURN 0;
-  END IF;
+    -- Call Edge Function for this single mission (fire-and-forget)
+    -- The Edge Function will expand RRULEs and populate appointment_reminders_pending
+    BEGIN
+      PERFORM net.http_post(
+        api_url,
+        request_body,
+        '{}'::jsonb,
+        jsonb_build_object(
+          'Content-Type', 'application/json',
+          'Authorization', 'Bearer ' || supabase_service_role_key,
+          'apikey', supabase_service_role_key
+        )
+      );
+      processed_count := processed_count + 1;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Log error for this mission but continue with next
+        RAISE WARNING 'Error processing mission %: %', mission_record.mission_id, SQLERRM;
+    END;
+  END LOOP;
 
-  -- Prepare request body
-  request_body := jsonb_build_object(
-    'missions', missions_data
-  );
-
-  -- Call Edge Function using pg_net (fire-and-forget)
-  -- The Edge Function will expand RRULEs and populate appointment_reminders_pending
-  PERFORM net.http_post(
-    api_url,
-    request_body,
-    '{}'::jsonb,
-    jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || supabase_service_role_key,
-      'apikey', supabase_service_role_key
-    )
-  );
-
-  -- Return count of missions queued
-  SELECT jsonb_array_length(missions_data) INTO missions_count;
-  RETURN missions_count;
+  -- Return count of missions processed
+  RETURN processed_count;
 EXCEPTION
   WHEN OTHERS THEN
     -- Log error but don't fail
     RAISE WARNING 'Error in queue_appointment_reminders: %', SQLERRM;
-    RETURN 0;
+    RETURN processed_count;
 END;
 $$;
 
