@@ -18,10 +18,10 @@ export function HeroSection() {
           <p className='mt-6 text-lg leading-8 text-gray-600 sm:text-xl'>
             {t('description')}
           </p>
-          <div className='mt-10 flex items-center justify-center gap-x-6'>
+          <div className='mt-10 flex flex-col items-center justify-center gap-x-6 md:flex-row'>
             <Button
               asChild
-              className='bg-blue-500 text-white hover:bg-blue-600'
+              className='my-4 bg-blue-500 text-white hover:bg-blue-600 md:my-0'
               size='lg'
             >
               <Link href='/auth/sign-up'>{t('ctaPrimary')}</Link>

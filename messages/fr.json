@@ -167,6 +167,7 @@
         "confirmPasswordLabel": "Confirmer le mot de passe",
         "confirmPasswordPlaceholder": "Retapez votre mot de passe",
         "submitButton": "Créer mon compte",
+        "creatingAccount": "Création du compte...",
         "success": "Compte créé avec succès !",
         "error": "Une erreur est survenue lors de la création du compte",
         "passwordMismatch": "Les mots de passe ne correspondent pas",

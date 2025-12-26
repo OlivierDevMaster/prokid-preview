@@ -35,7 +35,7 @@ export async function generateMetadata({
     ? t(`jobs.${professional.current_job}`)
     : '';
   const title = fullName
-    ? `${fullName}${jobTitle ? ` - ${jobTitle}` : ''} | ProKid`
+    ? `${fullName}${jobTitle ? ` - ${jobTitle}` : ''} `
     : t('title');
   const description =
     professional.description ||

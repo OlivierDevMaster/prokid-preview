@@ -119,7 +119,7 @@ export function Navigation() {
 
         {mobileMenuOpen && (
           <div className='border-t md:hidden'>
-            <div className='space-y-1 px-2 pb-3 pt-2'>
+            <div className='space-y-1 pb-3 pt-2 lg:px-2'>
               {navItems.map(item => (
                 <Link
                   className={cn(
@@ -136,7 +136,7 @@ export function Navigation() {
                 </Link>
               ))}
               {session ? (
-                <div className='space-y-1 px-2 pt-2'>
+                <div className='space-y-1 pt-2 lg:px-2'>
                   <div className='px-3 py-2 text-sm text-muted-foreground'>
                     {session.user?.email}
                   </div>
@@ -149,7 +149,7 @@ export function Navigation() {
                   </Link>
                 </div>
               ) : (
-                <div className='space-y-1 px-2 pt-2'>
+                <div className='space-y-1 pt-2 lg:px-2'>
                   <Link
                     className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     href='/auth/login'
