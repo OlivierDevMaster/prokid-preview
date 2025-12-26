@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ProfessionalsCard } from '@/features/professionals/components/ProfessionalsCard';
+import { ProfessionalSkills } from '@/features/professionals/professional.config';
 import { Professional } from '@/features/professionals/professional.model';
 
 import { useFindProfessionals } from '../hooks/useFindProfessionals';
@@ -27,9 +28,10 @@ export default function ProfessionalsPage() {
     useState<string>('all');
   const { data } = useFindProfessionals(
     {
+      availability: selectedAvailability,
+      current_job: selectedRole === 'all' ? undefined : selectedRole,
       locationSearch: locationQuery,
       search: searchQuery,
-      skills: selectedRole === 'all' ? [] : [selectedRole],
     },
     { limit: 100 }
   );
@@ -99,18 +101,11 @@ export default function ProfessionalsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>{t('roles.all')}</SelectItem>
-                <SelectItem value='RSAI'>{t('roles.rsai')}</SelectItem>
-                <SelectItem value='Référente Technique'>
-                  {t('roles.technicalReferent')}
-                </SelectItem>
-                <SelectItem value='EJE'>{t('roles.eje')}</SelectItem>
-                <SelectItem value='Psychomotricien'>
-                  {t('roles.psychomotor')}
-                </SelectItem>
-                <SelectItem value='AP'>{t('roles.ap')}</SelectItem>
-                <SelectItem value='Diététicien'>
-                  {t('roles.dietitian')}
-                </SelectItem>
+                {ProfessionalSkills.map(skill => (
+                  <SelectItem key={skill} value={skill}>
+                    {t(`jobs.${skill}`)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
