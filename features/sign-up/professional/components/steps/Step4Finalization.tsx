@@ -4,8 +4,9 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
+import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
+
 import { Button } from '@/components/ui/button';
-import { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
 
 import { ProgressBar } from '../ProgressBar';
 

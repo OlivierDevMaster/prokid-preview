@@ -2,6 +2,7 @@
 
 import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -26,11 +27,16 @@ const LanguageSwitcher = () => {
     }
   };
 
-  const ICON_SIZE = 16;
+  const ICON_SIZE = 20;
 
   const localeLabels: Record<string, string> = {
     en: 'English',
     fr: 'Français',
+  };
+
+  const flagImages: Record<string, string> = {
+    en: '/images/uk.png',
+    fr: '/images/france.png',
   };
 
   return (
@@ -47,7 +53,12 @@ const LanguageSwitcher = () => {
         >
           {routing.locales.map(loc => (
             <DropdownMenuRadioItem className='flex gap-2' key={loc} value={loc}>
-              <Globe className='text-muted-foreground' size={ICON_SIZE} />{' '}
+              <Image
+                alt={localeLabels[loc] || loc}
+                height={ICON_SIZE}
+                src={flagImages[loc] || flagImages.en}
+                width={ICON_SIZE}
+              />
               <span>{localeLabels[loc] || loc}</span>
             </DropdownMenuRadioItem>
           ))}
