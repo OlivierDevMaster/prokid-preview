@@ -197,7 +197,7 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
       }
     }
 
-    return apiResponse.success({
+    return apiResponse.ok({
       errors: errors.length > 0 ? errors : undefined,
       total_missions: missions.length,
       total_queued: totalQueued,

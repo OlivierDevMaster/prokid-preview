@@ -377,7 +377,7 @@ export const sendAppointmentRemindersHandler = factory.createHandlers(
         total_sent: totalSent,
       };
 
-      return apiResponse.success(response);
+      return apiResponse.ok(response);
     } catch (error) {
       console.error('Error in sendAppointmentRemindersHandler:', error);
       return apiResponse.internalServerError(

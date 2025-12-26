@@ -137,7 +137,7 @@ export const processRemindersHandler = factory.createHandlers(
       }
 
       if (reminders.length === 0) {
-        return apiResponse.success({
+        return apiResponse.ok({
           failed: 0,
           message: 'No pending reminders to process',
           processed: 0,
@@ -384,7 +384,7 @@ export const processRemindersHandler = factory.createHandlers(
         }
       }
 
-      return apiResponse.success({
+      return apiResponse.ok({
         failed: totalFailed,
         processed: reminders.length,
         sent: totalSent,
