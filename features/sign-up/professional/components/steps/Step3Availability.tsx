@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
-import type { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
+import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';

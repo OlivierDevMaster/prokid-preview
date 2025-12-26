@@ -200,7 +200,18 @@
         "recurring": "Récurrent",
         "nonWorking": "Non travaillé",
         "errorSlotOverlap": "Ce créneau chevauche un autre créneau",
-        "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin"
+        "errorSlotInvalidTime": "L'heure de début doit être avant l'heure de fin",
+        "validation": {
+          "cityRequired": "La ville est requise",
+          "firstNameRequired": "Le prénom est requis",
+          "hourlyRateRequired": "Le taux horaire est requis",
+          "hourlyRateMin": "Le taux horaire doit être d'au moins 1",
+          "interventionZoneMin": "La zone d'intervention doit être d'au moins 5 km",
+          "interventionZoneMax": "La zone d'intervention doit être d'au plus 100 km",
+          "lastNameRequired": "Le nom est requis",
+          "phoneRequired": "Le téléphone est requis",
+          "professionRequired": "La profession est requise"
+        }
       },
       "verifyEmail": {
         "title": "Vérifiez votre email",

@@ -191,7 +191,18 @@
         "recurring": "Recurring",
         "nonWorking": "Non working",
         "errorSlotOverlap": "This slot overlaps with another slot",
-        "errorSlotInvalidTime": "Start time must be before end time"
+        "errorSlotInvalidTime": "Start time must be before end time",
+        "validation": {
+          "cityRequired": "City is required",
+          "firstNameRequired": "First name is required",
+          "hourlyRateRequired": "Hourly rate is required",
+          "hourlyRateMin": "Hourly rate must be at least 1",
+          "interventionZoneMin": "Intervention zone must be at least 5 km",
+          "interventionZoneMax": "Intervention zone must be at most 100 km",
+          "lastNameRequired": "Last name is required",
+          "phoneRequired": "Phone is required",
+          "professionRequired": "Profession is required"
+        }
       },
       "verifyEmail": {
         "title": "Check your email",

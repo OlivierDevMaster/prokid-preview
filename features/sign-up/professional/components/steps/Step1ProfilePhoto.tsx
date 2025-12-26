@@ -2,27 +2,74 @@
 
 import { Camera } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
 
 import { ProgressBar } from '../ProgressBar';
 
 interface Step1ProfilePhotoProps {
+  firstName?: string;
+  lastName?: string;
   onNext: () => void;
   onPhotoChange: (file: File | null) => void;
   profilePhoto?: File | null;
 }
 
 export function Step1ProfilePhoto({
+  firstName,
+  lastName,
   onNext,
   onPhotoChange,
 }: Step1ProfilePhotoProps) {
   const [preview, setPreview] = useState<null | string>(null);
+  const [userEmail, setUserEmail] = useState<null | string>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('professional.label');
   const tSignUp = useTranslations('auth.signUp');
   const tCommon = useTranslations('common.label');
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      try {
+        const supabase = createClient();
+        const { data: user } = await supabase.auth.getUser();
+        if (user?.user?.email) {
+          setUserEmail(user.user.email);
+        }
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+
+    getUserEmail();
+  }, []);
+
+  const getInitials = (): string => {
+    // If firstName and lastName are available, use them
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+
+    // If only firstName is available, use first letter
+    if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    }
+
+    // If only lastName is available, use first letter
+    if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    }
+
+    // Otherwise, use email
+    if (userEmail) {
+      return userEmail.charAt(0).toUpperCase();
+    }
+
+    // Fallback
+    return '?';
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,7 +115,7 @@ export function Step1ProfilePhoto({
               />
             ) : (
               <span className='p-8 text-4xl font-semibold text-gray-500'>
-                kk
+                {getInitials()}
               </span>
             )}
           </div>

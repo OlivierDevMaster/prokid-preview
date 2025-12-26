@@ -7,16 +7,16 @@ import { type Resolver, useForm } from 'react-hook-form';
 import type { DaySchedule } from '@/features/sign-up/professional/components/steps/Step3Availability';
 
 import { Card } from '@/components/ui/card';
-import {
-  type ProfessionalSignUpFormData,
-  professionalSignUpSchema,
-} from '@/features/professional/schemas/professional-signup.schema';
 import { Step1ProfilePhoto } from '@/features/sign-up/professional/components/steps/Step1ProfilePhoto';
 import { Step2IdentityInfo } from '@/features/sign-up/professional/components/steps/Step2IdentityInfo';
 import { Step3Availability } from '@/features/sign-up/professional/components/steps/Step3Availability';
 import { Step4Finalization } from '@/features/sign-up/professional/components/steps/Step4Finalization';
 import { createClient } from '@/lib/supabase/client';
 
+import {
+  type ProfessionalSignUpFormData,
+  useProfessionalSignUpSchema,
+} from '../hooks/useProfessionalSignUpSchema';
 import { useRegisterProfessionalProfile } from '../hooks/useRegisterProfessionalProfile';
 
 const initialSchedule: Record<string, DaySchedule> = {
@@ -53,6 +53,7 @@ export default function ProfessionalSignUpForm2() {
   const [currentStep, setCurrentStep] = useState(1);
   const [userId, setUserId] = useState<null | string>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const professionalSignUpSchema = useProfessionalSignUpSchema();
 
   const form = useForm<ProfessionalSignUpFormData>({
     defaultValues: {
@@ -60,7 +61,7 @@ export default function ProfessionalSignUpForm2() {
       city: '',
       description: '',
       firstName: '',
-      hourlyRate: '',
+      hourlyRate: undefined as unknown as number,
       interventionZone: 25,
       lastName: '',
       phone: '',
@@ -72,7 +73,7 @@ export default function ProfessionalSignUpForm2() {
     mode: 'onChange',
     resolver: zodResolver(
       professionalSignUpSchema
-    ) as Resolver<ProfessionalSignUpFormData>,
+    ) as unknown as Resolver<ProfessionalSignUpFormData>,
   });
 
   useEffect(() => {
@@ -104,6 +105,8 @@ export default function ProfessionalSignUpForm2() {
         'lastName',
         'profession',
         'city',
+        'phone',
+        'hourlyRate',
       ]);
       if (!isValid) {
         return;
@@ -162,6 +165,8 @@ export default function ProfessionalSignUpForm2() {
       <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
         {currentStep === 1 && (
           <Step1ProfilePhoto
+            firstName={form.watch('firstName')}
+            lastName={form.watch('lastName')}
             onNext={handleNext}
             onPhotoChange={file => form.setValue('profilePhoto', file)}
             profilePhoto={form.watch('profilePhoto')}
