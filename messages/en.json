@@ -159,6 +159,7 @@
         "confirmPasswordLabel": "Confirm password",
         "confirmPasswordPlaceholder": "Re-enter your password",
         "submitButton": "Create my account",
+        "creatingAccount": "Creating account...",
         "success": "Account created successfully!",
         "error": "An error occurred while creating the account",
         "passwordMismatch": "Passwords do not match",

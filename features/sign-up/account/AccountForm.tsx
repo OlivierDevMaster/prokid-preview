@@ -40,13 +40,13 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
 
     // Validation
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('professionalForm.passwordMismatch'));
       setIsLoading(false);
       return;
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('professionalForm.passwordTooShort'));
       setIsLoading(false);
       return;
     }
@@ -77,7 +77,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An error occurred. Please try again.');
+        setError(t('professionalForm.error'));
       }
     } finally {
       setIsLoading(false);
@@ -91,10 +91,10 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
           <form className='space-y-6' onSubmit={handleSignUp}>
             <div className='space-y-2 text-center'>
               <h1 className='text-2xl font-bold text-gray-800'>
-                Create Account
+                {t('professionalForm.title')}
               </h1>
               <p className='text-sm text-gray-600'>
-                Fill in the information below to create your account
+                {t('professionalForm.subtitle')}
               </p>
             </div>
 
@@ -182,7 +182,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
                     )}
                   </div>
                 </div>
-                <div className='grid grid-cols-2 gap-2'>
+                <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
                   <div>
                     <Label className='text-gray-700' htmlFor='firstName'>
                       {t('structureForm.firstNameLabel')}
@@ -271,7 +271,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
               type='submit'
             >
               {isLoading
-                ? 'Creating account...'
+                ? t('professionalForm.creatingAccount')
                 : t('professionalForm.submitButton')}
             </Button>
           </form>
