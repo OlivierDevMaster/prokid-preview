@@ -108,7 +108,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
 
   return (
     <>
-      <div className='min-h-screen space-y-8 bg-blue-50/30 p-8'>
+      <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
         {/* Header */}
         <div>
           <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
