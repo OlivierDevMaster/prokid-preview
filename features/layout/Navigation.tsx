@@ -140,13 +140,21 @@ export function Navigation() {
                   <div className='px-3 py-2 text-sm text-muted-foreground'>
                     {session.user?.email}
                   </div>
-                  <Link
+                  {/* <Link
                     className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     href='/protected'
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {t('dashboard')}
-                  </Link>
+                  </Link> */}
+                  <Button
+                    className='mr-2'
+                    onClick={handleDashboard}
+                    size='sm'
+                    variant='outline'
+                  >
+                    {tCommon('label.dashboard')}
+                  </Button>
                   <Button onClick={handleSignOut} size='sm' variant='outline'>
                     {tCommon('actions.signOut')}
                   </Button>

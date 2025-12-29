@@ -30,7 +30,7 @@ export function BoNavbar({
   };
 
   return (
-    <nav className='sticky top-0 z-50 w-full border-b bg-white shadow-sm'>
+    <nav className='sticky top-0 z-50 w-full bg-white lg:border-b lg:shadow-sm'>
       <div className='flex items-center justify-between px-3 py-2'>
         <div>
           <Link href='/'>

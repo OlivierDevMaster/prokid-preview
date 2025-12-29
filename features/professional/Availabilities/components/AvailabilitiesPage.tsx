@@ -243,12 +243,14 @@ export default function AvailabilitiesPage() {
   }, [slots, professional?.hourly_rate]);
 
   return (
-    <div className='space-y-6 bg-blue-50/30 p-8'>
+    <div className='space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <h1 className='text-3xl font-bold text-blue-900'>{t('title')}</h1>
+      <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+        <h1 className='text-2xl font-bold text-blue-900 sm:text-3xl'>
+          {t('title')}
+        </h1>
         <Button
-          className='border-blue-500 text-blue-700 hover:bg-blue-50'
+          className='w-full border-blue-500 text-blue-700 hover:bg-blue-50 sm:w-auto'
           onClick={() => setIsEditModalOpen(true)}
           variant='outline'
         >
@@ -258,14 +260,14 @@ export default function AvailabilitiesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+      <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
         {/* Taux de remplissage */}
         <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-          <div className='p-6'>
-            <h3 className='mb-2 text-sm font-medium text-gray-600'>
+          <div className='p-4 sm:p-6'>
+            <h3 className='mb-2 text-xs font-medium text-gray-600 sm:text-sm'>
               {t('fillRate')}
             </h3>
-            <div className='mb-3 text-3xl font-bold text-blue-900'>
+            <div className='mb-3 text-2xl font-bold text-blue-900 sm:text-3xl'>
               {stats.fillRate}%
             </div>
             <div className='h-2 w-full rounded-full bg-green-100'>
@@ -279,67 +281,72 @@ export default function AvailabilitiesPage() {
 
         {/* Heures réservées */}
         <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-          <div className='p-6'>
+          <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
-              <h3 className='text-sm font-medium text-gray-600'>
+              <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
                 {t('bookedHours')}
               </h3>
-              <Clock className='h-5 w-5 text-gray-400' />
+              <Clock className='h-4 w-4 text-gray-400 sm:h-5 sm:w-5' />
             </div>
-            <div className='mb-1 text-3xl font-bold text-blue-900'>
+            <div className='mb-1 text-2xl font-bold text-blue-900 sm:text-3xl'>
               {stats.bookedHours}h
             </div>
-            <p className='text-sm text-gray-500'>{t('thisWeek')}</p>
+            <p className='text-xs text-gray-500 sm:text-sm'>{t('thisWeek')}</p>
           </div>
         </Card>
 
         {/* Créneaux disponibles */}
         <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-          <div className='p-6'>
+          <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
-              <h3 className='text-sm font-medium text-gray-600'>
+              <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
                 {t('availableSlots')}
               </h3>
-              <TrendingUp className='h-5 w-5 text-green-500' />
+              <TrendingUp className='h-4 w-4 text-green-500 sm:h-5 sm:w-5' />
             </div>
-            <div className='mb-1 text-3xl font-bold text-green-600'>
+            <div className='mb-1 text-2xl font-bold text-green-600 sm:text-3xl'>
               {stats.availableSlots}
             </div>
-            <p className='text-sm text-gray-500'>{t('toBook')}</p>
+            <p className='text-xs text-gray-500 sm:text-sm'>{t('toBook')}</p>
           </div>
         </Card>
 
         {/* Revenus estimés */}
         <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-          <div className='p-6'>
+          <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
-              <h3 className='text-sm font-medium text-gray-600'>
+              <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
                 {t('estimatedRevenue')}
               </h3>
-              <DollarSign className='h-5 w-5 text-gray-400' />
+              <DollarSign className='h-4 w-4 text-gray-400 sm:h-5 sm:w-5' />
             </div>
-            <div className='mb-1 text-3xl font-bold text-blue-900'>
+            <div className='mb-1 text-2xl font-bold text-blue-900 sm:text-3xl'>
               {stats.estimatedRevenue}€
             </div>
-            <p className='text-sm text-gray-500'>{t('thisWeek')}</p>
+            <p className='text-xs text-gray-500 sm:text-sm'>{t('thisWeek')}</p>
           </div>
         </Card>
       </div>
 
       {/* Weekly Navigation */}
-      <div className='rounded-lg border border-gray-200 bg-white p-4'>
-        <div className='mb-4 flex items-center justify-between'>
+      <div className='rounded-lg border border-gray-200 bg-white p-3 sm:p-4'>
+        <div className='mb-3 flex items-center justify-between gap-2 sm:mb-4 sm:gap-4'>
           <Button
             className='text-gray-600 hover:text-gray-800'
             onClick={goToPreviousWeek}
             size='sm'
             variant='ghost'
           >
-            <ChevronLeft className='mr-1 h-4 w-4' />
-            {t('previousWeek')}
+            <ChevronLeft className='h-4 w-4 sm:mr-1' />
+            <span className='hidden sm:inline'>{t('previousWeek')}</span>
           </Button>
-          <h2 className='text-lg font-bold text-blue-900'>
-            {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
+          <h2 className='flex-1 text-center text-sm font-bold text-blue-900 sm:text-base lg:text-lg'>
+            <span className='hidden sm:inline'>
+              {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
+            </span>
+            <span className='sm:hidden'>
+              {format(weekStart, 'd MMM yyyy', { locale: fr })}
+            </span>
           </h2>
           <Button
             className='text-gray-600 hover:text-gray-800'
@@ -347,13 +354,13 @@ export default function AvailabilitiesPage() {
             size='sm'
             variant='ghost'
           >
-            {t('nextWeek')}
-            <ChevronRight className='ml-1 h-4 w-4' />
+            <span className='hidden sm:inline'>{t('nextWeek')}</span>
+            <ChevronRight className='h-4 w-4 sm:ml-1' />
           </Button>
         </div>
 
         {/* Calendar Grid */}
-        <div className='grid grid-cols-7 gap-3'>
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7'>
           {weekDays.map((day, index) => {
             // Utiliser mounted pour éviter les différences d'hydratation
             const isToday = mounted && isSameDay(day, new Date());
@@ -363,16 +370,16 @@ export default function AvailabilitiesPage() {
 
             return (
               <Card
-                className={`min-h-[200px] rounded-lg border-2 bg-white shadow-sm ${
+                className={`min-h-[150px] rounded-lg border-2 bg-white shadow-sm sm:min-h-[180px] lg:min-h-[200px] ${
                   isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
                 }`}
                 key={index}
               >
-                <div className='p-4'>
-                  <div className='mb-1 text-sm font-bold text-blue-900'>
+                <div className='p-3 sm:p-4'>
+                  <div className='mb-1 text-xs font-bold text-blue-900 sm:text-sm'>
                     {dayName}
                   </div>
-                  <div className='mb-4 text-sm text-blue-900'>
+                  <div className='mb-3 text-xs text-blue-900 sm:mb-4 sm:text-sm'>
                     {dayNumber} {month}
                   </div>
                   {/* Display availability slots for this day */}

@@ -1,9 +1,12 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { BoNavbar } from '@/features/layout/BoNavbar';
 import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
 import { usePathname } from '@/i18n/routing';
@@ -19,6 +22,12 @@ export default function ProtectedLayout({
   const subscriptionPath = pathname?.split('/').slice(-2).join('/') || '';
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Close sheet when pathname changes (navigation)
+  useEffect(() => {
+    setIsSheetOpen(false);
+  }, [pathname]);
 
   // Fetch user profile to check role
   const { data: userData, isLoading: isLoadingProfile } = useQuery({
@@ -98,11 +107,33 @@ export default function ProtectedLayout({
 
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
-      <BoNavbar userRole='professionnel' />
+      <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
+        <BoNavbar userRole='professionnel' />
+        {/* Mobile Menu Button */}
+        <div className='lg:hidden'>
+          <Button
+            className='h-9 w-9'
+            onClick={() => setIsSheetOpen(true)}
+            size='icon'
+            variant='ghost'
+          >
+            <Menu className='h-5 w-5' />
+          </Button>
+        </div>
+      </div>
       <div className='flex flex-1 overflow-hidden'>
-        <div className='flex h-full flex-shrink-0'>
+        {/* Desktop Sidebar */}
+        <div className='hidden h-full flex-shrink-0 lg:flex'>
           <ProfessionalSidebar />
         </div>
+
+        {/* Mobile/Tablet Sheet */}
+        <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
+          <SheetContent className='w-64 p-0' side='left'>
+            <ProfessionalSidebar />
+          </SheetContent>
+        </Sheet>
+
         <main className='flex-1 overflow-y-auto'>
           <div>{children}</div>
         </main>
