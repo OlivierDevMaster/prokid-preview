@@ -21,6 +21,17 @@ const roleRoutes: Record<string, string> = {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Exclude sitemap and robots routes from locale routing
+  // These routes should be accessible without locale prefix
+  if (
+    pathname.startsWith('/sitemap') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname === '/sitemap.xml'
+  ) {
+    // Skip locale routing for sitemap/robots, just update Supabase session
+    return await updateSession(request);
+  }
+
   // First, apply next-intl middleware to handle locale routing
   const intlResponse = intlMiddleware(request);
 
@@ -222,7 +233,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - files with extensions (e.g., .svg, .png, .jpg, etc.)
-     * - auth routes (login, signup, etc.)
      */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
