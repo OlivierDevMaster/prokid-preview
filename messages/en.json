@@ -361,6 +361,8 @@
       "specialties": "Specialties",
       "sector": "Sector",
       "certifiedProfessional": "Certified professional",
+      "locationAndExperience": "Location & Experience",
+      "pricing": "Pricing",
       "hour": "hour",
       "day": "day",
       "sendMessage": "Send a message",

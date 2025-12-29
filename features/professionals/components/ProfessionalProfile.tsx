@@ -250,35 +250,47 @@ export default function ProfessionalProfile() {
                 <div className='my-4 w-full border'></div>
 
                 {/* Localisation et expérience */}
-                <div className='mb-6 space-y-3'>
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <MapPin className='h-4 w-4 text-gray-400' />
-                    <span>
-                      {professional.city} • {t('sector')}{' '}
-                      {professional.intervention_radius_km} {t('km')}
-                    </span>
-                  </div>
+                <div className='mb-6'>
+                  <h2 className='mb-3 text-sm font-semibold text-gray-700'>
+                    {t('locationAndExperience')}
+                  </h2>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                      <MapPin className='h-4 w-4 text-gray-400' />
+                      <span>
+                        {professional.city} • {t('sector')}{' '}
+                        {professional.intervention_radius_km} {t('km')}
+                      </span>
+                    </div>
 
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <CalendarIcon className='h-4 w-4 text-gray-400' />
-                    <span>
-                      {professional.experience_years} {t('experience')}
-                      {professional.is_certified && (
-                        <span className='ml-2'>
-                          • {t('certifiedProfessional')}
-                        </span>
-                      )}
-                    </span>
+                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                      <CalendarIcon className='h-4 w-4 text-gray-400' />
+                      <span>
+                        {professional.experience_years} {t('experience')}
+                        {professional.is_certified && (
+                          <span className='ml-2'>
+                            • {t('certifiedProfessional')}
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
+                <div className='my-4 w-full border'></div>
+
                 {/* Tarifs */}
-                <div className='mb-6 flex items-center gap-4'>
-                  <div className='flex items-center gap-2'>
-                    <Euro className='h-5 w-5 text-gray-600' />
-                    <span className='text-lg font-semibold text-gray-800'>
-                      {professional.hourly_rate}€/{t('day')}
-                    </span>
+                <div className='mb-6'>
+                  <h2 className='mb-3 text-sm font-semibold text-gray-700'>
+                    {t('pricing')}
+                  </h2>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex items-center gap-2'>
+                      <Euro className='h-5 w-5 text-gray-600' />
+                      <span className='text-lg font-semibold text-gray-800'>
+                        {professional.hourly_rate}€/{t('day')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
