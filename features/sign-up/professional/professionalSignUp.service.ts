@@ -1,4 +1,4 @@
-import type { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
+import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -64,7 +64,7 @@ export async function registerProfessionalProfile(
       experience_years: formData.yearsExperience
         ? parseInt(formData.yearsExperience, 10)
         : 0,
-      hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : 0,
+      hourly_rate: formData.hourlyRate,
       intervention_radius_km: formData.interventionZone,
       phone: formData.phone || null,
       postal_code: formData.postalCode || null,

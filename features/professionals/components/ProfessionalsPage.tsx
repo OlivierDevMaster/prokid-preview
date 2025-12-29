@@ -4,6 +4,7 @@ import { Funnel, MapPin, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ProfessionalsCard } from '@/features/professionals/components/ProfessionalsCard';
+import { ProfessionalSkills } from '@/features/professionals/professional.config';
 import { Professional } from '@/features/professionals/professional.model';
 
 import { useFindProfessionals } from '../hooks/useFindProfessionals';
@@ -27,9 +29,10 @@ export default function ProfessionalsPage() {
     useState<string>('all');
   const { data } = useFindProfessionals(
     {
+      availability: selectedAvailability,
+      current_job: selectedRole === 'all' ? undefined : selectedRole,
       locationSearch: locationQuery,
       search: searchQuery,
-      skills: selectedRole === 'all' ? [] : [selectedRole],
     },
     { limit: 100 }
   );
@@ -38,23 +41,36 @@ export default function ProfessionalsPage() {
 
   const resultsCount = professionals.length;
 
+  const handleClearAllFilters = () => {
+    setSearchQuery('');
+    setLocationQuery('');
+    setSelectedRole('all');
+    setSelectedAvailability('all');
+  };
+
+  const hasActiveFilters =
+    searchQuery ||
+    locationQuery ||
+    selectedRole !== 'all' ||
+    selectedAvailability !== 'all';
+
   return (
-    <main className='min-h-screen bg-[#f5f7f5] px-4 py-8 sm:px-6 lg:px-8'>
+    <main className='min-h-screen bg-[#f5f7f5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8'>
       <div className='mx-auto max-w-7xl'>
-        <div className='mb-8'>
-          <h1 className='mb-2 text-4xl font-bold text-gray-800'>
+        <div className='mb-6 sm:mb-8'>
+          <h1 className='mb-2 text-2xl font-bold text-gray-800 sm:text-3xl md:text-4xl'>
             {t('title')}
           </h1>
-          <p className='text-lg text-gray-600'>{t('subtitle')}</p>
+          <p className='text-base text-gray-600 sm:text-lg'>{t('subtitle')}</p>
         </div>
 
         <div
-          className='mb-6 rounded-lg bg-gray-100 bg-white p-6 ring-2'
+          className='mb-6 rounded-lg bg-gray-100 bg-white p-4 ring-2 sm:p-6'
           style={{
             boxShadow: 'inset 0 1px 4px 1px rgba(59, 130, 246, 0.3)',
           }}
         >
-          <div className='mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+          <div className='mb-4 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4'>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400' />
               <Input
@@ -99,18 +115,11 @@ export default function ProfessionalsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>{t('roles.all')}</SelectItem>
-                <SelectItem value='RSAI'>{t('roles.rsai')}</SelectItem>
-                <SelectItem value='Référente Technique'>
-                  {t('roles.technicalReferent')}
-                </SelectItem>
-                <SelectItem value='EJE'>{t('roles.eje')}</SelectItem>
-                <SelectItem value='Psychomotricien'>
-                  {t('roles.psychomotor')}
-                </SelectItem>
-                <SelectItem value='AP'>{t('roles.ap')}</SelectItem>
-                <SelectItem value='Diététicien'>
-                  {t('roles.dietitian')}
-                </SelectItem>
+                {ProfessionalSkills.map(skill => (
+                  <SelectItem key={skill} value={skill}>
+                    {t(`jobs.${skill}`)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -139,25 +148,106 @@ export default function ProfessionalsPage() {
             </Select>
           </div>
 
-          {(searchQuery ||
-            locationQuery ||
-            selectedRole !== 'all' ||
-            selectedAvailability !== 'all') && (
-            <div className='flex items-center gap-2 text-sm text-gray-600'>
-              <Funnel className='h-4 w-4' />
-              {t('search.activeFilters')}
+          {hasActiveFilters && (
+            <div className='flex flex-wrap items-center gap-2'>
+              <div className='flex items-center gap-2 text-xs text-gray-600 sm:text-sm'>
+                <Funnel className='h-3 w-3 sm:h-4 sm:w-4' />
+                <span>{t('search.activeFilters')}</span>
+              </div>
+
+              {searchQuery && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-xs text-blue-700 hover:bg-blue-200 sm:text-sm'
+                  variant='outline'
+                >
+                  <span className='max-w-[150px] truncate sm:max-w-none'>
+                    {t('search.placeholder')}: {searchQuery}
+                  </span>
+                  <button
+                    className='ml-1 flex-shrink-0 rounded-full hover:bg-blue-300'
+                    onClick={() => setSearchQuery('')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {locationQuery && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-xs text-blue-700 hover:bg-blue-200 sm:text-sm'
+                  variant='outline'
+                >
+                  <span className='max-w-[150px] truncate sm:max-w-none'>
+                    {t('search.locationPlaceholder')}: {locationQuery}
+                  </span>
+                  <button
+                    className='ml-1 flex-shrink-0 rounded-full hover:bg-blue-300'
+                    onClick={() => setLocationQuery('')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {selectedRole !== 'all' && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-xs text-blue-700 hover:bg-blue-200 sm:text-sm'
+                  variant='outline'
+                >
+                  <span className='max-w-[150px] truncate sm:max-w-none'>
+                    {t('search.role')}: {t(`jobs.${selectedRole}`)}
+                  </span>
+                  <button
+                    className='ml-1 flex-shrink-0 rounded-full hover:bg-blue-300'
+                    onClick={() => setSelectedRole('all')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              {selectedAvailability !== 'all' && (
+                <Badge
+                  className='flex items-center gap-1 bg-blue-100 text-xs text-blue-700 hover:bg-blue-200 sm:text-sm'
+                  variant='outline'
+                >
+                  <span className='max-w-[150px] truncate sm:max-w-none'>
+                    {t('search.availability')}:{' '}
+                    {t(`availability.${selectedAvailability}`)}
+                  </span>
+                  <button
+                    className='ml-1 flex-shrink-0 rounded-full hover:bg-blue-300'
+                    onClick={() => setSelectedAvailability('all')}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              )}
+
+              <Button
+                className='h-7 text-xs'
+                onClick={handleClearAllFilters}
+                size='sm'
+                variant='ghost'
+              >
+                {t('search.clearAll') || 'Clear all'}
+              </Button>
             </div>
           )}
         </div>
 
-        <div className='mb-6'>
-          <p className='text-gray-700'>
+        <div className='mb-4 sm:mb-6'>
+          <p className='text-sm text-gray-700 sm:text-base'>
             <span className='font-semibold'>{resultsCount}</span>{' '}
             {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
           </p>
         </div>
 
-        <div className='space-y-4'>
+        <div className='space-y-3 sm:space-y-4'>
           {professionals.map((professional: Professional) => (
             <ProfessionalsCard
               key={professional.user_id}

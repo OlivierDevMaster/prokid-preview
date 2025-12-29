@@ -119,7 +119,7 @@ export function Navigation() {
 
         {mobileMenuOpen && (
           <div className='border-t md:hidden'>
-            <div className='space-y-1 px-2 pb-3 pt-2'>
+            <div className='space-y-1 pb-3 pt-2 lg:px-2'>
               {navItems.map(item => (
                 <Link
                   className={cn(
@@ -136,20 +136,31 @@ export function Navigation() {
                 </Link>
               ))}
               {session ? (
-                <div className='space-y-1 px-2 pt-2'>
+                <div className='space-y-1 pt-2 lg:px-2'>
                   <div className='px-3 py-2 text-sm text-muted-foreground'>
                     {session.user?.email}
                   </div>
-                  <Link
+                  {/* <Link
                     className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     href='/protected'
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {t('dashboard')}
-                  </Link>
+                  </Link> */}
+                  <Button
+                    className='mr-2'
+                    onClick={handleDashboard}
+                    size='sm'
+                    variant='outline'
+                  >
+                    {tCommon('label.dashboard')}
+                  </Button>
+                  <Button onClick={handleSignOut} size='sm' variant='outline'>
+                    {tCommon('actions.signOut')}
+                  </Button>
                 </div>
               ) : (
-                <div className='space-y-1 px-2 pt-2'>
+                <div className='space-y-1 pt-2 lg:px-2'>
                   <Link
                     className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     href='/auth/login'

@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import type { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
+import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { useRouter } from '@/i18n/routing';
 
