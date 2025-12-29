@@ -55,6 +55,18 @@ export async function generateMetadata({
   const otherLocale = locale === 'fr' ? 'en' : 'fr';
   const otherLocaleUrl = `${appUrl}/${otherLocale}/professionals/${expectedUsername || username}/${id}`;
 
+  // Build keywords from skills and job title
+  const keywords: string[] = [];
+  if (jobTitle) {
+    keywords.push(jobTitle);
+  }
+  if (professional.skills && professional.skills.length > 0) {
+    keywords.push(...professional.skills);
+  }
+  if (fullName) {
+    keywords.push(fullName);
+  }
+
   return {
     alternates: {
       canonical: canonicalUrl,
@@ -64,6 +76,7 @@ export async function generateMetadata({
       },
     },
     description,
+    keywords: keywords.length > 0 ? keywords : undefined,
     openGraph: {
       description,
       images: [
@@ -128,13 +141,16 @@ async function getProfessionalForMetadata(userId: string): Promise<{
   description: null | string;
   first_name: null | string;
   last_name: null | string;
+  skills: null | string[];
 } | null> {
   try {
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('professionals_with_profiles_search')
-      .select('current_job, description, first_name, last_name, avatar_url')
+      .select(
+        'current_job, description, first_name, last_name, avatar_url, skills'
+      )
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -175,7 +191,24 @@ async function getProfessionalForSchema(userId: string): Promise<{
       return null;
     }
 
-    return data;
+    const { user_id } = data;
+    if (!user_id) {
+      return null;
+    }
+
+    // TypeScript now knows user_id is string (not null)
+    return {
+      avatar_url: data.avatar_url,
+      city: data.city,
+      current_job: data.current_job,
+      description: data.description,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      postal_code: data.postal_code,
+      rating: data.rating,
+      reviews_count: data.reviews_count,
+      user_id,
+    };
   } catch {
     return null;
   }

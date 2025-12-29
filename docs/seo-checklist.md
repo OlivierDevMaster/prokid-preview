@@ -46,11 +46,11 @@ This checklist covers SEO improvements for the ProKid application.
 ## 📝 Content & Structure
 
 - [x] Proper heading hierarchy (H1 → H2 → H3)
-- [ ] Internal linking between related professionals
-- [ ] Rich snippets for professional listings
-- [ ] Professional name in H1 tag on profile pages
-- [ ] Location data in structured format
-- [ ] Skills/expertise as keywords
+- [x] Internal linking between related professionals
+- [x] Rich snippets for professional listings (Person schema with AggregateRating)
+- [x] Professional name in H1 tag on profile pages
+- [x] Location data in structured format (PostalAddress in Person schema)
+- [x] Skills/expertise as keywords (added to metadata keywords)
 - [ ] Professional bio/description optimization
 - [ ] Social media profile links (if applicable)
 

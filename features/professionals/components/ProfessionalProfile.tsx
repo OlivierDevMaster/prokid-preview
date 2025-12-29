@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
+import { RelatedProfessionals } from '@/features/professionals/components/RelatedProfessionals';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
 import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
@@ -360,6 +361,11 @@ export default function ProfessionalProfile() {
             <AvailabilityCalendar professionalId={id as string} />
           </div>
         </div>
+
+        {/* Related Professionals Section */}
+        {professional && (
+          <RelatedProfessionals currentProfessional={professional} />
+        )}
       </div>
     </main>
   );
