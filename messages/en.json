@@ -1169,5 +1169,18 @@
       "primaryButton": "Create an account",
       "secondaryButton": "Learn more"
     }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you're looking for doesn't exist or has been moved.",
+    "helpfulLinks": "Helpful Links",
+    "helpfulLinksDescription": "Here are some pages that might interest you:",
+    "links": {
+      "home": "Home",
+      "professionals": "Professionals",
+      "faq": "FAQ"
+    },
+    "backToHome": "Back to Home",
+    "browseProfessionals": "Browse Professionals"
   }
 }
