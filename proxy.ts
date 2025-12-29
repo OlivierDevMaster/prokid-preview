@@ -150,9 +150,9 @@ export async function proxy(request: NextRequest) {
 
     // Additional check: if accessing professional routes, verify subscription
     // Skip subscription check for subscription-related pages to avoid redirect loops
-    const isSubscriptionPage =
-      pathWithoutLocale.startsWith('/professional/subscription') ||
-      pathWithoutLocale.startsWith('/professional/subscription-test');
+    const isSubscriptionPage = pathWithoutLocale.startsWith(
+      '/professional/subscription'
+    );
 
     if (requiredRole === 'professional' && !isSubscriptionPage) {
       // Use service role client to bypass RLS (NextAuth has already verified identity)
