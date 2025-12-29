@@ -147,6 +147,9 @@ export function Navigation() {
                   >
                     {t('dashboard')}
                   </Link>
+                  <Button onClick={handleSignOut} size='sm' variant='outline'>
+                    {tCommon('actions.signOut')}
+                  </Button>
                 </div>
               ) : (
                 <div className='space-y-1 pt-2 lg:px-2'>
