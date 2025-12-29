@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import ProfessionalProfile from '@/features/professionals/components/ProfessionalProfile';
+import { PersonSchema } from '@/lib/seo/structured-data';
 import { createClient } from '@/lib/supabase/server';
 import { generateUsernameSlug, getAppUrl } from '@/lib/utils';
 
@@ -78,11 +79,35 @@ export async function generateMetadata({
   };
 }
 
-export default function ProfessionalProfilePage() {
+export default async function ProfessionalProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string; locale: string; username: string }>;
+}) {
+  const { id, locale } = await params;
+  const appUrl = getAppUrl();
+  const t = await getTranslations({ locale, namespace: 'professional' });
+
+  const professional = await getProfessionalForSchema(id);
+
   return (
-    <main className='min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-8'>
-      <ProfessionalProfile />
-    </main>
+    <>
+      {professional && (
+        <PersonSchema
+          appUrl={appUrl}
+          jobTitleTranslation={
+            professional.current_job
+              ? t(`jobs.${professional.current_job}`)
+              : undefined
+          }
+          locale={locale}
+          professional={professional}
+        />
+      )}
+      <main className='min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-8'>
+        <ProfessionalProfile />
+      </main>
+    </>
   );
 }
 
@@ -99,6 +124,39 @@ async function getProfessionalForMetadata(userId: string): Promise<{
     const { data, error } = await supabase
       .from('professionals_with_profiles_search')
       .select('current_job, description, first_name, last_name, avatar_url')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+async function getProfessionalForSchema(userId: string): Promise<{
+  avatar_url: null | string;
+  city: null | string;
+  current_job: null | string;
+  description: null | string;
+  first_name: null | string;
+  last_name: null | string;
+  postal_code: null | string;
+  rating: null | number;
+  reviews_count: null | number;
+  user_id: string;
+} | null> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from('professionals_with_profiles_search')
+      .select(
+        'user_id, current_job, description, first_name, last_name, avatar_url, city, postal_code, rating, reviews_count'
+      )
       .eq('user_id', userId)
       .maybeSingle();
 
