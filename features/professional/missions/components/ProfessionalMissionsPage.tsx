@@ -101,24 +101,28 @@ export function ProfessionalMissionsPage() {
 
   if (isLoading) {
     return (
-      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
-        <p className='text-gray-600'>{t('loading')}</p>
+      <div className='-m-4 flex min-h-screen items-center justify-center bg-blue-50/30 p-4 sm:-m-6 sm:p-6 lg:-m-8 lg:p-8'>
+        <p className='text-sm text-gray-600 sm:text-base'>{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
+    <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
       {/* Header */}
-      <div className='mb-6'>
-        <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
-        <p className='mt-2 text-gray-600'>{t('description')}</p>
+      <div className='mb-4 sm:mb-6'>
+        <h1 className='text-2xl font-bold text-gray-800 sm:text-3xl'>
+          {t('title')}
+        </h1>
+        <p className='mt-2 text-sm text-gray-600 sm:text-base'>
+          {t('description')}
+        </p>
       </div>
 
       {/* Filters */}
-      <div className='mb-6 flex gap-4'>
+      <div className='mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:gap-4'>
         <Select onValueChange={handleStructureChange} value={structureId}>
-          <SelectTrigger className='w-[250px]'>
+          <SelectTrigger className='w-full sm:w-[250px]'>
             <SelectValue placeholder={t('filterByStructure')} />
           </SelectTrigger>
           <SelectContent>
@@ -138,7 +142,7 @@ export function ProfessionalMissionsPage() {
           </SelectContent>
         </Select>
         <Select onValueChange={handleStatusChange} value={status}>
-          <SelectTrigger className='w-[250px]'>
+          <SelectTrigger className='w-full sm:w-[250px]'>
             <SelectValue placeholder={t('filterByStatus')} />
           </SelectTrigger>
           <SelectContent>
@@ -167,7 +171,7 @@ export function ProfessionalMissionsPage() {
 
       {/* Missions Grid */}
       {missions.length > 0 ? (
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
           {missions.map(mission => (
             <ProfessionalMissionCard
               key={mission.id}
@@ -177,14 +181,14 @@ export function ProfessionalMissionsPage() {
           ))}
         </div>
       ) : (
-        <div className='py-12 text-center text-gray-500'>
-          <p>{t('noMissions')}</p>
+        <div className='py-8 text-center text-gray-500 sm:py-12'>
+          <p className='text-sm sm:text-base'>{t('noMissions')}</p>
         </div>
       )}
 
       {/* Pagination */}
       {totalCount > 0 && (
-        <div className='mt-8'>
+        <div className='mt-4 sm:mt-6 lg:mt-8'>
           <Pagination
             currentPage={page}
             onPageChange={setPage}

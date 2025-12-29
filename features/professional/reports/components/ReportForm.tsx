@@ -303,7 +303,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
       <form className='space-y-6' onSubmit={handleSubmit(handleFormSubmit)}>
         <div className='space-y-6'>
           {/* Header */}
-          <div className='flex items-center justify-between'>
+          <div className='flex flex-col items-center justify-between md:flex-row'>
             <div className='flex items-center gap-3'>
               <Link href='/professional/reports'>
                 <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
@@ -312,7 +312,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                 {isEdit ? t('editReport') : t('newReport')}
               </h1>
             </div>
-            <div className='flex gap-3'>
+            <div className='mt-4 flex gap-3 md:mt-0'>
               {(!isEdit || currentReport?.status !== 'sent') && (
                 <Button
                   className='border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -505,12 +505,12 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                           className='flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3'
                           key={`${file.name}-${index}`}
                         >
-                          <div className='flex items-center gap-2'>
-                            <Paperclip className='h-4 w-4 text-gray-500' />
-                            <span className='text-sm text-gray-700'>
+                          <div className='flex min-w-0 flex-1 items-center gap-2'>
+                            <Paperclip className='h-4 w-4 flex-shrink-0 text-gray-500' />
+                            <span className='max-w-[120px] truncate text-sm text-gray-700 sm:max-w-none sm:overflow-visible sm:whitespace-normal'>
                               {file.name}
                             </span>
-                            <span className='text-xs text-gray-500'>
+                            <span className='hidden flex-shrink-0 text-xs text-gray-500 sm:inline'>
                               ({(file.size / 1024 / 1024).toFixed(2)} MB)
                             </span>
                           </div>
