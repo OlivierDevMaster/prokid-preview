@@ -31,8 +31,8 @@ const logo = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3
 </svg>
 `;
 
-export const headerTemplate = `<!DOCTYPE html>
-<html lang="fr">
+export const headerTemplateEn = `<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,7 +50,7 @@ export const headerTemplate = `<!DOCTYPE html>
                 ${logo.replace('<svg', '<svg style="width: 100%; height: auto; max-width: 200px; display: block;"')}
               </div>
               <p style="color: #558cc9; font-size: 16px; margin: 0; font-weight: 500; letter-spacing: 0.5px;">
-                La plateforme des pros de la petite enfance
+                The platform for early childhood professionals
               </p>
             </td>
           </tr>

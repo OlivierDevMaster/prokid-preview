@@ -1,20 +1,19 @@
 import { createFactory } from '@hono/hono/factory';
 import { createClient } from '@supabase/supabase-js';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { format } from 'npm:date-fns@^4.1.0';
+import { fr } from 'npm:date-fns@^4.1.0/locale/fr';
 import { Resend } from 'resend';
 import { z } from 'zod';
 
-import { minifyHtml } from '../../_shared/utils/htmlMinifier.ts';
+import { renderAppointmentReminderEmailTemplate } from '../../_shared/services/templates/renderAppointmentReminderEmailTemplate.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
-import { renderAppointmentReminderEmailTemplate } from '../../_shared/utils/template.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 const factory = createFactory();
 
 const ProcessRemindersRequestBodySchema = z.object({
-  batch_size: z.number().int().positive().max(100).optional().default(50),
+  batch_size: z.number().int().positive().max(10).optional().default(1),
 });
 
 /**
@@ -24,40 +23,6 @@ function calculateNextRetry(attempts: number): Date {
   // Exponential backoff: 1h, 2h, 4h, 8h, max 24h
   const hours = Math.min(Math.pow(2, attempts), 24);
   return new Date(Date.now() + hours * 60 * 60 * 1000);
-}
-
-/**
- * Formats date and time in French locale
- */
-function formatDateTime(date: Date, locale: 'en' | 'fr' = 'fr'): string {
-  const localeObj = locale === 'fr' ? fr : undefined;
-  return format(date, "EEEE d MMMM yyyy 'à' HH:mm", { locale: localeObj });
-}
-
-/**
- * Formats duration in minutes to a readable string
- */
-function formatDuration(minutes: number, locale: 'en' | 'fr' = 'fr'): string {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  if (locale === 'fr') {
-    if (hours > 0 && mins > 0) {
-      return `${hours}h${mins > 0 ? `${mins}min` : ''}`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${mins}min`;
-    }
-  } else {
-    if (hours > 0 && mins > 0) {
-      return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${mins}min`;
-    }
-  }
 }
 
 export const processRemindersHandler = factory.createHandlers(
@@ -91,6 +56,8 @@ export const processRemindersHandler = factory.createHandlers(
       }
 
       const { batch_size } = validationResult.data;
+
+      console.log('[process-reminders] Starting with batch_size:', batch_size);
 
       // Select pending reminders using SELECT FOR UPDATE SKIP LOCKED
       // This allows concurrent processing while preventing duplicate work
@@ -137,6 +104,7 @@ export const processRemindersHandler = factory.createHandlers(
       }
 
       if (reminders.length === 0) {
+        console.log('[process-reminders] No pending reminders found');
         return apiResponse.ok({
           failed: 0,
           message: 'No pending reminders to process',
@@ -145,13 +113,31 @@ export const processRemindersHandler = factory.createHandlers(
         });
       }
 
-      const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+      console.log(
+        '[process-reminders] Found',
+        reminders.length,
+        'reminders to process'
+      );
+
+      const resendApiKey = Deno.env.get('RESEND_API_KEY');
+      const resend = new Resend(resendApiKey);
+      console.log(
+        '[process-reminders] Resend API key configured:',
+        !!resendApiKey
+      );
+
       const now = new Date();
       let totalSent = 0;
       let totalFailed = 0;
 
       // Process each reminder
       for (const reminder of reminders) {
+        console.log(
+          '[process-reminders] Processing reminder:',
+          reminder.id,
+          'for mission:',
+          reminder.mission_id
+        );
         try {
           // Update status to processing
           await supabaseAdminClient
@@ -162,40 +148,22 @@ export const processRemindersHandler = factory.createHandlers(
             })
             .eq('id', reminder.id);
 
-          // Fetch mission details
+          // Fetch mission details (without nested relationships to avoid ambiguity)
           const { data: mission, error: missionError } =
             await supabaseAdminClient
               .from('missions')
-              .select(
-                `
-                id,
-                title,
-                description,
-                professional_id,
-                structure_id,
-                professionals:professional_id (
-                  user_id,
-                  profiles:user_id (
-                    email,
-                    first_name,
-                    last_name,
-                    preferred_language
-                  )
-                ),
-                structures:structure_id (
-                  user_id,
-                  name,
-                  profiles:user_id (
-                    email
-                  )
-                )
-              `
-              )
+              .select('id, title, description, professional_id, structure_id')
               .eq('id', reminder.mission_id)
               .eq('status', 'accepted')
               .single();
 
           if (missionError || !mission) {
+            console.log(
+              '[process-reminders] Mission not found or not accepted for reminder:',
+              reminder.id,
+              'error:',
+              missionError?.message
+            );
             // Mission not found or not accepted, cancel reminder
             await supabaseAdminClient
               .from('appointment_reminders_pending')
@@ -207,6 +175,61 @@ export const processRemindersHandler = factory.createHandlers(
             continue;
           }
 
+          console.log(
+            '[process-reminders] Mission found:',
+            mission.id,
+            'title:',
+            mission.title
+          );
+
+          // Fetch professional profile separately to avoid relationship ambiguity
+          const { data: professionalProfile, error: profileError } =
+            await supabaseAdminClient
+              .from('profiles')
+              .select('email, first_name, last_name, preferred_language')
+              .eq('user_id', mission.professional_id)
+              .single();
+
+          if (profileError || !professionalProfile) {
+            console.log(
+              '[process-reminders] Professional profile not found for reminder:',
+              reminder.id,
+              'error:',
+              profileError?.message
+            );
+            await supabaseAdminClient
+              .from('appointment_reminders_pending')
+              .update({
+                error_message: 'Professional profile not found',
+                status: 'cancelled',
+              })
+              .eq('id', reminder.id);
+            continue;
+          }
+
+          console.log(
+            '[process-reminders] Professional profile email:',
+            professionalProfile.email
+          );
+
+          // Fetch structure details separately
+          const { data: structure } = await supabaseAdminClient
+            .from('structures')
+            .select('name, user_id')
+            .eq('user_id', mission.structure_id)
+            .single();
+
+          // Fetch structure profile email if structure exists
+          let structureEmail = '';
+          if (structure) {
+            const { data: structureProfile } = await supabaseAdminClient
+              .from('profiles')
+              .select('email')
+              .eq('user_id', structure.user_id)
+              .single();
+            structureEmail = structureProfile?.email || '';
+          }
+
           // Check notification preferences
           const { data: preferences } = await supabaseAdminClient
             .from('professional_notification_preferences')
@@ -214,7 +237,16 @@ export const processRemindersHandler = factory.createHandlers(
             .eq('user_id', mission.professional_id)
             .single();
 
+          console.log(
+            '[process-reminders] Notification preferences:',
+            preferences?.appointment_reminders
+          );
+
           if (!preferences?.appointment_reminders) {
+            console.log(
+              '[process-reminders] Reminders disabled, cancelling reminder:',
+              reminder.id
+            );
             // Reminders disabled, cancel
             await supabaseAdminClient
               .from('appointment_reminders_pending')
@@ -226,34 +258,9 @@ export const processRemindersHandler = factory.createHandlers(
             continue;
           }
 
-          const professional = mission.professionals as {
-            profiles: {
-              email: string;
-              first_name: null | string;
-              last_name: null | string;
-              preferred_language: 'en' | 'fr';
-            };
-            user_id: string;
-          };
-
-          const structure = mission.structures as {
-            name: string;
-            profiles: {
-              email: string;
-            };
-            user_id: string;
-          };
-
-          const professionalEmail = professional?.profiles?.email;
-          const professionalName =
-            professional?.profiles?.first_name &&
-            professional?.profiles?.last_name
-              ? `${professional.profiles.first_name} ${professional.profiles.last_name}`
-              : professional?.profiles?.first_name ||
-                professional?.profiles?.last_name ||
-                'Professional';
-
-          const locale = professional?.profiles?.preferred_language || 'fr';
+          const professionalEmail = professionalProfile.email;
+          const locale =
+            (professionalProfile.preferred_language as 'en' | 'fr') || 'fr';
 
           // Get schedule duration
           const { data: schedule } = await supabaseAdminClient
@@ -268,34 +275,37 @@ export const processRemindersHandler = factory.createHandlers(
           if (reminder.reminder_type === 'email') {
             try {
               const occurrenceDate = new Date(reminder.occurrence_date);
-              const appointmentDateTime = formatDateTime(
+
+              const emailHtml = await renderAppointmentReminderEmailTemplate({
+                durationMinutes: duration,
+                locale,
+                mission: {
+                  description: mission.description,
+                  title: mission.title,
+                },
                 occurrenceDate,
-                locale
+                professional: {
+                  email: professionalEmail,
+                  firstName: professionalProfile.first_name,
+                  lastName: professionalProfile.last_name,
+                },
+                sentAt: now,
+                structure: structure
+                  ? {
+                      email: structureEmail,
+                      name: structure.name,
+                    }
+                  : null,
+              });
+
+              // Format date for email subject
+              const appointmentDateTime = format(
+                occurrenceDate,
+                locale === 'fr'
+                  ? "EEEE d MMMM yyyy 'à' HH:mm"
+                  : "EEEE, MMMM d, yyyy 'at' HH:mm",
+                { locale: locale === 'fr' ? fr : undefined }
               );
-              const appointmentDuration = formatDuration(duration, locale);
-
-              const templateData = {
-                appointment_date_time: appointmentDateTime,
-                appointment_duration: appointmentDuration,
-                footer_text:
-                  locale === 'fr'
-                    ? `Rappel envoyé le: ${format(now, 'dd/MM/yyyy à HH:mm', { locale: fr })} | Mission: ${mission.title}`
-                    : `Reminder sent on: ${format(now, 'MM/dd/yyyy at HH:mm')} | Mission: ${mission.title}`,
-                mission_description: mission.description || '',
-                mission_title: mission.title,
-                professional_email: professionalEmail,
-                professional_name: professionalName,
-                structure_name: structure?.name || 'Structure',
-                title:
-                  locale === 'fr'
-                    ? 'Rappel de rendez-vous'
-                    : 'Appointment Reminder',
-              };
-
-              const emailHtmlRaw =
-                renderAppointmentReminderEmailTemplate(templateData);
-              const emailHtml = await minifyHtml(emailHtmlRaw);
-
               const emailSubject =
                 locale === 'fr'
                   ? `Rappel: ${mission.title} - ${appointmentDateTime}`
@@ -304,21 +314,43 @@ export const processRemindersHandler = factory.createHandlers(
               const fromEmail = Deno.env.get('NOREPLY_EMAIL');
 
               if (!fromEmail) {
+                console.error(
+                  '[process-reminders] NOREPLY_EMAIL not configured'
+                );
                 throw new Error('NOREPLY_EMAIL is not configured');
               }
 
-              const { error: emailError } = await resend.emails.send({
+              console.log('[process-reminders] Sending email:', {
                 from: fromEmail,
-                html: emailHtml,
+                reminderId: reminder.id,
                 subject: emailSubject,
                 to: professionalEmail,
               });
 
+              const { data: emailData, error: emailError } =
+                await resend.emails.send({
+                  from: fromEmail,
+                  html: emailHtml,
+                  subject: emailSubject,
+                  to: professionalEmail,
+                });
+
               if (emailError) {
+                console.error('[process-reminders] Email send failed:', {
+                  error: emailError.message,
+                  errorDetails: emailError,
+                  reminderId: reminder.id,
+                });
                 throw new Error(
                   emailError.message || 'Failed to send email via Resend'
                 );
               }
+
+              console.log('[process-reminders] Email sent successfully:', {
+                emailId: emailData?.id,
+                reminderId: reminder.id,
+                to: professionalEmail,
+              });
 
               // Record in appointment_reminders (history)
               await supabaseAdminClient.from('appointment_reminders').insert({
@@ -338,12 +370,22 @@ export const processRemindersHandler = factory.createHandlers(
                 .eq('id', reminder.id);
 
               totalSent++;
+              console.log(
+                '[process-reminders] Reminder processed successfully, totalSent:',
+                totalSent
+              );
             } catch (error) {
               const errorMessage =
                 error instanceof Error ? error.message : 'Unknown error';
               const newAttempts = reminder.attempts + 1;
               const nextRetry =
                 newAttempts < 5 ? calculateNextRetry(newAttempts) : null;
+
+              console.error('[process-reminders] Error processing reminder:', {
+                attempts: newAttempts,
+                error: errorMessage,
+                reminderId: reminder.id,
+              });
 
               // Update with failure
               await supabaseAdminClient
@@ -384,13 +426,19 @@ export const processRemindersHandler = factory.createHandlers(
         }
       }
 
+      console.log('[process-reminders] Completed processing:', {
+        failed: totalFailed,
+        processed: reminders.length,
+        sent: totalSent,
+      });
+
       return apiResponse.ok({
         failed: totalFailed,
         processed: reminders.length,
         sent: totalSent,
       });
     } catch (error) {
-      console.error('Error in processRemindersHandler:', error);
+      console.error('[process-reminders] Fatal error:', error);
       return apiResponse.internalServerError('Failed to process reminders', {
         error: error instanceof Error ? error.message : 'Unknown error',
       });

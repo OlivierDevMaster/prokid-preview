@@ -193,21 +193,32 @@ async function main() {
       // Wait for trigger to create profile
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Create structure record
-      const { error: structureError } = await supabase
+      // Check if structure already exists (in case createUser returned existing user)
+      const { data: existingStructure } = await supabase
         .from('structures')
-        .insert({
-          name: 'Test Structure',
-          user_id: structureUserId,
-        });
+        .select('user_id')
+        .eq('user_id', structureUserId)
+        .maybeSingle();
 
-      if (structureError) {
-        throw new Error(
-          `Failed to create structure: ${structureError.message}`
-        );
+      if (existingStructure) {
+        console.log(`✅ Using existing structure: ${structureUserId}`);
+      } else {
+        // Create structure record
+        const { error: structureError } = await supabase
+          .from('structures')
+          .insert({
+            name: 'Test Structure',
+            user_id: structureUserId,
+          });
+
+        if (structureError) {
+          throw new Error(
+            `Failed to create structure: ${structureError.message}`
+          );
+        }
+
+        console.log(`✅ Created new structure: ${structureUserId}`);
       }
-
-      console.log(`✅ Created new structure: ${structureUserId}`);
     }
 
     // Step 2.5: Ensure professional is a member of the structure

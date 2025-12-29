@@ -238,7 +238,8 @@ COMMENT ON FUNCTION public.queue_appointment_reminders() IS 'Queues accepted mis
 
 -- RPC function to select pending reminders with SELECT FOR UPDATE SKIP LOCKED
 -- This allows concurrent processing while preventing duplicate work
-CREATE OR REPLACE FUNCTION public.select_pending_reminders(batch_size_param INTEGER DEFAULT 50)
+-- Default batch size is 1 to process one reminder at a time and avoid CPU limits
+CREATE OR REPLACE FUNCTION public.select_pending_reminders(batch_size_param INTEGER DEFAULT 1)
 RETURNS TABLE (
   id UUID,
   mission_id UUID,
@@ -323,9 +324,9 @@ BEGIN
     RETURN 0;
   END IF;
 
-  -- Prepare request body (optional batch size, default handled in Edge Function)
+  -- Prepare request body (process one reminder at a time to avoid CPU limits)
   request_body := jsonb_build_object(
-    'batch_size', 50
+    'batch_size', 1
   );
 
   -- Call Edge Function using pg_net (fire-and-forget)
