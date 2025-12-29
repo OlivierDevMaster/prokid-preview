@@ -5,6 +5,9 @@ import { createServerClient } from '@supabase/ssr';
 import { generateUsernameSlug, getAppUrl } from '@/lib/utils';
 import { Database } from '@/types/database/schema';
 
+// Revalidate sitemap every 1 hour (3600 seconds)
+export const revalidate = 3600;
+
 const MAX_URLS_PER_SITEMAP = 50_000;
 const DEFAULT_LOCALE = 'fr';
 const OTHER_LOCALE = 'en';
