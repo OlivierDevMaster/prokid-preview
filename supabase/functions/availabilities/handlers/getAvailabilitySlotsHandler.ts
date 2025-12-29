@@ -7,7 +7,7 @@ import {
   isAfter,
   isValid,
   parseISO,
-} from 'date-fns';
+} from 'npm:date-fns@^4.1.0';
 // ! rrule package is a CommonJS package, so we need to import it as a namespace
 // ! and then destructure the rrulestr function from it
 import RRulePkg from 'rrule';
