@@ -73,6 +73,8 @@ function generateMissionOccurrences(
 
 export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
   try {
+    console.log('[expand-rrules] Request received');
+
     // Create Supabase admin client
     const supabaseAdminClient = createClient<Database>(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -97,20 +99,49 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
     );
 
     if (!validationResult.success) {
+      // Try to extract error details from response
+      try {
+        const responseClone = validationResult.response.clone();
+        const errorBody = await responseClone.json();
+        console.error('[expand-rrules] Validation failed:', errorBody);
+      } catch {
+        console.error(
+          '[expand-rrules] Validation failed (could not parse error response)'
+        );
+      }
       return validationResult.response;
     }
 
+    console.log('[expand-rrules] Validation passed');
+
     const { missions } = validationResult.data;
+
+    console.log(`[expand-rrules] Processing ${missions.length} mission(s)`);
+
+    // Log payload structure
+    if (missions.length > 0) {
+      const firstMission = missions[0];
+      console.log(
+        `[expand-rrules] Mission ${firstMission.mission_id}: ${firstMission.schedules.length} schedule(s), dates: ${firstMission.mission_dtstart} to ${firstMission.mission_until}`
+      );
+    }
 
     const now = new Date();
     const reminderWindowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000); // 23 hours from now
     const reminderWindowEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000); // 25 hours from now
+
+    console.log(
+      `[expand-rrules] Reminder window: ${reminderWindowStart.toISOString()} to ${reminderWindowEnd.toISOString()}`
+    );
 
     let totalQueued = 0;
     const errors: string[] = [];
 
     // Process each mission
     for (const missionData of missions) {
+      console.log(
+        `[expand-rrules] Processing mission: ${missionData.mission_id}`
+      );
       try {
         const missionDtstart = new Date(missionData.mission_dtstart);
         const missionUntil = new Date(missionData.mission_until);
@@ -118,6 +149,10 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
         // Process each schedule
         for (const schedule of missionData.schedules) {
           try {
+            console.log(
+              `[expand-rrules] Processing schedule: ${schedule.schedule_id} (${missionData.schedules.length} total)`
+            );
+
             // Generate occurrences in reminder window
             const occurrences = generateMissionOccurrences(
               schedule,
@@ -125,6 +160,10 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
               missionUntil,
               reminderWindowStart,
               reminderWindowEnd
+            );
+
+            console.log(
+              `[expand-rrules] Schedule ${schedule.schedule_id}: ${occurrences.length} occurrence(s) in reminder window`
             );
 
             // For each occurrence, check if already queued or sent, then insert
@@ -179,23 +218,27 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
                   totalQueued++;
                 }
               } catch (error) {
-                errors.push(
-                  `Error processing occurrence ${occurrenceDate.toISOString()}: ${error instanceof Error ? error.message : 'Unknown error'}`
-                );
+                const errorMsg = `Error processing occurrence ${occurrenceDate.toISOString()}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+                console.error(`[expand-rrules] ${errorMsg}`);
+                errors.push(errorMsg);
               }
             }
           } catch (error) {
-            errors.push(
-              `Error expanding RRULE for schedule ${schedule.schedule_id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
+            const errorMsg = `Error expanding RRULE for schedule ${schedule.schedule_id}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+            console.error(`[expand-rrules] ${errorMsg}`);
+            errors.push(errorMsg);
           }
         }
       } catch (error) {
-        errors.push(
-          `Error processing mission ${missionData.mission_id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
+        const errorMsg = `Error processing mission ${missionData.mission_id}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error(`[expand-rrules] ${errorMsg}`);
+        errors.push(errorMsg);
       }
     }
+
+    console.log(
+      `[expand-rrules] Completed: ${totalQueued} reminder(s) queued, ${errors.length} error(s)`
+    );
 
     return apiResponse.ok({
       errors: errors.length > 0 ? errors : undefined,
@@ -203,7 +246,7 @@ export const expandRrulesHandler = factory.createHandlers(async ({ req }) => {
       total_queued: totalQueued,
     });
   } catch (error) {
-    console.error('Error in expandRrulesHandler:', error);
+    console.error('[expand-rrules] Fatal error:', error);
     return apiResponse.internalServerError(
       'Failed to expand RRULEs and queue reminders',
       {

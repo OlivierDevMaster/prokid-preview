@@ -188,12 +188,13 @@ BEGIN
     END IF;
 
     -- Prepare request body for single mission
+    -- Convert timestamps to ISO 8601 format for Edge Function validation
     request_body := jsonb_build_object(
       'missions', jsonb_build_array(
         jsonb_build_object(
           'mission_id', mission_record.mission_id,
-          'mission_dtstart', mission_record.mission_dtstart,
-          'mission_until', mission_record.mission_until,
+          'mission_dtstart', to_jsonb(mission_record.mission_dtstart::timestamptz)::text,
+          'mission_until', to_jsonb(mission_record.mission_until::timestamptz)::text,
           'schedules', mission_record.schedules
         )
       )
