@@ -47,7 +47,7 @@ export function ProfessionalsPage() {
       </div>
       {/* Professionals Grid */}
       {professionals.length > 0 ? (
-        <div className='grid grid-cols-1 grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           {professionals.map(professional => (
             <ProfessionalCard
               key={professional.id}
