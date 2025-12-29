@@ -21,6 +21,17 @@ const roleRoutes: Record<string, string> = {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Exclude sitemap and robots routes from locale routing
+  // These routes should be accessible without locale prefix
+  if (
+    pathname.startsWith('/sitemap') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname === '/sitemap.xml'
+  ) {
+    // Skip locale routing for sitemap/robots, just update Supabase session
+    return await updateSession(request);
+  }
+
   // First, apply next-intl middleware to handle locale routing
   const intlResponse = intlMiddleware(request);
 
@@ -150,9 +161,9 @@ export async function proxy(request: NextRequest) {
 
     // Additional check: if accessing professional routes, verify subscription
     // Skip subscription check for subscription-related pages to avoid redirect loops
-    const isSubscriptionPage =
-      pathWithoutLocale.startsWith('/professional/subscription') ||
-      pathWithoutLocale.startsWith('/professional/subscription-test');
+    const isSubscriptionPage = pathWithoutLocale.startsWith(
+      '/professional/subscription'
+    );
 
     if (requiredRole === 'professional' && !isSubscriptionPage) {
       // Use service role client to bypass RLS (NextAuth has already verified identity)
@@ -222,7 +233,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - files with extensions (e.g., .svg, .png, .jpg, etc.)
-     * - auth routes (login, signup, etc.)
      */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
