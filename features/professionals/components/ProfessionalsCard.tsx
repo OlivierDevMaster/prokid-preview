@@ -34,9 +34,11 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
           <div className='flex-shrink-0'>
             <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-16 sm:w-16'>
               {professional.profile.avatar_url ? (
-                // TODO: Check if width and height are correct
                 <Image
-                  alt={professional.profile.first_name ?? ''}
+                  alt={
+                    `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim() ||
+                    'Professional profile photo'
+                  }
                   className='h-full w-full object-cover'
                   height={64}
                   src={professional.profile.avatar_url}

@@ -370,6 +370,9 @@
       "specialties": "Spécialités",
       "sector": "Secteur",
       "certifiedProfessional": "Professionnel agréé",
+      "locationAndExperience": "Localisation et expérience",
+      "pricing": "Tarifs",
+      "relatedProfessionals": "Professionnels similaires",
       "hour": "heure",
       "day": "jour",
       "sendMessage": "Envoyer un message",
@@ -1172,5 +1175,18 @@
       "primaryButton": "Créer un compte",
       "secondaryButton": "En savoir plus"
     }
+  },
+  "notFound": {
+    "title": "Page non trouvée",
+    "description": "Désolé, la page que vous recherchez n'existe pas ou a été déplacée.",
+    "helpfulLinks": "Liens utiles",
+    "helpfulLinksDescription": "Voici quelques pages qui pourraient vous intéresser :",
+    "links": {
+      "home": "Accueil",
+      "professionals": "Professionnels",
+      "faq": "FAQ"
+    },
+    "backToHome": "Retour à l'accueil",
+    "browseProfessionals": "Parcourir les professionnels"
   }
 }
