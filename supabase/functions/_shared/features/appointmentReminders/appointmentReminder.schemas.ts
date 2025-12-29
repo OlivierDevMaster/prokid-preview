@@ -25,6 +25,14 @@ export const SendAppointmentRemindersRequestBodySchema = z.object({
     .min(1, 'At least one mission is required'),
 });
 
+export const ProcessReminderRequestBodySchema = z.object({
+  reminder_id: z.string().uuid('Reminder ID must be a valid UUID'),
+});
+
+export type ProcessReminderRequestBody = z.infer<
+  typeof ProcessReminderRequestBodySchema
+>;
+
 export type SendAppointmentRemindersRequestBody = z.infer<
   typeof SendAppointmentRemindersRequestBodySchema
 >;

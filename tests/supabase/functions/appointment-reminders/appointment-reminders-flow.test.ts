@@ -213,10 +213,12 @@ describe('Appointment Reminders Flow', () => {
 
     // If we have pending reminders, process them
     if (pendingReminders && pendingReminders.length > 0) {
-      // Step 3: Call process-reminders Edge Function to process the queue
+      // Step 3: Call process-reminders Edge Function to process each reminder
+      // Process the first pending reminder
+      const reminderToProcess = pendingReminders[0];
       const processResponse = await apiHelper.invokeEndpoint({
         body: {
-          batch_size: 10, // Process up to 10 reminders
+          reminder_id: reminderToProcess.id,
         },
         method: 'POST',
         name: 'process-reminders',
@@ -225,9 +227,9 @@ describe('Appointment Reminders Flow', () => {
 
       assertEquals(processResponse.response.status, 200);
       assertExists(processResponse.data);
-      assertEquals(typeof processResponse.data.processed, 'number');
-      assertEquals(typeof processResponse.data.sent, 'number');
-      assertEquals(typeof processResponse.data.failed, 'number');
+      assertEquals(typeof processResponse.data.sent, 'boolean');
+      assertEquals(processResponse.data.reminder_id, reminderToProcess.id);
+      assertExists(processResponse.data.message);
 
       // Step 4: Verify reminders were processed
       const { data: processedReminders, error: processedError } =
@@ -455,17 +457,33 @@ describe('Appointment Reminders Flow', () => {
     assertExists(missionCheck);
     assertEquals(missionCheck.status, 'accepted');
 
-    // Step 2: Process reminders
-    const processResponse = await apiHelper.invokeEndpoint({
-      body: {
-        batch_size: 10,
-      },
-      method: 'POST',
-      name: 'process-reminders',
-      token: null,
-    });
+    // Step 2: Get pending reminders and process them
+    const { data: pendingRemindersBeforeProcess } = await adminClient
+      .from('appointment_reminders_pending')
+      .select('id')
+      .eq('mission_id', missionData.id)
+      .eq('status', 'pending');
 
-    assertEquals(processResponse.response.status, 200);
+    // If there are pending reminders, process the first one
+    if (
+      pendingRemindersBeforeProcess &&
+      pendingRemindersBeforeProcess.length > 0
+    ) {
+      const reminderToProcess = pendingRemindersBeforeProcess[0];
+      const processResponse = await apiHelper.invokeEndpoint({
+        body: {
+          reminder_id: reminderToProcess.id,
+        },
+        method: 'POST',
+        name: 'process-reminders',
+        token: null,
+      });
+
+      assertEquals(processResponse.response.status, 200);
+      assertExists(processResponse.data);
+      assertEquals(typeof processResponse.data.sent, 'boolean');
+      assertEquals(processResponse.data.reminder_id, reminderToProcess.id);
+    }
 
     // Step 3: Verify reminders were cancelled (not sent) due to disabled preferences
     const { data: pendingReminders, error: pendingError } = await adminClient

@@ -308,6 +308,8 @@ DECLARE
   supabase_service_role_key TEXT;
   api_url TEXT;
   request_body JSONB;
+  reminder_record RECORD;
+  processed_count INTEGER := 0;
 BEGIN
   -- Get Supabase URL and service role key from vault
   supabase_url := public.get_vault_secret('supabase_url');
@@ -325,28 +327,49 @@ BEGIN
     RETURN 0;
   END IF;
 
-  -- Prepare request body (process one reminder at a time to avoid CPU limits)
-  request_body := jsonb_build_object(
-    'batch_size', 1
-  );
+  -- Select up to 50 pending reminder IDs
+  -- Process each reminder by calling Edge Function individually
+  FOR reminder_record IN
+    SELECT arp.id
+    FROM public.appointment_reminders_pending arp
+    WHERE arp.status = 'pending'
+      AND (arp.next_retry_at IS NULL OR arp.next_retry_at <= NOW())
+    ORDER BY arp.occurrence_date
+    LIMIT 50
+  LOOP
+    -- Prepare request body with specific reminder ID
+    request_body := jsonb_build_object(
+      'reminder_id', reminder_record.id
+    );
 
-  -- Call Edge Function using pg_net (fire-and-forget)
-  PERFORM net.http_post(
-    api_url,
-    request_body,
-    '{}'::jsonb,
-    jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || supabase_service_role_key,
-      'apikey', supabase_service_role_key
-    )
-  );
+    -- Call Edge Function using pg_net (fire-and-forget)
+    -- Each call processes one reminder
+    BEGIN
+      PERFORM net.http_post(
+        api_url,
+        request_body,
+        '{}'::jsonb,
+        jsonb_build_object(
+          'Content-Type', 'application/json',
+          'Authorization', 'Bearer ' || supabase_service_role_key,
+          'apikey', supabase_service_role_key
+        )
+      );
+      processed_count := processed_count + 1;
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Log error for this reminder but continue with next
+        RAISE WARNING 'Error calling Edge Function for reminder %: %', reminder_record.id, SQLERRM;
+    END;
+  END LOOP;
 
-  RETURN 1;
+  -- Return count of reminders processed
+  RETURN processed_count;
 EXCEPTION
   WHEN OTHERS THEN
+    -- Log error but don't fail
     RAISE WARNING 'Error in process_appointment_reminders: %', SQLERRM;
-    RETURN 0;
+    RETURN processed_count;
 END;
 $$;
 
