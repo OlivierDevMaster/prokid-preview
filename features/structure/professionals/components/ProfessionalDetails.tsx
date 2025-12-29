@@ -23,6 +23,7 @@ export function ProfessionalDetails() {
   const { id } = useParams();
   const t = useTranslations('structure.professionals.details');
   const tCommon = useTranslations('common');
+  const tProfessional = useTranslations('professional');
 
   const { data: professional, isLoading } = useFindProfessional(id as string);
 
@@ -106,7 +107,7 @@ export function ProfessionalDetails() {
                     </h1>
                     {professional.current_job && (
                       <p className='mb-3 text-lg text-gray-700'>
-                        {professional.current_job}
+                        {tProfessional(`jobs.${professional.current_job}`)}
                       </p>
                     )}
 

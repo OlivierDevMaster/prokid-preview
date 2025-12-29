@@ -2,8 +2,26 @@ import type { Metadata } from 'next';
 
 import { getTranslations } from 'next-intl/server';
 
-import { LandingPage } from '@/features/landing-page/components/LandingPage';
 import { getAppUrl } from '@/lib/utils';
+
+import { FAQSchema } from './FAQSchema';
+
+export default async function FAQLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  return (
+    <>
+      <FAQSchema locale={locale} />
+      {children}
+    </>
+  );
+}
 
 export async function generateMetadata({
   params,
@@ -11,14 +29,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'landing.hero' });
+  const t = await getTranslations({ locale, namespace: 'faq' });
   const appUrl = getAppUrl();
 
   const title = t('title');
-  const description = t('description');
-  const canonicalUrl = `${appUrl}/${locale}`;
+  const description =
+    'Frequently asked questions about ProKid - Find answers about our platform for early childhood professionals';
+  const canonicalUrl = `${appUrl}/${locale}/faq`;
   const otherLocale = locale === 'fr' ? 'en' : 'fr';
-  const otherLocaleUrl = `${appUrl}/${otherLocale}`;
+  const otherLocaleUrl = `${appUrl}/${otherLocale}/faq`;
 
   return {
     alternates: {
@@ -53,12 +72,4 @@ export async function generateMetadata({
       title,
     },
   };
-}
-
-export default function Home() {
-  return (
-    <main className='flex min-h-screen flex-col items-center'>
-      <LandingPage />
-    </main>
-  );
 }
