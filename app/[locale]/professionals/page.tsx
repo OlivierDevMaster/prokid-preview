@@ -16,8 +16,18 @@ export async function generateMetadata({
 
   const title = t('title');
   const description = t('subtitle');
+  const canonicalUrl = `${appUrl}/${locale}/professionals`;
+  const otherLocale = locale === 'fr' ? 'en' : 'fr';
+  const otherLocaleUrl = `${appUrl}/${otherLocale}/professionals`;
 
   return {
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        [locale]: canonicalUrl,
+        [otherLocale]: otherLocaleUrl,
+      },
+    },
     description,
     openGraph: {
       description,
@@ -33,7 +43,7 @@ export async function generateMetadata({
       siteName: 'ProKid',
       title,
       type: 'website',
-      url: `${appUrl}/${locale}/professionals`,
+      url: canonicalUrl,
     },
     title,
     twitter: {

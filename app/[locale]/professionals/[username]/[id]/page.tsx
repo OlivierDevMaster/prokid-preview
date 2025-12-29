@@ -51,7 +51,18 @@ export async function generateMetadata({
     professional.last_name
   );
 
+  const canonicalUrl = `${appUrl}/${locale}/professionals/${expectedUsername || username}/${id}`;
+  const otherLocale = locale === 'fr' ? 'en' : 'fr';
+  const otherLocaleUrl = `${appUrl}/${otherLocale}/professionals/${expectedUsername || username}/${id}`;
+
   return {
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        [locale]: canonicalUrl,
+        [otherLocale]: otherLocaleUrl,
+      },
+    },
     description,
     openGraph: {
       description,
@@ -67,7 +78,7 @@ export async function generateMetadata({
       siteName: 'ProKid',
       title,
       type: 'profile',
-      url: `${appUrl}/${locale}/professionals/${expectedUsername || username}/${id}`,
+      url: canonicalUrl,
     },
     title,
     twitter: {

@@ -25,12 +25,12 @@ This checklist covers SEO improvements for the ProKid application.
 
 ## 🏷️ Metadata & Tags
 
-- [ ] Unique meta descriptions for each professional profile page
-- [ ] Canonical URLs to prevent duplicate content
-- [ ] Language/alternate links in HTML head (`<link rel="alternate" hreflang="...">`)
-- [ ] Image alt text for all images (especially professional avatars)
-- [ ] Verify Open Graph tags on all pages
-- [ ] Verify Twitter Card tags on all pages
+- [x] Unique meta descriptions for each professional profile page
+- [x] Canonical URLs to prevent duplicate content
+- [x] Language/alternate links in HTML head (`<link rel="alternate" hreflang="...">`)
+- [x] Image alt text for all images (especially professional avatars)
+- [x] Verify Open Graph tags on all pages
+- [x] Verify Twitter Card tags on all pages
 
 ## ⚙️ Technical SEO
 

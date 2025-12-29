@@ -173,7 +173,10 @@ export default function ProfessionalProfile() {
                     <div className='flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-300 bg-gray-200'>
                       {professional.profile.avatar_url ? (
                         <Image
-                          alt={professional.profile.first_name ?? ''}
+                          alt={
+                            `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim() ||
+                            'Professional profile photo'
+                          }
                           className='h-full w-full object-cover'
                           height={96}
                           src={professional.profile.avatar_url}
