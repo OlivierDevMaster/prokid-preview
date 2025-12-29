@@ -29,10 +29,10 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
 
   return (
     <Card className='rounded-lg border border-green-100/50 bg-white shadow-sm transition-shadow hover:shadow-md'>
-      <div className='p-6'>
-        <div className='flex gap-4'>
+      <div className='p-4 sm:p-6'>
+        <div className='flex gap-3 sm:gap-4'>
           <div className='flex-shrink-0'>
-            <div className='flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+            <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-16 sm:w-16'>
               {professional.profile.avatar_url ? (
                 // TODO: Check if width and height are correct
                 <Image
@@ -44,7 +44,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                   width={64}
                 />
               ) : (
-                <span className='text-2xl font-semibold text-gray-500'>
+                <span className='text-lg font-semibold text-gray-500 sm:text-2xl'>
                   {professional.profile.first_name?.charAt(0) ?? ''}
                 </span>
               )}
@@ -52,26 +52,26 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
           </div>
 
           <div className='min-w-0 flex-1'>
-            <div className='flex items-stretch justify-between gap-4'>
+            <div className='flex flex-col gap-4 md:flex-row md:items-stretch md:justify-between'>
               <div className='flex-1'>
-                <h3 className='mb-1 text-lg font-bold text-gray-800'>
+                <h3 className='mb-1 text-base font-bold text-gray-800 sm:text-lg'>
                   {professional.profile.first_name}
                 </h3>
-                <p className='mb-3 text-sm font-medium text-blue-600'>
+                <p className='mb-2 text-xs font-medium text-blue-600 sm:mb-3 sm:text-sm'>
                   {professional.profile.role}
                 </p>
 
-                <div className='mb-3 space-y-2'>
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <MapPin className='h-4 w-4 text-gray-400' />
-                    <span>
+                <div className='mb-2 space-y-1.5 sm:mb-3 sm:space-y-2'>
+                  <div className='flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm'>
+                    <MapPin className='h-3 w-3 text-gray-400 sm:h-4 sm:w-4' />
+                    <span className='truncate'>
                       {professional.city} • {t('upTo')}{' '}
                       {professional.intervention_radius_km} {t('km')}
                     </span>
                   </div>
 
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <Calendar className='h-4 w-4 text-gray-400' />
+                  <div className='flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm'>
+                    <Calendar className='h-3 w-3 text-gray-400 sm:h-4 sm:w-4' />
                     <span>
                       {professional.is_available
                         ? t('available')
@@ -80,14 +80,14 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                   </div>
                 </div>
 
-                <p className='mb-3 line-clamp-2 text-sm text-gray-600'>
+                <p className='mb-2 line-clamp-2 text-xs text-gray-600 sm:mb-3 sm:text-sm'>
                   {professional.description}
                 </p>
 
-                <div className='mb-3 flex flex-wrap gap-2'>
+                <div className='mb-3 flex flex-wrap gap-1.5 sm:gap-2'>
                   {(professional?.skills ?? []).map((skill, index) => (
                     <Badge
-                      className='bg-green-500 text-white hover:bg-green-600'
+                      className='bg-green-500 text-xs text-white hover:bg-green-600 sm:text-sm'
                       key={index}
                     >
                       {skill}
@@ -96,9 +96,9 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                 </div>
               </div>
 
-              <div className='align-end flex flex-col justify-between text-right'>
-                <div className='flex items-center justify-end gap-2 text-sm text-gray-600'>
-                  <Star className='h-4 w-4 fill-yellow-500 text-yellow-500' />
+              <div className='flex flex-row items-center justify-between gap-3 border-t border-gray-200 pt-3 md:flex-col md:justify-between md:border-t-0 md:pt-0 md:text-right'>
+                <div className='flex items-center gap-2 text-xs text-gray-600 sm:text-sm'>
+                  <Star className='h-3 w-3 fill-yellow-500 text-yellow-500 sm:h-4 sm:w-4' />
                   <span className='font-semibold text-yellow-500'>
                     {professional.rating
                       ? Number(professional.rating).toFixed(1)
@@ -108,17 +108,19 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                     ({professional.reviews_count || 0})
                   </span>
                 </div>
-                <div className='flex items-center justify-between gap-2'>
-                  <p className='text-sm text-gray-800'>
+                <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                  <p className='text-xs text-gray-800 sm:text-sm'>
                     {professional.hourly_rate}€{t('hourlyRate')}
                   </p>
-                  <Link href={profileUrl}>
+                  <Link className='w-full sm:w-auto' href={profileUrl}>
                     <Button
-                      className='w-full rounded-lg bg-blue-500 text-white hover:bg-blue-600'
+                      className='w-full rounded-lg bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
                       size='sm'
                     >
-                      <Eye className='mr-2 h-4 w-4' />
-                      {t('viewProfile')}
+                      <Eye className='mr-1.5 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4' />
+                      <span className='text-xs sm:text-sm'>
+                        {t('viewProfile')}
+                      </span>
                     </Button>
                   </Link>
                 </div>
