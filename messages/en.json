@@ -159,6 +159,7 @@
         "confirmPasswordLabel": "Confirm password",
         "confirmPasswordPlaceholder": "Re-enter your password",
         "submitButton": "Create my account",
+        "creatingAccount": "Creating account...",
         "success": "Account created successfully!",
         "error": "An error occurred while creating the account",
         "passwordMismatch": "Passwords do not match",
@@ -191,7 +192,18 @@
         "recurring": "Recurring",
         "nonWorking": "Non working",
         "errorSlotOverlap": "This slot overlaps with another slot",
-        "errorSlotInvalidTime": "Start time must be before end time"
+        "errorSlotInvalidTime": "Start time must be before end time",
+        "validation": {
+          "cityRequired": "City is required",
+          "firstNameRequired": "First name is required",
+          "hourlyRateRequired": "Hourly rate is required",
+          "hourlyRateMin": "Hourly rate must be at least 1",
+          "interventionZoneMin": "Intervention zone must be at least 5 km",
+          "interventionZoneMax": "Intervention zone must be at most 100 km",
+          "lastNameRequired": "Last name is required",
+          "phoneRequired": "Phone is required",
+          "professionRequired": "Profession is required"
+        }
       },
       "verifyEmail": {
         "title": "Check your email",
@@ -313,7 +325,8 @@
       "locationPlaceholder": "City or postal code",
       "role": "Role",
       "availability": "Avail.",
-      "activeFilters": "Active filters:"
+      "activeFilters": "Active filters:",
+      "clearAll": "Clear all"
     },
     "results": {
       "found": "professionals found",

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/i18n/routing';
+import { generateUsernameSlug } from '@/lib/utils';
 
 import { Professional } from '../professional.model';
 
@@ -17,6 +18,14 @@ interface ProfessionalsCardProps {
 
 export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
   const t = useTranslations('professional.card');
+
+  const username = generateUsernameSlug(
+    professional.profile.first_name,
+    professional.profile.last_name
+  );
+  const profileUrl = username
+    ? `/professionals/${username}/${professional.user_id}`
+    : `/professionals/${professional.user_id}`;
 
   return (
     <Card className='rounded-lg border border-green-100/50 bg-white shadow-sm transition-shadow hover:shadow-md'>
@@ -103,7 +112,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
                   <p className='text-sm text-gray-800'>
                     {professional.hourly_rate}€{t('hourlyRate')}
                   </p>
-                  <Link href={`/professionals/${professional.user_id}`}>
+                  <Link href={profileUrl}>
                     <Button
                       className='w-full rounded-lg bg-blue-500 text-white hover:bg-blue-600'
                       size='sm'

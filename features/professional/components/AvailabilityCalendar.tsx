@@ -114,27 +114,29 @@ export function AvailabilityCalendar({
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white shadow-md'>
-      <div className='p-6'>
+      <div className='p-4 md:p-6'>
         {/* Header */}
-        <div className='mb-4 flex items-center justify-between'>
+        <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-5 w-5 text-gray-600' />
-            <h3 className='text-lg font-bold text-gray-800'>{t('title')}</h3>
+            <h3 className='text-base font-bold text-gray-800 md:text-lg'>
+              {t('title')}
+            </h3>
           </div>
           {totalAvailableSlots > 0 && (
-            <Badge className='bg-blue-100 text-blue-700 hover:bg-blue-200'>
+            <Badge className='w-fit bg-blue-100 text-blue-700 hover:bg-blue-200'>
               {totalAvailableSlots} {t('freeSlots')}
             </Badge>
           )}
         </div>
 
         {/* Semaine */}
-        <p className='mb-4 text-sm text-gray-600'>
+        <p className='mb-4 text-xs text-gray-600 md:text-sm'>
           {t('weekOf')} {format(weekStart, 'd MMMM yyyy', { locale: fr })}
         </p>
 
         {/* Navigation */}
-        <div className='mb-6 flex items-center justify-between'>
+        <div className='mb-6 flex flex-wrap items-center justify-between gap-2'>
           <Button
             className='text-gray-600 hover:text-gray-800'
             onClick={goToPreviousWeek}
@@ -142,7 +144,8 @@ export function AvailabilityCalendar({
             variant='ghost'
           >
             <ChevronLeft className='mr-1 h-4 w-4' />
-            {t('previousWeek')}
+            <span className='hidden sm:inline'>{t('previousWeek')}</span>
+            <span className='sm:hidden'>{t('previousWeek').split(' ')[0]}</span>
           </Button>
           <Button
             className={
@@ -160,7 +163,8 @@ export function AvailabilityCalendar({
             size='sm'
             variant='ghost'
           >
-            {t('nextWeek')}
+            <span className='hidden sm:inline'>{t('nextWeek')}</span>
+            <span className='sm:hidden'>{t('nextWeek').split(' ')[0]}</span>
             <ChevronRight className='ml-1 h-4 w-4' />
           </Button>
         </div>
@@ -173,57 +177,59 @@ export function AvailabilityCalendar({
             </p>
           </div>
         ) : (
-          <div className='mb-6 grid grid-cols-7 gap-2'>
-            {weekDays.map((day, index) => {
-              const slots = getAvailableSlots(day);
-              const isToday = isSameDay(day, new Date());
-              const dayName = dayNames[index];
-              const dayNumber = format(day, 'd');
-              const month = format(day, 'MMM', { locale: fr });
+          <div className='mb-6 overflow-x-auto md:overflow-visible'>
+            <div className='grid min-w-[700px] grid-cols-7 gap-2 md:min-w-0'>
+              {weekDays.map((day, index) => {
+                const slots = getAvailableSlots(day);
+                const isToday = isSameDay(day, new Date());
+                const dayName = dayNames[index];
+                const dayNumber = format(day, 'd');
+                const month = format(day, 'MMM', { locale: fr });
 
-              return (
-                <div
-                  className={`min-h-[120px] rounded-lg border p-3 ${
-                    isToday
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white'
-                  }`}
-                  key={index}
-                >
-                  <div className='mb-2 text-xs font-semibold text-gray-700'>
-                    {dayName}
-                  </div>
-                  <div className='mb-3 text-sm text-gray-600'>
-                    {dayNumber} {month}
-                  </div>
-                  {slots.length > 0 ? (
-                    <div className='space-y-1'>
-                      {slots.map((slot, slotIndex) => (
-                        <Button
-                          className='w-full border-blue-200 bg-blue-50 text-xs text-blue-700 hover:bg-blue-100'
-                          key={slotIndex}
-                          size='sm'
-                          variant='outline'
-                        >
-                          {slot}
-                        </Button>
-                      ))}
+                return (
+                  <div
+                    className={`min-h-[120px] rounded-lg border p-2 md:p-3 ${
+                      isToday
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white'
+                    }`}
+                    key={index}
+                  >
+                    <div className='mb-2 text-xs font-semibold text-gray-700'>
+                      {dayName}
                     </div>
-                  ) : (
-                    <div className='mt-2 h-px bg-gray-200' />
-                  )}
-                </div>
-              );
-            })}
+                    <div className='mb-3 text-xs text-gray-600 md:text-sm'>
+                      {dayNumber} {month}
+                    </div>
+                    {slots.length > 0 ? (
+                      <div className='space-y-1'>
+                        {slots.map((slot, slotIndex) => (
+                          <Button
+                            className='w-full border-blue-200 bg-blue-50 text-xs text-blue-700 hover:bg-blue-100'
+                            key={slotIndex}
+                            size='sm'
+                            variant='outline'
+                          >
+                            {slot}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className='mt-2 h-px bg-gray-200' />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {/* Instructions */}
         <div className='border-t pt-4'>
           <div className='flex items-start gap-2'>
-            <CalendarIcon className='mt-0.5 h-4 w-4 text-gray-400' />
+            <CalendarIcon className='mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400' />
             <div>
-              <p className='mb-1 text-sm font-semibold text-gray-700'>
+              <p className='mb-1 text-xs font-semibold text-gray-700 md:text-sm'>
                 {t('howToBook')}
               </p>
               <p className='text-xs leading-relaxed text-gray-600'>

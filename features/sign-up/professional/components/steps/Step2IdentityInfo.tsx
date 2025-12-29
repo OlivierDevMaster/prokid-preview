@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
-import type { ProfessionalSignUpFormData } from '@/features/professional/schemas/professional-signup.schema';
+import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,7 +96,7 @@ export function Step2IdentityInfo({
       <div className='space-y-2'>
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='profession'>
-            {tProfessional('job')}
+            {tProfessional('job')} *
           </Label>
           <Controller
             control={control}
@@ -236,7 +236,7 @@ export function Step2IdentityInfo({
       <div className='grid grid-cols-1 gap-4'>
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='phone'>
-            {tProfessional('phone')}
+            {tProfessional('phone')} *
           </Label>
           <Controller
             control={control}
@@ -247,11 +247,15 @@ export function Step2IdentityInfo({
                 id='phone'
                 onChange={field.onChange}
                 placeholder='06 12 34 56 78'
+                required
                 type='tel'
                 value={field.value}
               />
             )}
           />
+          {errors.phone && (
+            <p className='text-sm text-red-500'>{errors.phone.message}</p>
+          )}
         </div>
       </div>
 
@@ -296,7 +300,7 @@ export function Step2IdentityInfo({
 
         <div className='space-y-2'>
           <Label className='text-gray-700' htmlFor='hourlyRate'>
-            {tProfessional('hourlyRate')} (€)
+            {tProfessional('hourlyRate')} (€) *
           </Label>
           <Controller
             control={control}
@@ -305,12 +309,28 @@ export function Step2IdentityInfo({
               <Input
                 className='border-gray-300'
                 id='hourlyRate'
-                onChange={field.onChange}
+                min='1'
+                onChange={e => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    field.onChange(undefined as unknown as number);
+                  } else {
+                    const numValue = parseFloat(value);
+                    if (!isNaN(numValue)) {
+                      field.onChange(numValue);
+                    }
+                  }
+                }}
+                required
+                step='0.01'
                 type='number'
-                value={field.value}
+                value={field.value ?? ''}
               />
             )}
           />
+          {errors.hourlyRate && (
+            <p className='text-sm text-red-500'>{errors.hourlyRate.message}</p>
+          )}
         </div>
       </div>
 

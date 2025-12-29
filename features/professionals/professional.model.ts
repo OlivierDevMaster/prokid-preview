@@ -9,9 +9,10 @@ export type Professional = {
 } & Tables<'professionals'>;
 
 export interface ProfessionalFilters {
+  availability?: string;
+  current_job?: string;
   locationSearch?: string;
   search?: string;
-  skills?: string[];
 }
 
 export type ProfessionalInsert = TablesInsert<'professionals'>;

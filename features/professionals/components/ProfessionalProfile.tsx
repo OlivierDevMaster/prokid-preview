@@ -31,19 +31,21 @@ import { useRatingForMembership } from '@/features/structure/ratings/hooks/useRa
 import { useRole } from '@/hooks/useRole';
 import { Link, useRouter } from '@/i18n/routing';
 
-export default function ProfessionalProfilePage() {
+export default function ProfessionalProfile() {
   const { id } = useParams();
   const t = useTranslations('professional.profile');
   const tProfessional = useTranslations('professional');
   const tRating = useTranslations('structure.ratings');
   const tInvitation = useTranslations('structure.invitations');
   const tMission = useTranslations('structure.missions');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const { data: session } = useSession();
   const { isStructure, userId } = useRole();
   const professionalId = id as string;
 
-  const { data: professional } = useFindProfessional(professionalId);
+  const { data: professional, isLoading: isProfessionalLoading } =
+    useFindProfessional(professionalId);
   const { data: hasMembership, isLoading: isLoadingMembership } =
     useCheckStructureMembership(userId, professionalId);
   const { data: membershipId } = useGetMembershipId(userId, professionalId);
@@ -133,6 +135,14 @@ export default function ProfessionalProfilePage() {
       return job;
     }
   };
+
+  if (isProfessionalLoading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-white'>
+        <p className='text-gray-500'>{tCommon('messages.loading')}</p>
+      </div>
+    );
+  }
 
   if (!professional) {
     return (

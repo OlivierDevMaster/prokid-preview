@@ -15,12 +15,12 @@ export default function ProfessionalSignUpLayout({
   return (
     <main>
       <div className='overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100'>
-        <div className='flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
+        <div className='flex min-h-svh w-full items-center justify-center md:p-10'>
           <div className='w-full'>
-            <div className='flex flex-col items-center justify-center p-6'>
+            <div className='flex flex-col items-center justify-center'>
               <div className='space-y-8'>
                 <div className='space-y-4 text-center'>
-                  <div className='flex items-center justify-center'>
+                  <div className='flex flex-col items-center justify-center md:flex-row'>
                     <h1 className='text-4xl font-bold text-gray-800 md:text-5xl'>
                       {t('welcome')}
                     </h1>
