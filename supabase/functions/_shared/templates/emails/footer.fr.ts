@@ -1,4 +1,4 @@
-export const footerTemplate = `          <!-- Footer content -->
+export const footerTemplateFr = `          <!-- Footer content -->
           <tr>
             <td style="padding: 30px 40px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9;">
               <p style="margin: 0 0 10px 0; color: #7f8c8d; font-size: 13px; line-height: 1.6;">

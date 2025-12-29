@@ -1,4 +1,4 @@
-export const reportBodyTemplate = `          <!-- Body content -->
+export const reportBodyTemplateFr = `          <!-- Body content -->
           <tr>
             <td style="padding: 40px;">
               <!-- Professional Information -->

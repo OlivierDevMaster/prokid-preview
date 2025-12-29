@@ -95,8 +95,21 @@ export class MissionCleanupHelper {
           .eq('user_id', fixture.professionalId);
       }
 
-      // Delete structure if exists
+      // Delete structure if exists (before deleting user to avoid foreign key issues)
       if (fixture.structureId) {
+        // Delete structure memberships first
+        await this.adminClient
+          .from('structure_members')
+          .delete()
+          .eq('structure_id', fixture.structureId);
+
+        // Delete structure invitations
+        await this.adminClient
+          .from('structure_invitations')
+          .delete()
+          .eq('structure_id', fixture.structureId);
+
+        // Delete structure
         await this.adminClient
           .from('structures')
           .delete()
@@ -267,6 +280,17 @@ export class MissionFixtureBuilder {
     // Wait a bit for the trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 100));
 
+    // Clean up any existing professional for this user_id (in case of previous failed test)
+    try {
+      await this.adminClient
+        .from('professionals')
+        .delete()
+        .eq('user_id', userId);
+    } catch (error) {
+      // Ignore cleanup errors
+      console.warn('Warning: Failed to cleanup existing professional:', error);
+    }
+
     // Create professional record
     const { data: professionalData, error: professionalError } =
       await this.adminClient
@@ -351,6 +375,14 @@ export class MissionFixtureBuilder {
 
     // Wait a bit for the trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Clean up any existing structure for this user_id (in case of previous failed test)
+    try {
+      await this.adminClient.from('structures').delete().eq('user_id', userId);
+    } catch (error) {
+      // Ignore cleanup errors
+      console.warn('Warning: Failed to cleanup existing structure:', error);
+    }
 
     // Create structure record
     const { data: structureData, error: structureError } =

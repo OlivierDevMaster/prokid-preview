@@ -5,10 +5,9 @@ import { Resend } from 'resend';
 
 import { SendReportRequestBodySchema } from '../../_shared/features/reports/report.schemas.ts';
 import { getReportById } from '../../_shared/features/reports/report.service.ts';
-import { minifyHtml } from '../../_shared/utils/htmlMinifier.ts';
+import { renderReportEmailTemplate } from '../../_shared/services/templates/renderReportEmailTemplate.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
-import { renderReportEmailTemplate } from '../../_shared/utils/template.ts';
 import { Database } from '../../../../types/database/schema.ts';
 
 type Variables = {
@@ -18,17 +17,6 @@ type Variables = {
 };
 
 const factory = createFactory<{ Variables: Variables }>();
-
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
 
 const downloadAttachments = async (
   supabaseAdminClient: SupabaseClient<Database>,
@@ -166,37 +154,33 @@ export const sendReportHandler = factory.createHandlers(
       // Initialize Resend
       const resend = new Resend(resendApiKey);
 
-      // Prepare template data
-      const professionalName =
-        report.author.profile.first_name && report.author.profile.last_name
-          ? `${report.author.profile.first_name} ${report.author.profile.last_name}`
-          : report.author.profile.first_name ||
-            report.author.profile.last_name ||
-            'Professional';
-
-      const templateData = {
+      // Render and minify email template
+      const emailHtml = await renderReportEmailTemplate({
         attachments: (report.attachments || []).map(att => ({
           file_name: att.file_name,
-          file_size_kb: (att.file_size / 1024).toFixed(2),
+          file_size: att.file_size,
         })),
-        attachments_count: (report.attachments || []).length,
-        created_at: formatDate(report.created_at),
-        footer_text: `Rapport créé le: ${formatDate(report.created_at)} | Structure: ${report.mission.structure.name}`,
-        has_attachments: (report.attachments || []).length > 0,
-        mission_description: report.mission.description,
-        mission_end_date: formatDate(report.mission.mission_until),
-        mission_start_date: formatDate(report.mission.mission_dtstart),
-        mission_title: report.mission.title,
-        professional_email: report.author.profile.email,
-        professional_name: professionalName,
-        report_content: report.content,
-        structure_name: report.mission.structure.name,
-        title: report.title,
-      };
-
-      // Render and minify email template
-      const emailHtmlRaw = renderReportEmailTemplate(templateData);
-      const emailHtml = await minifyHtml(emailHtmlRaw);
+        createdAt: report.created_at,
+        locale: 'fr',
+        mission: {
+          description: report.mission.description,
+          mission_dtstart: report.mission.mission_dtstart,
+          mission_until: report.mission.mission_until,
+          title: report.mission.title,
+        },
+        professional: {
+          email: report.author.profile.email,
+          firstName: report.author.profile.first_name,
+          lastName: report.author.profile.last_name,
+        },
+        report: {
+          content: report.content,
+          title: report.title,
+        },
+        structure: {
+          name: report.mission.structure.name,
+        },
+      });
 
       // Send email via Resend
       const emailSubject = `Rapport: ${report.title}`;
