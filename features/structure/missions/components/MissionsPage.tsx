@@ -101,13 +101,13 @@ export function MissionsPage() {
       </div>
 
       {/* Filters */}
-      <div className='flex justify-between gap-4'>
-        <div className='flex gap-4'>
+      <div className='flex flex-col gap-4 md:flex-row md:justify-between'>
+        <div className='flex flex-col gap-4 sm:flex-row'>
           <Select
             onValueChange={handleProfessionalChange}
             value={selectedProfessionalId}
           >
-            <SelectTrigger className='w-[250px]'>
+            <SelectTrigger className='w-full sm:w-[250px]'>
               <SelectValue placeholder={t('filterByProfessional')} />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +120,7 @@ export function MissionsPage() {
             </SelectContent>
           </Select>
           <Select onValueChange={handleStatusChange} value={selectedStatus}>
-            <SelectTrigger className='w-[250px]'>
+            <SelectTrigger className='w-full sm:w-[250px]'>
               <SelectValue placeholder={t('filterByStatus')} />
             </SelectTrigger>
             <SelectContent>
@@ -134,7 +134,7 @@ export function MissionsPage() {
           </Select>
         </div>
         <Button
-          className='bg-blue-500 text-white hover:bg-blue-600'
+          className='w-full bg-blue-500 text-white hover:bg-blue-600 sm:w-auto md:w-auto'
           onClick={handleCreateMission}
         >
           <Plus className='mr-2 h-4 w-4' />

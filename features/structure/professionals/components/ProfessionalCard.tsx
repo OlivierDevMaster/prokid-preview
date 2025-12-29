@@ -25,26 +25,26 @@ export function ProfessionalCard({ professional }: ProfessionalCardProps) {
 
   return (
     <Card className='rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md'>
-      <div className='flex items-center justify-start'>
+      <div className='flex items-start justify-start md:items-center'>
         {/* Profile Picture */}
-        <div className='relative flex h-32 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+        <div className='relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 md:h-24 md:w-24 lg:h-32 lg:w-32'>
           {professional.avatarUrl ? (
             <Image
               alt={professional.name}
               className='h-full w-full object-cover'
-              height={80}
+              height={128}
               src={professional.avatarUrl}
               unoptimized
-              width={80}
+              width={128}
             />
           ) : (
-            <span className='text-2xl font-semibold text-gray-600'>
+            <span className='text-sm font-semibold text-gray-600 md:text-lg lg:text-2xl'>
               {initials}
             </span>
           )}
         </div>
 
-        <div className='p-4'>
+        <div className='p-2 pl-4 md:p-4'>
           {/* Name */}
           <h3 className='text-lg font-semibold text-gray-900'>
             {professional.name}
