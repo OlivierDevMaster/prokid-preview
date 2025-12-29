@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import slugify from 'slugify';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -21,25 +22,21 @@ export function generateUsernameSlug(
   firstName: null | string | undefined,
   lastName: null | string | undefined
 ): string {
-  const first = (firstName || '').trim().toLowerCase();
-  const last = (lastName || '').trim().toLowerCase();
+  const first = (firstName || '').trim();
+  const last = (lastName || '').trim();
 
   if (!first && !last) {
     return '';
   }
 
-  // Remove special characters and replace spaces with hyphens
-  const clean = (str: string) =>
-    str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  const slugifyOptions = {
+    lower: true,
+    strict: true,
+    trim: true,
+  };
 
-  const cleanedFirst = clean(first);
-  const cleanedLast = clean(last);
+  const cleanedFirst = first ? slugify(first, slugifyOptions) : '';
+  const cleanedLast = last ? slugify(last, slugifyOptions) : '';
 
   if (cleanedLast && cleanedFirst) {
     return `${cleanedLast}-${cleanedFirst}`;
