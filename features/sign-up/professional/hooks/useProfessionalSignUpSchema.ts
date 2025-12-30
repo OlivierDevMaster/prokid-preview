@@ -28,6 +28,7 @@ export type ProfessionalSignUpFormData = {
   postalCode?: string;
   profession: string;
   profilePhoto: File | null;
+  skills?: string[];
   yearsExperience?: string;
 };
 
@@ -63,6 +64,10 @@ export function useProfessionalSignUpSchema() {
       postalCode: z.string().optional(),
       profession: z.string().min(1, t('validation.professionRequired')),
       profilePhoto: z.instanceof(File).nullable().optional(),
+      skills: z
+        .array(z.string().min(1))
+        .max(5, t('validation.skillsMax') || 'Maximum 5 skills allowed')
+        .optional(),
       yearsExperience: z.string().optional(),
     });
   }, [t]);

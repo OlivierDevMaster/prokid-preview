@@ -105,10 +105,17 @@ export default function ProtectedLayout({
     );
   }
 
+  // Get professional name from profile
+  const professionalName =
+    userData.fullName ||
+    (userData.firstName && userData.lastName
+      ? `${userData.firstName} ${userData.lastName}`
+      : userData.firstName || userData.email || 'Professionnel');
+
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
       <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
-        <BoNavbar userRole='professionnel' />
+        <BoNavbar userRole={professionalName} />
         {/* Mobile Menu Button */}
         <div className='lg:hidden'>
           <Button

@@ -68,6 +68,7 @@ export default function ProfessionalSignUpForm2() {
       postalCode: '',
       profession: '',
       profilePhoto: null,
+      skills: [],
       yearsExperience: '',
     },
     mode: 'onChange',

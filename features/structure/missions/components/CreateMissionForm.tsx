@@ -344,26 +344,26 @@ export function CreateMissionForm() {
   );
 
   return (
-    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
-      <div className='flex items-center gap-3'>
+    <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
+      <div className='flex items-center gap-2 sm:gap-3'>
         <Link href='/structure/missions'>
-          <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
+          <ArrowLeft className='h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800 sm:h-5 sm:w-5' />
         </Link>
-        <h1 className='text-3xl font-bold text-gray-800'>
+        <h1 className='text-xl font-bold text-gray-800 sm:text-2xl lg:text-3xl'>
           {t('createMission') || 'Create Mission'}
         </h1>
       </div>
 
       {/* Step Indicator */}
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2 sm:gap-3'>
         <div
-          className={`flex h-8 w-8 items-center justify-center rounded-full ${
+          className={`flex h-7 w-7 items-center justify-center rounded-full text-sm sm:h-8 sm:w-8 ${
             step >= 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
           }`}
         >
           1
         </div>
-        <div className='h-1 w-20 bg-gray-200'>
+        <div className='h-1 w-12 bg-gray-200 sm:w-20'>
           <div
             className={`h-full transition-all ${
               step >= 2 ? 'bg-blue-500' : 'bg-gray-200'
@@ -372,7 +372,7 @@ export function CreateMissionForm() {
           />
         </div>
         <div
-          className={`flex h-8 w-8 items-center justify-center rounded-full ${
+          className={`flex h-7 w-7 items-center justify-center rounded-full text-sm sm:h-8 sm:w-8 ${
             step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
           }`}
         >
@@ -381,10 +381,10 @@ export function CreateMissionForm() {
       </div>
 
       {step === 1 ? (
-        <div className='rounded-lg border bg-white p-8'>
+        <div className='rounded-lg border bg-white p-4 sm:p-6 lg:p-8'>
           <Form {...step1Form}>
             <form
-              className='space-y-6'
+              className='space-y-4 sm:space-y-6'
               onSubmit={step1Form.handleSubmit(handleStep1Submit)}
             >
               {/* Title */}
@@ -643,8 +643,9 @@ export function CreateMissionForm() {
               />
 
               {/* Submit Button */}
-              <div className='flex justify-end gap-3'>
+              <div className='flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
                 <Button
+                  className='w-full sm:w-auto'
                   onClick={() => router.back()}
                   type='button'
                   variant='outline'
@@ -652,7 +653,7 @@ export function CreateMissionForm() {
                   {t('cancel') || 'Cancel'}
                 </Button>
                 <Button
-                  className='bg-blue-500 text-white hover:bg-blue-600'
+                  className='w-full bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
                   disabled={createMission.isPending}
                   type='submit'
                 >
@@ -667,20 +668,20 @@ export function CreateMissionForm() {
       ) : (
         <Form {...step2Form}>
           <form
-            className='space-y-6'
+            className='space-y-4 sm:space-y-6'
             onSubmit={step2Form.handleSubmit(handleStep2Submit)}
           >
             {/* Availability Calendar */}
-            <div className='space-y-4'>
+            <div className='space-y-3 sm:space-y-4'>
               <div className='flex items-center justify-between'>
-                <h2 className='text-xl font-bold text-gray-800'>
+                <h2 className='text-lg font-bold text-gray-800 sm:text-xl'>
                   {t('selectAvailabilities') || 'Select Availabilities'}
                 </h2>
               </div>
 
               {/* Weekly Navigation */}
-              <div className='rounded-lg border border-gray-200 bg-white p-4'>
-                <div className='mb-4 flex items-center justify-between'>
+              <div className='rounded-lg border border-gray-200 bg-white p-3 sm:p-4'>
+                <div className='mb-3 flex items-center justify-between gap-2 sm:mb-4 sm:gap-4'>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
                     onClick={goToPreviousWeek}
@@ -688,13 +689,21 @@ export function CreateMissionForm() {
                     type='button'
                     variant='ghost'
                   >
-                    <ChevronLeft className='mr-1 h-4 w-4' />
-                    {t('previousWeek') || 'Previous Week'}
+                    <ChevronLeft className='h-4 w-4 sm:mr-1' />
+                    <span className='hidden sm:inline'>
+                      {t('previousWeek') || 'Previous Week'}
+                    </span>
                   </Button>
-                  <h3 className='text-lg font-bold text-blue-900'>
-                    {t('weekOf') || 'Week of'}{' '}
-                    {mounted &&
-                      format(weekStart, 'd MMMM yyyy', { locale: fr })}
+                  <h3 className='flex-1 text-center text-sm font-bold text-blue-900 sm:text-base lg:text-lg'>
+                    <span className='hidden sm:inline'>
+                      {t('weekOf') || 'Week of'}{' '}
+                      {mounted &&
+                        format(weekStart, 'd MMMM yyyy', { locale: fr })}
+                    </span>
+                    <span className='sm:hidden'>
+                      {mounted &&
+                        format(weekStart, 'd MMM yyyy', { locale: fr })}
+                    </span>
                   </h3>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
@@ -703,13 +712,15 @@ export function CreateMissionForm() {
                     type='button'
                     variant='ghost'
                   >
-                    {t('nextWeek') || 'Next Week'}
-                    <ChevronRight className='ml-1 h-4 w-4' />
+                    <span className='hidden sm:inline'>
+                      {t('nextWeek') || 'Next Week'}
+                    </span>
+                    <ChevronRight className='h-4 w-4 sm:ml-1' />
                   </Button>
                 </div>
 
                 {/* Calendar Grid */}
-                <div className='grid grid-cols-7 gap-3'>
+                <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7'>
                   {weekDays.map((day, index) => {
                     const isToday = mounted && isSameDay(day, new Date());
                     const dayName = dayNames[index];
@@ -719,18 +730,18 @@ export function CreateMissionForm() {
 
                     return (
                       <Card
-                        className={`min-h-[200px] rounded-lg border-2 bg-white shadow-sm ${
+                        className={`min-h-[150px] rounded-lg border-2 bg-white shadow-sm sm:min-h-[180px] lg:min-h-[200px] ${
                           isToday
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200'
                         }`}
                         key={index}
                       >
-                        <div className='p-2'>
-                          <div className='mb-1 text-sm font-bold text-blue-900'>
+                        <div className='p-2 sm:p-3'>
+                          <div className='mb-1 text-xs font-bold text-blue-900 sm:text-sm'>
                             {dayName}
                           </div>
-                          <div className='mb-4 text-sm text-blue-900'>
+                          <div className='mb-3 text-xs text-blue-900 sm:mb-4 sm:text-sm'>
                             {dayNumber} {month}
                           </div>
                           <div className='space-y-2'>
@@ -748,14 +759,16 @@ export function CreateMissionForm() {
 
                                 return (
                                   <Button
-                                    className='w-full justify-start border border-green-300 bg-green-50 px-2 text-green-700 hover:bg-green-100'
+                                    className='w-full justify-start border border-green-300 bg-green-50 px-2 text-xs text-green-700 hover:bg-green-100 sm:text-sm'
                                     key={slotIndex}
                                     onClick={() => handleAddSchedule(slot)}
                                     size='sm'
                                     type='button'
                                   >
                                     <Plus className='h-3 w-3' />
-                                    {startTime} - {endTime}
+                                    <span className='truncate'>
+                                      {startTime} - {endTime}
+                                    </span>
                                   </Button>
                                 );
                               })}
@@ -776,8 +789,8 @@ export function CreateMissionForm() {
 
             {/* Selected Schedules */}
             {fields.length > 0 && (
-              <div className='space-y-4'>
-                <h3 className='text-lg font-bold text-gray-800'>
+              <div className='space-y-3 sm:space-y-4'>
+                <h3 className='text-base font-bold text-gray-800 sm:text-lg'>
                   {t('selectedSchedules') || 'Selected Schedules'}
                 </h3>
                 <div className='space-y-3'>
@@ -817,16 +830,25 @@ export function CreateMissionForm() {
                     );
 
                     return (
-                      <Card className='p-4' key={field.id}>
-                        <div className='flex items-start justify-between gap-4'>
-                          <div className='flex-1 space-y-4'>
+                      <Card className='p-3 sm:p-4' key={field.id}>
+                        <div className='flex items-start justify-between gap-3 sm:gap-4'>
+                          <div className='min-w-0 flex-1 space-y-3 sm:space-y-4'>
                             <div>
-                              <div className='font-medium text-gray-900'>
-                                {format(
-                                  new Date(field.startAt),
-                                  'EEEE, d MMMM yyyy',
-                                  { locale: fr }
-                                )}
+                              <div className='text-sm font-medium text-gray-900 sm:text-base'>
+                                <span className='hidden sm:inline'>
+                                  {format(
+                                    new Date(field.startAt),
+                                    'EEEE, d MMMM yyyy',
+                                    { locale: fr }
+                                  )}
+                                </span>
+                                <span className='sm:hidden'>
+                                  {format(
+                                    new Date(field.startAt),
+                                    'EEE, d MMM yyyy',
+                                    { locale: fr }
+                                  )}
+                                </span>
                               </div>
                               <div className='mt-1 text-xs text-gray-500'>
                                 {t('availabilityRange') || 'Availability range'}
@@ -1009,7 +1031,7 @@ export function CreateMissionForm() {
                             />
                           </div>
                           <Button
-                            className='text-red-600 hover:text-red-700'
+                            className='flex-shrink-0 text-red-600 hover:text-red-700'
                             onClick={() => remove(index)}
                             size='sm'
                             type='button'
@@ -1026,8 +1048,9 @@ export function CreateMissionForm() {
             )}
 
             {/* Submit Button */}
-            <div className='flex justify-end gap-3'>
+            <div className='flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
               <Button
+                className='w-full sm:w-auto'
                 onClick={() => setStep(1)}
                 type='button'
                 variant='outline'
@@ -1035,7 +1058,7 @@ export function CreateMissionForm() {
                 {t('back') || 'Back'}
               </Button>
               <Button
-                className='bg-blue-500 text-white hover:bg-blue-600'
+                className='w-full bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
                 disabled={createSchedules.isPending || fields.length === 0}
                 type='submit'
               >

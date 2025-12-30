@@ -96,7 +96,7 @@ export function ReportDetails() {
   return (
     <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-col items-start justify-between sm:flex-row sm:items-center'>
         <div className='flex items-center gap-3'>
           <Link href='/professional/reports'>
             <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
@@ -119,7 +119,7 @@ export function ReportDetails() {
             )}
           </div>
         </div>
-        <div className='flex gap-3'>
+        <div className='mt-4 flex gap-3 sm:flex-col sm:gap-3 md:mt-0'>
           {report?.status !== 'sent' && (
             <Button
               className='border-gray-300 text-gray-700 hover:bg-gray-50'

@@ -1,11 +1,13 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,11 +30,16 @@ export function Step2IdentityInfo({
   const tCommon = useTranslations('common.label');
   const tProfessional = useTranslations('auth.signUp.professionalForm');
   const professionalJobs = useGetProfessionalJobs();
+  const [skillInput, setSkillInput] = useState('');
 
   const {
     control,
     formState: { errors },
+    setValue,
+    watch,
   } = form;
+
+  const skills = watch('skills') || [];
 
   return (
     <div className='space-y-6'>
@@ -125,6 +132,89 @@ export function Step2IdentityInfo({
           />
           {errors.profession && (
             <p className='text-sm text-red-500'>{errors.profession.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className='space-y-2'>
+        <Label className='text-gray-700' htmlFor='skills'>
+          {tProfessional('skills') || 'Skills'} (max 5)
+        </Label>
+        <div className='space-y-2'>
+          <div className='flex gap-2'>
+            <Input
+              className='border-gray-300'
+              disabled={skills.length >= 5}
+              id='skills'
+              onChange={e => setSkillInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const trimmedSkill = skillInput.trim();
+                  if (
+                    trimmedSkill &&
+                    !skills.includes(trimmedSkill) &&
+                    skills.length < 5
+                  ) {
+                    setValue('skills', [...skills, trimmedSkill]);
+                    setSkillInput('');
+                  }
+                }
+              }}
+              placeholder={
+                skills.length >= 5
+                  ? 'Maximum 5 skills reached'
+                  : 'Enter a skill and press Enter'
+              }
+              type='text'
+              value={skillInput}
+            />
+            <Button
+              disabled={!skillInput.trim() || skills.length >= 5}
+              onClick={() => {
+                const trimmedSkill = skillInput.trim();
+                if (
+                  trimmedSkill &&
+                  !skills.includes(trimmedSkill) &&
+                  skills.length < 5
+                ) {
+                  setValue('skills', [...skills, trimmedSkill]);
+                  setSkillInput('');
+                }
+              }}
+              type='button'
+              variant='outline'
+            >
+              {tCommon('add')}
+            </Button>
+          </div>
+          {skills.length > 0 && (
+            <div className='flex flex-wrap gap-2'>
+              {skills.map((skill, index) => (
+                <Badge
+                  className='flex items-center gap-1 pr-1'
+                  key={index}
+                  variant='secondary'
+                >
+                  <span>{skill}</span>
+                  <button
+                    className='ml-1 rounded-full hover:bg-gray-300 focus:outline-none'
+                    onClick={() => {
+                      const updatedSkills = skills.filter(
+                        (_, i) => i !== index
+                      );
+                      setValue('skills', updatedSkills);
+                    }}
+                    type='button'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+          {errors.skills && (
+            <p className='text-sm text-red-500'>{errors.skills.message}</p>
           )}
         </div>
       </div>

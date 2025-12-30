@@ -192,13 +192,10 @@ export default function AvailabilitiesPage() {
 
       setInfoModal({
         message: isNotRecurrenceError
-          ? t('notRecurrenceMessage') ||
-            'This slot is not part of a recurring availability. Only recurring slots can have their recurrence stopped.'
+          ? t('notRecurrenceMessage')
           : errorMessage,
         open: true,
-        title: isNotRecurrenceError
-          ? t('notRecurrenceTitle') || 'Not a Recurring Slot'
-          : t('errorTitle') || 'Error',
+        title: isNotRecurrenceError ? t('notRecurrenceTitle') : t('errorTitle'),
       });
     } finally {
       setStoppingRecurrenceId(null);
@@ -488,7 +485,7 @@ export default function AvailabilitiesPage() {
               onClick={() => setInfoModal({ ...infoModal, open: false })}
               variant='default'
             >
-              {tCommon('actions.ok') || 'OK'}
+              {tCommon('actions.ok')}
             </Button>
           </DialogFooter>
         </DialogContent>

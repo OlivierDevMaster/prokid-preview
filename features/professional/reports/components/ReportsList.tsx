@@ -99,26 +99,39 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
   };
 
   if (isLoading) {
-    return <div className='py-8 text-center text-gray-500'>{t('loading')}</div>;
+    return (
+      <div className='py-8 text-center text-sm text-gray-500 sm:text-base'>
+        {t('loading')}
+      </div>
+    );
   }
 
   if (error) {
-    return <div className='py-8 text-center text-red-500'>{t('error')}</div>;
+    return (
+      <div className='py-8 text-center text-sm text-red-500 sm:text-base'>
+        {t('error')}
+      </div>
+    );
   }
 
   return (
     <>
-      <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
+      <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
         {/* Header */}
         <div>
-          <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
-          <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
+          <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
+            {t('title')}
+          </h1>
+          <p className='mt-2 text-sm text-gray-600 sm:text-base'>
+            {t('subtitle')}
+          </p>
         </div>
 
-        <div className='flex justify-between'>
-          <div className='flex gap-4'>
+        {/* Filters */}
+        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+          <div className='flex flex-col gap-3 sm:flex-row sm:gap-4'>
             <Select onValueChange={setStructureId} value={structureId}>
-              <SelectTrigger className='w-[250px]'>
+              <SelectTrigger className='w-full sm:w-[250px]'>
                 <SelectValue
                   placeholder={t('filterByStructure') || 'Filter by structure'}
                 />
@@ -146,7 +159,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
               </SelectContent>
             </Select>
             <Select onValueChange={setMissionId} value={missionId}>
-              <SelectTrigger className='w-[250px]'>
+              <SelectTrigger className='w-full sm:w-[250px]'>
                 <SelectValue
                   placeholder={t('filterByMission') || 'Filter by mission'}
                 />
@@ -167,11 +180,15 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
               </SelectContent>
             </Select>
           </div>
-          <TableHeaderActions actions={actions} />
+          <div className='flex-shrink-0'>
+            <TableHeaderActions actions={actions} />
+          </div>
         </div>
 
         {reports.length === 0 && (
-          <div className='py-8 text-center text-gray-500'>{t('noReports')}</div>
+          <div className='py-8 text-center text-sm text-gray-500 sm:text-base'>
+            {t('noReports')}
+          </div>
         )}
         {reports.length > 0 && (
           <ReportTable
