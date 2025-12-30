@@ -67,9 +67,9 @@ export function ReportDetailsDialog({
       link.href = downloadUrl;
       link.download = fileName;
       link.target = '_blank';
-      document.body.appendChild(link);
+      document.body?.appendChild?.(link);
       link.click();
-      document.body.removeChild(link);
+      document.body?.removeChild?.(link);
     } catch (error) {
       console.error('Failed to download attachment:', error);
       // You might want to show a toast notification here
