@@ -68,6 +68,8 @@ export async function registerProfessionalProfile(
       intervention_radius_km: formData.interventionZone,
       phone: formData.phone || null,
       postal_code: formData.postalCode || null,
+      skills:
+        formData.skills && formData.skills.length > 0 ? formData.skills : null,
       user_id: userId,
     });
 

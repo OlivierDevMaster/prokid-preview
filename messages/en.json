@@ -22,7 +22,8 @@
       "km": "km",
       "start": "Start",
       "end": "End",
-      "profileImage": "Profile image"
+      "profileImage": "Profile image",
+      "add": "Add"
     },
     "placeholder": {
       "currentPassword": "Enter your current password",
@@ -202,7 +203,8 @@
           "interventionZoneMax": "Intervention zone must be at most 100 km",
           "lastNameRequired": "Last name is required",
           "phoneRequired": "Phone is required",
-          "professionRequired": "Profession is required"
+          "professionRequired": "Profession is required",
+          "skillsMax": "Maximum 5 skills allowed"
         }
       },
       "verifyEmail": {

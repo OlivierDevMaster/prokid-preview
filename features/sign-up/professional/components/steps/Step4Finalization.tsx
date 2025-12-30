@@ -6,6 +6,7 @@ import { UseFormReturn } from 'react-hook-form';
 
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 import { ProgressBar } from '../ProgressBar';
@@ -36,6 +37,7 @@ export function Step4Finalization({
     lastName,
     phone,
     profession,
+    skills,
   } = getValues();
 
   const profilePhoto = watch('profilePhoto');
@@ -98,6 +100,20 @@ export function Step4Finalization({
             {tProfessional(`jobs.${profession}`)}
           </p>
         </div>
+        {skills && skills.length > 0 && (
+          <div className='space-2'>
+            <h6 className='text-sm font-semibold text-gray-700'>
+              {tAuthProfessional('skills')}
+            </h6>
+            <div className='flex flex-wrap gap-2'>
+              {skills.map((skill, index) => (
+                <Badge key={index} variant='secondary'>
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
         <div className='space-2'>
           <h6 className='text-sm font-semibold text-gray-700'>
             {tAuthProfessional('interventionZone')}
