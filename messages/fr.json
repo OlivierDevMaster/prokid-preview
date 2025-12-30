@@ -1038,6 +1038,7 @@
     "filterUnread": "Non lues",
     "filterRead": "Lues",
     "loading": "Chargement...",
+    "notFound": "Notification non trouvée",
     "description": "Description",
     "from": "De",
     "readAt": "Lue le",

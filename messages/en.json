@@ -1032,6 +1032,7 @@
     "filterUnread": "Unread",
     "filterRead": "Read",
     "loading": "Loading...",
+    "notFound": "Notification not found",
     "description": "Description",
     "from": "From",
     "readAt": "Read at",

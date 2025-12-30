@@ -312,7 +312,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                 {isEdit ? t('editReport') : t('newReport')}
               </h1>
             </div>
-            <div className='mt-4 flex gap-3 md:mt-0'>
+            <div className='mt-4 flex flex-col gap-3 sm:mt-0 sm:flex-row sm:gap-3'>
               {(!isEdit || currentReport?.status !== 'sent') && (
                 <Button
                   className='border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -468,7 +468,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
 
                 {/* File Input */}
                 {currentReport?.status !== 'sent' && (
-                  <div className='flex items-center gap-4'>
+                  <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
                     <input
                       accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
                       className='hidden'

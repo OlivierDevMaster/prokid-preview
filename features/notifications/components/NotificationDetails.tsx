@@ -142,7 +142,7 @@ export function NotificationDetails() {
         </div>
 
         <Card className='p-8'>
-          <div className='mb-6 flex items-start gap-6'>
+          <div className='mb-6 flex flex-col items-start gap-6 sm:flex-row'>
             <div
               className={`flex h-16 w-16 items-center justify-center rounded-full ${
                 isRead ? 'bg-gray-100' : 'bg-blue-100'
@@ -151,8 +151,8 @@ export function NotificationDetails() {
               {getNotificationIcon(typedNotification.type)}
             </div>
             <div className='flex-1'>
-              <div className='mb-2 flex items-center gap-2'>
-                <h1 className='text-2xl font-bold text-gray-800'>
+              <div className='mb-2 flex items-center gap-2 sm:items-start'>
+                <h1 className='text-xl font-bold text-gray-800 sm:text-2xl'>
                   {getNotificationTitle(typedNotification, t)}
                 </h1>
                 {!isRead && (
