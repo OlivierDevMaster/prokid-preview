@@ -15,6 +15,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useRouter } from '@/i18n/routing';
 
 type UseGetProfessionalColumnDefsProps = {
@@ -116,16 +121,79 @@ export default function useGetProfessionalColumnDefs({
         if (!skills || skills.length === 0) {
           return <div className='text-muted-foreground'>-</div>;
         }
+
+        // Mobile: Show only first skill, rest in popover
+        // Desktop: Show first 3 skills, rest in popover
+        const firstSkill = skills[0];
+        const remainingSkillsMobile = skills.slice(1);
+        const desktopSkills = skills.slice(0, 3);
+        const remainingSkillsDesktop = skills.slice(3);
+
         return (
-          <div className='flex flex-wrap gap-1'>
-            {skills.slice(0, 3).map((skill, index) => (
-              <Badge key={index} variant='secondary'>
-                {skill}
-              </Badge>
-            ))}
-            {skills.length > 3 && (
-              <Badge variant='secondary'>+{skills.length - 3}</Badge>
-            )}
+          <div className='flex flex-wrap items-center gap-1'>
+            {/* Mobile: First skill only */}
+            <div className='flex items-center gap-1 sm:hidden'>
+              <Badge variant='secondary'>{firstSkill}</Badge>
+              {remainingSkillsMobile.length > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      className='h-5 px-2 text-xs'
+                      size='sm'
+                      variant='outline'
+                    >
+                      +{remainingSkillsMobile.length}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align='start' className='w-56'>
+                    <div className='space-y-2'>
+                      <h4 className='text-sm font-semibold'>All Skills</h4>
+                      <div className='flex flex-wrap gap-1'>
+                        {skills.map((skill, index) => (
+                          <Badge key={index} variant='secondary'>
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+
+            {/* Desktop: First 3 skills, rest in popover */}
+            <div className='hidden items-center gap-1 sm:flex'>
+              {desktopSkills.map((skill, index) => (
+                <Badge key={index} variant='secondary'>
+                  {skill}
+                </Badge>
+              ))}
+              {remainingSkillsDesktop.length > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      className='h-5 px-2 text-xs'
+                      size='sm'
+                      variant='outline'
+                    >
+                      +{remainingSkillsDesktop.length}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align='start' className='w-56'>
+                    <div className='space-y-2'>
+                      <h4 className='text-sm font-semibold'>All Skills</h4>
+                      <div className='flex flex-wrap gap-1'>
+                        {skills.map((skill, index) => (
+                          <Badge key={index} variant='secondary'>
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
           </div>
         );
       },

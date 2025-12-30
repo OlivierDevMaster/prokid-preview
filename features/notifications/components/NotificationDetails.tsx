@@ -78,7 +78,9 @@ export function NotificationDetails() {
           <h1 className='mb-4 text-2xl font-bold text-gray-800'>
             {t('notFound')}
           </h1>
-          <Button onClick={() => router.back()}>{t('back')}</Button>
+          <Button onClick={() => router.back()} variant='outline'>
+            {t('back')}
+          </Button>
         </Card>
       </div>
     );
