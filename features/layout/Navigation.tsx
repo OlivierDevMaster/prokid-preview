@@ -3,7 +3,7 @@
 import { Menu, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { LanguageSwitcher } from '@/components/language-switcher';
 // import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -29,19 +29,37 @@ export function Navigation() {
     { href: '/faq', label: t('howItWorks') },
   ];
 
+  // Close mobile menu when pathname changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push('/');
   };
 
-  const handleDashboard = () => {
+  const handleDashboard = async () => {
+    setMobileMenuOpen(false);
     if (isAdmin) {
-      router.push('/admin/dashboard');
+      await router.push('/admin/dashboard');
     } else if (isProfessional) {
-      router.push('/professional/availabilities');
+      await router.push('/professional/dashboard');
     } else if (isStructure) {
-      router.push('/structure/missions');
+      await router.push('/structure/dashboard');
     }
+  };
+
+  // Helper function to check if a path is active
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    // Remove trailing slashes and query params for comparison
+    const normalizedPathname = pathname.split('?')[0].replace(/\/$/, '');
+    const normalizedHref = href.replace(/\/$/, '');
+    return (
+      normalizedPathname === normalizedHref ||
+      normalizedPathname.startsWith(`${normalizedHref}/`)
+    );
   };
 
   return (
@@ -59,7 +77,7 @@ export function Navigation() {
               <Link
                 className={cn(
                   'text-sm font-medium transition-colors hover:text-primary',
-                  pathname === item.href
+                  isActive(item.href)
                     ? 'text-foreground'
                     : 'text-muted-foreground'
                 )}
@@ -124,7 +142,7 @@ export function Navigation() {
                 <Link
                   className={cn(
                     'block rounded-md px-3 py-2 text-base font-medium transition-colors',
-                    pathname === item.href
+                    isActive(item.href)
                       ? 'bg-accent text-accent-foreground'
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
@@ -140,13 +158,6 @@ export function Navigation() {
                   <div className='px-3 py-2 text-sm text-muted-foreground'>
                     {session.user?.email}
                   </div>
-                  {/* <Link
-                    className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    href='/protected'
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('dashboard')}
-                  </Link> */}
                   <Button
                     className='mr-2'
                     onClick={handleDashboard}
