@@ -86,13 +86,14 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale });
 
   return (
-    <html>
+    <html suppressHydrationWarning>
       <head>
         <OrganizationSchema appUrl={appUrl} />
         <WebSiteSchema appUrl={appUrl} />
       </head>
       <body
         className={`${geistSans.variable} ${geistSans.className} antialiased`}
+        suppressHydrationWarning
       >
         <AuthSessionProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
@@ -103,6 +104,7 @@ export default async function LocaleLayout({
                   defaultTheme='light'
                   disableTransitionOnChange
                   enableSystem
+                  storageKey='prokid-theme'
                 >
                   <ConditionalWrapper>{children}</ConditionalWrapper>
                   <Toaster />

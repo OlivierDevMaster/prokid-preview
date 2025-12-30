@@ -67,9 +67,12 @@ export function Pagination({
             </Select>
           </div>
         )}
-        <div className='text-sm text-muted-foreground'>
+        <div className='hidden text-sm text-muted-foreground md:block'>
           {t('showing')} {startItem} {t('to')} {endItem} {t('ofItems')}{' '}
           {totalItems}
+        </div>
+        <div className='text-sm text-muted-foreground md:hidden'>
+          {t('showing')} {startItem} / {endItem} {totalItems}
         </div>
       </div>
       <div className='flex items-center gap-2'>

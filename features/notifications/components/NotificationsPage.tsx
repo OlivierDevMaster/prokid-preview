@@ -92,19 +92,21 @@ export function NotificationsPage() {
   if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-blue-50/30'>
-        <p className='text-gray-600'>{t('loading')}</p>
+        <p className='text-sm text-gray-600 sm:text-base'>{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen bg-blue-50/30 p-8 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
       <div className='mx-auto max-w-4xl'>
         {/* Header */}
-        <div className='mb-6 flex items-center justify-between'>
+        <div className='mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between'>
           <div>
-            <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
-            <p className='mt-2 text-sm text-gray-600'>
+            <h1 className='text-2xl font-bold text-gray-800 sm:text-3xl'>
+              {t('title')}
+            </h1>
+            <p className='mt-2 text-xs text-gray-600 sm:text-sm'>
               {t('subtitle', {
                 total: totalCount,
                 unread: unreadCount,
@@ -112,7 +114,7 @@ export function NotificationsPage() {
             </p>
           </div>
           <Select onValueChange={handleFilterChange} value={filter}>
-            <SelectTrigger className='w-40'>
+            <SelectTrigger className='w-full sm:w-40'>
               <SelectValue placeholder={t('filter')} />
             </SelectTrigger>
             <SelectContent>
@@ -125,11 +127,13 @@ export function NotificationsPage() {
 
         {/* Notifications List */}
         {notifications.length === 0 ? (
-          <div className='rounded-lg border border-gray-200 bg-white p-12 text-center'>
-            <p className='text-gray-500'>{t('noNotifications')}</p>
+          <div className='rounded-lg border border-gray-200 bg-white p-8 text-center sm:p-12'>
+            <p className='text-sm text-gray-500 sm:text-base'>
+              {t('noNotifications')}
+            </p>
           </div>
         ) : (
-          <div className='space-y-4'>
+          <div className='space-y-3 sm:space-y-4'>
             {notifications.map(notification => (
               <NotificationCard
                 key={notification.id}
@@ -144,7 +148,7 @@ export function NotificationsPage() {
 
         {/* Pagination */}
         {totalCount > 0 && (
-          <div className='mt-8'>
+          <div className='mt-4 sm:mt-6 lg:mt-8'>
             <Pagination
               currentPage={page}
               onPageChange={setPage}

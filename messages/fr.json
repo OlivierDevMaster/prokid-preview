@@ -30,7 +30,8 @@
       "next": "Suivant",
       "start": "Début",
       "end": "Fin",
-      "profileImage": "Photo de profil"
+      "profileImage": "Photo de profil",
+      "add": "Ajouter"
     },
     "placeholder": {
       "currentPassword": "Saisissez votre mot de passe actuel",
@@ -211,7 +212,8 @@
           "interventionZoneMax": "La zone d'intervention doit être d'au plus 100 km",
           "lastNameRequired": "Le nom est requis",
           "phoneRequired": "Le téléphone est requis",
-          "professionRequired": "La profession est requise"
+          "professionRequired": "La profession est requise",
+          "skillsMax": "Maximum 5 compétences autorisées"
         }
       },
       "verifyEmail": {
@@ -1038,6 +1040,7 @@
     "filterUnread": "Non lues",
     "filterRead": "Lues",
     "loading": "Chargement...",
+    "notFound": "Notification non trouvée",
     "description": "Description",
     "from": "De",
     "readAt": "Lue le",
