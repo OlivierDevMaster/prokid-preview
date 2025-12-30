@@ -2,6 +2,7 @@
 
 import { Funnel, MapPin, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Pagination } from '@/features/paginations/components/Pagination';
 import { ProfessionalsCard } from '@/features/professionals/components/ProfessionalsCard';
+import { ProfessionalConfig } from '@/features/professionals/professional.config';
 import { ProfessionalSkills } from '@/features/professionals/professional.config';
 import { Professional } from '@/features/professionals/professional.model';
 
@@ -27,6 +30,16 @@ export default function ProfessionalsPage() {
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedAvailability, setSelectedAvailability] =
     useState<string>('all');
+
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(ProfessionalConfig.PAGE_DEFAULT)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    'limit',
+    parseAsInteger.withDefault(ProfessionalConfig.PAGE_SIZE_DEFAULT)
+  );
+
   const { data } = useFindProfessionals(
     {
       availability: selectedAvailability,
@@ -34,12 +47,13 @@ export default function ProfessionalsPage() {
       locationSearch: locationQuery,
       search: searchQuery,
     },
-    { limit: 100 }
+    { limit: pageSize, page }
   );
 
   const professionals: Professional[] = useMemo(() => data?.data ?? [], [data]);
-
-  const resultsCount = professionals.length;
+  const totalCount = data?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const resultsCount = totalCount;
 
   const handleClearAllFilters = () => {
     setSearchQuery('');
@@ -255,6 +269,19 @@ export default function ProfessionalsPage() {
             />
           ))}
         </div>
+
+        {totalCount > 0 && (
+          <div className='mt-8'>
+            <Pagination
+              currentPage={page}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              pageSize={pageSize}
+              totalItems={totalCount}
+              totalPages={totalPages}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

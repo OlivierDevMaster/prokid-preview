@@ -12,6 +12,7 @@ import ConditionalWrapper from '@/features/layout/ConditionalWrapper';
 import QueryProvider from '@/features/providers/QueryProvider';
 import { AuthSessionProvider } from '@/features/providers/SessionProvider';
 import { routing } from '@/i18n/routing';
+import { OrganizationSchema, WebSiteSchema } from '@/lib/seo/structured-data';
 import { getAppUrl } from '@/lib/utils';
 
 const appUrl = getAppUrl();
@@ -86,6 +87,10 @@ export default async function LocaleLayout({
 
   return (
     <html>
+      <head>
+        <OrganizationSchema appUrl={appUrl} />
+        <WebSiteSchema appUrl={appUrl} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistSans.className} antialiased`}
       >

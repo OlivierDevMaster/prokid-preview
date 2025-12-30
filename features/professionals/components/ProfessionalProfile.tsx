@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AvailabilityCalendar } from '@/features/professional/components/AvailabilityCalendar';
+import { RelatedProfessionals } from '@/features/professionals/components/RelatedProfessionals';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
 import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
@@ -173,7 +174,10 @@ export default function ProfessionalProfile() {
                     <div className='flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-300 bg-gray-200'>
                       {professional.profile.avatar_url ? (
                         <Image
-                          alt={professional.profile.first_name ?? ''}
+                          alt={
+                            `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim() ||
+                            'Professional profile photo'
+                          }
                           className='h-full w-full object-cover'
                           height={96}
                           src={professional.profile.avatar_url}
@@ -250,35 +254,47 @@ export default function ProfessionalProfile() {
                 <div className='my-4 w-full border'></div>
 
                 {/* Localisation et expérience */}
-                <div className='mb-6 space-y-3'>
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <MapPin className='h-4 w-4 text-gray-400' />
-                    <span>
-                      {professional.city} • {t('sector')}{' '}
-                      {professional.intervention_radius_km} {t('km')}
-                    </span>
-                  </div>
+                <div className='mb-6'>
+                  <h2 className='mb-3 text-sm font-semibold text-gray-700'>
+                    {t('locationAndExperience')}
+                  </h2>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                      <MapPin className='h-4 w-4 text-gray-400' />
+                      <span>
+                        {professional.city} • {t('sector')}{' '}
+                        {professional.intervention_radius_km} {t('km')}
+                      </span>
+                    </div>
 
-                  <div className='flex items-center gap-2 text-sm text-gray-600'>
-                    <CalendarIcon className='h-4 w-4 text-gray-400' />
-                    <span>
-                      {professional.experience_years} {t('experience')}
-                      {professional.is_certified && (
-                        <span className='ml-2'>
-                          • {t('certifiedProfessional')}
-                        </span>
-                      )}
-                    </span>
+                    <div className='flex items-center gap-2 text-sm text-gray-600'>
+                      <CalendarIcon className='h-4 w-4 text-gray-400' />
+                      <span>
+                        {professional.experience_years} {t('experience')}
+                        {professional.is_certified && (
+                          <span className='ml-2'>
+                            • {t('certifiedProfessional')}
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
+                <div className='my-4 w-full border'></div>
+
                 {/* Tarifs */}
-                <div className='mb-6 flex items-center gap-4'>
-                  <div className='flex items-center gap-2'>
-                    <Euro className='h-5 w-5 text-gray-600' />
-                    <span className='text-lg font-semibold text-gray-800'>
-                      {professional.hourly_rate}€/{t('day')}
-                    </span>
+                <div className='mb-6'>
+                  <h2 className='mb-3 text-sm font-semibold text-gray-700'>
+                    {t('pricing')}
+                  </h2>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex items-center gap-2'>
+                      <Euro className='h-5 w-5 text-gray-600' />
+                      <span className='text-lg font-semibold text-gray-800'>
+                        {professional.hourly_rate}€/{t('day')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -345,6 +361,11 @@ export default function ProfessionalProfile() {
             <AvailabilityCalendar professionalId={id as string} />
           </div>
         </div>
+
+        {/* Related Professionals Section */}
+        {professional && (
+          <RelatedProfessionals currentProfessional={professional} />
+        )}
       </div>
     </main>
   );
