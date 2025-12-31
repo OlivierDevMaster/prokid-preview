@@ -2,15 +2,14 @@
 
 import { Menu, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { LanguageSwitcher } from '@/components/language-switcher';
 // import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
-import { useRouter } from '@/i18n/routing';
-import { Link, usePathname } from '@/i18n/routing';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 import ProkidLogo from './ProkidLogo';
@@ -18,10 +17,16 @@ import ProkidLogo from './ProkidLogo';
 export function Navigation() {
   const t = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const { isAdmin, isProfessional, isStructure } = useRole();
+  const {
+    isAdmin,
+    isLoading: isLoadingRole,
+    isProfessional,
+    isStructure,
+  } = useRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -34,22 +39,42 @@ export function Navigation() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Cleanup: close mobile menu on unmount to prevent portal issues
+  useEffect(() => {
+    return () => {
+      setMobileMenuOpen(false);
+    };
+  }, []);
+
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push('/');
   };
 
-  const handleDashboard = async () => {
+  const handleDashboard = () => {
     setMobileMenuOpen(false);
-    if (isAdmin) {
-      await router.push('/admin/dashboard');
-    } else if (isProfessional) {
-      await router.push('/professional/dashboard');
-    } else if (isStructure) {
-      await router.push('/structure/dashboard');
-    }
-  };
 
+    // Don't navigate if roles are still loading
+    if (isLoadingRole) {
+      return;
+    }
+
+    // Determine the dashboard path based on role
+    let dashboardPath = '/';
+    if (isAdmin) {
+      dashboardPath = '/admin/dashboard';
+    } else if (isProfessional) {
+      dashboardPath = '/professional/dashboard';
+    } else if (isStructure) {
+      dashboardPath = '/structure/dashboard';
+    }
+
+    // Use window.location.href for reliable navigation
+    // This works even when the component is unmounting (e.g., from /professionals)
+    // router.push from next-intl might not complete if component unmounts
+    const fullPath = `/${locale}${dashboardPath}`;
+    window.location.href = fullPath;
+  };
   // Helper function to check if a path is active
   const isActive = (href: string) => {
     if (!pathname) return false;
