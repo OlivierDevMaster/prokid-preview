@@ -34,7 +34,7 @@ export default function StructureLayout({
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
       <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
-        <BoNavbar userRole={structureName} />
+        <BoNavbar name={structureName} userRole='Structure' />
         {/* Mobile Menu Button */}
         <div className='lg:hidden'>
           <Button

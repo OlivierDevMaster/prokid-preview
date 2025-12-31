@@ -11,14 +11,12 @@ import { useRouter } from '@/i18n/routing';
 import NotificationsPanel from '../notifications/components/NotificationsPanel';
 
 type BoNavbarProps = {
+  name?: string;
   settingsRoute?: string;
   userRole?: string;
 };
 
-export function BoNavbar({
-  settingsRoute,
-  userRole = 'Professionnel(le) petite enfance',
-}: BoNavbarProps) {
+export function BoNavbar({ name, settingsRoute, userRole }: BoNavbarProps) {
   const router = useRouter();
 
   // Determine settings route based on userRole if not provided
@@ -39,9 +37,7 @@ export function BoNavbar({
         </div>
         <div className='flex items-center gap-2'>
           <div className='rounded-full bg-blue-50 px-3 py-1'>
-            <span className='text-xs font-medium text-blue-700'>
-              {userRole}
-            </span>
+            <span className='text-xs font-medium text-blue-700'>{name}</span>
           </div>
           <LanguageSwitcher />
           {userRole !== 'Admin' && <NotificationsPanel />}

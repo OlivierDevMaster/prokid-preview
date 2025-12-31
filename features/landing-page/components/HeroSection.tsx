@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { SplitText } from '@/components/animations/SplitText';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 
@@ -13,7 +14,7 @@ export function HeroSection() {
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='mx-auto max-w-3xl text-center'>
           <h1 className='text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl'>
-            {t('title')}
+            <SplitText>{t('title')}</SplitText>
           </h1>
           <p className='mt-6 text-lg leading-8 text-gray-600 sm:text-xl'>
             {t('description')}
