@@ -83,7 +83,7 @@ export default function ProtectedLayout({
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
       <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
-        <BoNavbar userRole={adminName} />
+        <BoNavbar name={adminName} userRole='Admin' />
         {/* Mobile Menu Button */}
         <div className='lg:hidden'>
           <Button
