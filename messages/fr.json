@@ -564,6 +564,7 @@
       "recurrent": "Récurrent",
       "recurrentDescription": "Si coché, ce créneau se répétera jusqu'à la date de fin de mission",
       "recurrentNotAvailable": "Cette option n'est disponible que pour les disponibilités récurrentes",
+      "availabilityAlreadyAdded": "Cette disponibilité est déjà ajoutée",
       "availabilityRange": "Plage de disponibilité",
       "scheduleStartTime": "Heure de début",
       "scheduleEndTime": "Heure de fin",

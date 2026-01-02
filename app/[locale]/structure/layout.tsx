@@ -9,6 +9,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { BoNavbar } from '@/features/layout/BoNavbar';
 import { StructureSidebar } from '@/features/structure/layout/StructureSidebar';
 import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { usePathname } from '@/i18n/routing';
 
 export default function StructureLayout({
@@ -19,6 +20,9 @@ export default function StructureLayout({
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Disable body scroll on this route
+  useBodyScrollLock();
 
   // Fetch structure data to get name
   const { data: structure } = useFindStructure(session?.user?.id);

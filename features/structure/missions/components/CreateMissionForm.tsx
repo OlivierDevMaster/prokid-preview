@@ -244,7 +244,7 @@ export function CreateMissionForm() {
     );
 
     if (existingIndex !== -1) {
-      toast.error('This availability is already added');
+      toast.error(t('availabilityAlreadyAdded'));
       return;
     }
 
