@@ -30,6 +30,10 @@ export function useCreateInvitation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
+      // Invalidate dashboard queries for structure
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'invitations'],
+      });
     },
   });
 }

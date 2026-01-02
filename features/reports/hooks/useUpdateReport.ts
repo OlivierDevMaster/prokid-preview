@@ -21,6 +21,10 @@ export const useUpdateReport = () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
       queryClient.invalidateQueries({ queryKey: ['get-report'] });
       queryClient.invalidateQueries({ queryKey: ['report'] });
+      // Invalidate dashboard queries for professional (reports updated by professional)
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'professional', 'reports'],
+      });
     },
   });
 };

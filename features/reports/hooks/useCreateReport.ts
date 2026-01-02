@@ -15,6 +15,10 @@ export const useCreateReport = () => {
     onSuccess: data => {
       console.log('useCreateReport onSuccess with data:', data);
       queryClient.invalidateQueries({ queryKey: ['reports'] });
+      // Invalidate dashboard queries for professional (reports created by professional)
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'professional', 'reports'],
+      });
     },
   });
 };
