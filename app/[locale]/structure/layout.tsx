@@ -32,7 +32,7 @@ export default function StructureLayout({
   const structureName = structure?.name || 'Structure';
 
   return (
-    <div className='flex min-h-full flex-col'>
+    <div className='flex h-screen flex-col overflow-hidden'>
       <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
         <BoNavbar name={structureName} userRole='Structure' />
         {/* Mobile Menu Button */}
@@ -60,8 +60,8 @@ export default function StructureLayout({
           </SheetContent>
         </Sheet>
 
-        <main className='flex min-h-full flex-1 flex-col overflow-hidden'>
-          <div className='flex-1 overflow-y-auto'>{children}</div>
+        <main className='flex-1 overflow-y-auto'>
+          <div>{children}</div>
         </main>
       </div>
     </div>

@@ -82,19 +82,19 @@ export default function ProtectedLayout({
 
   return (
     <div className='flex h-screen flex-col overflow-hidden'>
-      <div className='relative border-b shadow-sm lg:border-b-0 lg:shadow-none'>
-        <div className='pl-12 lg:pl-0'>
-          <BoNavbar name={adminName} userRole='Admin' />
-        </div>
+      <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
+        <BoNavbar name={adminName} userRole='Admin' />
         {/* Mobile Menu Button */}
-        <Button
-          className='absolute left-2 top-1/2 z-[60] h-9 w-9 -translate-y-1/2 lg:hidden'
-          onClick={() => setIsSheetOpen(true)}
-          size='icon'
-          variant='ghost'
-        >
-          <Menu className='h-5 w-5' />
-        </Button>
+        <div className='lg:hidden'>
+          <Button
+            className='h-9 w-9'
+            onClick={() => setIsSheetOpen(true)}
+            size='icon'
+            variant='ghost'
+          >
+            <Menu className='h-5 w-5' />
+          </Button>
+        </div>
       </div>
       <div className='flex flex-1 overflow-hidden'>
         {/* Desktop Sidebar */}
