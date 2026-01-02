@@ -360,6 +360,7 @@
       "phone": "Phone",
       "verified": "Verified profile",
       "available": "Available",
+      "unavailable": "Unavailable",
       "specialties": "Specialties",
       "sector": "Sector",
       "certifiedProfessional": "Certified professional",
