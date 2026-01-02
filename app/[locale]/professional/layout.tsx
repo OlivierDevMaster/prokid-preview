@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { BoNavbar } from '@/features/layout/BoNavbar';
 import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { usePathname } from '@/i18n/routing';
 import { useRouter } from '@/i18n/routing';
 import { getUser } from '@/services/auth/auth.service';
@@ -23,6 +24,9 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Disable body scroll on this route
+  useBodyScrollLock();
 
   // Close sheet when pathname changes (navigation)
   useEffect(() => {

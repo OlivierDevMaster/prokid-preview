@@ -567,6 +567,7 @@
       "recurrent": "Recurrent",
       "recurrentDescription": "If checked, this schedule will repeat until the mission end date",
       "recurrentNotAvailable": "This option is only available for recurrent availabilities",
+      "availabilityAlreadyAdded": "This availability is already added",
       "availabilityRange": "Availability range",
       "scheduleStartTime": "Start Time",
       "scheduleEndTime": "End Time",
@@ -580,6 +581,8 @@
       "noProfessionals": "No professionals found.",
       "viewProfile": "View profile",
       "sendInvitation": "Send invitation",
+      "onMission": "On Mission",
+      "notOnMission": "Not on Mission",
       "details": {
         "loading": "Loading...",
         "notFound": "Professional not found",
