@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import type { Structure } from '@/features/structures/structure.model';
@@ -32,6 +33,7 @@ export function StructuresTableWrapper({
   locale,
   translations,
 }: StructuresTableWrapperProps) {
+  const t = useTranslations('common.messages');
   const { data, isLoading } = useFindStructures({}, { limit: 1000 });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -52,7 +54,7 @@ export function StructuresTableWrapper({
   };
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   if (structures.length === 0) {

@@ -793,6 +793,7 @@
       "tableTitle": "Liste des professionnels",
       "addProfessional": "Ajouter un Professionnel",
       "addProfessionalDescription": "Créer un nouveau profil professionnel.",
+      "userIdRequired": "L'ID utilisateur est requis",
       "editProfessional": "Modifier le Professionnel",
       "editProfessionalDescription": "Mettre à jour les informations du professionnel.",
       "deleteProfessional": "Supprimer le Professionnel",

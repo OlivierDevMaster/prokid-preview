@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
 
 import { ProfessionalsTable } from './ProfessionalsTable';
@@ -28,12 +30,13 @@ export function ProfessionalsTableWrapper({
   locale,
   translations,
 }: ProfessionalsTableWrapperProps) {
+  const t = useTranslations('common.messages');
   const { data, isLoading } = useFindProfessionals({}, { limit: 1000 });
 
   const professionals = data?.data ?? [];
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   if (professionals.length === 0) {
