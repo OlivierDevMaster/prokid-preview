@@ -143,7 +143,7 @@ export const getProfessionals = async (
     if (filters.search) {
       const searchPattern = `%${filters.search}%`;
       query = query.or(
-        `description.ilike.${searchPattern},first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`
+        `description.ilike.${searchPattern},first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},profile_email.ilike.${searchPattern}`
       );
     }
 
