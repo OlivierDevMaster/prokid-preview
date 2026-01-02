@@ -1,12 +1,16 @@
 'use client';
 import {
   Building2,
+  Calendar,
+  CheckCircle,
   ClipboardList,
   Clock,
   FileCheck,
   FileText,
   MessageSquare,
+  Percent,
   Send,
+  UserPlus,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -18,10 +22,14 @@ export default function DashboardPage() {
 
   const {
     acceptedMissionsCount,
+    activeAvailabilitiesCount,
+    completedMissionsCount,
     draftReportsCount,
     missionsCount,
+    pendingInvitationsCount,
     pendingMissionsCount,
     reportsCount,
+    responseRate,
     sentReportsCount,
     structuresCount,
     upcomingMissionsCount,
@@ -93,6 +101,36 @@ export default function DashboardPage() {
             icon={Send}
             title={t('sentReports')}
             value={sentReportsCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Medium Priority Additional KPIs */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('additionalMetrics')}
+        </h2>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
+          <StatCard
+            icon={CheckCircle}
+            title={t('completedMissions')}
+            value={completedMissionsCount.toString()}
+          />
+          <StatCard
+            icon={Calendar}
+            title={t('activeAvailabilities')}
+            value={activeAvailabilitiesCount.toString()}
+          />
+          <StatCard
+            icon={Percent}
+            subtitle={t('responseRateDescription')}
+            title={t('responseRate')}
+            value={`${responseRate}%`}
+          />
+          <StatCard
+            icon={UserPlus}
+            title={t('pendingInvitations')}
+            value={pendingInvitationsCount.toString()}
           />
         </div>
       </div>

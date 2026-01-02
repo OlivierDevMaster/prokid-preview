@@ -19,10 +19,10 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 - [x] Sent Reports (submitted)
 
 #### Medium Priority
-- [ ] Completed Missions (ended)
-- [ ] Active Availabilities Count (number of availability patterns that are currently valid - not expired. An availability is active if `until` is NULL or in the future)
-- [ ] Response Rate (% accepted vs declined missions)
-- [ ] Pending Invitations Count
+- [x] Completed Missions (ended)
+- [x] Active Availabilities Count (number of availability patterns that are currently valid - not expired. An availability is active if `until` is NULL or in the future)
+- [x] Response Rate (% accepted vs declined missions)
+- [x] Pending Invitations Count
 
 #### Low Priority
 - [ ] Average Mission Duration

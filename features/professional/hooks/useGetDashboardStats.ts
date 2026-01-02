@@ -6,10 +6,14 @@ import { useMemo } from 'react';
 
 import {
   getProfessionalAcceptedMissionsCount,
+  getProfessionalActiveAvailabilitiesCount,
+  getProfessionalCompletedMissionsCount,
   getProfessionalDraftReportsCount,
   getProfessionalMissionsCount,
+  getProfessionalPendingInvitationsCount,
   getProfessionalPendingMissionsCount,
   getProfessionalReportsCount,
+  getProfessionalResponseRate,
   getProfessionalSentReportsCount,
   getProfessionalStructuresCount,
   getProfessionalUpcomingMissionsCount,
@@ -145,23 +149,103 @@ export function useGetDashboardStats() {
     queryKey: ['dashboard', 'professional', 'reports', 'sent', professionalId],
   });
 
+  // Fetch completed missions count
+  const { data: completedMissionsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalCompletedMissionsCount(professionalId);
+    },
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'completed',
+      professionalId,
+    ],
+  });
+
+  // Fetch active availabilities count
+  const { data: activeAvailabilitiesCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalActiveAvailabilitiesCount(professionalId);
+    },
+    queryKey: [
+      'dashboard',
+      'professional',
+      'availabilities',
+      'active',
+      professionalId,
+    ],
+  });
+
+  // Fetch response rate
+  const { data: responseRate = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalResponseRate(professionalId);
+    },
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'response-rate',
+      professionalId,
+    ],
+  });
+
+  // Fetch pending invitations count
+  const { data: pendingInvitationsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalPendingInvitationsCount(professionalId);
+    },
+    queryKey: [
+      'dashboard',
+      'professional',
+      'invitations',
+      'pending',
+      professionalId,
+    ],
+  });
+
   return useMemo(
     () => ({
       acceptedMissionsCount,
+      activeAvailabilitiesCount,
+      completedMissionsCount,
       draftReportsCount,
       missionsCount,
+      pendingInvitationsCount,
       pendingMissionsCount,
       reportsCount,
+      responseRate,
       sentReportsCount,
       structuresCount,
       upcomingMissionsCount,
     }),
     [
       acceptedMissionsCount,
+      activeAvailabilitiesCount,
+      completedMissionsCount,
       draftReportsCount,
       missionsCount,
+      pendingInvitationsCount,
       pendingMissionsCount,
       reportsCount,
+      responseRate,
       sentReportsCount,
       structuresCount,
       upcomingMissionsCount,

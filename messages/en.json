@@ -432,7 +432,13 @@
       "upcomingMissions": "Upcoming Missions (30 days)",
       "reportStatus": "Report Status",
       "draftReports": "Draft Reports",
-      "sentReports": "Sent Reports"
+      "sentReports": "Sent Reports",
+      "additionalMetrics": "Additional Metrics",
+      "completedMissions": "Completed Missions",
+      "activeAvailabilities": "Active Availabilities",
+      "responseRate": "Response Rate",
+      "responseRateDescription": "% accepted vs declined missions",
+      "pendingInvitations": "Pending Invitations"
     },
     "structure": {
       "hoursCompleted": "Hours completed",
