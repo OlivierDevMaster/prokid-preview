@@ -1,7 +1,6 @@
 'use client';
 
 import { Eye } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -20,13 +19,8 @@ interface ProfessionalCardProps {
 
 export function ProfessionalCard({ professional }: ProfessionalCardProps) {
   const t = useTranslations('structure.professionals');
-  const { data: session } = useSession();
-  const structureId = session?.user?.id;
 
-  const { data: hasActiveMission } = useHasActiveMission(
-    professional.id,
-    structureId
-  );
+  const { data: hasActiveMission } = useHasActiveMission(professional.id);
 
   const initials = professional.name
     .split(' ')

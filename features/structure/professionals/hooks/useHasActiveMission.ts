@@ -8,25 +8,21 @@ import { findMissions } from '@/features/missions/mission.service';
  * A mission is considered active if it's accepted and the current date
  * is within the mission date range (mission_dtstart <= now <= mission_until)
  */
-export function useHasActiveMission(
-  professionalId: string | undefined,
-  structureId: string | undefined
-) {
+export function useHasActiveMission(professionalId: string | undefined) {
   return useQuery({
-    enabled: !!professionalId && !!structureId,
+    enabled: !!professionalId,
     queryFn: async () => {
-      if (!professionalId || !structureId) {
+      if (!professionalId) {
         return false;
       }
 
       const now = new Date();
 
-      // Get accepted missions for this professional and structure
+      // Get accepted missions for this professional
       const result = await findMissions(
         {
           professional_id: professionalId,
           status: MissionStatus.accepted,
-          structure_id: structureId,
         },
         {}
       );
@@ -40,6 +36,6 @@ export function useHasActiveMission(
 
       return hasActiveMission;
     },
-    queryKey: ['professional-active-mission', professionalId, structureId],
+    queryKey: ['professional-active-mission', professionalId],
   });
 }

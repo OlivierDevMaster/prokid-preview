@@ -601,7 +601,8 @@
         "about": "À propos",
         "additionalInfo": "Informations supplémentaires",
         "verifiedAt": "Vérifié le",
-        "memberSince": "Membre depuis"
+        "memberSince": "Membre depuis",
+        "unavailable": "Non disponible"
       }
     },
     "dashboard": {
