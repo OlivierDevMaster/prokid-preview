@@ -21,6 +21,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
 
@@ -107,7 +108,7 @@ export default function AvailabilitiesPage() {
   const handleDeleteSlotClick = (slot: AvailabilitySlot) => {
     // Prevent deletion if slot is booked
     if (!slot.isAvailable && slot.mission) {
-      alert(t('cannotDeleteBooked'));
+      toast.error(t('cannotDeleteBooked'));
       return;
     }
 
@@ -136,11 +137,9 @@ export default function AvailabilitiesPage() {
       await queryClient.invalidateQueries({
         queryKey: ['availabilities'],
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error('Error deleting availability:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : t('deleteError');
-      alert(errorMessage);
+      toast.error(t('deleteError'));
     } finally {
       setDeletingSlotId(null);
     }

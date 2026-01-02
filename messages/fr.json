@@ -585,6 +585,8 @@
       "noProfessionals": "Aucun professionnel trouvé.",
       "viewProfile": "Voir le profil",
       "sendInvitation": "Envoyer une invitation",
+      "onMission": "En Mission",
+      "notOnMission": "Pas en Mission",
       "details": {
         "loading": "Chargement...",
         "notFound": "Professionnel non trouvé",

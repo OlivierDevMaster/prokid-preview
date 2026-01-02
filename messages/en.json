@@ -581,6 +581,8 @@
       "noProfessionals": "No professionals found.",
       "viewProfile": "View profile",
       "sendInvitation": "Send invitation",
+      "onMission": "On Mission",
+      "notOnMission": "Not on Mission",
       "details": {
         "loading": "Loading...",
         "notFound": "Professional not found",
