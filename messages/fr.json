@@ -687,8 +687,17 @@
       "missionStatus": "Statut des Missions",
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
+      "completedMissions": "Missions Terminées",
       "invitations": "Invitations",
-      "pendingInvitations": "Invitations en Attente"
+      "pendingInvitations": "Invitations en Attente",
+      "totalInvitations": "Invitations Totales",
+      "reports": "Comptes Rendus",
+      "totalReports": "Comptes Rendus Totaux",
+      "performanceMetrics": "Métriques de Performance",
+      "missionCompletionRate": "Taux de Complétion des Missions",
+      "missionCompletionRateDescription": "% terminées vs total des missions",
+      "systemGrowthRate": "Taux de Croissance du Système",
+      "systemGrowthRateDescription": "Nouveaux professionnels ce mois-ci"
     },
     "users": {
       "title": "Utilisateurs",

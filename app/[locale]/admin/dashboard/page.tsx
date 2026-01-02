@@ -3,8 +3,12 @@
 import {
   Building2,
   CheckCircle,
+  CircleCheck,
   Clock,
+  FileCheck,
   MessageSquare,
+  Percent,
+  TrendingUp,
   UserCheck,
   UserPlus,
   Users,
@@ -21,11 +25,16 @@ export default function DashboardPage() {
     activeMissionsCount,
     activeProfessionalsCount,
     activeStructuresCount,
+    completedMissionsCount,
+    missionCompletionRate,
     missionsCount,
     pendingInvitationsCount,
     pendingMissionsCount,
     professionalsCount,
     structuresCount,
+    systemGrowthRate,
+    totalInvitationsCount,
+    totalReportsCount,
   } = useGetDashboardStats();
 
   return (
@@ -95,7 +104,7 @@ export default function DashboardPage() {
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('missionStatus')}
         </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
           <StatCard
             icon={Clock}
             title={t('pendingMissions')}
@@ -106,6 +115,11 @@ export default function DashboardPage() {
             title={t('activeMissions')}
             value={activeMissionsCount.toString()}
           />
+          <StatCard
+            icon={CircleCheck}
+            title={t('completedMissions')}
+            value={completedMissionsCount.toString()}
+          />
         </div>
       </div>
 
@@ -114,11 +128,51 @@ export default function DashboardPage() {
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('invitations')}
         </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-1'>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
           <StatCard
             icon={UserPlus}
             title={t('pendingInvitations')}
             value={pendingInvitationsCount.toString()}
+          />
+          <StatCard
+            icon={UserCheck}
+            title={t('totalInvitations')}
+            value={totalInvitationsCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Reports */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('reports')}
+        </h2>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-1'>
+          <StatCard
+            icon={FileCheck}
+            title={t('totalReports')}
+            value={totalReportsCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Performance Metrics */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('performanceMetrics')}
+        </h2>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
+          <StatCard
+            icon={Percent}
+            subtitle={t('missionCompletionRateDescription')}
+            title={t('missionCompletionRate')}
+            value={`${missionCompletionRate}%`}
+          />
+          <StatCard
+            icon={TrendingUp}
+            subtitle={t('systemGrowthRateDescription')}
+            title={t('systemGrowthRate')}
+            value={systemGrowthRate.toString()}
           />
         </div>
       </div>

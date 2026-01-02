@@ -75,11 +75,11 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 - [x] Pending Missions (awaiting response)
 
 #### Medium Priority
-- [ ] Total Invitations (all-time)
-- [ ] Completed Missions (ended)
-- [ ] Total Reports (all-time)
-- [ ] System Growth Rate (new users this month)
-- [ ] Mission Completion Rate (% completed vs total)
+- [x] Total Invitations (all-time)
+- [x] Completed Missions (ended)
+- [x] Total Reports (all-time)
+- [x] System Growth Rate (new users this month)
+- [x] Mission Completion Rate (% completed vs total)
 
 #### Low Priority
 - [ ] Average Missions per Structure

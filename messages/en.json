@@ -683,8 +683,17 @@
       "missionStatus": "Mission Status",
       "pendingMissions": "Pending Missions",
       "activeMissions": "Active Missions",
+      "completedMissions": "Completed Missions",
       "invitations": "Invitations",
-      "pendingInvitations": "Pending Invitations"
+      "pendingInvitations": "Pending Invitations",
+      "totalInvitations": "Total Invitations",
+      "reports": "Reports",
+      "totalReports": "Total Reports",
+      "performanceMetrics": "Performance Metrics",
+      "missionCompletionRate": "Mission Completion Rate",
+      "missionCompletionRateDescription": "% completed vs total missions",
+      "systemGrowthRate": "System Growth Rate",
+      "systemGrowthRateDescription": "New professionals this month"
     },
     "users": {
       "title": "Users",
