@@ -99,7 +99,7 @@ export default function ProfessionalSignUpForm2() {
     };
 
     getUserId();
-  }, []);
+  }, [t]);
 
   const handleNext = async () => {
     if (currentStep === 2) {
