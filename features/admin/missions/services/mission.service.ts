@@ -16,6 +16,7 @@ export type AdminMission = {
   professional: {
     city: null | string;
     profile: {
+      avatar_url: null | string;
       email: string;
       first_name: null | string;
       last_name: null | string;
