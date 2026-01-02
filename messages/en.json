@@ -433,11 +433,12 @@
       "reportStatus": "Report Status",
       "draftReports": "Draft Reports",
       "sentReports": "Sent Reports",
-      "additionalMetrics": "Additional Metrics",
       "completedMissions": "Completed Missions",
+      "performanceMetrics": "Performance Metrics",
       "activeAvailabilities": "Active Availabilities",
       "responseRate": "Response Rate",
       "responseRateDescription": "% accepted vs declined missions",
+      "invitations": "Invitations",
       "pendingInvitations": "Pending Invitations"
     },
     "structure": {

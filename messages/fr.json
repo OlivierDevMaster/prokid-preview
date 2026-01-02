@@ -442,11 +442,12 @@
       "reportStatus": "Statut des Comptes Rendus",
       "draftReports": "Comptes Rendus Brouillons",
       "sentReports": "Comptes Rendus Envoyés",
-      "additionalMetrics": "Métriques Supplémentaires",
       "completedMissions": "Missions Terminées",
+      "performanceMetrics": "Métriques de Performance",
       "activeAvailabilities": "Disponibilités Actives",
       "responseRate": "Taux de Réponse",
       "responseRateDescription": "% acceptées vs refusées",
+      "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente"
     },
     "structure": {

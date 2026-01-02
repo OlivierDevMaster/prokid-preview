@@ -62,12 +62,12 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* High Priority Additional KPIs */}
+      {/* Mission Status */}
       <div>
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('missionStatus')}
         </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
           <StatCard
             icon={Clock}
             title={t('pendingMissions')}
@@ -77,6 +77,11 @@ export default function DashboardPage() {
             icon={FileCheck}
             title={t('acceptedMissions')}
             value={acceptedMissionsCount.toString()}
+          />
+          <StatCard
+            icon={CheckCircle}
+            title={t('completedMissions')}
+            value={completedMissionsCount.toString()}
           />
           <StatCard
             icon={MessageSquare}
@@ -105,28 +110,32 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Medium Priority Additional KPIs */}
+      {/* Performance Metrics */}
       <div>
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('additionalMetrics')}
+          {t('performanceMetrics')}
         </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
-          <StatCard
-            icon={CheckCircle}
-            title={t('completedMissions')}
-            value={completedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={Calendar}
-            title={t('activeAvailabilities')}
-            value={activeAvailabilitiesCount.toString()}
-          />
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           <StatCard
             icon={Percent}
             subtitle={t('responseRateDescription')}
             title={t('responseRate')}
             value={`${responseRate}%`}
           />
+          <StatCard
+            icon={Calendar}
+            title={t('activeAvailabilities')}
+            value={activeAvailabilitiesCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Invitations */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('invitations')}
+        </h2>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
           <StatCard
             icon={UserPlus}
             title={t('pendingInvitations')}
