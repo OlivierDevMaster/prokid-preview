@@ -13,7 +13,6 @@ import {
   getStructureMissionsCount,
   getStructurePendingInvitationsCount,
   getStructurePendingMissionsCount,
-  getStructurePendingReportsCount,
   getStructureReceivedReportsCount,
   getStructureUpcomingMissionsCount,
 } from '@/features/structure/services/dashboard.service';
@@ -124,18 +123,6 @@ export function useGetDashboardStats() {
     queryKey: ['dashboard', 'structure', 'missions', 'completed', structureId],
   });
 
-  // Fetch pending reports count
-  const { data: pendingReportsCount = 0 } = useQuery({
-    enabled: !!structureId,
-    queryFn: async () => {
-      if (!structureId) {
-        throw new Error('Structure ID is required');
-      }
-      return getStructurePendingReportsCount(structureId);
-    },
-    queryKey: ['dashboard', 'structure', 'reports', 'pending', structureId],
-  });
-
   // Fetch mission acceptance rate
   const { data: missionAcceptanceRate = 0 } = useQuery({
     enabled: !!structureId,
@@ -176,7 +163,6 @@ export function useGetDashboardStats() {
       missionsCount,
       pendingInvitationsCount,
       pendingMissionsCount,
-      pendingReportsCount,
       receivedReportsCount,
       upcomingMissionsCount,
     }),
@@ -189,7 +175,6 @@ export function useGetDashboardStats() {
       missionsCount,
       pendingInvitationsCount,
       pendingMissionsCount,
-      pendingReportsCount,
       receivedReportsCount,
       upcomingMissionsCount,
     ]

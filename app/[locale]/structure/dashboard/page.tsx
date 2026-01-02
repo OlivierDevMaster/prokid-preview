@@ -4,7 +4,6 @@ import {
   CircleCheck,
   Clock,
   FileCheck,
-  FileText,
   MessageSquare,
   Percent,
   UserCheck,
@@ -28,7 +27,6 @@ export default function DashboardPage() {
     missionsCount,
     pendingInvitationsCount,
     pendingMissionsCount,
-    pendingReportsCount,
     receivedReportsCount,
     upcomingMissionsCount,
   } = useGetDashboardStats();
@@ -94,12 +92,7 @@ export default function DashboardPage() {
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('reportStatus')}
         </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={FileText}
-            title={t('pendingReports')}
-            value={pendingReportsCount.toString()}
-          />
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
           <StatCard
             icon={FileCheck}
             title={t('receivedReports')}

@@ -148,37 +148,6 @@ export async function getStructurePendingMissionsCount(
   return count ?? 0;
 }
 
-export async function getStructurePendingReportsCount(
-  structureId: string
-): Promise<number> {
-  const supabase = createClient();
-
-  // First, get all mission IDs for this structure
-  const { data: missions, error: missionsError } = await supabase
-    .from('missions')
-    .select('id')
-    .eq('structure_id', structureId);
-
-  if (missionsError) throw missionsError;
-
-  const missionIds = missions?.map(m => m.id) ?? [];
-
-  if (missionIds.length === 0) {
-    return 0;
-  }
-
-  // Then count reports for these missions with status 'draft'
-  const { count, error } = await supabase
-    .from('reports')
-    .select('*', { count: 'exact', head: true })
-    .in('mission_id', missionIds)
-    .eq('status', ReportStatus.draft);
-
-  if (error) throw error;
-
-  return count ?? 0;
-}
-
 export async function getStructureReceivedReportsCount(
   structureId: string
 ): Promise<number> {
