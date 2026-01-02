@@ -3,16 +3,20 @@ import type {
   MissionFilters,
 } from '@/features/missions/mission.model';
 
+import { MissionConfig } from '@/features/missions/mission.config';
+import { MissionColumn } from '@/features/missions/mission.model';
 import {
   PaginationOptions,
   PaginationResult,
 } from '@/features/paginations/pagination.model';
 import { createClient } from '@/lib/supabase/client';
+import { Order } from '@/lib/utils/enums';
 
 export type AdminMission = {
   professional: {
     city: null | string;
     profile: {
+      avatar_url: null | string;
       email: string;
       first_name: null | string;
       last_name: null | string;
@@ -53,6 +57,7 @@ export async function getAdminMission(
         user_id,
         city,
         profile:profiles!professionals_user_id_fkey(
+          avatar_url,
           email,
           first_name,
           last_name
@@ -90,6 +95,7 @@ export async function getAdminMissions(
         user_id,
         city,
         profile:profiles!professionals_user_id_fkey(
+          avatar_url,
           email,
           first_name,
           last_name
@@ -111,12 +117,32 @@ export async function getAdminMissions(
     query = query.eq('status', filters.status);
   }
 
-  const page = paginationOptions.page ?? 1;
-  const limit = paginationOptions.limit ?? 50;
+  if (filters.search) {
+    query = query.ilike('title', `%${filters.search}%`);
+    query = query.ilike('description', `%${filters.search}%`);
+  }
+
+  const page = paginationOptions.page ?? MissionConfig.PAGE_DEFAULT;
+  const limit = paginationOptions.limit ?? MissionConfig.PAGE_SIZE_DEFAULT;
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  query = query.order('created_at', { ascending: false }).range(from, to);
+  // Apply sorting
+  const sortColumn = filters.sort || MissionColumn.created_at;
+  const sortOrder = filters.order || Order.desc;
+  const ascending = sortOrder === Order.asc;
+
+  if (sortColumn === 'title') {
+    // Special handling for title sorting (uses title field directly)
+    query = query.order('title', { ascending });
+  } else {
+    // For other columns, use the column directly
+    query = query.order(sortColumn, { ascending });
+    // Add secondary sort by id for consistency
+    query = query.order(MissionColumn.id, { ascending });
+  }
+
+  query = query.range(from, to);
 
   const { count, data, error } = await query;
 

@@ -3,17 +3,11 @@
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
 
 import type { Structure } from '@/features/structures/structure.model';
 
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -22,12 +16,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Pagination } from '@/features/paginations/components/Pagination';
 
 import useGetStructureColumnDefs from '../hooks/useGetStructureColumnDefs';
 
 interface StructuresTableProps {
+  currentPage: number;
   data: Structure[];
   locale?: string;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
   translations: {
     actions?: string;
     createdAt: string;
@@ -47,33 +48,26 @@ interface StructuresTableProps {
 }
 
 export function StructuresTable({
+  currentPage,
   data,
   locale = 'en',
+  onPageChange,
+  onPageSizeChange,
+  pageSize,
+  totalCount,
+  totalPages,
   translations,
 }: StructuresTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
   const columns = useGetStructureColumnDefs({ locale, translations });
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
   });
 
   return (
     <div className='space-y-4'>
-      <div className='rounded-md border'>
+      <div className='rounded-md border bg-white'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
@@ -123,32 +117,14 @@ export function StructuresTable({
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-between'>
-        <div className='text-sm text-muted-foreground'>
-          {translations.page} {table.getState().pagination.pageIndex + 1}{' '}
-          {translations.of} {table.getPageCount()}
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Button
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
-            size='sm'
-            variant='outline'
-          >
-            <ChevronLeft className='h-4 w-4' />
-            {translations.previous}
-          </Button>
-          <Button
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
-            size='sm'
-            variant='outline'
-          >
-            {translations.next}
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+        pageSize={pageSize}
+        totalItems={totalCount}
+        totalPages={totalPages}
+      />
     </div>
   );
 }
