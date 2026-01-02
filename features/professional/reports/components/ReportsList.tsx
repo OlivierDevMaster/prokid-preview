@@ -145,8 +145,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
                   const structureName =
                     structure.name ||
                     structure.profile?.email ||
-                    t('unknownStructure') ||
-                    'Unknown';
+                    t('unknownStructure');
                   return (
                     <SelectItem
                       key={structure.user_id}
@@ -169,8 +168,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
                   {t('allMissions') || 'All missions'}
                 </SelectItem>
                 {filteredMissions.map(mission => {
-                  const missionTitle =
-                    mission.title || t('unknownMission') || 'Unknown';
+                  const missionTitle = mission.title || t('unknownMission');
                   return (
                     <SelectItem key={mission.id} value={mission.id}>
                       {missionTitle}

@@ -12,6 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -52,7 +53,7 @@ export default function SubscriptionPage() {
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
-      alert(t('checkoutError') || 'Failed to create checkout session');
+      toast.error(t('checkoutError'));
     } finally {
       setIsCreatingCheckout(false);
     }

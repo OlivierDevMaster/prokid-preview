@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useFindMissions } from '../hooks/useFindMissions';
 import { MissionsTable } from './MissionsTable';
 
@@ -27,12 +29,13 @@ export function MissionsTableWrapper({
   locale,
   translations,
 }: MissionsTableWrapperProps) {
+  const t = useTranslations('admin.missions');
   const { data, isLoading } = useFindMissions({}, { limit: 1000 });
 
   const missions = data?.data ?? [];
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   if (missions.length === 0) {

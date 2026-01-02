@@ -57,8 +57,8 @@ export function ProfessionalDetails() {
   const name = profile
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() ||
       profile.email ||
-      'Unknown'
-    : 'Unknown';
+      tCommon('messages.unknown')
+    : tCommon('messages.unknown');
 
   const initials = name
     .split(' ')

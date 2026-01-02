@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 
@@ -50,6 +51,7 @@ const initialSchedule: Record<string, DaySchedule> = {
 };
 
 export default function ProfessionalSignUpForm2() {
+  const t = useTranslations('auth.signUp.professionalForm');
   const [currentStep, setCurrentStep] = useState(1);
   const [userId, setUserId] = useState<null | string>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
@@ -84,7 +86,7 @@ export default function ProfessionalSignUpForm2() {
         const { data: user, error } = await supabase.auth.getUser();
 
         if (error || !user?.user) {
-          throw new Error('User not found. Please sign in again.');
+          throw new Error(t('userNotFound'));
         }
 
         setUserId(user.user.id);
@@ -143,7 +145,7 @@ export default function ProfessionalSignUpForm2() {
     return (
       <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
         <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
-          <div className='text-center'>Loading...</div>
+          <div className='text-center'>{t('loading')}</div>
         </Card>
       </div>
     );
@@ -153,9 +155,7 @@ export default function ProfessionalSignUpForm2() {
     return (
       <div className='flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 p-4'>
         <Card className='w-full max-w-3xl rounded-lg bg-white p-8 shadow-lg'>
-          <div className='text-center text-red-600'>
-            User not found. Please sign in again.
-          </div>
+          <div className='text-center text-red-600'>{t('userNotFound')}</div>
         </Card>
       </div>
     );
