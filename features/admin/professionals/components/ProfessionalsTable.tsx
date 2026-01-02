@@ -72,7 +72,7 @@ export function ProfessionalsTable({
 
   return (
     <div className='space-y-4'>
-      <div className='rounded-md border'>
+      <div className='rounded-md border bg-white'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
