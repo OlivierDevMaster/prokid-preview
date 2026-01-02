@@ -25,6 +25,7 @@ interface ReportsListProps {
 
 export function ReportsList({ locale = 'en' }: ReportsListProps) {
   const t = useTranslations('admin.reports');
+  const tCommon = useTranslations('common.messages');
   const [selectedReportId, setSelectedReportId] = useState<null | string>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -91,6 +92,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
       previous: t('previous'),
       professional: t('professionalColumn') || 'Professional',
       title: t('titleColumn'),
+      unknown: tCommon('unknown'),
       view: t('view'),
     },
   });

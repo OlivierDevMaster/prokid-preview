@@ -105,7 +105,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
 
   const handleRemoveAttachment = (attachmentId: string) => {
     if (currentReport?.status === 'sent') {
-      toast.error('Cannot delete attachments from sent reports');
+      toast.error(t('messages.cannotDeleteAttachmentsFromSentReports'));
       return;
     }
     deleteAttachment(attachmentId);
@@ -163,7 +163,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
             await handleUploadFiles(updatedReport.id, selectedFiles);
           } catch (error) {
             console.error('Error uploading files:', error);
-            toast.error('Failed to upload some files. Please try again.');
+            toast.error(t('messages.failedToUploadFiles'));
             return;
           }
         }
@@ -176,7 +176,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
         toast.error(
           error instanceof Error
             ? error.message
-            : t('messages.errorCreatingReport') || 'Failed to update report'
+            : t('messages.errorCreatingReport')
         );
       }
     } else {
@@ -190,7 +190,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const handleSendReport = async () => {
     // Block if report is already sent
     if (currentReport?.status === 'sent') {
-      toast.error('This report has already been sent');
+      toast.error(t('messages.reportAlreadySent'));
       return;
     }
 
@@ -198,15 +198,15 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
 
     // Validate required fields
     if (!formValues.mission_id) {
-      toast.error('Please select a mission before sending');
+      toast.error(t('messages.selectMissionBeforeSending'));
       return;
     }
     if (!formValues.title || formValues.title.trim().length === 0) {
-      toast.error('Please enter a title before sending');
+      toast.error(t('messages.enterTitleBeforeSending'));
       return;
     }
     if (!formValues.content || formValues.content.trim().length === 0) {
-      toast.error('Please enter content before sending');
+      toast.error(t('messages.enterContentBeforeSending'));
       return;
     }
 
@@ -274,7 +274,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
         await handleUploadFiles(reportId, selectedFiles);
       } catch (error) {
         console.error('Error uploading files:', error);
-        toast.error('Failed to upload some files. Please try again.');
+        toast.error(t('messages.failedToUploadFiles'));
         return;
       }
     }

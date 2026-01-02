@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,7 @@ export function MissionsTableWrapper({
   locale,
   translations,
 }: MissionsTableWrapperProps) {
+  const t = useTranslations('admin.missions');
   const [page, setPage] = useQueryState(
     'page',
     parseAsInteger.withDefault(MissionConfig.PAGE_DEFAULT)
@@ -143,7 +145,7 @@ export function MissionsTableWrapper({
   const hasActiveFilters = search || status;
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   return (

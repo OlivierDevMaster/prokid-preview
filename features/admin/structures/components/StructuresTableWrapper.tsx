@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
@@ -57,6 +58,7 @@ export function StructuresTableWrapper({
   locale,
   translations,
 }: StructuresTableWrapperProps) {
+  const t = useTranslations('common.messages');
   const [page, setPage] = useQueryState(
     'page',
     parseAsInteger.withDefault(StructureConfig.PAGE_DEFAULT)
@@ -150,7 +152,7 @@ export function StructuresTableWrapper({
   const hasActiveFilters = search;
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   return (

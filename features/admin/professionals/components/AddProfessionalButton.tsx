@@ -3,6 +3,7 @@
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import type { ProfessionalInsert } from '@/features/professionals/professional.model';
 
@@ -38,7 +39,7 @@ export function AddProfessionalButton() {
     // TODO: Implement form validation and user_id selection
     // For now, this is a placeholder
     if (!formData.user_id) {
-      alert('User ID is required');
+      toast.error(t('userIdRequired'));
       return;
     }
 

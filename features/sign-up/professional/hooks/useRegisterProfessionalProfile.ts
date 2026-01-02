@@ -1,5 +1,6 @@
 // features/sign-up/professional/hooks/useRegisterProfessionalProfile.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
@@ -16,6 +17,7 @@ interface RegisterProfessionalProfileParams {
 export const useRegisterProfessionalProfile = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const t = useTranslations('auth.signUp.professionalForm');
 
   return useMutation({
     mutationFn: async ({
@@ -27,9 +29,7 @@ export const useRegisterProfessionalProfile = () => {
     onError: error => {
       console.error('Error registering professional profile:', error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to create professional profile. Please try again.'
+        error instanceof Error ? error.message : t('failedToCreateProfile')
       );
     },
     onSuccess: async () => {
@@ -46,7 +46,7 @@ export const useRegisterProfessionalProfile = () => {
         queryKey: ['user-profile'],
       });
 
-      toast.success('Profile created successfully');
+      toast.success(t('profileCreatedSuccessfully'));
       router.push('/professional/dashboard');
     },
   });

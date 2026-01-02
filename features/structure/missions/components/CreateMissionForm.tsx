@@ -181,7 +181,7 @@ export function CreateMissionForm() {
 
   const handleStep1Submit = async (data: MissionFormData) => {
     if (!structureId) {
-      toast.error('Structure ID is required');
+      toast.error(t('structureIdRequired'));
       return;
     }
 
@@ -199,17 +199,13 @@ export function CreateMissionForm() {
       setMissionUntilDate(data.mission_until);
       setStep(2);
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('createError') || 'Failed to create mission'
-      );
+      toast.error(error instanceof Error ? error.message : t('createError'));
     }
   };
 
   const handleStep2Submit = async (data: MissionSchedulesFormData) => {
     if (!missionUntilDate) {
-      toast.error('Mission end date is required');
+      toast.error(t('missionEndDateRequired'));
       return;
     }
 

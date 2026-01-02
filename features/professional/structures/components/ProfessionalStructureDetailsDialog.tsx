@@ -74,6 +74,7 @@ function StructureDetailsContent({
   structureMember,
   t,
 }: StructureDetailsContentProps) {
+  const tCommon = useTranslations('common.messages');
   const { data: session } = useSession();
   const professionalId = session?.user?.id ?? null;
   const structure = structureMember.structure;
@@ -95,7 +96,7 @@ function StructureDetailsContent({
     : 0;
 
   const profile = structure.profile;
-  const name = structure.name || profile?.email || 'Unknown';
+  const name = structure.name || profile?.email || tCommon('unknown');
 
   return (
     <>

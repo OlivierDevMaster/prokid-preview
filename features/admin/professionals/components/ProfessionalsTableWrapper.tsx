@@ -1,6 +1,7 @@
 'use client';
 
 import { MapPin, Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,7 @@ export function ProfessionalsTableWrapper({
   locale,
   translations,
 }: ProfessionalsTableWrapperProps) {
+  const t = useTranslations('common.messages');
   const [page, setPage] = useQueryState(
     'page',
     parseAsInteger.withDefault(ProfessionalConfig.PAGE_DEFAULT)
@@ -141,7 +143,7 @@ export function ProfessionalsTableWrapper({
   const hasActiveFilters = search || city;
 
   if (isLoading) {
-    return <p className='py-8 text-center text-gray-500'>Loading...</p>;
+    return <p className='py-8 text-center text-gray-500'>{t('loading')}</p>;
   }
 
   return (
