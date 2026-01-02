@@ -35,6 +35,7 @@ interface ProfessionalsTableProps {
     actions?: string;
     city: string;
     createdAt: string;
+    currentJob: string;
     delete?: string;
     edit?: string;
     email: string;
@@ -44,7 +45,6 @@ interface ProfessionalsTableProps {
     of: string;
     page: string;
     previous: string;
-    skills: string;
     view?: string;
   };
 }
