@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Users } from 'lucide-react';
+import { Building2, LayoutDashboard, MessageSquare, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -21,6 +21,11 @@ export default function useGetAdminNavItems(): SidebarNavItem[] {
       href: '/admin/structures',
       icon: Building2,
       label: tAdmin('navigation.structures'),
+    },
+    {
+      href: '/admin/missions',
+      icon: MessageSquare,
+      label: tAdmin('navigation.missions'),
     },
   ];
 
