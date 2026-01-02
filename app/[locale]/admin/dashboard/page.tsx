@@ -66,12 +66,24 @@ export default function DashboardPage() {
         </h2>
         <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
           <StatCard
+            description={t('activeProfessionalsDescription')}
             icon={UserCheck}
+            subtitle={
+              professionalsCount > 0
+                ? `${activeProfessionalsCount}/${professionalsCount} (${Math.round((activeProfessionalsCount / professionalsCount) * 100)}%)`
+                : undefined
+            }
             title={t('activeProfessionals')}
             value={activeProfessionalsCount.toString()}
           />
           <StatCard
+            description={t('activeStructuresDescription')}
             icon={Building2}
+            subtitle={
+              structuresCount > 0
+                ? `${activeStructuresCount}/${structuresCount} (${Math.round((activeStructuresCount / structuresCount) * 100)}%)`
+                : undefined
+            }
             title={t('activeStructures')}
             value={activeStructuresCount.toString()}
           />
