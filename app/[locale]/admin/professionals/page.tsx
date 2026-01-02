@@ -13,11 +13,13 @@ export default async function ProfessionalsPage({
   const translations = {
     actions: t('actions'),
     city: t('city'),
+    clearFilters: t('clearFilters'),
     createdAt: t('createdAt'),
     currentJob: t('currentJob'),
     delete: t('delete'),
     edit: t('edit'),
     email: t('email'),
+    filterByCity: t('filterByCity'),
     name: t('name'),
     nameAsc: t('nameAsc'),
     nameDesc: t('nameDesc'),
@@ -28,6 +30,8 @@ export default async function ProfessionalsPage({
     oldest: t('oldest'),
     page: t('page'),
     previous: t('previous'),
+    searchPlaceholder: t('searchPlaceholder'),
+    sortBy: t('sortBy'),
     view: t('view'),
   };
 

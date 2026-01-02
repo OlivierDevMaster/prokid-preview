@@ -12,6 +12,7 @@ export default async function StructuresPage({
 
   const translations = {
     actions: t('actions'),
+    clearFilters: t('clearFilters'),
     createdAt: t('createdAt'),
     delete: t('delete'),
     edit: t('edit'),
@@ -26,6 +27,8 @@ export default async function StructuresPage({
     oldest: t('oldest'),
     page: t('page'),
     previous: t('previous'),
+    searchPlaceholder: t('searchPlaceholder'),
+    sortBy: t('sortBy'),
     view: t('view'),
   };
 

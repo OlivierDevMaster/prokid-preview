@@ -28,11 +28,13 @@ interface ProfessionalsTableWrapperProps {
   translations: {
     actions?: string;
     city: string;
+    clearFilters: string;
     createdAt: string;
     currentJob: string;
     delete?: string;
     edit?: string;
     email: string;
+    filterByCity: string;
     name: string;
     nameAsc: string;
     nameDesc: string;
@@ -43,6 +45,8 @@ interface ProfessionalsTableWrapperProps {
     oldest: string;
     page: string;
     previous: string;
+    searchPlaceholder: string;
+    sortBy: string;
     view?: string;
   };
 }
@@ -150,7 +154,7 @@ export function ProfessionalsTableWrapper({
             <Input
               className='px-10'
               onChange={e => handleSearchChange(e.target.value)}
-              placeholder='Search by name or email...'
+              placeholder={translations.searchPlaceholder}
               value={search || ''}
             />
             {search && (
@@ -169,7 +173,7 @@ export function ProfessionalsTableWrapper({
             <Input
               className='px-10'
               onChange={e => handleCityChange(e.target.value)}
-              placeholder='Filter by city...'
+              placeholder={translations.filterByCity}
               value={city || ''}
             />
             {city && (
@@ -192,7 +196,7 @@ export function ProfessionalsTableWrapper({
                 }}
                 variant='outline'
               >
-                Clear filters
+                {translations.clearFilters}
               </Button>
             </div>
           )}
@@ -205,7 +209,7 @@ export function ProfessionalsTableWrapper({
             value={getCurrentSortValue()}
           >
             <SelectTrigger className='w-[180px]'>
-              <SelectValue placeholder='Sort by' />
+              <SelectValue placeholder={translations.sortBy} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ProfessionalSortOption.name_asc}>

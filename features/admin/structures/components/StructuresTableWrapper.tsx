@@ -32,6 +32,7 @@ interface StructuresTableWrapperProps {
   locale: string;
   translations: {
     actions?: string;
+    clearFilters: string;
     createdAt: string;
     delete?: string;
     edit?: string;
@@ -46,6 +47,8 @@ interface StructuresTableWrapperProps {
     oldest: string;
     page: string;
     previous: string;
+    searchPlaceholder: string;
+    sortBy: string;
     view?: string;
   };
 }
@@ -160,7 +163,7 @@ export function StructuresTableWrapper({
             <Input
               className='px-10'
               onChange={e => handleSearchChange(e.target.value)}
-              placeholder='Search by name or email...'
+              placeholder={translations.searchPlaceholder}
               value={search || ''}
             />
             {search && (
@@ -182,7 +185,7 @@ export function StructuresTableWrapper({
                 }}
                 variant='outline'
               >
-                Clear filters
+                {translations.clearFilters}
               </Button>
             </div>
           )}
@@ -195,7 +198,7 @@ export function StructuresTableWrapper({
             value={getCurrentSortValue()}
           >
             <SelectTrigger className='w-[180px]'>
-              <SelectValue placeholder='Sort by' />
+              <SelectValue placeholder={translations.sortBy} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={StructureSortOption.name_asc}>
