@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProfessionalsTableWrapper } from '@/features/admin/professionals/components/ProfessionalsTableWrapper';
 
 export default async function ProfessionalsPage({
@@ -14,17 +13,25 @@ export default async function ProfessionalsPage({
   const translations = {
     actions: t('actions'),
     city: t('city'),
+    clearFilters: t('clearFilters'),
     createdAt: t('createdAt'),
+    currentJob: t('currentJob'),
     delete: t('delete'),
     edit: t('edit'),
     email: t('email'),
+    filterByCity: t('filterByCity'),
     name: t('name'),
+    nameAsc: t('nameAsc'),
+    nameDesc: t('nameDesc'),
+    newest: t('newest'),
     next: t('next'),
     noResults: t('noResults'),
     of: t('of'),
+    oldest: t('oldest'),
     page: t('page'),
     previous: t('previous'),
-    skills: t('skills'),
+    searchPlaceholder: t('searchPlaceholder'),
+    sortBy: t('sortBy'),
     view: t('view'),
   };
 
@@ -41,17 +48,7 @@ export default async function ProfessionalsPage({
       </div>
 
       {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('tableTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ProfessionalsTableWrapper
-            locale={locale}
-            translations={translations}
-          />
-        </CardContent>
-      </Card>
+      <ProfessionalsTableWrapper locale={locale} translations={translations} />
     </div>
   );
 }

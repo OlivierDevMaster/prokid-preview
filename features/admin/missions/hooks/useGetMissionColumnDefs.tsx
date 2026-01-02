@@ -3,7 +3,8 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { Eye, MoreVertical } from 'lucide-react';
+import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -59,18 +60,7 @@ export default function useGetMissionColumnDefs({
         const title = row.getValue('title') as string;
         return <div className='font-medium'>{title || 'N/A'}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.titleColumn}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.titleColumn,
     },
     {
       accessorKey: 'status',
@@ -91,18 +81,7 @@ export default function useGetMissionColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.status}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.status,
     },
     {
       accessorKey: 'structure',
@@ -111,18 +90,7 @@ export default function useGetMissionColumnDefs({
         const name = structure?.name || 'N/A';
         return <div>{name}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.structure}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.structure,
     },
     {
       accessorKey: 'professional',
@@ -132,20 +100,32 @@ export default function useGetMissionColumnDefs({
         const name = profile
           ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
           : 'N/A';
-        return <div>{name || 'N/A'}</div>;
-      },
-      header: ({ column }) => {
+        const initials =
+          `${profile?.first_name?.charAt(0) || ''}${profile?.last_name?.charAt(0) || ''}`.toUpperCase();
+
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.professional}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex items-center gap-3'>
+            <div className='relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+              {profile?.avatar_url ? (
+                <Image
+                  alt={name || 'Professional profile photo'}
+                  className='h-full w-full object-cover'
+                  height={40}
+                  src={profile.avatar_url}
+                  unoptimized
+                  width={40}
+                />
+              ) : (
+                <span className='text-sm font-semibold text-gray-600'>
+                  {initials || 'N/A'}
+                </span>
+              )}
+            </div>
+            <div>{name || 'N/A'}</div>
+          </div>
         );
       },
+      header: translations.professional,
     },
     {
       accessorKey: 'mission_dtstart',
@@ -157,22 +137,7 @@ export default function useGetMissionColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.startDate}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.startDate}</div>,
     },
     {
       accessorKey: 'mission_until',
@@ -184,22 +149,7 @@ export default function useGetMissionColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.endDate}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.endDate}</div>,
     },
     {
       accessorKey: 'created_at',
@@ -211,22 +161,7 @@ export default function useGetMissionColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.createdAt}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.createdAt}</div>,
     },
     {
       cell: ({ row }) => {

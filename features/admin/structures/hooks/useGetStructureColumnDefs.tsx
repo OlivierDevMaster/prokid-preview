@@ -3,7 +3,8 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { Eye, MoreVertical } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import type { Structure } from '@/features/structures/structure.model';
@@ -51,21 +52,40 @@ export default function useGetStructureColumnDefs({
     {
       accessorKey: 'name',
       cell: ({ row }) => {
-        const name = row.getValue('name') as string;
-        return <div className='font-medium'>{name || 'N/A'}</div>;
-      },
-      header: ({ column }) => {
+        const structure = row.original;
+        const name = structure.name || 'N/A';
+        const profile = structure.profile;
+        const initials =
+          name
+            .split(' ')
+            .map(n => n.charAt(0))
+            .join('')
+            .toUpperCase()
+            .slice(0, 2) || 'N/A';
+
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.name}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex items-center gap-3'>
+            <div className='relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+              {profile?.avatar_url ? (
+                <Image
+                  alt={name || 'Structure profile photo'}
+                  className='h-full w-full object-cover'
+                  height={40}
+                  src={profile.avatar_url}
+                  unoptimized
+                  width={40}
+                />
+              ) : (
+                <span className='text-sm font-semibold text-gray-600'>
+                  {initials}
+                </span>
+              )}
+            </div>
+            <div className='font-medium'>{name}</div>
+          </div>
         );
       },
+      header: translations.name,
     },
     {
       accessorKey: 'profile.email',
@@ -73,18 +93,7 @@ export default function useGetStructureColumnDefs({
         const email = row.original.profile?.email || 'N/A';
         return <div>{email}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.email}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.email,
     },
     {
       accessorKey: 'created_at',
@@ -96,22 +105,7 @@ export default function useGetStructureColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.createdAt}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.createdAt}</div>,
     },
     {
       cell: ({ row }) => {
