@@ -783,6 +783,7 @@
       "name": "Name",
       "email": "Email",
       "city": "City",
+      "currentJob": "Current Job",
       "postalCode": "Postal Code",
       "postalCodePlaceholder": "Enter postal code",
       "description": "Description",

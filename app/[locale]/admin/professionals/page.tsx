@@ -14,6 +14,7 @@ export default async function ProfessionalsPage({
     actions: t('actions'),
     city: t('city'),
     createdAt: t('createdAt'),
+    currentJob: t('currentJob'),
     delete: t('delete'),
     edit: t('edit'),
     email: t('email'),
@@ -23,7 +24,6 @@ export default async function ProfessionalsPage({
     of: t('of'),
     page: t('page'),
     previous: t('previous'),
-    skills: t('skills'),
     view: t('view'),
   };
 

@@ -13,6 +13,7 @@ interface ProfessionalsTableWrapperProps {
     actions?: string;
     city: string;
     createdAt: string;
+    currentJob: string;
     delete?: string;
     edit?: string;
     email: string;
@@ -22,7 +23,6 @@ interface ProfessionalsTableWrapperProps {
     of: string;
     page: string;
     previous: string;
-    skills: string;
     view?: string;
   };
 }

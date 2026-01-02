@@ -787,6 +787,7 @@
       "name": "Nom",
       "email": "Email",
       "city": "Ville",
+      "currentJob": "Poste Actuel",
       "postalCode": "Code Postal",
       "postalCodePlaceholder": "Entrez le code postal",
       "description": "Description",
