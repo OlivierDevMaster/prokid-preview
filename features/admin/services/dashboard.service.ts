@@ -4,6 +4,20 @@ import { MissionStatus } from '@/features/missions/mission.model';
 import { InvitationStatus } from '@/features/structure-invitations/structureInvitation.model';
 import { createClient } from '@/lib/supabase/client';
 
+export interface MostActiveProfessional {
+  avatarUrl: null | string;
+  missionCount: number;
+  professionalName: string;
+  userId: string;
+}
+
+export interface MostActiveStructure {
+  avatarUrl: null | string;
+  missionCount: number;
+  structureName: string;
+  userId: string;
+}
+
 export async function getAdminActiveMissionsCount(): Promise<number> {
   const supabase = createClient();
 
@@ -48,6 +62,59 @@ export async function getAdminActiveStructuresCount(): Promise<number> {
 
   const uniqueStructureIds = new Set(data?.map(m => m.structure_id) ?? []);
   return uniqueStructureIds.size;
+}
+
+export async function getAdminAverageMissionsPerStructure(): Promise<number> {
+  const supabase = createClient();
+
+  // Get total missions count
+  const { count: missionsCount, error: missionsError } = await supabase
+    .from('missions')
+    .select('*', { count: 'exact', head: true });
+
+  if (missionsError) throw missionsError;
+
+  // Get total structures count
+  const { count: structuresCount, error: structuresError } = await supabase
+    .from('structures')
+    .select('*', { count: 'exact', head: true });
+
+  if (structuresError) throw structuresError;
+
+  if ((structuresCount ?? 0) === 0) {
+    return 0;
+  }
+
+  return Math.round(((missionsCount ?? 0) / (structuresCount ?? 0)) * 10) / 10;
+}
+
+export async function getAdminAverageProfessionalsPerStructure(): Promise<number> {
+  const supabase = createClient();
+
+  // Get active professionals count (those with at least one structure membership)
+  const { data: members, error: membersError } = await supabase
+    .from('structure_members')
+    .select('professional_id, structure_id')
+    .is('deleted_at', null);
+
+  if (membersError) throw membersError;
+
+  const uniqueProfessionalIds = new Set(
+    members?.map(m => m.professional_id) ?? []
+  );
+  const activeProfessionalsCount = uniqueProfessionalIds.size;
+
+  // Get active structures count (those with at least one professional member)
+  const uniqueStructureIds = new Set(members?.map(m => m.structure_id) ?? []);
+  const activeStructuresCount = uniqueStructureIds.size;
+
+  if (activeStructuresCount === 0) {
+    return 0;
+  }
+
+  return (
+    Math.round((activeProfessionalsCount / activeStructuresCount) * 10) / 10
+  );
 }
 
 export async function getAdminCompletedMissionsCount(): Promise<number> {
@@ -98,6 +165,119 @@ export async function getAdminMissionsCount(): Promise<number> {
   if (error) throw error;
 
   return count ?? 0;
+}
+
+export async function getAdminMostActiveProfessional(): Promise<MostActiveProfessional | null> {
+  const supabase = createClient();
+
+  // Get mission counts per professional
+  const { data: missions, error: missionsError } = await supabase
+    .from('missions')
+    .select('professional_id');
+
+  if (missionsError) throw missionsError;
+
+  // Count missions per professional
+  const missionCounts = new Map<string, number>();
+  missions?.forEach(mission => {
+    const count = missionCounts.get(mission.professional_id) ?? 0;
+    missionCounts.set(mission.professional_id, count + 1);
+  });
+
+  if (missionCounts.size === 0) {
+    return null;
+  }
+
+  // Find professional with most missions
+  let maxCount = 0;
+  let mostActiveProfessionalId = '';
+
+  for (const [professionalId, count] of missionCounts.entries()) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostActiveProfessionalId = professionalId;
+    }
+  }
+
+  // Get professional name and avatar from profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('first_name, last_name, avatar_url')
+    .eq('user_id', mostActiveProfessionalId)
+    .single();
+
+  if (profileError) throw profileError;
+
+  const professionalName = profile
+    ? `${profile.first_name} ${profile.last_name}`.trim()
+    : 'Unknown';
+
+  return {
+    avatarUrl: profile?.avatar_url ?? null,
+    missionCount: maxCount,
+    professionalName,
+    userId: mostActiveProfessionalId,
+  };
+}
+
+export async function getAdminMostActiveStructure(): Promise<MostActiveStructure | null> {
+  const supabase = createClient();
+
+  // Get mission counts per structure
+  const { data: missions, error: missionsError } = await supabase
+    .from('missions')
+    .select('structure_id');
+
+  if (missionsError) throw missionsError;
+
+  // Count missions per structure
+  const missionCounts = new Map<string, number>();
+  missions?.forEach(mission => {
+    const count = missionCounts.get(mission.structure_id) ?? 0;
+    missionCounts.set(mission.structure_id, count + 1);
+  });
+
+  if (missionCounts.size === 0) {
+    return null;
+  }
+
+  // Find structure with most missions
+  let maxCount = 0;
+  let mostActiveStructureId = '';
+
+  for (const [structureId, count] of missionCounts.entries()) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostActiveStructureId = structureId;
+    }
+  }
+
+  // Get structure name and avatar from profile
+  const { data: structure, error: structureError } = await supabase
+    .from('structures')
+    .select('name, user_id')
+    .eq('user_id', mostActiveStructureId)
+    .single();
+
+  if (structureError) throw structureError;
+
+  const structureName = structure?.name ?? 'Unknown';
+
+  // Get avatar from profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('avatar_url')
+    .eq('user_id', mostActiveStructureId)
+    .single();
+
+  if (profileError) throw profileError;
+
+  return {
+    avatarUrl: profile?.avatar_url ?? null,
+    missionCount: maxCount,
+    structureName,
+    userId: mostActiveStructureId,
+  };
 }
 
 export async function getAdminPendingInvitationsCount(): Promise<number> {

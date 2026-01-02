@@ -697,7 +697,18 @@
       "missionCompletionRate": "Taux de Complétion des Missions",
       "missionCompletionRateDescription": "% terminées vs total des missions",
       "systemGrowthRate": "Taux de Croissance du Système",
-      "systemGrowthRateDescription": "Nouveaux professionnels ce mois-ci"
+      "systemGrowthRateDescription": "Nouveaux professionnels ce mois-ci",
+      "analytics": "Analytiques",
+      "averageMissionsPerStructure": "Moyenne de Missions par Structure",
+      "averageMissionsPerStructureDescription": "Nombre moyen de missions par structure",
+      "averageProfessionalsPerStructure": "Moyenne de Professionnels par Structure",
+      "averageProfessionalsPerStructureDescription": "Nombre moyen de professionnels par structure",
+      "mostActive": "Plus Actifs",
+      "mostActiveStructure": "Structure la Plus Active",
+      "mostActiveStructureDescription": "Structure avec le plus grand nombre de missions",
+      "mostActiveProfessional": "Professionnel le Plus Actif",
+      "mostActiveProfessionalDescription": "Professionnel avec le plus grand nombre de missions",
+      "missions": "missions"
     },
     "users": {
       "title": "Utilisateurs",

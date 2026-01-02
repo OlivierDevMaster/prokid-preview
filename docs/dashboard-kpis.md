@@ -82,10 +82,10 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 - [x] Mission Completion Rate (% completed vs total)
 
 #### Low Priority
-- [ ] Average Missions per Structure
-- [ ] Average Professionals per Structure
-- [ ] Most Active Structures (by mission count)
-- [ ] Most Active Professionals (by mission count)
+- [x] Average Missions per Structure
+- [x] Average Professionals per Structure
+- [x] Most Active Structures (by mission count)
+- [x] Most Active Professionals (by mission count)
 
 ---
 

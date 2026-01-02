@@ -7,9 +7,13 @@ import {
   getAdminActiveMissionsCount,
   getAdminActiveProfessionalsCount,
   getAdminActiveStructuresCount,
+  getAdminAverageMissionsPerStructure,
+  getAdminAverageProfessionalsPerStructure,
   getAdminCompletedMissionsCount,
   getAdminMissionCompletionRate,
   getAdminMissionsCount,
+  getAdminMostActiveProfessional,
+  getAdminMostActiveStructure,
   getAdminPendingInvitationsCount,
   getAdminPendingMissionsCount,
   getAdminProfessionalsCount,
@@ -86,14 +90,38 @@ export function useGetDashboardStats() {
     queryKey: ['dashboard', 'admin', 'missions', 'completion-rate'],
   });
 
+  const { data: averageMissionsPerStructure = 0 } = useQuery({
+    queryFn: getAdminAverageMissionsPerStructure,
+    queryKey: ['dashboard', 'admin', 'missions', 'average-per-structure'],
+  });
+
+  const { data: averageProfessionalsPerStructure = 0 } = useQuery({
+    queryFn: getAdminAverageProfessionalsPerStructure,
+    queryKey: ['dashboard', 'admin', 'professionals', 'average-per-structure'],
+  });
+
+  const { data: mostActiveStructure = null } = useQuery({
+    queryFn: getAdminMostActiveStructure,
+    queryKey: ['dashboard', 'admin', 'structures', 'most-active'],
+  });
+
+  const { data: mostActiveProfessional = null } = useQuery({
+    queryFn: getAdminMostActiveProfessional,
+    queryKey: ['dashboard', 'admin', 'professionals', 'most-active'],
+  });
+
   return useMemo(
     () => ({
       activeMissionsCount,
       activeProfessionalsCount,
       activeStructuresCount,
+      averageMissionsPerStructure,
+      averageProfessionalsPerStructure,
       completedMissionsCount,
       missionCompletionRate,
       missionsCount,
+      mostActiveProfessional,
+      mostActiveStructure,
       pendingInvitationsCount,
       pendingMissionsCount,
       professionalsCount,
@@ -106,9 +134,13 @@ export function useGetDashboardStats() {
       activeMissionsCount,
       activeProfessionalsCount,
       activeStructuresCount,
+      averageMissionsPerStructure,
+      averageProfessionalsPerStructure,
       completedMissionsCount,
       missionCompletionRate,
       missionsCount,
+      mostActiveProfessional,
+      mostActiveStructure,
       pendingInvitationsCount,
       pendingMissionsCount,
       professionalsCount,
