@@ -1,20 +1,22 @@
 import { rrulestr } from 'rrule';
 
 import { createClient } from '@/lib/supabase/client';
-
-import type {
-  Professional,
-  ProfessionalFilters,
-  ProfessionalInsert,
-  ProfessionalsWithProfilesSearch,
-  ProfessionalUpdate,
-} from './professional.model';
+import { Order } from '@/lib/utils/enums';
 
 import {
   PaginationOptions,
   PaginationResult,
 } from '../paginations/pagination.model';
+import { ProfileColumn } from '../profiles/profile.model';
 import { ProfessionalConfig } from './professional.config';
+import {
+  type Professional,
+  ProfessionalColumn,
+  type ProfessionalFilters,
+  type ProfessionalInsert,
+  type ProfessionalsWithProfilesSearch,
+  type ProfessionalUpdate,
+} from './professional.model';
 
 /**
  * Extracts DTSTART from rrule string if dtstart is not present
@@ -289,10 +291,24 @@ export const getProfessionals = async (
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    query = query
-      .order('created_at', { ascending: false })
-      .order('user_id', { ascending: false })
-      .range(from, to);
+    // Apply sorting
+    const sortColumn = filters.sort || ProfessionalColumn.created_at;
+    const sortOrder = filters.order || Order.desc;
+    const ascending = sortOrder === Order.asc;
+
+    if (sortColumn === 'name') {
+      // Special handling for name sorting (uses first_name + last_name)
+      query = query
+        .order(ProfileColumn.first_name, { ascending })
+        .order(ProfileColumn.last_name, { ascending });
+    } else {
+      // For other columns, use the column directly
+      query = query.order(sortColumn, { ascending });
+      // Add secondary sort by user_id for consistency
+      query = query.order(ProfessionalColumn.user_id, { ascending });
+    }
+
+    query = query.range(from, to);
 
     const { count, data, error } = await query;
 
