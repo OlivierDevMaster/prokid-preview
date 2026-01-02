@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import { Eye, MoreVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
@@ -78,7 +79,33 @@ export default function useGetProfessionalColumnDefs({
         const name = profile
           ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
           : 'N/A';
-        return <div className='font-medium'>{name || 'N/A'}</div>;
+        const initials = profile
+          ? `${profile.first_name?.charAt(0) || ''}${profile.last_name?.charAt(0) || ''}`
+              .trim()
+              .toUpperCase() || 'N/A'
+          : 'N/A';
+
+        return (
+          <div className='flex items-center gap-3'>
+            <div className='relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+              {profile?.avatar_url ? (
+                <Image
+                  alt={name || 'Professional profile photo'}
+                  className='h-full w-full object-cover'
+                  height={40}
+                  src={profile.avatar_url}
+                  unoptimized
+                  width={40}
+                />
+              ) : (
+                <span className='text-sm font-semibold text-gray-600'>
+                  {initials}
+                </span>
+              )}
+            </div>
+            <div className='font-medium'>{name || 'N/A'}</div>
+          </div>
+        );
       },
       header: translations.name,
     },
