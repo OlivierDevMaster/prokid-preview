@@ -51,7 +51,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* High Priority Additional KPIs */}
+      {/* Mission Status */}
       <div>
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('missionStatus')}

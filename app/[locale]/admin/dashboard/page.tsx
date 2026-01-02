@@ -59,7 +59,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* High Priority Additional KPIs */}
+      {/* User Status */}
       <div>
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('userStatus')}
@@ -109,10 +109,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Invitations Status */}
+      {/* Invitations */}
       <div>
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('invitationStatus')}
+          {t('invitations')}
         </h2>
         <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-1'>
           <StatCard

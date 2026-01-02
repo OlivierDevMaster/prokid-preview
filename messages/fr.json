@@ -612,7 +612,9 @@
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
       "reportStatus": "Statut des Comptes Rendus",
-      "receivedReports": "Comptes Rendus Reçus"
+      "receivedReports": "Comptes Rendus Reçus",
+      "invitations": "Invitations",
+      "pendingInvitations": "Invitations en Attente"
     },
     "invitations": {
       "title": "Inviter un Professionnel",
@@ -678,7 +680,7 @@
       "missionStatus": "Statut des Missions",
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
-      "invitationStatus": "Statut des Invitations",
+      "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente"
     },
     "users": {

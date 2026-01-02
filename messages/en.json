@@ -608,7 +608,9 @@
       "pendingMissions": "Pending Missions",
       "activeMissions": "Active Missions",
       "reportStatus": "Report Status",
-      "receivedReports": "Received Reports"
+      "receivedReports": "Received Reports",
+      "invitations": "Invitations",
+      "pendingInvitations": "Pending Invitations"
     },
     "invitations": {
       "title": "Invite a Professional",
@@ -674,7 +676,7 @@
       "missionStatus": "Mission Status",
       "pendingMissions": "Pending Missions",
       "activeMissions": "Active Missions",
-      "invitationStatus": "Invitation Status",
+      "invitations": "Invitations",
       "pendingInvitations": "Pending Invitations"
     },
     "users": {
