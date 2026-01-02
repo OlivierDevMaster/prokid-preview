@@ -4,11 +4,14 @@ import { Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/i18n/routing';
 
 import type { StructureProfessionalCard } from '../modeles/professional.modele';
+
+import { useHasActiveMission } from '../hooks/useHasActiveMission';
 
 interface ProfessionalCardProps {
   professional: StructureProfessionalCard;
@@ -16,6 +19,9 @@ interface ProfessionalCardProps {
 
 export function ProfessionalCard({ professional }: ProfessionalCardProps) {
   const t = useTranslations('structure.professionals');
+
+  const { data: hasActiveMission } = useHasActiveMission(professional.id);
+
   const initials = professional.name
     .split(' ')
     .map(n => n.charAt(0))
@@ -45,10 +51,21 @@ export function ProfessionalCard({ professional }: ProfessionalCardProps) {
         </div>
 
         <div className='p-2 pl-4 md:p-4'>
-          {/* Name */}
-          <h3 className='text-lg font-semibold text-gray-900'>
-            {professional.name}
-          </h3>
+          {/* Name and Mission Badge */}
+          <div className='flex items-center gap-2'>
+            <h3 className='text-lg font-semibold text-gray-900'>
+              {professional.name}
+            </h3>
+            {hasActiveMission ? (
+              <Badge className='bg-green-500 text-white' variant='default'>
+                {t('onMission')}
+              </Badge>
+            ) : (
+              <Badge className='bg-gray-200 text-gray-600' variant='secondary'>
+                {t('notOnMission')}
+              </Badge>
+            )}
+          </div>
 
           {/* Location */}
           <p className='text-sm text-gray-600'>{professional.location}</p>

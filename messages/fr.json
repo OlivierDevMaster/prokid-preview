@@ -369,6 +369,7 @@
       "phone": "Téléphone",
       "verified": "Profil vérifié",
       "available": "Disponible",
+      "unavailable": "Indisponible",
       "specialties": "Spécialités",
       "sector": "Secteur",
       "certifiedProfessional": "Professionnel agréé",
@@ -564,6 +565,7 @@
       "recurrent": "Récurrent",
       "recurrentDescription": "Si coché, ce créneau se répétera jusqu'à la date de fin de mission",
       "recurrentNotAvailable": "Cette option n'est disponible que pour les disponibilités récurrentes",
+      "availabilityAlreadyAdded": "Cette disponibilité est déjà ajoutée",
       "availabilityRange": "Plage de disponibilité",
       "scheduleStartTime": "Heure de début",
       "scheduleEndTime": "Heure de fin",
@@ -584,6 +586,8 @@
       "noProfessionals": "Aucun professionnel trouvé.",
       "viewProfile": "Voir le profil",
       "sendInvitation": "Envoyer une invitation",
+      "onMission": "En Mission",
+      "notOnMission": "Pas en Mission",
       "details": {
         "loading": "Chargement...",
         "notFound": "Professionnel non trouvé",
@@ -598,7 +602,8 @@
         "about": "À propos",
         "additionalInfo": "Informations supplémentaires",
         "verifiedAt": "Vérifié le",
-        "memberSince": "Membre depuis"
+        "memberSince": "Membre depuis",
+        "unavailable": "Non disponible"
       }
     },
     "dashboard": {
