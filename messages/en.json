@@ -596,7 +596,12 @@
       "notAuthenticated": "Please sign in to view your dashboard",
       "totalProfessionals": "Total Professionals",
       "totalMissions": "Total Missions",
-      "totalInvitations": "Total Invitations"
+      "totalInvitations": "Total Invitations",
+      "missionStatus": "Mission Status",
+      "pendingMissions": "Pending Missions",
+      "activeMissions": "Active Missions",
+      "reportStatus": "Report Status",
+      "receivedReports": "Received Reports"
     },
     "invitations": {
       "title": "Invite a Professional",

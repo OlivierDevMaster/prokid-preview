@@ -600,7 +600,12 @@
       "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
       "totalProfessionals": "Professionnels Totaux",
       "totalMissions": "Missions Totales",
-      "totalInvitations": "Invitations Totales"
+      "totalInvitations": "Invitations Totales",
+      "missionStatus": "Statut des Missions",
+      "pendingMissions": "Missions en Attente",
+      "activeMissions": "Missions Actives",
+      "reportStatus": "Statut des Comptes Rendus",
+      "receivedReports": "Comptes Rendus Reçus"
     },
     "invitations": {
       "title": "Inviter un Professionnel",

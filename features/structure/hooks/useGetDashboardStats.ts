@@ -1,44 +1,110 @@
 'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useMemo } from 'react';
 
-import { getProfessionalsForStructure } from '@/features/structure-members/structureMember.service';
-import { getStructureMissions } from '@/features/structure/missions/services/mission.service';
+import {
+  getStructureActiveMembersCount,
+  getStructureActiveMissionsCount,
+  getStructureMissionsCount,
+  getStructurePendingInvitationsCount,
+  getStructurePendingMissionsCount,
+  getStructureReceivedReportsCount,
+} from '@/features/structure/services/dashboard.service';
 
 export function useGetDashboardStats() {
   const { data: session } = useSession();
   const structureId = session?.user?.id;
 
-  // Fetch professionals count
-  const { data: professionalsResult } = useQuery({
+  // Fetch active members count
+  const { data: activeMembersCount = 0 } = useQuery({
     enabled: !!structureId,
     queryFn: async () => {
       if (!structureId) {
         throw new Error('Structure ID is required');
       }
-      return getProfessionalsForStructure(
-        structureId,
-        {},
-        { limit: 1, page: 1 }
-      );
+      return getStructureActiveMembersCount(structureId);
     },
-    queryKey: ['structure-dashboard-professionals', structureId],
+    queryKey: ['structure-dashboard-active-members', structureId],
   });
 
-  // Fetch missions count
-  const { data: missionsResult } = useQuery({
+  // Fetch pending invitations count
+  const { data: pendingInvitationsCount = 0 } = useQuery({
     enabled: !!structureId,
     queryFn: async () => {
       if (!structureId) {
         throw new Error('Structure ID is required');
       }
-      return getStructureMissions(structureId, {}, { limit: 1, page: 1 });
+      return getStructurePendingInvitationsCount(structureId);
+    },
+    queryKey: ['structure-dashboard-pending-invitations', structureId],
+  });
+
+  // Fetch total missions count
+  const { data: missionsCount = 0 } = useQuery({
+    enabled: !!structureId,
+    queryFn: async () => {
+      if (!structureId) {
+        throw new Error('Structure ID is required');
+      }
+      return getStructureMissionsCount(structureId);
     },
     queryKey: ['structure-dashboard-missions', structureId],
   });
 
-  return {
-    missionsCount: missionsResult?.count ?? 0,
-    professionalsCount: professionalsResult?.count ?? 0,
-  };
+  // Fetch pending missions count
+  const { data: pendingMissionsCount = 0 } = useQuery({
+    enabled: !!structureId,
+    queryFn: async () => {
+      if (!structureId) {
+        throw new Error('Structure ID is required');
+      }
+      return getStructurePendingMissionsCount(structureId);
+    },
+    queryKey: ['structure-dashboard-pending-missions', structureId],
+  });
+
+  // Fetch active missions count
+  const { data: activeMissionsCount = 0 } = useQuery({
+    enabled: !!structureId,
+    queryFn: async () => {
+      if (!structureId) {
+        throw new Error('Structure ID is required');
+      }
+      return getStructureActiveMissionsCount(structureId);
+    },
+    queryKey: ['structure-dashboard-active-missions', structureId],
+  });
+
+  // Fetch received reports count
+  const { data: receivedReportsCount = 0 } = useQuery({
+    enabled: !!structureId,
+    queryFn: async () => {
+      if (!structureId) {
+        throw new Error('Structure ID is required');
+      }
+      return getStructureReceivedReportsCount(structureId);
+    },
+    queryKey: ['structure-dashboard-received-reports', structureId],
+  });
+
+  return useMemo(
+    () => ({
+      activeMembersCount,
+      activeMissionsCount,
+      missionsCount,
+      pendingInvitationsCount,
+      pendingMissionsCount,
+      receivedReportsCount,
+    }),
+    [
+      activeMembersCount,
+      activeMissionsCount,
+      missionsCount,
+      pendingInvitationsCount,
+      pendingMissionsCount,
+      receivedReportsCount,
+    ]
+  );
 }

@@ -40,11 +40,11 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 ### Additional KPIs
 
 #### High Priority
-- [ ] Active Members (current professionals)
-- [ ] Pending Invitations (awaiting response)
-- [ ] Pending Missions (awaiting professional response)
-- [ ] Active Missions (accepted and ongoing)
-- [ ] Received Reports (sent reports from professionals)
+- [x] Active Members (current professionals)
+- [x] Pending Invitations (awaiting response)
+- [x] Pending Missions (awaiting professional response)
+- [x] Active Missions (accepted and ongoing)
+- [x] Received Reports (sent reports from professionals)
 
 #### Medium Priority
 - [ ] Accepted Invitations (recently joined)
