@@ -26,6 +26,7 @@ import { useFindProfessional } from '@/features/professionals/hooks/useFindProfe
 import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
 import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
 import { useCreateInvitation } from '@/features/structure/invitations/hooks/useCreateInvitation';
+import { useHasActiveMission } from '@/features/structure/professionals/hooks/useHasActiveMission';
 import { RatingModal } from '@/features/structure/ratings/components/RatingModal';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
 import { useRatingForMembership } from '@/features/structure/ratings/hooks/useRatingForMembership';
@@ -47,6 +48,7 @@ export default function ProfessionalProfile() {
 
   const { data: professional, isLoading: isProfessionalLoading } =
     useFindProfessional(professionalId);
+  const { data: hasActiveMission } = useHasActiveMission(professionalId);
   const { data: hasMembership, isLoading: isLoadingMembership } =
     useCheckStructureMembership(userId, professionalId);
   const { data: membershipId } = useGetMembershipId(userId, professionalId);
@@ -211,9 +213,13 @@ export default function ProfessionalProfile() {
                           {t('verified')}
                         </Badge>
                       )}
-                      {professional.is_available && (
+                      {!hasActiveMission ? (
                         <Badge className='bg-blue-100 text-blue-700 hover:bg-blue-200'>
                           {t('available')}
+                        </Badge>
+                      ) : (
+                        <Badge className='bg-red-100 text-red-700 hover:bg-red-200'>
+                          {t('unavailable')}
                         </Badge>
                       )}
                     </div>
