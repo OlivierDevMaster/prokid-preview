@@ -19,6 +19,13 @@ export const useLeaveStructure = () => {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'professional', 'structures'],
       });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'professionals'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'structures'],
+      });
     },
   });
 };

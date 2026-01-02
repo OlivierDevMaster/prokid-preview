@@ -662,7 +662,15 @@
       "totalAffaires": "Affaires Totales",
       "totalProfessionals": "Professionnels Totaux",
       "totalStructures": "Structures Totales",
-      "totalMissions": "Missions Totales"
+      "totalMissions": "Missions Totales",
+      "userStatus": "Statut des Utilisateurs",
+      "activeProfessionals": "Professionnels Actifs",
+      "activeStructures": "Structures Actives",
+      "missionStatus": "Statut des Missions",
+      "pendingMissions": "Missions en Attente",
+      "activeMissions": "Missions Actives",
+      "invitationStatus": "Statut des Invitations",
+      "pendingInvitations": "Invitations en Attente"
     },
     "users": {
       "title": "Utilisateurs",

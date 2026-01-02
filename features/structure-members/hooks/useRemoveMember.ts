@@ -15,6 +15,13 @@ export const useRemoveMember = () => {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'members'],
       });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'professionals'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'structures'],
+      });
     },
   });
 };

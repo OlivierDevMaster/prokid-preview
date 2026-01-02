@@ -1,25 +1,32 @@
-import { Building2, MessageSquare, Users } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+'use client';
 
+import {
+  Building2,
+  CheckCircle,
+  Clock,
+  MessageSquare,
+  UserCheck,
+  UserPlus,
+  Users,
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+
+import { useGetDashboardStats } from '@/features/admin/hooks/useGetDashboardStats';
 import { StatCard } from '@/features/admin/StatCard';
-import { getMissionsCount } from '@/features/missions/mission.service';
-import { getProfessionals } from '@/features/professionals/professional.service';
-import { getStructures } from '@/features/structures/structure.service';
 
-export default async function DashboardPage() {
-  const t = await getTranslations('admin.dashboard');
+export default function DashboardPage() {
+  const t = useTranslations('admin.dashboard');
 
-  // Fetch counts for professionals, structures, and missions
-  const [professionalsResult, structuresResult, missionsResult] =
-    await Promise.all([
-      getProfessionals({}, { limit: 1, page: 1 }),
-      getStructures({}, { limit: 1, page: 1 }),
-      getMissionsCount(),
-    ]);
-
-  const professionalsCount = professionalsResult.count ?? 0;
-  const structuresCount = structuresResult.count ?? 0;
-  const missionsCount = missionsResult;
+  const {
+    activeMissionsCount,
+    activeProfessionalsCount,
+    activeStructuresCount,
+    missionsCount,
+    pendingInvitationsCount,
+    pendingMissionsCount,
+    professionalsCount,
+    structuresCount,
+  } = useGetDashboardStats();
 
   return (
     <div className='min-h-screen space-y-4 overflow-hidden bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
@@ -33,7 +40,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Main KPIs */}
       <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3'>
         <StatCard
           icon={Users}
@@ -50,6 +57,58 @@ export default async function DashboardPage() {
           title={t('totalMissions')}
           value={missionsCount.toString()}
         />
+      </div>
+
+      {/* High Priority Additional KPIs */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('userStatus')}
+        </h2>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
+          <StatCard
+            icon={UserCheck}
+            title={t('activeProfessionals')}
+            value={activeProfessionalsCount.toString()}
+          />
+          <StatCard
+            icon={Building2}
+            title={t('activeStructures')}
+            value={activeStructuresCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Mission Status */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('missionStatus')}
+        </h2>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
+          <StatCard
+            icon={Clock}
+            title={t('pendingMissions')}
+            value={pendingMissionsCount.toString()}
+          />
+          <StatCard
+            icon={CheckCircle}
+            title={t('activeMissions')}
+            value={activeMissionsCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Invitations Status */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('invitationStatus')}
+        </h2>
+        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-1'>
+          <StatCard
+            icon={UserPlus}
+            title={t('pendingInvitations')}
+            value={pendingInvitationsCount.toString()}
+          />
+        </div>
       </div>
     </div>
   );

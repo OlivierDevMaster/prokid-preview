@@ -17,6 +17,10 @@ export const useDeclineStructureInvitation = () => {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'invitations'],
       });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'invitations'],
+      });
     },
   });
 };

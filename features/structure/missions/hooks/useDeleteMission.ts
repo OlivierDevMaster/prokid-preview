@@ -11,7 +11,13 @@ export function useDeleteMission() {
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });
       queryClient.invalidateQueries({ queryKey: ['structure-mission'] });
       // Invalidate dashboard queries for structure
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'structure', 'missions'] });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'missions'],
+      });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'missions'],
+      });
     },
   });
 }

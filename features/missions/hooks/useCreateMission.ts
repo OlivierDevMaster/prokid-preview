@@ -18,6 +18,10 @@ export const useCreateMission = () => {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'missions'],
       });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'missions'],
+      });
     },
   });
 };

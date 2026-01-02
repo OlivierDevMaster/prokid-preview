@@ -20,6 +20,10 @@ export const useDeclineMission = () => {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'missions'],
       });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'missions'],
+      });
     },
   });
 };

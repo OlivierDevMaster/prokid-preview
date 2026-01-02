@@ -69,11 +69,11 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 ### Additional KPIs
 
 #### High Priority
-- [ ] Active Professionals (with at least one structure membership)
-- [ ] Active Structures (with at least one professional member)
-- [ ] Pending Invitations (system-wide)
-- [ ] Active Missions (accepted)
-- [ ] Pending Missions (awaiting response)
+- [x] Active Professionals (with at least one structure membership)
+- [x] Active Structures (with at least one professional member)
+- [x] Pending Invitations (system-wide)
+- [x] Active Missions (accepted)
+- [x] Pending Missions (awaiting response)
 
 #### Medium Priority
 - [ ] Total Invitations (all-time)

@@ -658,7 +658,15 @@
       "totalAffaires": "Total Business",
       "totalProfessionals": "Total Professionals",
       "totalStructures": "Total Structures",
-      "totalMissions": "Total Missions"
+      "totalMissions": "Total Missions",
+      "userStatus": "User Status",
+      "activeProfessionals": "Active Professionals",
+      "activeStructures": "Active Structures",
+      "missionStatus": "Mission Status",
+      "pendingMissions": "Pending Missions",
+      "activeMissions": "Active Missions",
+      "invitationStatus": "Invitation Status",
+      "pendingInvitations": "Pending Invitations"
     },
     "users": {
       "title": "Users",
