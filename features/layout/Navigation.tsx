@@ -5,7 +5,6 @@ import { signOut, useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-import { LanguageSwitcher } from '@/components/language-switcher';
 // import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
@@ -116,7 +115,6 @@ export function Navigation() {
 
           <div className='flex items-center gap-4'>
             {/* <ThemeSwitcher /> */}
-            <LanguageSwitcher />
 
             {session ? (
               <div className='hidden md:flex md:items-center md:gap-4'>

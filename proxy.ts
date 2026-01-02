@@ -44,6 +44,13 @@ export async function proxy(request: NextRequest) {
   const locale = pathname.split('/')[1];
   const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
 
+  // Only allow 'fr' locale - redirect any other locale to fr
+  if (locale && locale !== 'fr') {
+    const redirectUrl = new URL(`/fr${pathWithoutLocale}`, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // Public routes that don't require authentication
   const publicRoutes = ['/', '/professionals', '/faq', '/auth'];
 
