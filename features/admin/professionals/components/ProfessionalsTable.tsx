@@ -3,17 +3,11 @@
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -22,14 +16,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Pagination } from '@/features/paginations/components/Pagination';
 
 import useGetProfessionalColumnDefs from '../hooks/useGetProfessionalColumnDefs';
 
 interface ProfessionalsTableProps {
+  currentPage: number;
   data: Professional[];
   locale?: string;
   onDelete?: (professional: Professional) => void;
   onEdit?: (professional: Professional) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
   translations: {
     actions?: string;
     city: string;
@@ -49,12 +50,16 @@ interface ProfessionalsTableProps {
 }
 
 export function ProfessionalsTable({
+  currentPage,
   data,
   locale = 'en',
+  onPageChange,
+  onPageSizeChange,
+  pageSize,
+  totalCount,
+  totalPages,
   translations,
 }: ProfessionalsTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
   const columns = useGetProfessionalColumnDefs({
     locale,
     translations,
@@ -63,17 +68,6 @@ export function ProfessionalsTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
   });
 
   return (
@@ -128,32 +122,14 @@ export function ProfessionalsTable({
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-between'>
-        <div className='text-sm text-muted-foreground'>
-          {translations.page} {table.getState().pagination.pageIndex + 1}{' '}
-          {translations.of} {table.getPageCount()}
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Button
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
-            size='sm'
-            variant='outline'
-          >
-            <ChevronLeft className='h-4 w-4' />
-            {translations.previous}
-          </Button>
-          <Button
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
-            size='sm'
-            variant='outline'
-          >
-            {translations.next}
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+        pageSize={pageSize}
+        totalItems={totalCount}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

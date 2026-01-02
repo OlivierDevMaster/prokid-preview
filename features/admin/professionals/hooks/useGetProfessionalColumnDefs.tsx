@@ -3,7 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { Eye, MoreVertical } from 'lucide-react';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
@@ -63,18 +63,7 @@ export default function useGetProfessionalColumnDefs({
           : 'N/A';
         return <div className='font-medium'>{name || 'N/A'}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.name}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.name,
     },
     {
       accessorKey: 'profile.email',
@@ -82,18 +71,7 @@ export default function useGetProfessionalColumnDefs({
         const email = row.original.profile?.email || 'N/A';
         return <div>{email}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.email}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.email,
     },
     {
       accessorKey: 'city',
@@ -101,18 +79,7 @@ export default function useGetProfessionalColumnDefs({
         const city = row.getValue('city') as null | string;
         return <div>{city || 'N/A'}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.city}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.city,
     },
     {
       accessorKey: 'skills',
@@ -209,22 +176,7 @@ export default function useGetProfessionalColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.createdAt}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.createdAt}</div>,
     },
     {
       cell: ({ row }) => {
