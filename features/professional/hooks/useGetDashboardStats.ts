@@ -28,7 +28,13 @@ export function useGetDashboardStats() {
       }
       return getProfessionalStructuresCount(professionalId);
     },
-    queryKey: ['professional-dashboard-structures', professionalId],
+    queryKey: [
+      'dashboard',
+      'professional',
+      'structures',
+      'total',
+      professionalId,
+    ],
   });
 
   // Fetch total missions count
@@ -40,7 +46,13 @@ export function useGetDashboardStats() {
       }
       return getProfessionalMissionsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-missions', professionalId],
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'total',
+      professionalId,
+    ],
   });
 
   // Fetch pending missions count
@@ -52,7 +64,13 @@ export function useGetDashboardStats() {
       }
       return getProfessionalPendingMissionsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-pending-missions', professionalId],
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'pending',
+      professionalId,
+    ],
   });
 
   // Fetch accepted missions count
@@ -64,7 +82,13 @@ export function useGetDashboardStats() {
       }
       return getProfessionalAcceptedMissionsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-accepted-missions', professionalId],
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'accepted',
+      professionalId,
+    ],
   });
 
   // Fetch upcoming missions (next 30 days)
@@ -76,7 +100,13 @@ export function useGetDashboardStats() {
       }
       return getProfessionalUpcomingMissionsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-upcoming-missions', professionalId],
+    queryKey: [
+      'dashboard',
+      'professional',
+      'missions',
+      'upcoming',
+      professionalId,
+    ],
   });
 
   // Fetch total reports count
@@ -88,7 +118,7 @@ export function useGetDashboardStats() {
       }
       return getProfessionalReportsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-reports', professionalId],
+    queryKey: ['dashboard', 'professional', 'reports', 'total', professionalId],
   });
 
   // Fetch draft reports count
@@ -100,7 +130,7 @@ export function useGetDashboardStats() {
       }
       return getProfessionalDraftReportsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-draft-reports', professionalId],
+    queryKey: ['dashboard', 'professional', 'reports', 'draft', professionalId],
   });
 
   // Fetch sent reports count
@@ -112,7 +142,7 @@ export function useGetDashboardStats() {
       }
       return getProfessionalSentReportsCount(professionalId);
     },
-    queryKey: ['professional-dashboard-sent-reports', professionalId],
+    queryKey: ['dashboard', 'professional', 'reports', 'sent', professionalId],
   });
 
   return useMemo(

@@ -26,7 +26,7 @@ export function useGetDashboardStats() {
       }
       return getStructureActiveMembersCount(structureId);
     },
-    queryKey: ['structure-dashboard-active-members', structureId],
+    queryKey: ['dashboard', 'structure', 'members', 'active', structureId],
   });
 
   // Fetch pending invitations count
@@ -38,7 +38,7 @@ export function useGetDashboardStats() {
       }
       return getStructurePendingInvitationsCount(structureId);
     },
-    queryKey: ['structure-dashboard-pending-invitations', structureId],
+    queryKey: ['dashboard', 'structure', 'invitations', 'pending', structureId],
   });
 
   // Fetch total missions count
@@ -50,7 +50,7 @@ export function useGetDashboardStats() {
       }
       return getStructureMissionsCount(structureId);
     },
-    queryKey: ['structure-dashboard-missions', structureId],
+    queryKey: ['dashboard', 'structure', 'missions', 'total', structureId],
   });
 
   // Fetch pending missions count
@@ -62,7 +62,7 @@ export function useGetDashboardStats() {
       }
       return getStructurePendingMissionsCount(structureId);
     },
-    queryKey: ['structure-dashboard-pending-missions', structureId],
+    queryKey: ['dashboard', 'structure', 'missions', 'pending', structureId],
   });
 
   // Fetch active missions count
@@ -74,7 +74,7 @@ export function useGetDashboardStats() {
       }
       return getStructureActiveMissionsCount(structureId);
     },
-    queryKey: ['structure-dashboard-active-missions', structureId],
+    queryKey: ['dashboard', 'structure', 'missions', 'active', structureId],
   });
 
   // Fetch received reports count
@@ -86,7 +86,7 @@ export function useGetDashboardStats() {
       }
       return getStructureReceivedReportsCount(structureId);
     },
-    queryKey: ['structure-dashboard-received-reports', structureId],
+    queryKey: ['dashboard', 'structure', 'reports', 'received', structureId],
   });
 
   return useMemo(

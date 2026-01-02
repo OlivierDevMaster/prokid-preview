@@ -12,6 +12,13 @@ export const useSendReport = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
       queryClient.invalidateQueries({ queryKey: ['report'] });
+      // Invalidate dashboard queries for both professional and structure
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'professional', 'reports'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'reports'],
+      });
     },
   });
 };

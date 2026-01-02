@@ -21,6 +21,13 @@ export const useUpdateMission = () => {
       queryClient.invalidateQueries({ queryKey: ['missions'] });
       queryClient.invalidateQueries({ queryKey: ['mission'] });
       queryClient.invalidateQueries({ queryKey: ['availability-slots'] });
+      // Invalidate dashboard queries for both professional and structure
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'professional', 'missions'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'missions'],
+      });
     },
   });
 };

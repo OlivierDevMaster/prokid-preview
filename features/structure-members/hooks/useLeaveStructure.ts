@@ -11,6 +11,14 @@ export const useLeaveStructure = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-members'] });
+      // Invalidate dashboard queries for structure
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'members'],
+      });
+      // Invalidate dashboard queries for professional (structures count changes)
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'professional', 'structures'],
+      });
     },
   });
 };
