@@ -425,7 +425,14 @@
       "notAuthenticated": "Please sign in to view your dashboard",
       "totalStructures": "Total Structures",
       "totalMissions": "Total Missions",
-      "totalReports": "Total Reports"
+      "totalReports": "Total Reports",
+      "missionStatus": "Mission Status",
+      "pendingMissions": "Pending Missions",
+      "acceptedMissions": "Accepted Missions",
+      "upcomingMissions": "Upcoming Missions (30 days)",
+      "reportStatus": "Report Status",
+      "draftReports": "Draft Reports",
+      "sentReports": "Sent Reports"
     },
     "structure": {
       "hoursCompleted": "Hours completed",

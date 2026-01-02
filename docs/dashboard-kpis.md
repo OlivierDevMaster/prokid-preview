@@ -12,11 +12,11 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 ### Additional KPIs
 
 #### High Priority
-- [ ] Pending Missions (awaiting response)
-- [ ] Accepted Missions (active)
-- [ ] Upcoming Missions (next 7/30 days)
-- [ ] Draft Reports (in progress)
-- [ ] Sent Reports (submitted)
+- [x] Pending Missions (awaiting response)
+- [x] Accepted Missions (active)
+- [x] Upcoming Missions (next 7/30 days)
+- [x] Draft Reports (in progress)
+- [x] Sent Reports (submitted)
 
 #### Medium Priority
 - [ ] Completed Missions (ended)

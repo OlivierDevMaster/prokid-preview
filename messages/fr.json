@@ -434,7 +434,14 @@
       "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
       "totalStructures": "Structures Totales",
       "totalMissions": "Missions Totales",
-      "totalReports": "Comptes Rendus Totaux"
+      "totalReports": "Comptes Rendus Totaux",
+      "missionStatus": "Statut des Missions",
+      "pendingMissions": "Missions en Attente",
+      "acceptedMissions": "Missions Acceptées",
+      "upcomingMissions": "Missions à Venir (30 jours)",
+      "reportStatus": "Statut des Comptes Rendus",
+      "draftReports": "Comptes Rendus Brouillons",
+      "sentReports": "Comptes Rendus Envoyés"
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",

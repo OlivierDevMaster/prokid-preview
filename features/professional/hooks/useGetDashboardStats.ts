@@ -2,61 +2,139 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useMemo } from 'react';
 
-import { findMissions } from '@/features/missions/mission.service';
-import { findReports } from '@/features/reports/report.service';
-import { getStructuresForProfessional } from '@/features/structure-members/structureMember.service';
+import {
+  getProfessionalAcceptedMissionsCount,
+  getProfessionalDraftReportsCount,
+  getProfessionalMissionsCount,
+  getProfessionalPendingMissionsCount,
+  getProfessionalReportsCount,
+  getProfessionalSentReportsCount,
+  getProfessionalStructuresCount,
+  getProfessionalUpcomingMissionsCount,
+} from '@/features/professional/services/dashboard.service';
 
 export function useGetDashboardStats() {
   const { data: session } = useSession();
   const professionalId = session?.user?.id;
 
   // Fetch structures count
-  const { data: structuresResult } = useQuery({
+  const { data: structuresCount = 0 } = useQuery({
     enabled: !!professionalId,
     queryFn: async () => {
       if (!professionalId) {
         throw new Error('Professional ID is required');
       }
-      return getStructuresForProfessional(
-        professionalId,
-        {},
-        { limit: 1, page: 1 }
-      );
+      return getProfessionalStructuresCount(professionalId);
     },
     queryKey: ['professional-dashboard-structures', professionalId],
   });
 
-  // Fetch missions count
-  const { data: missionsResult } = useQuery({
+  // Fetch total missions count
+  const { data: missionsCount = 0 } = useQuery({
     enabled: !!professionalId,
     queryFn: async () => {
       if (!professionalId) {
         throw new Error('Professional ID is required');
       }
-      return findMissions(
-        { professional_id: professionalId },
-        { limit: 1, page: 1 }
-      );
+      return getProfessionalMissionsCount(professionalId);
     },
     queryKey: ['professional-dashboard-missions', professionalId],
   });
 
-  // Fetch reports count
-  const { data: reportsResult } = useQuery({
+  // Fetch pending missions count
+  const { data: pendingMissionsCount = 0 } = useQuery({
     enabled: !!professionalId,
     queryFn: async () => {
       if (!professionalId) {
         throw new Error('Professional ID is required');
       }
-      return findReports({ authorId: professionalId }, { limit: 1, page: 1 });
+      return getProfessionalPendingMissionsCount(professionalId);
+    },
+    queryKey: ['professional-dashboard-pending-missions', professionalId],
+  });
+
+  // Fetch accepted missions count
+  const { data: acceptedMissionsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalAcceptedMissionsCount(professionalId);
+    },
+    queryKey: ['professional-dashboard-accepted-missions', professionalId],
+  });
+
+  // Fetch upcoming missions (next 30 days)
+  const { data: upcomingMissionsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalUpcomingMissionsCount(professionalId);
+    },
+    queryKey: ['professional-dashboard-upcoming-missions', professionalId],
+  });
+
+  // Fetch total reports count
+  const { data: reportsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalReportsCount(professionalId);
     },
     queryKey: ['professional-dashboard-reports', professionalId],
   });
 
-  return {
-    missionsCount: missionsResult?.count ?? 0,
-    reportsCount: reportsResult?.count ?? 0,
-    structuresCount: structuresResult?.count ?? 0,
-  };
+  // Fetch draft reports count
+  const { data: draftReportsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalDraftReportsCount(professionalId);
+    },
+    queryKey: ['professional-dashboard-draft-reports', professionalId],
+  });
+
+  // Fetch sent reports count
+  const { data: sentReportsCount = 0 } = useQuery({
+    enabled: !!professionalId,
+    queryFn: async () => {
+      if (!professionalId) {
+        throw new Error('Professional ID is required');
+      }
+      return getProfessionalSentReportsCount(professionalId);
+    },
+    queryKey: ['professional-dashboard-sent-reports', professionalId],
+  });
+
+  return useMemo(
+    () => ({
+      acceptedMissionsCount,
+      draftReportsCount,
+      missionsCount,
+      pendingMissionsCount,
+      reportsCount,
+      sentReportsCount,
+      structuresCount,
+      upcomingMissionsCount,
+    }),
+    [
+      acceptedMissionsCount,
+      draftReportsCount,
+      missionsCount,
+      pendingMissionsCount,
+      reportsCount,
+      sentReportsCount,
+      structuresCount,
+      upcomingMissionsCount,
+    ]
+  );
 }
