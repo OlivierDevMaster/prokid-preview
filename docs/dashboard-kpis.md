@@ -47,11 +47,11 @@ This document tracks the KPIs to be added to each user type's dashboard, organiz
 - [x] Received Reports (sent reports from professionals)
 
 #### Medium Priority
-- [ ] Accepted Invitations (recently joined)
-- [ ] Completed Missions (ended)
-- [ ] Pending Reports (draft reports from professionals)
-- [ ] Mission Acceptance Rate (% accepted vs declined)
-- [ ] Upcoming Missions (next 7/30 days)
+- [x] Accepted Invitations (recently joined)
+- [x] Completed Missions (ended)
+- [x] Pending Reports (draft reports from professionals)
+- [x] Mission Acceptance Rate (% accepted vs declined)
+- [x] Upcoming Missions (next 7/30 days)
 
 #### Low Priority
 - [ ] Average Response Time (time to accept/decline missions)

@@ -607,10 +607,17 @@
       "missionStatus": "Mission Status",
       "pendingMissions": "Pending Missions",
       "activeMissions": "Active Missions",
+      "completedMissions": "Completed Missions",
+      "upcomingMissions": "Upcoming Missions (30 days)",
       "reportStatus": "Report Status",
+      "pendingReports": "Pending Reports",
       "receivedReports": "Received Reports",
+      "performanceMetrics": "Performance Metrics",
+      "missionAcceptanceRate": "Mission Acceptance Rate",
+      "missionAcceptanceRateDescription": "% accepted vs declined",
       "invitations": "Invitations",
-      "pendingInvitations": "Pending Invitations"
+      "pendingInvitations": "Pending Invitations",
+      "acceptedInvitations": "Accepted Invitations"
     },
     "invitations": {
       "title": "Invite a Professional",

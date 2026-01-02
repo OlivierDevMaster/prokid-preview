@@ -1,9 +1,13 @@
 'use client';
 import {
   CheckCircle,
+  CircleCheck,
   Clock,
   FileCheck,
+  FileText,
   MessageSquare,
+  Percent,
+  UserCheck,
   UserPlus,
   Users,
 } from 'lucide-react';
@@ -16,12 +20,17 @@ export default function DashboardPage() {
   const t = useTranslations('structure.dashboard');
 
   const {
+    acceptedInvitationsCount,
     activeMembersCount,
     activeMissionsCount,
+    completedMissionsCount,
+    missionAcceptanceRate,
     missionsCount,
     pendingInvitationsCount,
     pendingMissionsCount,
+    pendingReportsCount,
     receivedReportsCount,
+    upcomingMissionsCount,
   } = useGetDashboardStats();
 
   return (
@@ -56,7 +65,7 @@ export default function DashboardPage() {
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('missionStatus')}
         </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
           <StatCard
             icon={Clock}
             title={t('pendingMissions')}
@@ -67,6 +76,16 @@ export default function DashboardPage() {
             title={t('activeMissions')}
             value={activeMissionsCount.toString()}
           />
+          <StatCard
+            icon={CircleCheck}
+            title={t('completedMissions')}
+            value={completedMissionsCount.toString()}
+          />
+          <StatCard
+            icon={MessageSquare}
+            title={t('upcomingMissions')}
+            value={upcomingMissionsCount.toString()}
+          />
         </div>
       </div>
 
@@ -75,11 +94,50 @@ export default function DashboardPage() {
         <h2 className='mb-4 text-xl font-semibold text-gray-900'>
           {t('reportStatus')}
         </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <StatCard
+            icon={FileText}
+            title={t('pendingReports')}
+            value={pendingReportsCount.toString()}
+          />
           <StatCard
             icon={FileCheck}
             title={t('receivedReports')}
             value={receivedReportsCount.toString()}
+          />
+        </div>
+      </div>
+
+      {/* Performance Metrics */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('performanceMetrics')}
+        </h2>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
+          <StatCard
+            icon={Percent}
+            subtitle={t('missionAcceptanceRateDescription')}
+            title={t('missionAcceptanceRate')}
+            value={`${missionAcceptanceRate}%`}
+          />
+        </div>
+      </div>
+
+      {/* Invitations */}
+      <div>
+        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
+          {t('invitations')}
+        </h2>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <StatCard
+            icon={UserPlus}
+            title={t('pendingInvitations')}
+            value={pendingInvitationsCount.toString()}
+          />
+          <StatCard
+            icon={UserCheck}
+            title={t('acceptedInvitations')}
+            value={acceptedInvitationsCount.toString()}
           />
         </div>
       </div>

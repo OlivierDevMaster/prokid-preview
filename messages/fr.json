@@ -611,10 +611,17 @@
       "missionStatus": "Statut des Missions",
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
+      "completedMissions": "Missions Terminées",
+      "upcomingMissions": "Missions à Venir (30 jours)",
       "reportStatus": "Statut des Comptes Rendus",
+      "pendingReports": "Comptes Rendus en Attente",
       "receivedReports": "Comptes Rendus Reçus",
+      "performanceMetrics": "Métriques de Performance",
+      "missionAcceptanceRate": "Taux d'Acceptation des Missions",
+      "missionAcceptanceRateDescription": "% acceptées vs refusées",
       "invitations": "Invitations",
-      "pendingInvitations": "Invitations en Attente"
+      "pendingInvitations": "Invitations en Attente",
+      "acceptedInvitations": "Invitations Acceptées"
     },
     "invitations": {
       "title": "Inviter un Professionnel",
