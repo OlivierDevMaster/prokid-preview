@@ -344,7 +344,7 @@ export function CreateMissionForm() {
   );
 
   return (
-    <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
+    <div className='space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
       <div className='flex items-center gap-2 sm:gap-3'>
         <Link href='/structure/missions'>
           <ArrowLeft className='h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800 sm:h-5 sm:w-5' />

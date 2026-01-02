@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { Toaster } from '@/components/ui/sonner';
+import { BodyScrollLock } from '@/features/layout/BodyScrollLock';
 import ConditionalWrapper from '@/features/layout/ConditionalWrapper';
 import QueryProvider from '@/features/providers/QueryProvider';
 import { AuthSessionProvider } from '@/features/providers/SessionProvider';
@@ -106,6 +107,7 @@ export default async function LocaleLayout({
                   enableSystem
                   storageKey='prokid-theme'
                 >
+                  <BodyScrollLock />
                   <ConditionalWrapper>{children}</ConditionalWrapper>
                   <Toaster />
                 </ThemeProvider>

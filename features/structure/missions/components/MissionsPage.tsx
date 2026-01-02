@@ -84,14 +84,14 @@ export function MissionsPage() {
 
   if (isLoading) {
     return (
-      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
+      <div className='-m-8 flex min-h-full items-center justify-center bg-blue-50/30 p-8'>
         <p className='text-gray-600'>{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen space-y-6 bg-blue-50/30 p-8'>
+    <div className='min-h-full space-y-6 bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
