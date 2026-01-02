@@ -170,31 +170,49 @@ export async function getAdminMissionsCount(): Promise<number> {
 export async function getAdminMostActiveProfessional(): Promise<MostActiveProfessional | null> {
   const supabase = createClient();
 
-  // Get mission counts per professional
+  // Get missions with dates to count and track most recent activity
   const { data: missions, error: missionsError } = await supabase
     .from('missions')
-    .select('professional_id');
+    .select('professional_id, created_at')
+    .order('created_at', { ascending: false });
 
   if (missionsError) throw missionsError;
 
-  // Count missions per professional
-  const missionCounts = new Map<string, number>();
+  // Count missions per professional AND track most recent mission date
+  const professionalData = new Map<
+    string,
+    { count: number; mostRecent: Date }
+  >();
+
   missions?.forEach(mission => {
-    const count = missionCounts.get(mission.professional_id) ?? 0;
-    missionCounts.set(mission.professional_id, count + 1);
+    const existing = professionalData.get(mission.professional_id) ?? {
+      count: 0,
+      mostRecent: new Date(0),
+    };
+    const missionDate = new Date(mission.created_at);
+    professionalData.set(mission.professional_id, {
+      count: existing.count + 1,
+      mostRecent:
+        missionDate > existing.mostRecent ? missionDate : existing.mostRecent,
+    });
   });
 
-  if (missionCounts.size === 0) {
+  if (professionalData.size === 0) {
     return null;
   }
 
-  // Find professional with most missions
+  // Find professional with most missions, breaking ties by most recent activity
   let maxCount = 0;
+  let mostRecentDate = new Date(0);
   let mostActiveProfessionalId = '';
 
-  for (const [professionalId, count] of missionCounts.entries()) {
-    if (count > maxCount) {
-      maxCount = count;
+  for (const [professionalId, data] of professionalData.entries()) {
+    if (
+      data.count > maxCount ||
+      (data.count === maxCount && data.mostRecent > mostRecentDate)
+    ) {
+      maxCount = data.count;
+      mostRecentDate = data.mostRecent;
       mostActiveProfessionalId = professionalId;
     }
   }
@@ -223,31 +241,46 @@ export async function getAdminMostActiveProfessional(): Promise<MostActiveProfes
 export async function getAdminMostActiveStructure(): Promise<MostActiveStructure | null> {
   const supabase = createClient();
 
-  // Get mission counts per structure
+  // Get missions with dates to count and track most recent activity
   const { data: missions, error: missionsError } = await supabase
     .from('missions')
-    .select('structure_id');
+    .select('structure_id, created_at')
+    .order('created_at', { ascending: false });
 
   if (missionsError) throw missionsError;
 
-  // Count missions per structure
-  const missionCounts = new Map<string, number>();
+  // Count missions per structure AND track most recent mission date
+  const structureData = new Map<string, { count: number; mostRecent: Date }>();
+
   missions?.forEach(mission => {
-    const count = missionCounts.get(mission.structure_id) ?? 0;
-    missionCounts.set(mission.structure_id, count + 1);
+    const existing = structureData.get(mission.structure_id) ?? {
+      count: 0,
+      mostRecent: new Date(0),
+    };
+    const missionDate = new Date(mission.created_at);
+    structureData.set(mission.structure_id, {
+      count: existing.count + 1,
+      mostRecent:
+        missionDate > existing.mostRecent ? missionDate : existing.mostRecent,
+    });
   });
 
-  if (missionCounts.size === 0) {
+  if (structureData.size === 0) {
     return null;
   }
 
-  // Find structure with most missions
+  // Find structure with most missions, breaking ties by most recent activity
   let maxCount = 0;
+  let mostRecentDate = new Date(0);
   let mostActiveStructureId = '';
 
-  for (const [structureId, count] of missionCounts.entries()) {
-    if (count > maxCount) {
-      maxCount = count;
+  for (const [structureId, data] of structureData.entries()) {
+    if (
+      data.count > maxCount ||
+      (data.count === maxCount && data.mostRecent > mostRecentDate)
+    ) {
+      maxCount = data.count;
+      mostRecentDate = data.mostRecent;
       mostActiveStructureId = structureId;
     }
   }
