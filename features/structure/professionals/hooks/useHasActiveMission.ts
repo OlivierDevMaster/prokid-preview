@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { MissionStatus } from '@/features/missions/mission.model';
-import { findMissions } from '@/features/missions/mission.service';
+import { checkProfessionalAvailability } from '@/features/missions/mission.service';
 
 /**
  * Hook to check if a professional has an active mission
  * A mission is considered active if it's accepted and the current date
  * is within the mission date range (mission_dtstart <= now <= mission_until)
+ *
+ * This hook uses a database function that bypasses RLS to allow structures
+ * to check availability of their members without accessing mission data from other structures.
  */
 export function useHasActiveMission(professionalId: string | undefined) {
   return useQuery({
@@ -16,25 +18,12 @@ export function useHasActiveMission(professionalId: string | undefined) {
         return false;
       }
 
-      const now = new Date();
+      // Use the database function that bypasses RLS
+      // This allows structures to check availability without exposing mission details
+      const result = await checkProfessionalAvailability(professionalId);
 
-      // Get accepted missions for this professional
-      const result = await findMissions(
-        {
-          professional_id: professionalId,
-          status: MissionStatus.accepted,
-        },
-        {}
-      );
-
-      // Check if any mission is currently active
-      const hasActiveMission = result.data.some(mission => {
-        const startDate = new Date(mission.mission_dtstart);
-        const endDate = new Date(mission.mission_until);
-        return now >= startDate && now <= endDate;
-      });
-
-      return hasActiveMission;
+      // If result is null (error or invalid caller), return false
+      return result ?? false;
     },
     queryKey: ['professional-active-mission', professionalId],
   });
