@@ -154,11 +154,13 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
                 );
 
                 slots.push({
+                  availabilityId: availability.id,
                   durationMn: availability.duration_mn,
                   endAt: slotEndAt,
                   isAvailable: true,
                   isRecurring,
                   mission: null,
+                  rrule: availability.rrule,
                   startAt: slotStartAt,
                 });
               }
@@ -231,6 +233,7 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
                     : '';
 
                   slots.push({
+                    availabilityId: null,
                     durationMn: schedule.duration_mn,
                     endAt: slotEndAt,
                     isAvailable: false,
@@ -246,6 +249,7 @@ export const getAvailabilitySlotsHandler = factory.createHandlers(
                       title: mission.title,
                       updated_at: mission.updated_at,
                     },
+                    rrule: schedule.rrule,
                     startAt: slotStartAt,
                   });
                 }

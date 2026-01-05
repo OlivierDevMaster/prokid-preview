@@ -14,11 +14,13 @@ export interface AvailabilityFilters {
 export type AvailabilityInsert = TablesInsert<'availabilities'>;
 
 export interface AvailabilitySlot {
+  availabilityId: null | string;
   durationMn: number;
   endAt: string;
   isAvailable: boolean;
   isRecurring: boolean;
   mission: Mission | null;
+  rrule?: string;
   startAt: string;
 }
 

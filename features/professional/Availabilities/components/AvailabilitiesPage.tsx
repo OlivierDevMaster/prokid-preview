@@ -152,7 +152,6 @@ export default function AvailabilitiesPage() {
       return;
     }
 
-    console.info({ slot });
     // Open confirmation dialog
     setConfirmDialog({
       open: true,
@@ -239,7 +238,7 @@ export default function AvailabilitiesPage() {
   }, [slots, professional?.hourly_rate]);
 
   return (
-    <div className='space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
+    <div className='space-y-4 bg-blue-50/30 p-4 p-8 sm:space-y-6'>
       {/* Header */}
       <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
         <h1 className='text-2xl font-bold text-blue-900 sm:text-3xl'>

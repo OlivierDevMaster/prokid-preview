@@ -45,7 +45,9 @@ export default async function StructuresPage({
       </div>
 
       {/* Table */}
-      <StructuresTableWrapper locale={locale} translations={translations} />
+      <div className='min-w-0 overflow-x-auto'>
+        <StructuresTableWrapper locale={locale} translations={translations} />
+      </div>
     </div>
   );
 }
