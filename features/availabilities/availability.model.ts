@@ -19,6 +19,7 @@ export interface AvailabilitySlot {
   isAvailable: boolean;
   isRecurring: boolean;
   mission: Mission | null;
+  rrule?: string;
   startAt: string;
 }
 

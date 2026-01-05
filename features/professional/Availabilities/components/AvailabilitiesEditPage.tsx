@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RRuleSet, rrulestr } from 'rrule';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,7 +26,12 @@ import { createClient } from '@/lib/supabase/client';
 
 import { AVAILABILITIES_DAY_NAMES } from '../availabilities.config';
 import { DaySchedule, TimeSlot } from '../availabilities.model';
-import { saveWeekAvailabilities } from '../availabilities.service';
+import {
+  deleteAvailabilityBySlot,
+  saveWeekAvailabilities,
+  stopRecurrenceForSlot,
+  stopRecurrenceForSlotUntil,
+} from '../availabilities.service';
 import { useGetAvailabilities } from '../hooks/useGetAvailabilities';
 
 type AvailabilitiesEditPageProps = {
@@ -93,6 +99,11 @@ export default function AvailabilitiesEditPage({
   const [slotErrors, setSlotErrors] = useState<
     Record<string, Record<number, null | string>>
   >({});
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    dayKey: string;
+    deletionType: 'recurringExclude' | 'recurringStop' | 'single';
+    slotIndex: number;
+  } | null>(null);
 
   const initializeSchedule: Record<string, DaySchedule> | undefined =
     useMemo(() => {
@@ -198,6 +209,7 @@ export default function AvailabilitiesEditPage({
 
           return {
             end: endTime,
+            originalSlot: slot,
             recurring: isRecurring,
             start: startTime,
           };
@@ -256,6 +268,7 @@ export default function AvailabilitiesEditPage({
     tCommon('days.sunday'),
   ];
 
+  console.info({ schedules: schedule });
   /**
    * Validate slots for a specific day and return errors
    */
@@ -385,19 +398,144 @@ export default function AvailabilitiesEditPage({
 
   const handleRemoveSlot = (dayKey: string, slotIndex: number) => {
     if (!schedule) return;
-    setSchedule(prevSchedule => {
-      const newSchedule = { ...prevSchedule };
-      newSchedule[dayKey].slots[slotIndex].isDeleted = true;
 
-      // Validate slots after removing
-      const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
-      setSlotErrors(prev => ({
-        ...prev,
-        [dayKey]: errors,
-      }));
+    const slot = schedule[dayKey].slots[slotIndex];
+    const originalSlot = slot.originalSlot;
 
-      return newSchedule;
-    });
+    // Determine deletion type
+    let deletionType: 'recurringExclude' | 'recurringStop' | 'single' =
+      'single';
+
+    if (originalSlot) {
+      // Check if it's a single availability (daily with COUNT=1)
+      const isSingleAvailability =
+        originalSlot.rrule?.includes('COUNT=1') &&
+        originalSlot.rrule?.includes('FREQ=DAILY');
+
+      // Check if it's from a recurring availability
+      const isFromRecurring = originalSlot.isRecurring;
+
+      // Check if recurring checkbox is checked
+      const recurringChecked = slot.recurring === true;
+
+      if (isSingleAvailability) {
+        deletionType = 'single';
+      } else if (isFromRecurring && !recurringChecked) {
+        deletionType = 'recurringExclude';
+      } else if (isFromRecurring && recurringChecked) {
+        deletionType = 'recurringStop';
+      } else {
+        deletionType = 'single';
+      }
+    }
+
+    setDeleteConfirmation({ dayKey, deletionType, slotIndex });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!schedule || !deleteConfirmation) return;
+
+    const { dayKey, slotIndex } = deleteConfirmation;
+    const slot = schedule[dayKey].slots[slotIndex];
+    const originalSlot = slot.originalSlot;
+
+    if (!originalSlot) {
+      // If no original slot, just mark as deleted (new slot)
+      setSchedule(prevSchedule => {
+        const newSchedule = { ...prevSchedule };
+        newSchedule[dayKey].slots[slotIndex].isDeleted = true;
+
+        const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+        setSlotErrors(prev => ({
+          ...prev,
+          [dayKey]: errors,
+        }));
+
+        return newSchedule;
+      });
+      setDeleteConfirmation(null);
+      return;
+    }
+
+    try {
+      // Check if it's a single availability (daily with COUNT=1)
+      const isSingleAvailability =
+        originalSlot.rrule?.includes('COUNT=1') &&
+        originalSlot.rrule?.includes('FREQ=DAILY');
+
+      // Check if it's from a recurring availability
+      const isFromRecurring = originalSlot.isRecurring;
+
+      // Check if recurring checkbox is checked
+      const recurringChecked = slot.recurring === true;
+
+      if (isSingleAvailability) {
+        // Case 1: Single availability (daily with count = 1) → delete directly
+        await deleteAvailabilityBySlot(originalSlot, userId);
+      } else if (isFromRecurring && !recurringChecked) {
+        // Case 2: Recurring availability without recurring checkbox → exclude single date
+        await deleteAvailabilityBySlot(originalSlot, userId);
+      } else if (isFromRecurring && recurringChecked) {
+        // Case 3: Recurring availability with recurring checkbox
+        // Check if availability has a mission
+        if (originalSlot.mission && originalSlot.mission.mission_dtstart) {
+          // Stop recurring from selected date till mission start
+          // Parse the mission start date
+          const missionStart = parseISO(originalSlot.mission.mission_dtstart);
+
+          // Stop recurrence until mission start (day before mission start)
+          // This allows the recurrence to resume after the mission
+          const untilDate = new Date(missionStart);
+          untilDate.setDate(untilDate.getDate() - 1);
+          untilDate.setHours(23, 59, 59, 999);
+
+          await stopRecurrenceForSlotUntil(originalSlot, userId, untilDate);
+        } else {
+          // No mission: try to delete, otherwise stop recurring definitively
+          try {
+            await deleteAvailabilityBySlot(originalSlot, userId);
+          } catch {
+            // If deletion fails, stop recurring definitively
+            await stopRecurrenceForSlot(originalSlot, userId);
+          }
+        }
+      } else {
+        // Fallback: try to delete
+        await deleteAvailabilityBySlot(originalSlot, userId);
+      }
+
+      // Mark slot as deleted in UI
+      setSchedule(prevSchedule => {
+        const newSchedule = { ...prevSchedule };
+        newSchedule[dayKey].slots[slotIndex].isDeleted = true;
+
+        const errors = validateDaySlots(dayKey, newSchedule[dayKey].slots);
+        setSlotErrors(prev => ({
+          ...prev,
+          [dayKey]: errors,
+        }));
+
+        return newSchedule;
+      });
+
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({
+        queryKey: ['availability-slots'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['availabilities'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['recurring-availabilities'],
+      });
+
+      toast.success(tAvailabilities('deleteSuccess'));
+    } catch (error) {
+      console.error('Error deleting slot:', error);
+      toast.error(tAvailabilities('deleteError'));
+    } finally {
+      setDeleteConfirmation(null);
+    }
   };
 
   const handleSlotChange = (
@@ -465,13 +603,9 @@ export default function AvailabilitiesEditPage({
         queryKey: ['availabilities'],
       });
       onClose();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error('Error saving availabilities:', error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : tCommon('messages.errorSaving');
-      alert(errorMessage);
+      toast.error(tAvailabilities('errorSaving'));
     } finally {
       setIsSaving(false);
     }
@@ -497,6 +631,7 @@ export default function AvailabilitiesEditPage({
               const dayLabel = dayLabels[index];
               const daySchedule = schedule[dayKey];
 
+              console.info({ day, dayKey, dayLabel, daySchedule, schedule });
               return (
                 <div
                   className='space-y-3 rounded-lg border border-gray-200 bg-white p-4'
@@ -530,6 +665,7 @@ export default function AvailabilitiesEditPage({
                           !slot.isDeleted && (
                             <div key={slotIndex}>
                               <div className='grid grid-cols-2 items-end gap-4'>
+                                {/* Start Time */}
                                 <div className='space-y-2'>
                                   <Label className='text-sm text-gray-700'>
                                     {tCommon('label.start')}
@@ -555,6 +691,7 @@ export default function AvailabilitiesEditPage({
                                     <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                                   </div>
                                 </div>
+                                {/* End Time */}
                                 <div className='space-y-2'>
                                   <Label className='text-sm text-gray-700'>
                                     {tCommon('label.end')}
@@ -580,22 +717,21 @@ export default function AvailabilitiesEditPage({
                                       />
                                       <Clock className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                                     </div>
-                                    {daySchedule.slots.length > 1 && (
-                                      <Button
-                                        className='text-red-600 hover:text-red-700'
-                                        onClick={() =>
-                                          handleRemoveSlot(dayKey, slotIndex)
-                                        }
-                                        size='sm'
-                                        type='button'
-                                        variant='ghost'
-                                      >
-                                        <Trash2 className='h-4 w-4' />
-                                      </Button>
-                                    )}
+                                    <Button
+                                      className='text-red-600 hover:text-red-700'
+                                      onClick={() =>
+                                        handleRemoveSlot(dayKey, slotIndex)
+                                      }
+                                      size='sm'
+                                      type='button'
+                                      variant='ghost'
+                                    >
+                                      <Trash2 className='h-4 w-4' />
+                                    </Button>
                                   </div>
                                 </div>
                               </div>
+                              {/* Recurring */}
                               <div className='mt-2 flex items-center gap-2'>
                                 <Checkbox
                                   checked={slot.recurring ?? false}
@@ -655,6 +791,51 @@ export default function AvailabilitiesEditPage({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog
+        onOpenChange={open => !open && setDeleteConfirmation(null)}
+        open={!!deleteConfirmation}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {deleteConfirmation?.deletionType === 'recurringStop'
+                ? tAvailabilities('deleteRecurringSeriesTitle')
+                : deleteConfirmation?.deletionType === 'recurringExclude'
+                  ? tAvailabilities('excludeRecurringDateTitle')
+                  : tAvailabilities('deleteSingleSlotTitle')}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteConfirmation?.deletionType === 'recurringStop'
+                ? tAvailabilities('deleteRecurringSeriesConfirm')
+                : deleteConfirmation?.deletionType === 'recurringExclude'
+                  ? tAvailabilities('excludeRecurringDateConfirm')
+                  : tAvailabilities('deleteSingleSlotConfirm')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setDeleteConfirmation(null)}
+              type='button'
+              variant='outline'
+            >
+              {tCommon('actions.cancel')}
+            </Button>
+            <Button
+              className='bg-red-600 text-white hover:bg-red-700'
+              onClick={handleConfirmDelete}
+              type='button'
+            >
+              {deleteConfirmation?.deletionType === 'recurringStop'
+                ? tAvailabilities('deleteRecurringSeriesButton')
+                : deleteConfirmation?.deletionType === 'recurringExclude'
+                  ? tAvailabilities('excludeRecurringDateButton')
+                  : tAvailabilities('deleteSingleSlotButton')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

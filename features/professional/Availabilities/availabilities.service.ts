@@ -828,6 +828,156 @@ export async function stopRecurrenceForSlot(
 }
 
 /**
+ * Stop recurrence for a specific slot until a specific date (e.g., mission start)
+ */
+export async function stopRecurrenceForSlotUntil(
+  slot: AvailabilitySlot,
+  userId: string,
+  untilDate: Date
+): Promise<void> {
+  const supabase = createClient();
+
+  // Parse the slot start date and time
+  const slotStartDate = parseISO(slot.startAt);
+
+  // Find recurring availabilities that match this slot
+  const { data: recurringAvailabilities, error: findError } = await supabase
+    .from('availabilities')
+    .select('id, rrule, dtstart, duration_mn')
+    .eq('user_id', userId)
+    .eq('duration_mn', slot.durationMn)
+    .like('rrule', '%FREQ=WEEKLY%');
+
+  if (findError) {
+    throw new Error(
+      `Failed to find recurring availability: ${findError.message}`
+    );
+  }
+
+  if (!recurringAvailabilities || recurringAvailabilities.length === 0) {
+    throw new Error('No recurring availability found for this slot');
+  }
+
+  const slotDayOfWeek = slotStartDate.getDay();
+  const dayMap: Record<string, number> = {
+    FR: 5,
+    MO: 1,
+    SA: 6,
+    SU: 0,
+    TH: 4,
+    TU: 2,
+    WE: 3,
+  };
+
+  let matchingAvailability = null;
+
+  for (const availability of recurringAvailabilities) {
+    try {
+      const parsedRule = rrulestr(availability.rrule);
+      let rule: RRule;
+      if (parsedRule instanceof RRuleSet) {
+        const rules = parsedRule.rrules();
+        if (rules.length === 0) continue;
+        rule = rules[0];
+      } else {
+        rule = parsedRule;
+      }
+
+      if (rule.options.freq === 3 && rule.options.count === 1) continue;
+
+      const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
+      if (!bydayMatch) continue;
+
+      const rruleDay = bydayMatch[1];
+      const jsDayOfWeek = dayMap[rruleDay];
+
+      if (jsDayOfWeek !== slotDayOfWeek) continue;
+
+      const ruleDtstart = rule.options.dtstart || new Date();
+      const ruleHour = ruleDtstart.getUTCHours();
+      const ruleMinute = ruleDtstart.getUTCMinutes();
+      const ruleStartMinutes = ruleHour * 60 + ruleMinute;
+      const slotStartMinutes =
+        slotStartDate.getHours() * 60 + slotStartDate.getMinutes();
+
+      const timeDiff = Math.abs(slotStartMinutes - ruleStartMinutes);
+      if (timeDiff <= 15) {
+        matchingAvailability = availability;
+        break;
+      }
+    } catch (parseError) {
+      console.error(
+        `Error parsing RRULE for availability ${availability.id}:`,
+        parseError
+      );
+      continue;
+    }
+  }
+
+  if (!matchingAvailability) {
+    throw new Error('No matching recurring availability found for this slot');
+  }
+
+  // Stop the recurrence by setting UNTIL to the day before the slot date
+  const stopDate = new Date(slotStartDate);
+  stopDate.setDate(stopDate.getDate() - 1);
+  stopDate.setHours(23, 59, 59, 999);
+
+  // Parse the existing RRULE
+  const parsedRule = rrulestr(matchingAvailability.rrule);
+  let rule: RRule;
+  if (parsedRule instanceof RRuleSet) {
+    const rules = parsedRule.rrules();
+    if (rules.length === 0) {
+      throw new Error('Invalid RRULE: RRuleSet has no rules');
+    }
+    rule = rules[0];
+  } else {
+    rule = parsedRule;
+  }
+
+  // Create new RRule options with until set to stop date
+  // But if untilDate is provided and is after stopDate, use untilDate instead
+  const finalUntilDate =
+    untilDate && untilDate > stopDate ? new Date(untilDate) : stopDate;
+  finalUntilDate.setHours(23, 59, 59, 999);
+
+  const newRuleOptions = {
+    ...rule.options,
+    until: finalUntilDate,
+  };
+
+  const newRule = new RRule(newRuleOptions);
+
+  let newRruleString: string;
+  if (matchingAvailability.rrule.includes('EXDATE')) {
+    const rruleSet = new RRuleSet();
+    rruleSet.rrule(newRule);
+
+    const originalRuleSet = rrulestr(matchingAvailability.rrule);
+    if (originalRuleSet instanceof RRuleSet) {
+      const exdates = originalRuleSet.exdates();
+      for (const exdate of exdates) {
+        rruleSet.exdate(exdate);
+      }
+    }
+
+    newRruleString = rruleSet.toString();
+  } else {
+    newRruleString = newRule.toString();
+  }
+
+  const { error: updateError } = await supabase
+    .from('availabilities')
+    .update({ rrule: newRruleString })
+    .eq('id', matchingAvailability.id);
+
+  if (updateError) {
+    throw new Error(`Failed to stop recurrence: ${updateError.message}`);
+  }
+}
+
+/**
  * Add EXDATE for a specific day to a recurring availability
  */
 async function addExdateForDay(
