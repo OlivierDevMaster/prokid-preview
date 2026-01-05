@@ -100,8 +100,8 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
 
   if (isLoading) {
     return (
-      <div className='py-8 text-center text-sm text-gray-500 sm:text-base'>
-        {t('loading')}
+      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
+        <p className='text-gray-600'>{t('loading')}</p>
       </div>
     );
   }

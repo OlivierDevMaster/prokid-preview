@@ -98,7 +98,11 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
   });
 
   if (isLoading) {
-    return <div className='py-8 text-center text-gray-500'>{t('loading')}</div>;
+    return (
+      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
+        <p className='text-gray-600'>{t('loading')}</p>
+      </div>
+    );
   }
 
   if (error) {
