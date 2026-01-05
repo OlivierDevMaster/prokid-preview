@@ -1,13 +1,12 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { addDays, format, parseISO, startOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Clock, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RRuleSet, rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createClient } from '@/lib/supabase/client';
 
 import { AVAILABILITIES_DAY_NAMES } from '../availabilities.config';
 import { DaySchedule, TimeSlot } from '../availabilities.model';
@@ -73,26 +71,6 @@ export default function AvailabilitiesEditPage({
 
   const { groupedSlots, isLoading } = useGetAvailabilities(weekStart);
 
-  // Fetch recurring availabilities to detect if slots are from recurrences
-  const { data: recurringAvailabilities } = useQuery({
-    enabled: !!userId && open,
-    queryFn: async () => {
-      if (!userId) return [];
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('availabilities')
-        .select('id, rrule, duration_mn')
-        .eq('user_id', userId)
-        .like('rrule', '%FREQ=WEEKLY%');
-      if (error) {
-        console.error('Error fetching recurring availabilities:', error);
-        return [];
-      }
-      return data || [];
-    },
-    queryKey: ['recurring-availabilities', userId],
-  });
-
   const [schedule, setSchedule] = useState<Record<string, DaySchedule>>();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -112,29 +90,10 @@ export default function AvailabilitiesEditPage({
       }
 
       const res: Record<string, DaySchedule> = {};
-      const dayMap: Record<string, number> = {
-        FR: 5,
-        MO: 1,
-        SA: 6,
-        SU: 0,
-        TH: 4,
-        TU: 2,
-        WE: 3,
-      };
 
       AVAILABILITIES_DAY_NAMES.forEach((dayKey: string, index: number) => {
         const day = weekDays[index];
         const daySlots = groupedSlots.getSlotsByDay(day);
-        const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
-        // Find recurring availabilities for this day
-        const recurringForDay =
-          recurringAvailabilities?.filter(availability => {
-            const bydayMatch = availability.rrule.match(/BYDAY=([A-Z]{2})/);
-            if (!bydayMatch) return false;
-            const rruleDay = bydayMatch[1];
-            return dayMap[rruleDay] === dayOfWeek;
-          }) || [];
 
         // Convert AvailabilitySlot[] to TimeSlot[]
         const timeSlots: TimeSlot[] = daySlots.map(slot => {
@@ -142,75 +101,11 @@ export default function AvailabilitiesEditPage({
           const endDate = parseISO(slot.endAt);
           const startTime = format(startDate, 'HH:mm');
           const endTime = format(endDate, 'HH:mm');
-          const startMinutes =
-            startDate.getHours() * 60 + startDate.getMinutes();
-          const durationMinutes =
-            (endDate.getTime() - startDate.getTime()) / (1000 * 60);
-
-          // Check if this slot matches a recurring availability
-          let isRecurring = false;
-          for (const recurring of recurringForDay) {
-            try {
-              const rule = rrulestr(recurring.rrule);
-              const ruleDtstart = rule.options.dtstart;
-
-              let rruleStartMinutes: number;
-              if (ruleDtstart) {
-                const ruleHour = ruleDtstart.getUTCHours();
-                const ruleMinute = ruleDtstart.getUTCMinutes();
-                rruleStartMinutes = ruleHour * 60 + ruleMinute;
-              } else {
-                const dtstartMatch = recurring.rrule.match(
-                  /DTSTART:(\d{8})T(\d{2})(\d{2})/
-                );
-                if (!dtstartMatch) continue;
-                const rruleHour = parseInt(dtstartMatch[2], 10);
-                const rruleMinute = parseInt(dtstartMatch[3], 10);
-                rruleStartMinutes = rruleHour * 60 + rruleMinute;
-              }
-
-              const rruleDuration = recurring.duration_mn;
-              const timeDiff = Math.abs(startMinutes - rruleStartMinutes);
-
-              // Check if time and duration match (within 15 minutes tolerance)
-              if (timeDiff <= 15 && durationMinutes === rruleDuration) {
-                // Check if this date is excluded via EXDATE
-                let isExcluded = false;
-                if (rule instanceof RRuleSet) {
-                  const exdates = rule.exdates();
-                  const slotDateOnly = new Date(startDate);
-                  slotDateOnly.setHours(0, 0, 0, 0);
-                  isExcluded = exdates.some(exdate => {
-                    const exdateDate = new Date(exdate);
-                    exdateDate.setHours(0, 0, 0, 0);
-                    return exdateDate.getTime() === slotDateOnly.getTime();
-                  });
-                } else {
-                  const exdateMatch = recurring.rrule.match(/EXDATE:([^\n]+)/);
-                  if (exdateMatch) {
-                    const exdates = exdateMatch[1].split(',');
-                    const slotDateStr = format(startDate, 'yyyyMMdd');
-                    isExcluded = exdates.some(exdate =>
-                      exdate.includes(slotDateStr)
-                    );
-                  }
-                }
-
-                if (!isExcluded) {
-                  isRecurring = true;
-                  break;
-                }
-              }
-            } catch {
-              // If parsing fails, skip this recurring
-              continue;
-            }
-          }
 
           return {
             end: endTime,
             originalSlot: slot,
-            recurring: isRecurring,
+            recurring: slot.isRecurring, // Use the property directly from the slot
             start: startTime,
           };
         });
@@ -226,7 +121,7 @@ export default function AvailabilitiesEditPage({
       });
 
       return res;
-    }, [isLoading, groupedSlots, weekDays, recurringAvailabilities]);
+    }, [isLoading, groupedSlots, weekDays]);
 
   // Track previous weekStart to detect changes
   const prevWeekStartRef = useRef<null | number>(null);
@@ -268,7 +163,6 @@ export default function AvailabilitiesEditPage({
     tCommon('days.sunday'),
   ];
 
-  console.info({ schedules: schedule });
   /**
    * Validate slots for a specific day and return errors
    */
@@ -493,7 +387,7 @@ export default function AvailabilitiesEditPage({
         } else {
           // No mission: try to delete, otherwise stop recurring definitively
           try {
-            await deleteAvailabilityBySlot(originalSlot, userId);
+            await deleteAvailabilityBySlot(originalSlot, userId, true);
           } catch {
             // If deletion fails, stop recurring definitively
             await stopRecurrenceForSlot(originalSlot, userId);
@@ -631,7 +525,6 @@ export default function AvailabilitiesEditPage({
               const dayLabel = dayLabels[index];
               const daySchedule = schedule[dayKey];
 
-              console.info({ day, dayKey, dayLabel, daySchedule, schedule });
               return (
                 <div
                   className='space-y-3 rounded-lg border border-gray-200 bg-white p-4'

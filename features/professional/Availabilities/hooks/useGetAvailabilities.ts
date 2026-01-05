@@ -34,7 +34,6 @@ export const useGetAvailabilities = (weekStart: Date) => {
 
   // Group slots by day
   const groupedSlots = useGroupedAvailabilitySlots(slots);
-  console.info({ groupedSlots, slots });
 
   return {
     error,

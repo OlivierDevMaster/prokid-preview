@@ -294,10 +294,6 @@ export function CreateMissionForm() {
         availStart = extractDtstartFromRrule(avail.rrule);
       }
 
-      console.info({
-        d: availStart && format(availStart, 'dd/MM/yyyy HH:mm'),
-        slotStartTime,
-      });
       // If we can't determine start time, skip this availability
       if (!availStart) return false;
 
@@ -305,7 +301,6 @@ export function CreateMissionForm() {
       return availStartTime === slotStartTime;
     });
 
-    console.info({ matchingAvailability });
     // Check if availability is recurrent (has FREQ=WEEKLY or similar in rrule)
     const isAvailabilityRecurrent = matchingAvailability?.rrule
       ? matchingAvailability.rrule.includes('FREQ=WEEKLY') ||
