@@ -237,3 +237,31 @@ export const getProfessionalMission = async (
 
   return data as MissionWithStructure | null;
 };
+
+/**
+ * Checks if a professional has an active mission without exposing mission details.
+ * This function uses a database function that bypasses RLS to allow structures
+ * to check availability of their members without accessing mission data from other structures.
+ *
+ * @param professionalId - The ID of the professional to check
+ * @returns true if the professional has an active mission, false if not, null if error or invalid caller
+ */
+export const checkProfessionalAvailability = async (
+  professionalId: string
+): Promise<boolean | null> => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.rpc(
+    'check_professional_availability',
+    {
+      professional_id_param: professionalId,
+    }
+  );
+
+  if (error) {
+    console.error('Error checking professional availability:', error);
+    return null;
+  }
+
+  return data as boolean | null;
+};
