@@ -10,9 +10,7 @@ export const revalidate = 3600;
 
 const MAX_URLS_PER_SITEMAP = 50_000;
 const DEFAULT_LOCALE = 'fr';
-const OTHER_LOCALE = 'en';
 
-// With alternates.languages, each professional generates 1 URL entry (not 2)
 // Reserve some space for static pages in sitemap 0
 const STATIC_PAGES_COUNT = 6; // home (1) + professionals list (1) + auth (3) + faq (1)
 // Professionals that fit in sitemap 0 (accounting for static pages)
@@ -90,44 +88,26 @@ export default async function sitemap({
 
   // Add static pages only to the first sitemap (id: 0)
   if (sitemapIndex === 0) {
-    // Add home page with language alternates
+    // Add home page
     sitemapEntries.push({
-      alternates: {
-        languages: {
-          [DEFAULT_LOCALE]: `${appUrl}/${DEFAULT_LOCALE}/`,
-          [OTHER_LOCALE]: `${appUrl}/${OTHER_LOCALE}/`,
-        },
-      },
       changeFrequency: 'daily',
       lastModified: new Date(),
       priority: 1.0,
       url: `${appUrl}/${DEFAULT_LOCALE}/`,
     });
 
-    // Add professionals list page with language alternates
+    // Add professionals list page
     sitemapEntries.push({
-      alternates: {
-        languages: {
-          [DEFAULT_LOCALE]: `${appUrl}/${DEFAULT_LOCALE}/professionals`,
-          [OTHER_LOCALE]: `${appUrl}/${OTHER_LOCALE}/professionals`,
-        },
-      },
       changeFrequency: 'daily',
       lastModified: new Date(),
       priority: 0.9,
       url: `${appUrl}/${DEFAULT_LOCALE}/professionals`,
     });
 
-    // Add auth pages with language alternates
+    // Add auth pages
     const authPages = ['login', 'sign-up', 'forgot-password'];
     authPages.forEach(authPage => {
       sitemapEntries.push({
-        alternates: {
-          languages: {
-            [DEFAULT_LOCALE]: `${appUrl}/${DEFAULT_LOCALE}/auth/${authPage}`,
-            [OTHER_LOCALE]: `${appUrl}/${OTHER_LOCALE}/auth/${authPage}`,
-          },
-        },
         changeFrequency: 'monthly',
         lastModified: new Date(),
         priority: 0.5,
@@ -135,14 +115,8 @@ export default async function sitemap({
       });
     });
 
-    // Add FAQ page with language alternates
+    // Add FAQ page
     sitemapEntries.push({
-      alternates: {
-        languages: {
-          [DEFAULT_LOCALE]: `${appUrl}/${DEFAULT_LOCALE}/faq`,
-          [OTHER_LOCALE]: `${appUrl}/${OTHER_LOCALE}/faq`,
-        },
-      },
       changeFrequency: 'monthly',
       lastModified: new Date(),
       priority: 0.6,
@@ -201,12 +175,6 @@ export default async function sitemap({
         // Only add if we have a valid username and user_id
         if (username && professional.user_id) {
           sitemapEntries.push({
-            alternates: {
-              languages: {
-                [DEFAULT_LOCALE]: `${appUrl}/${DEFAULT_LOCALE}/professionals/${username}/${professional.user_id}`,
-                [OTHER_LOCALE]: `${appUrl}/${OTHER_LOCALE}/professionals/${username}/${professional.user_id}`,
-              },
-            },
             changeFrequency: 'weekly',
             lastModified: new Date(),
             priority: 0.8,

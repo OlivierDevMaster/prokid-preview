@@ -14,6 +14,14 @@ export const useCreateMission = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['missions'] });
       queryClient.invalidateQueries({ queryKey: ['availability-slots'] });
+      // Invalidate dashboard queries for structure (missions created by structure)
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'missions'],
+      });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'missions'],
+      });
     },
   });
 };

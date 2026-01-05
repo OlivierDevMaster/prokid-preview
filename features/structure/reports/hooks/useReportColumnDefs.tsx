@@ -24,6 +24,7 @@ type UseReportColumnDefsProps = {
     previous: string;
     professional?: string;
     title: string;
+    unknown?: string;
     view?: string;
   };
 };
@@ -94,8 +95,9 @@ export default function useReportColumnDefs({
         const professionalName = reportWithProfessional.author?.profile
           ? `${reportWithProfessional.author.profile.first_name || ''} ${reportWithProfessional.author.profile.last_name || ''}`.trim() ||
             reportWithProfessional.author.profile.email ||
-            'Unknown'
-          : 'Unknown';
+            translations.unknown ||
+            'Inconnu'
+          : translations.unknown || 'Inconnu';
         return (
           <div className='max-w-md'>
             <div title={professionalName}>{professionalName}</div>

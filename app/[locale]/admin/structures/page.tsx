@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StructuresTableWrapper } from '@/features/admin/structures/components/StructuresTableWrapper';
 
 export default async function StructuresPage({
@@ -13,21 +12,28 @@ export default async function StructuresPage({
 
   const translations = {
     actions: t('actions'),
+    clearFilters: t('clearFilters'),
     createdAt: t('createdAt'),
     delete: t('delete'),
     edit: t('edit'),
     email: t('email'),
     name: t('name'),
+    nameAsc: t('nameAsc'),
+    nameDesc: t('nameDesc'),
+    newest: t('newest'),
     next: t('next'),
     noResults: t('noResults'),
     of: t('of'),
+    oldest: t('oldest'),
     page: t('page'),
     previous: t('previous'),
+    searchPlaceholder: t('searchPlaceholder'),
+    sortBy: t('sortBy'),
     view: t('view'),
   };
 
   return (
-    <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
+    <div className='space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
       {/* Header */}
       <div>
         <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
@@ -39,14 +45,7 @@ export default async function StructuresPage({
       </div>
 
       {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('tableTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <StructuresTableWrapper locale={locale} translations={translations} />
-        </CardContent>
-      </Card>
+      <StructuresTableWrapper locale={locale} translations={translations} />
     </div>
   );
 }

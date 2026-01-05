@@ -19,6 +19,8 @@ import { AvailabilityCalendar } from '@/features/professional/components/Availab
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { Link } from '@/i18n/routing';
 
+import { useHasActiveMission } from '../hooks/useHasActiveMission';
+
 export function ProfessionalDetails() {
   const { id } = useParams();
   const t = useTranslations('structure.professionals.details');
@@ -26,6 +28,7 @@ export function ProfessionalDetails() {
   const tProfessional = useTranslations('professional');
 
   const { data: professional, isLoading } = useFindProfessional(id as string);
+  const { data: hasActiveMission } = useHasActiveMission(id as string);
 
   if (isLoading) {
     return (
@@ -54,8 +57,8 @@ export function ProfessionalDetails() {
   const name = profile
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() ||
       profile.email ||
-      'Unknown'
-    : 'Unknown';
+      tCommon('messages.unknown')
+    : tCommon('messages.unknown');
 
   const initials = name
     .split(' ')
@@ -114,14 +117,19 @@ export function ProfessionalDetails() {
                     {/* Badges */}
                     <div className='mb-4 flex flex-wrap justify-center gap-2'>
                       {professional.is_certified && (
-                        <Badge className='bg-green-400/60 text-white hover:bg-green-400'>
+                        <Badge className='bg-green-200 text-green-800 hover:bg-green-300'>
                           <CheckCircle2 className='mr-1 h-3 w-3' />
                           {t('certified')}
                         </Badge>
                       )}
-                      {professional.is_available && (
+                      {!hasActiveMission && (
                         <Badge className='bg-blue-100 text-blue-700 hover:bg-blue-200'>
                           {t('available')}
+                        </Badge>
+                      )}
+                      {hasActiveMission && (
+                        <Badge className='bg-red-100 text-red-700 hover:bg-red-200'>
+                          {t('unavailable')}
                         </Badge>
                       )}
                     </div>

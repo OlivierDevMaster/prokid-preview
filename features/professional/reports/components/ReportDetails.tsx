@@ -195,7 +195,7 @@ export function ReportDetails() {
                     </span>
                     {downloadingAttachmentId === attachment.id ? (
                       <span className='text-xs text-gray-500'>
-                        {tCommon('messages.loading') || 'Loading...'}
+                        {tCommon('messages.loading')}
                       </span>
                     ) : (
                       <Download className='h-4 w-4 flex-shrink-0 text-gray-400' />

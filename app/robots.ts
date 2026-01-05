@@ -4,25 +4,19 @@ import { getAppUrl } from '@/lib/utils';
 
 export default function robots(): MetadataRoute.Robots {
   const appUrl = getAppUrl();
-  const locales = ['fr', 'en'];
+  const locale = 'fr';
 
   // Build allowed paths
   const allowedPaths: string[] = [];
 
   // Home page
-  locales.forEach(locale => {
-    allowedPaths.push(`/${locale}/`);
-  });
+  allowedPaths.push(`/${locale}/`);
 
   // Auth pages
-  locales.forEach(locale => {
-    allowedPaths.push(`/${locale}/auth/*`);
-  });
+  allowedPaths.push(`/${locale}/auth/*`);
 
   // Professionals pages (including nested routes)
-  locales.forEach(locale => {
-    allowedPaths.push(`/${locale}/professionals/*`);
-  });
+  allowedPaths.push(`/${locale}/professionals/*`);
 
   return {
     rules: [

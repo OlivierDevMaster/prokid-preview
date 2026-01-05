@@ -13,6 +13,23 @@ export const useAcceptStructureInvitation = () => {
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['structure-invitation'] });
       queryClient.invalidateQueries({ queryKey: ['structure-members'] });
+      // Invalidate dashboard queries for structure
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'invitations'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'structure', 'members'],
+      });
+      // Invalidate admin dashboard queries
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'invitations'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'professionals'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'admin', 'structures'],
+      });
     },
   });
 };

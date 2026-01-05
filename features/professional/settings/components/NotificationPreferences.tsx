@@ -125,7 +125,7 @@ export function NotificationPreferences() {
         <h2 className='text-lg font-bold text-blue-900'>
           {tAdmin('setting.notificationPreferences.title')}
         </h2>
-        <div className='text-sm text-gray-600'>Loading...</div>
+        <div className='text-sm text-gray-600'>{t('messages.loading')}</div>
       </div>
     );
   }

@@ -18,6 +18,7 @@ import { useCreateInvitation } from '../hooks/useCreateInvitation';
 
 export function CreateInvitationPage() {
   const t = useTranslations('structure.invitations');
+  const tCommon = useTranslations('common.messages');
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfessional, setSelectedProfessional] =
@@ -129,7 +130,7 @@ export function CreateInvitationPage() {
                 const name =
                   `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim() ||
                   professional.profile.email ||
-                  'Unknown';
+                  tCommon('unknown');
 
                 return (
                   <Card

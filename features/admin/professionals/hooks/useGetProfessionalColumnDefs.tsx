@@ -3,11 +3,12 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
-import { ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
+import { Eye, MoreVertical } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,11 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { useRouter } from '@/i18n/routing';
 
 type UseGetProfessionalColumnDefsProps = {
@@ -28,6 +24,7 @@ type UseGetProfessionalColumnDefsProps = {
     actions?: string;
     city: string;
     createdAt: string;
+    currentJob: string;
     delete?: string;
     edit?: string;
     email: string;
@@ -37,7 +34,6 @@ type UseGetProfessionalColumnDefsProps = {
     of: string;
     page: string;
     previous: string;
-    skills: string;
     view?: string;
   };
 };
@@ -48,9 +44,31 @@ export default function useGetProfessionalColumnDefs({
 }: UseGetProfessionalColumnDefsProps) {
   const dateLocale = locale === 'fr' ? fr : enUS;
   const router = useRouter();
+  const tProfessional = useTranslations('professional');
 
   const onView = (professional: Professional) => {
     router.push(`/admin/professionals/${professional.user_id}`);
+  };
+
+  const getJobTranslation = (job: null | string | undefined): string => {
+    if (!job) {
+      return 'N/A';
+    }
+    try {
+      const translationKey = `jobs.${job}`;
+      const translated = tProfessional(translationKey);
+      // If translation doesn't exist, next-intl returns the full key path
+      // Check if it's the same as what we'd expect for a missing key
+      if (
+        translated === translationKey ||
+        translated === `professional.${translationKey}`
+      ) {
+        return job;
+      }
+      return translated;
+    } catch {
+      return job;
+    }
   };
 
   const columns: ColumnDef<Professional>[] = [
@@ -61,20 +79,35 @@ export default function useGetProfessionalColumnDefs({
         const name = profile
           ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
           : 'N/A';
-        return <div className='font-medium'>{name || 'N/A'}</div>;
-      },
-      header: ({ column }) => {
+        const initials = profile
+          ? `${profile.first_name?.charAt(0) || ''}${profile.last_name?.charAt(0) || ''}`
+              .trim()
+              .toUpperCase() || 'N/A'
+          : 'N/A';
+
         return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.name}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
+          <div className='flex items-center gap-3'>
+            <div className='relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
+              {profile?.avatar_url ? (
+                <Image
+                  alt={name || 'Professional profile photo'}
+                  className='h-full w-full object-cover'
+                  height={40}
+                  src={profile.avatar_url}
+                  unoptimized
+                  width={40}
+                />
+              ) : (
+                <span className='text-sm font-semibold text-gray-600'>
+                  {initials}
+                </span>
+              )}
+            </div>
+            <div className='font-medium'>{name || 'N/A'}</div>
+          </div>
         );
       },
+      header: translations.name,
     },
     {
       accessorKey: 'profile.email',
@@ -82,18 +115,7 @@ export default function useGetProfessionalColumnDefs({
         const email = row.original.profile?.email || 'N/A';
         return <div>{email}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.email}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.email,
     },
     {
       accessorKey: 'city',
@@ -101,103 +123,15 @@ export default function useGetProfessionalColumnDefs({
         const city = row.getValue('city') as null | string;
         return <div>{city || 'N/A'}</div>;
       },
-      header: ({ column }) => {
-        return (
-          <Button
-            className='h-8 px-2 lg:px-3'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            variant='ghost'
-          >
-            {translations.city}
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        );
-      },
+      header: translations.city,
     },
     {
-      accessorKey: 'skills',
+      accessorKey: 'current_job',
       cell: ({ row }) => {
-        const skills = row.getValue('skills') as null | string[];
-        if (!skills || skills.length === 0) {
-          return <div className='text-muted-foreground'>-</div>;
-        }
-
-        // Mobile: Show only first skill, rest in popover
-        // Desktop: Show first 3 skills, rest in popover
-        const firstSkill = skills[0];
-        const remainingSkillsMobile = skills.slice(1);
-        const desktopSkills = skills.slice(0, 3);
-        const remainingSkillsDesktop = skills.slice(3);
-
-        return (
-          <div className='flex flex-wrap items-center gap-1'>
-            {/* Mobile: First skill only */}
-            <div className='flex items-center gap-1 sm:hidden'>
-              <Badge variant='secondary'>{firstSkill}</Badge>
-              {remainingSkillsMobile.length > 0 && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className='h-5 px-2 text-xs'
-                      size='sm'
-                      variant='outline'
-                    >
-                      +{remainingSkillsMobile.length}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align='start' className='w-56'>
-                    <div className='space-y-2'>
-                      <h4 className='text-sm font-semibold'>All Skills</h4>
-                      <div className='flex flex-wrap gap-1'>
-                        {skills.map((skill, index) => (
-                          <Badge key={index} variant='secondary'>
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-            </div>
-
-            {/* Desktop: First 3 skills, rest in popover */}
-            <div className='hidden items-center gap-1 sm:flex'>
-              {desktopSkills.map((skill, index) => (
-                <Badge key={index} variant='secondary'>
-                  {skill}
-                </Badge>
-              ))}
-              {remainingSkillsDesktop.length > 0 && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className='h-5 px-2 text-xs'
-                      size='sm'
-                      variant='outline'
-                    >
-                      +{remainingSkillsDesktop.length}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align='start' className='w-56'>
-                    <div className='space-y-2'>
-                      <h4 className='text-sm font-semibold'>All Skills</h4>
-                      <div className='flex flex-wrap gap-1'>
-                        {skills.map((skill, index) => (
-                          <Badge key={index} variant='secondary'>
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-            </div>
-          </div>
-        );
+        const currentJob = row.getValue('current_job') as null | string;
+        return <div>{currentJob ? getJobTranslation(currentJob) : 'N/A'}</div>;
       },
-      header: translations.skills,
+      header: translations.currentJob,
     },
     {
       accessorKey: 'created_at',
@@ -209,22 +143,7 @@ export default function useGetProfessionalColumnDefs({
           </div>
         );
       },
-      header: ({ column }) => {
-        return (
-          <div className='flex justify-center'>
-            <Button
-              className='h-8 px-2 lg:px-3'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-              variant='ghost'
-            >
-              {translations.createdAt}
-              <ArrowUpDown className='ml-2 h-4 w-4' />
-            </Button>
-          </div>
-        );
-      },
+      header: () => <div className='text-center'>{translations.createdAt}</div>,
     },
     {
       cell: ({ row }) => {

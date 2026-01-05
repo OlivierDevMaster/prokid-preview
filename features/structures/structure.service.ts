@@ -1,17 +1,18 @@
 import { createClient } from '@/lib/supabase/client';
-
-import type {
-  Structure,
-  StructureFilters,
-  StructureInsert,
-  StructureUpdate,
-} from './structure.model';
+import { Order } from '@/lib/utils/enums';
 
 import {
   PaginationOptions,
   PaginationResult,
 } from '../paginations/pagination.model';
 import { StructureConfig } from './structure.config';
+import {
+  type Structure,
+  StructureColumn,
+  type StructureFilters,
+  type StructureInsert,
+  type StructureUpdate,
+} from './structure.model';
 
 export const createStructure = async (
   insertData: StructureInsert
@@ -94,14 +95,14 @@ export const getStructures = async (
   );
 
   if (filters.search) {
-    query = query.ilike('description', `%${filters.search}%`);
-    query = query.ilike('profile.first_name', `%${filters.search}%`);
-    query = query.ilike('profile.last_name', `%${filters.search}%`);
+    query = query.ilike('name', `%${filters.search}%`);
+    query = query.ilike('profile.email', `%${filters.search}%`);
   }
 
   if (filters.locationSearch) {
-    query = query.ilike('city', `%${filters.locationSearch}%`);
-    query = query.ilike('postal_code', `%${filters.locationSearch}%`);
+    // Note: Structures don't have city/postal_code directly
+    // This filter is kept for API compatibility but won't filter structures
+    // If needed, this could be removed or structures could be extended with location fields
   }
 
   if (filters.skills?.length) {
@@ -115,7 +116,22 @@ export const getStructures = async (
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  query = query.order('created_at', { ascending: false }).range(from, to);
+  // Apply sorting
+  const sortColumn = filters.sort || StructureColumn.created_at;
+  const sortOrder = filters.order || Order.desc;
+  const ascending = sortOrder === Order.asc;
+
+  if (sortColumn === 'name') {
+    // Special handling for name sorting (uses name field directly)
+    query = query.order('name', { ascending });
+  } else {
+    // For other columns, use the column directly
+    query = query.order(sortColumn, { ascending });
+    // Add secondary sort by user_id for consistency
+    query = query.order(StructureColumn.user_id, { ascending });
+  }
+
+  query = query.range(from, to);
 
   const { count, data, error } = await query;
 
