@@ -76,7 +76,7 @@ export default function AdminMissionDetailsPage() {
   }
 
   return (
-    <div className='min-h-screen space-y-6 overflow-hidden bg-blue-50/30 p-8'>
+    <div className='min-h-full space-y-6 overflow-hidden bg-blue-50/30 p-8'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
@@ -209,7 +209,7 @@ export default function AdminMissionDetailsPage() {
         </Card>
 
         {/* Additional Information */}
-        <Card className='lg:col-span-2'>
+        <Card className='mb-24 md:mb-0 lg:col-span-2'>
           <CardHeader>
             <CardTitle>{t('additionalInformation')}</CardTitle>
           </CardHeader>

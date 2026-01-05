@@ -48,7 +48,12 @@ export default async function ProfessionalsPage({
       </div>
 
       {/* Table */}
-      <ProfessionalsTableWrapper locale={locale} translations={translations} />
+      <div className='min-w-0 overflow-x-auto'>
+        <ProfessionalsTableWrapper
+          locale={locale}
+          translations={translations}
+        />
+      </div>
     </div>
   );
 }
