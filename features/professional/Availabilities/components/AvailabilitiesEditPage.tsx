@@ -74,6 +74,7 @@ export default function AvailabilitiesEditPage({
   const [schedule, setSchedule] = useState<Record<string, DaySchedule>>();
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [slotErrors, setSlotErrors] = useState<
     Record<string, Record<number, null | string>>
   >({});
@@ -351,6 +352,7 @@ export default function AvailabilitiesEditPage({
       return;
     }
 
+    setIsDeleting(true);
     try {
       // Check if it's a single availability (daily with COUNT=1)
       const isSingleAvailability =
@@ -428,6 +430,7 @@ export default function AvailabilitiesEditPage({
       console.error('Error deleting slot:', error);
       toast.error(tAvailabilities('deleteError'));
     } finally {
+      setIsDeleting(false);
       setDeleteConfirmation(null);
     }
   };
@@ -709,6 +712,7 @@ export default function AvailabilitiesEditPage({
           </DialogHeader>
           <DialogFooter>
             <Button
+              disabled={isDeleting}
               onClick={() => setDeleteConfirmation(null)}
               type='button'
               variant='outline'
@@ -716,7 +720,8 @@ export default function AvailabilitiesEditPage({
               {tCommon('actions.cancel')}
             </Button>
             <Button
-              className='bg-red-600 text-white hover:bg-red-700'
+              className='bg-red-600 text-white hover:bg-red-700 disabled:opacity-50'
+              disabled={isDeleting}
               onClick={handleConfirmDelete}
               type='button'
             >
