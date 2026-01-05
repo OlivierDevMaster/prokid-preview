@@ -49,10 +49,12 @@ export default async function MissionsPage({
       </div>
 
       {/* Table */}
-      <MissionsTableWrapper
-        locale={locale as 'en' | 'fr'}
-        translations={translations}
-      />
+      <div className='min-w-0 overflow-x-auto'>
+        <MissionsTableWrapper
+          locale={locale as 'en' | 'fr'}
+          translations={translations}
+        />
+      </div>
     </div>
   );
 }
