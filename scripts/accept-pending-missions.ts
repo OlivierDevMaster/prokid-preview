@@ -14,6 +14,9 @@ import {
  * This script replicates the logic from acceptMissionHandler but without
  * authentication checks, since it's run as a post-seed operation.
  *
+ * IMPORTANT: This script excludes the last 2 pending missions per professional
+ * to keep them pending for manual testing (accept/decline).
+ *
  * Usage:
  *   npm run db:accept-pending-missions
  *   OR: npx dotenvx run -- tsx scripts/accept-pending-missions.ts
@@ -72,12 +75,58 @@ async function acceptPendingMissions() {
     return;
   }
 
-  console.log(`📋 Found ${missions.length} pending mission(s) to accept\n`);
+  // Group missions by professional_id and exclude the last 2 per professional
+  // (These are kept pending for manual testing)
+  const missionsByProfessional = new Map<
+    string,
+    Array<(typeof missions)[0]>
+  >();
+
+  for (const mission of missions) {
+    const professionalId = mission.professional_id;
+    if (!missionsByProfessional.has(professionalId)) {
+      missionsByProfessional.set(professionalId, []);
+    }
+    missionsByProfessional.get(professionalId)!.push(mission);
+  }
+
+  // For each professional, sort by mission_dtstart (ascending) and exclude last 2
+  const missionsToAccept: Array<(typeof missions)[0]> = [];
+  const missionsToKeepPending: Array<(typeof missions)[0]> = [];
+
+  for (const [professionalId, professionalMissions] of missionsByProfessional) {
+    // Sort by mission_dtstart (ascending) - most recent at the end
+    const sorted = [...professionalMissions].sort(
+      (a, b) =>
+        new Date(a.mission_dtstart).getTime() -
+        new Date(b.mission_dtstart).getTime()
+    );
+
+    // Keep last 2 pending, accept the rest
+    const toKeepPending = sorted.slice(-2);
+    const toAccept = sorted.slice(0, -2);
+
+    missionsToAccept.push(...toAccept);
+    missionsToKeepPending.push(...toKeepPending);
+  }
+
+  console.log(
+    `📋 Found ${missions.length} pending mission(s) total:`
+  );
+  console.log(`   ✅ Will accept: ${missionsToAccept.length}`);
+  console.log(
+    `   ⏸️  Will keep pending (for testing): ${missionsToKeepPending.length}\n`
+  );
+
+  if (missionsToAccept.length === 0) {
+    console.log('✅ No missions to accept (all are kept pending for testing).');
+    return;
+  }
 
   let acceptedCount = 0;
   let errorCount = 0;
 
-  for (const mission of missions) {
+  for (const mission of missionsToAccept) {
     try {
       console.log(`🎯 Processing mission ${mission.id}...`);
 
@@ -194,7 +243,10 @@ async function acceptPendingMissions() {
   console.log(`\n📊 Summary:`);
   console.log(`   ✅ Accepted: ${acceptedCount}`);
   console.log(`   ❌ Errors: ${errorCount}`);
-  console.log(`   📋 Total: ${missions.length}`);
+  console.log(`   📋 Processed: ${missionsToAccept.length}`);
+  console.log(
+    `   ⏸️  Kept pending (for testing): ${missionsToKeepPending.length}`
+  );
 }
 
 acceptPendingMissions()
