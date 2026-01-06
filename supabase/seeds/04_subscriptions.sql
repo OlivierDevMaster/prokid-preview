@@ -19,17 +19,7 @@ DECLARE
     '08fb0a72-ee9b-4771-bf24-7fe19c869ae8'::uuid,
     '08fb0a72-ee9b-4771-bf24-7fe19c869ae9'::uuid,
     '08fb0a72-ee9b-4771-bf24-7fe19c869aea'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869aeb'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869aec'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869aed'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869aee'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869aef'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af0'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af1'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af2'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af3'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af4'::uuid,
-    '08fb0a72-ee9b-4771-bf24-7fe19c869af5'::uuid
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aeb'::uuid
   ];
   prof_id UUID;
   sub_id TEXT;

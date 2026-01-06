@@ -7,7 +7,7 @@ UPDATE public.profiles
 SET is_onboarded = TRUE
 WHERE role = 'structure'::public.role
   AND user_id >= '08fb0a72-ee9b-4771-bf24-7fe19c869af9'::uuid
-  AND user_id <= '08fb0a72-ee9b-4771-bf24-7fe19c869b02'::uuid;
+  AND user_id <= '08fb0a72-ee9b-4771-bf24-7fe19c869afd'::uuid;
 
 -- Insert structure profiles
 INSERT INTO public.structures (
@@ -38,30 +38,5 @@ INSERT INTO public.structures (
 (
   '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
   'Butterfly Daycare',
-  NULL
-),
-(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869afe',
-  'Wonderland Childcare',
-  NULL
-),
-(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869aff',
-  'Little Explorers Academy',
-  NULL
-),
-(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869b00',
-  'Bright Future Daycare',
-  NULL
-),
-(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869b01',
-  'Tiny Tots Nursery',
-  NULL
-),
-(
-  '08fb0a72-ee9b-4771-bf24-7fe19c869b02',
-  'Growing Minds Center',
   NULL
 ) ON CONFLICT (user_id) DO NOTHING;
