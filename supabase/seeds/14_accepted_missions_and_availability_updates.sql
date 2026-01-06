@@ -222,3 +222,253 @@ WHERE NOT EXISTS (
     AND a2.duration_mn = 180
     AND a2.rrule LIKE '%DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || '%'
 );
+
+-- ============================================================================
+-- Additional Friday missions that need availability updates
+-- ============================================================================
+
+-- Professional 015 (Lucie Moreau - ae7) - Friday Morning Session at 10am
+-- This mission starts in the middle of her Friday 9am-1pm availability
+-- Need to: 1) Delete original availability that overlaps, 2) Create "before mission" part (9am-10am), 3) Create post-mission
+-- Note: We delete the original because UNTIL doesn't truncate an in-progress occurrence
+-- Delete any Friday 9am availability with 240 min duration that could overlap
+-- (Delete regardless of mission status since missions may be accepted later)
+DELETE FROM public.availabilities a
+WHERE a.user_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+  AND a.rrule LIKE '%BYDAY=FR%'
+  AND a.rrule LIKE '%T090000Z%'
+  AND a.duration_mn = 240
+  AND (
+    a.rrule NOT LIKE '%UNTIL=%'
+    OR a.rrule LIKE '%UNTIL=20260109T095959Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T100000Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T09%'
+  );
+
+-- Create "before mission" part for Lucie Moreau (9am-10am during mission period)
+WITH mission_info AS (
+  SELECT
+    m.mission_dtstart,
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Morning Session'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 10
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(mission_dtstart, 'YYYYMMDD') || 'T090000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY;UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T090000Z',
+  60,
+  professional_id
+FROM mission_info
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mission_info.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T090000Z%'
+    AND a2.duration_mn = 60
+    AND a2.rrule LIKE '%UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T090000Z%'
+);
+
+-- Create post-mission availability for Lucie Moreau (Friday 9am-1pm, starting after mission ends)
+WITH mission_info AS (
+  SELECT
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Morning Session'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 10
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+),
+post_mission_start AS (
+  SELECT (DATE(mission_until) + INTERVAL '7 days' + INTERVAL '9 hours')::TIMESTAMP WITH TIME ZONE AS start_time
+  FROM mission_info
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || 'T090000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  mi.professional_id
+FROM post_mission_start pms
+CROSS JOIN mission_info mi
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mi.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T090000Z%'
+    AND a2.duration_mn = 240
+    AND a2.rrule LIKE '%DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || '%'
+);
+
+-- Professional 012 (Pierre Dupont - ae4) - Friday Midday Consultation at 12pm
+-- This mission starts in the middle of his Friday 11am-3pm availability
+-- Need to: 1) Delete original availability that overlaps, 2) Create "before mission" part (11am-12pm), 3) Create post-mission
+-- Note: We delete the original because UNTIL doesn't truncate an in-progress occurrence
+-- Delete any Friday 11am availability with 240 min duration that could overlap
+-- (Delete regardless of mission status since missions may be accepted later)
+DELETE FROM public.availabilities a
+WHERE a.user_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+  AND a.rrule LIKE '%BYDAY=FR%'
+  AND a.rrule LIKE '%T110000Z%'
+  AND a.duration_mn = 240
+  AND (
+    a.rrule NOT LIKE '%UNTIL=%'
+    OR a.rrule LIKE '%UNTIL=20260109T115959Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T120000Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T11%'
+  );
+
+-- Create "before mission" part for Pierre Dupont (11am-12pm during mission period)
+WITH mission_info AS (
+  SELECT
+    m.mission_dtstart,
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Midday Consultation'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 12
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(mission_dtstart, 'YYYYMMDD') || 'T110000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY;UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T110000Z',
+  60,
+  professional_id
+FROM mission_info
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mission_info.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T110000Z%'
+    AND a2.duration_mn = 60
+    AND a2.rrule LIKE '%UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T110000Z%'
+);
+
+-- Create post-mission availability for Pierre Dupont (Friday 11am-3pm, starting after mission ends)
+WITH mission_info AS (
+  SELECT
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Midday Consultation'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 12
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+),
+post_mission_start AS (
+  SELECT (DATE(mission_until) + INTERVAL '7 days' + INTERVAL '11 hours')::TIMESTAMP WITH TIME ZONE AS start_time
+  FROM mission_info
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || 'T110000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  mi.professional_id
+FROM post_mission_start pms
+CROSS JOIN mission_info mi
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mi.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T110000Z%'
+    AND a2.duration_mn = 240
+    AND a2.rrule LIKE '%DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || '%'
+);
+
+-- Professional 013 (Sophie Bernard - ae5) - Friday Afternoon Care at 2pm
+-- This mission starts in the middle of her Friday 1pm-5pm availability
+-- Need to: 1) Delete original availability that overlaps, 2) Create "before mission" part (1pm-2pm), 3) Create post-mission
+-- Note: We delete the original because UNTIL doesn't truncate an in-progress occurrence
+-- Delete any Friday 1pm availability with 240 min duration that could overlap
+-- (Delete regardless of mission status since missions may be accepted later)
+DELETE FROM public.availabilities a
+WHERE a.user_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+  AND a.rrule LIKE '%BYDAY=FR%'
+  AND a.rrule LIKE '%T130000Z%'
+  AND a.duration_mn = 240
+  AND (
+    a.rrule NOT LIKE '%UNTIL=%'
+    OR a.rrule LIKE '%UNTIL=20260109T135959Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T140000Z%'
+    OR a.rrule LIKE '%UNTIL=20260109T13%'
+  );
+
+-- Create "before mission" part for Sophie Bernard (1pm-2pm during mission period)
+WITH mission_info AS (
+  SELECT
+    m.mission_dtstart,
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Afternoon Care'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 14
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(mission_dtstart, 'YYYYMMDD') || 'T130000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY;UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T130000Z',
+  60,
+  professional_id
+FROM mission_info
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mission_info.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T130000Z%'
+    AND a2.duration_mn = 60
+    AND a2.rrule LIKE '%UNTIL=' || TO_CHAR(mission_until, 'YYYYMMDD') || 'T130000Z%'
+);
+
+-- Create post-mission availability for Sophie Bernard (Friday 1pm-5pm, starting after mission ends)
+WITH mission_info AS (
+  SELECT
+    m.mission_until,
+    m.professional_id
+  FROM public.missions m
+  WHERE m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+    AND m.status = 'accepted'
+    AND m.title = 'Friday Afternoon Care'
+    AND EXTRACT(HOUR FROM m.mission_dtstart) = 14
+  ORDER BY m.mission_dtstart
+  LIMIT 1
+),
+post_mission_start AS (
+  SELECT (DATE(mission_until) + INTERVAL '7 days' + INTERVAL '13 hours')::TIMESTAMP WITH TIME ZONE AS start_time
+  FROM mission_info
+)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || 'T130000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  mi.professional_id
+FROM post_mission_start pms
+CROSS JOIN mission_info mi
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.availabilities a2
+  WHERE a2.user_id = mi.professional_id
+    AND a2.rrule LIKE '%BYDAY=FR%'
+    AND a2.rrule LIKE '%T130000Z%'
+    AND a2.duration_mn = 240
+    AND a2.rrule LIKE '%DTSTART:' || TO_CHAR(start_time, 'YYYYMMDD') || '%'
+);
