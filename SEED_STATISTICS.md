@@ -4,80 +4,77 @@ This document provides an overview of the data created by the seed files.
 
 ## Users
 
-- **Total Users**: 31
+- **Total Users**: 16
   - **Admin Users**: 1
-  - **Professional Users**: 20
-  - **Structure Users**: 10
+  - **Professional Users**: 10
+  - **Structure Users**: 5
 
 ## Profiles
 
-- **Total Profiles**: 31
+- **Total Profiles**: 16
   - **Admin Profiles**: 1 (manually created)
-  - **Professional Profiles**: 20 (auto-created by trigger)
-  - **Structure Profiles**: 10 (auto-created by trigger)
+  - **Professional Profiles**: 10 (auto-created by trigger)
+  - **Structure Profiles**: 5 (auto-created by trigger)
 
 ## Professionals
 
-- **Total Professionals**: 20
+- **Total Professionals**: 10
 
 ## Structures
 
-- **Total Structures**: 10
+- **Total Structures**: 5
 
 ## Subscriptions
 
-- **Total Subscriptions**: 20
+- **Total Subscriptions**: 10
   - One subscription per professional
   - 5 subscriptions with `trialing` status
-  - 15 subscriptions with `active` status
+  - 5 subscriptions with `active` status
 
 ## Availabilities
 
-- **Total Availabilities**: 52
-  - Created for 11 professionals (out of 20)
-  - Mix of recurring and one-time availabilities
+- **Total Availabilities**: 15
+  - Created for 5 professionals (out of 10)
+  - 3 recurring availabilities per professional
+  - Simplified patterns to avoid overlaps
 
 ## Structure Invitations
 
-- **Total Invitations**: 140
-  - Each structure invites 14 professionals
-  - 10 structures × 14 professionals = 140 invitations
-  - Status breakdown:
-    - Accepted: Variable (each professional accepts 3-5 invitations)
-    - Declined: Variable (each professional declines 2-3 invitations)
-    - Pending: Remaining invitations
+- **Total Invitations**: 10
+  - Only professionals with availabilities (ae2-ae6) receive invitations
+  - Each professional receives 1-2 invitations
+  - All invitations are accepted
 
 ## Structure Memberships
 
-- **Total Memberships**: Variable
+- **Total Memberships**: 10
   - Created automatically via trigger when invitations are accepted
-  - Each professional has 3-5 active memberships
+  - Each professional has 1-2 active memberships
 
 ## Missions
 
-- **Total Missions**: 152
-  - Created for 14 professionals across multiple structures
-  - Various statuses: `pending`, `accepted`, `declined`, `cancelled`
+- **Total Missions**: ~20
+  - Created for 5 professionals across 5 structures
+  - Focus on `pending` status to avoid overlaps
+  - Missions are distributed across week 0 and week 1
 
 ## Reports
 
-- **Total Reports**: 22
-  - Created by professionals for their missions
-  - Status breakdown:
-    - `sent`: Variable
-    - `draft`: Variable
+- **Total Reports**: 5
+  - One report per professional
+  - Mix of `sent` and `draft` statuses
 
 ## Report Attachments
 
-- **Total Attachments**: 21
+- **Total Attachments**: 4
   - Attached to various reports
-  - Multiple file types: PDF, images, videos, documents
+  - Multiple file types: PDF, images, videos
 
 ## Professional Ratings
 
-- **Total Ratings**: 52
+- **Total Ratings**: 8
   - Created by structures for their professional members
-  - Ratings range from 1 to 5 stars
+  - Ratings range from 4 to 5 stars
   - Automatically syncs to `professionals.rating` and `professionals.reviews_count` via trigger
 
 ## Newsletter Subscriptions
@@ -91,5 +88,4 @@ This document provides an overview of the data created by the seed files.
 
 ---
 
-*Note: Some counts may vary based on trigger behavior and data dependencies between seed files.*
-
+*Note: Seed data has been significantly reduced to avoid overlaps between availabilities and accepted missions. The data is now focused on 5 professionals with availabilities and simplified mission schedules.*

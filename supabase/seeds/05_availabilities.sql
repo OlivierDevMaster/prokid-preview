@@ -6,79 +6,29 @@
 
 
 -- Professional 010 (John Doe) - Therapist with morning and afternoon sessions
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 9, 180, ARRAY[15, 22]); -- Monday 9am-12pm (180 min), not available on specific Mondays
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 14, 240); -- Monday 2pm-6pm (240 min) weekly
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 2, 8, 240, ARRAY[16]); -- Tuesday 8am-12pm (240 min)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 9, 180); -- Monday 9am-12pm (180 min)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 14, 240); -- Monday 2pm-6pm (240 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 3, 10, 360); -- Wednesday 10am-4pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 5, 9, 480); -- Friday 9am-5pm (480 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 10, 10, 300); -- Special Saturday session (300 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 20, 6, 180); -- Special Monday morning session (180 min) - moved to 6am-9am to avoid overlap
 
 -- Professional 011 (Marie Martin) - Doctor with regular hours
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 1, 8, 300); -- Monday 8am-1pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 2, 14, 240, ARRAY[9, 23]); -- Tuesday 2pm-6pm (240 min)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 2, 14, 240); -- Tuesday 2pm-6pm (240 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 4, 9, 360); -- Thursday 9am-3pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 6, 10, 360); -- Saturday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 12, 15, 240); -- Special Thursday afternoon (240 min) - moved to 3pm-7pm to avoid overlap
 
 -- Professional 012 (Pierre Dupont) - Consultant with flexible hours
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 1, 13, 240); -- Monday 1pm-5pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 3, 9, 180, ARRAY[17]); -- Wednesday 9am-12pm (180 min)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 3, 9, 180); -- Wednesday 9am-12pm (180 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 3, 14, 240); -- Wednesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 7, 8, 480, ARRAY[14, 21]); -- Sunday 8am-4pm (480 min, some Sundays off)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 11, 10, 360); -- Special Tuesday (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 18, 12, 180); -- Special Wednesday (180 min) - moved to 12pm-3pm to avoid overlap
 
 -- Professional 013 (Sophie Bernard) - Part-time availability
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 1, 9, 360, ARRAY[8]); -- Monday 9am-3pm (360 min, except one Monday)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 1, 9, 360); -- Monday 9am-3pm (360 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 2, 10, 360); -- Tuesday 10am-4pm (360 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 4, 8, 300); -- Thursday 8am-1pm (300 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 13, 15, 240); -- Special Monday afternoon (240 min) - moved to 3pm-7pm to avoid overlap
 
 -- Professional 014 (Thomas Leroy) - Evening specialist
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 2, 14, 240); -- Tuesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 3, 9, 480, ARRAY[10, 24]); -- Wednesday 9am-5pm (480 min)
+SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 3, 9, 480); -- Wednesday 9am-5pm (480 min)
 SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 5, 10, 360); -- Friday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 14, 8, 300); -- Special Tuesday morning (300 min) - moved to 8am-1pm to avoid overlap
-
--- Continue with other professionals...
--- Professional 015 (Lucie Moreau)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 1, 8, 240); -- Monday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 3, 13, 300, ARRAY[17]); -- Wednesday 1pm-6pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 6, 9, 360); -- Saturday 9am-3pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 15, 15, 360); -- Special Saturday afternoon (360 min) - moved to 3pm-9pm to avoid overlap
-
--- Professional 016 (Antoine Petit)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 2, 10, 240, ARRAY[16]); -- Tuesday 10am-2pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 4, 8, 480); -- Thursday 8am-4pm (480 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 5, 11, 360); -- Friday 11am-5pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 19, 16, 240); -- Special Thursday afternoon (240 min) - moved to 4pm-8pm to avoid overlap
-
--- Professional 017 (Camille Laurent)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 1, 9, 240); -- Monday 9am-1pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 2, 14, 240, ARRAY[9, 23]); -- Tuesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 4, 8, 240); -- Thursday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 7, 10, 360); -- Sunday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 21, 13, 300); -- Special Monday afternoon (300 min) - moved to 1pm-6pm to avoid overlap
-
--- Professional 018 (Julien Simon)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 1, 13, 240, ARRAY[8]); -- Monday 1pm-5pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 3, 9, 360); -- Wednesday 9am-3pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 5, 10, 360); -- Friday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 16, 15, 420); -- Special Wednesday afternoon (420 min) - moved to 3pm-10pm to avoid overlap
-
--- Professional 019 (Emilie Michel)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 2, 8, 300); -- Tuesday 8am-1pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 4, 14, 240, ARRAY[11, 25]); -- Thursday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 6, 9, 480); -- Saturday 9am-5pm (480 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 22, 17, 360); -- Special Saturday evening (360 min) - moved to 5pm-11pm to avoid overlap
-
--- Professional 01a (Nicolas Garcia)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 1, 10, 240, ARRAY[15]); -- Monday 10am-2pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 3, 8, 240); -- Wednesday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 5, 13, 240); -- Friday 1pm-5pm (240 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 17, 11, 240); -- Special Wednesday (240 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 24, 8, 180); -- Special Monday morning (180 min) - moved to 8am-11am to avoid overlap
 
 -- Clean up temporary functions if desired (optional)
 -- DROP FUNCTION public.seeds_create_recurring_availability;
