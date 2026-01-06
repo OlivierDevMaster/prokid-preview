@@ -839,3 +839,406 @@ CROSS JOIN LATERAL (
     AND title = 'Friday Midday Session'
   ORDER BY created_at DESC LIMIT 1
 ) m;
+
+-- ============================================================================
+-- Additional missions for existing professionals using new Friday availabilities
+-- ============================================================================
+
+-- Professional 010 (John Doe) - From Structure 1 - Friday 8am-12pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae2',
+    'Friday Morning Session',
+    'Early morning care session',
+    'pending',
+    (next_friday + INTERVAL '8 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_friday + INTERVAL '8 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T080000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T080000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 011 (Marie Martin) - From Structure 1 - Friday 9am-1pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae3',
+    'Friday Morning Care',
+    'Friday morning childcare',
+    'pending',
+    (next_friday + INTERVAL '9 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_friday + INTERVAL '9 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T090000Z' || E'\n' ||
+  'RRULE:BYDAY=FR;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T090000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 014 (Thomas Leroy) - From Structure 5 - Thursday 2pm-6pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae6',
+    'Thursday Afternoon Care',
+    'Thursday afternoon session',
+    'pending',
+    (next_thursday + INTERVAL '14 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_thursday + INTERVAL '14 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T140000Z' || E'\n' ||
+  'RRULE:BYDAY=TH;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T140000Z',
+  240
+FROM mission_insert m;
+
+-- ============================================================================
+-- Missions for new professionals (ae7, ae8, ae9, aea, aeb)
+-- ============================================================================
+
+-- Professional 015 (Lucie Moreau - ae7) - From Structure 5
+-- Monday 7am-11am (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae7',
+    'Early Monday Morning',
+    'Early morning care session',
+    'pending',
+    (next_monday + INTERVAL '7 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_monday + INTERVAL '7 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T070000Z' || E'\n' ||
+  'RRULE:BYDAY=MO;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T070000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 015 (Lucie Moreau - ae7) - Wednesday 8am-12pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afd',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae7',
+    'Wednesday Morning Session',
+    'Wednesday morning care',
+    'pending',
+    (next_wednesday + INTERVAL '8 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_wednesday + INTERVAL '8 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T080000Z' || E'\n' ||
+  'RRULE:BYDAY=WE;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T080000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 016 (Antoine Petit - ae8) - From Structure 1
+-- Tuesday 1pm-5pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae8',
+    'Tuesday Afternoon Care',
+    'Afternoon childcare session',
+    'pending',
+    (next_tuesday + INTERVAL '13 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_tuesday + INTERVAL '13 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T130000Z' || E'\n' ||
+  'RRULE:BYDAY=TU;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T130000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 016 (Antoine Petit - ae8) - Thursday 1pm-5pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae8',
+    'Thursday Afternoon Session',
+    'Thursday afternoon care',
+    'pending',
+    (next_thursday + INTERVAL '13 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_thursday + INTERVAL '13 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T130000Z' || E'\n' ||
+  'RRULE:BYDAY=TH;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T130000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 017 (Camille Laurent - ae9) - From Structure 1
+-- Tuesday 8am-12pm (240 min), week 0 (using part of full day availability)
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae9',
+    'Tuesday Morning Care',
+    'Morning care session',
+    'pending',
+    (next_tuesday + INTERVAL '8 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_tuesday + INTERVAL '8 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T080000Z' || E'\n' ||
+  'RRULE:BYDAY=TU;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T080000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 017 (Camille Laurent - ae9) - Thursday 9am-1pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869ae9',
+    'Thursday Morning Session',
+    'Thursday morning care',
+    'pending',
+    (next_thursday + INTERVAL '9 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_thursday + INTERVAL '9 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T090000Z' || E'\n' ||
+  'RRULE:BYDAY=TH;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T090000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 018 (Julien Simon - aea) - From Structure 2
+-- Monday 10am-2pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afa',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aea',
+    'Monday Midday Care',
+    'Midday care session',
+    'pending',
+    (next_monday + INTERVAL '10 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_monday + INTERVAL '10 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T100000Z' || E'\n' ||
+  'RRULE:BYDAY=MO;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T100000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 018 (Julien Simon - aea) - Wednesday 11am-3pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afa',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aea',
+    'Wednesday Midday Session',
+    'Wednesday midday care',
+    'pending',
+    (next_wednesday + INTERVAL '11 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_wednesday + INTERVAL '11 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T110000Z' || E'\n' ||
+  'RRULE:BYDAY=WE;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T110000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 019 (Emilie Michel - aeb) - From Structure 3
+-- Saturday 9am-1pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (6 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((6 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_saturday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afb',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aeb',
+    'Saturday Morning Care',
+    'Weekend morning care session',
+    'pending',
+    (next_saturday + INTERVAL '9 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_saturday + INTERVAL '9 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T090000Z' || E'\n' ||
+  'RRULE:BYDAY=SA;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T090000Z',
+  240
+FROM mission_insert m;
+
+-- Professional 019 (Emilie Michel - aeb) - Sunday 10am-2pm (240 min), week 0
+WITH date_calc AS (
+  SELECT
+    CASE
+      WHEN (0 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((0 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_sunday
+),
+mission_insert AS (
+  INSERT INTO public.missions (structure_id, professional_id, title, description, status, mission_dtstart, mission_until)
+  SELECT
+    '08fb0a72-ee9b-4771-bf24-7fe19c869afb',
+    '08fb0a72-ee9b-4771-bf24-7fe19c869aeb',
+    'Sunday Morning Session',
+    'Sunday morning care',
+    'pending',
+    (next_sunday + INTERVAL '10 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_sunday + INTERVAL '10 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+  FROM date_calc
+  RETURNING id, mission_dtstart
+)
+INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
+SELECT
+  m.id,
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T100000Z' || E'\n' ||
+  'RRULE:BYDAY=SU;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T100000Z',
+  240
+FROM mission_insert m;
