@@ -96,8 +96,13 @@ export default function AvailabilitiesEditPage({
         const day = weekDays[index];
         const daySlots = groupedSlots.getSlotsByDay(day);
 
+        // Filter out reserved slots (slots with missions) - they cannot be edited
+        const editableSlots = daySlots.filter(
+          slot => slot.isAvailable || !slot.mission
+        );
+
         // Convert AvailabilitySlot[] to TimeSlot[]
-        const timeSlots: TimeSlot[] = daySlots.map(slot => {
+        const timeSlots: TimeSlot[] = editableSlots.map(slot => {
           const startDate = parseISO(slot.startAt);
           const endDate = parseISO(slot.endAt);
           const startTime = format(startDate, 'HH:mm');
