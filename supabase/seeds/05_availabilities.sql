@@ -1,86 +1,493 @@
 -- Seed: availabilities
 -- Purpose: Create availability entries for professionals using RRULE format
--- RRULE format: DTSTART:YYYYMMDDTHHMMSSZ\nRRULE:BYDAY=...;FREQ=WEEKLY\nEXDATE:YYYYMMDDTHHMMSSZ,...
+-- RRULE format: DTSTART:YYYYMMDDTHHMMSSZ\nRRULE:BYDAY=...;FREQ=WEEKLY
 -- Note: RRULE format uses newlines (not semicolons). Duration is stored separately in duration_mn column.
--- Note: seeds_get_rrule_day function converts day offset to RRULE day abbreviation
-
+-- Note: Hardcoded RRULEs with calculated dates to avoid overlaps
 
 -- Professional 010 (John Doe) - Therapist with morning and afternoon sessions
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 9, 180, ARRAY[15, 22]); -- Monday 9am-12pm (180 min), not available on specific Mondays
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 1, 14, 240); -- Monday 2pm-6pm (240 min) weekly
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 2, 8, 240, ARRAY[16]); -- Tuesday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 3, 10, 360); -- Wednesday 10am-4pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 5, 9, 480); -- Friday 9am-5pm (480 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 10, 10, 300); -- Special Saturday session (300 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae2', 20, 6, 180); -- Special Monday morning session (180 min) - moved to 6am-9am to avoid overlap
+-- Monday 9am-12pm (180 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  180,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae2'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Monday 2pm-6pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T140000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae2'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Wednesday 10am-4pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T100000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae2'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
 
 -- Professional 011 (Marie Martin) - Doctor with regular hours
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 1, 8, 300); -- Monday 8am-1pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 2, 14, 240, ARRAY[9, 23]); -- Tuesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 4, 9, 360); -- Thursday 9am-3pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 6, 10, 360); -- Saturday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae3', 12, 15, 240); -- Special Thursday afternoon (240 min) - moved to 3pm-7pm to avoid overlap
+-- Monday 8am-1pm (300 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T080000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  300,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Tuesday 2pm-6pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_tuesday, 'YYYYMMDD') || 'T140000Z' || E'\n' || 'RRULE:BYDAY=TU;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3'
+FROM (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+) t;
+
+-- Thursday 9am-3pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_thursday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=TH;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3'
+FROM (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+) th;
 
 -- Professional 012 (Pierre Dupont) - Consultant with flexible hours
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 1, 13, 240); -- Monday 1pm-5pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 3, 9, 180, ARRAY[17]); -- Wednesday 9am-12pm (180 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 3, 14, 240); -- Wednesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 7, 8, 480, ARRAY[14, 21]); -- Sunday 8am-4pm (480 min, some Sundays off)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 11, 10, 360); -- Special Tuesday (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae4', 18, 12, 180); -- Special Wednesday (180 min) - moved to 12pm-3pm to avoid overlap
+-- Monday 1pm-5pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T130000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Wednesday 9am-12pm (180 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  180,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
+
+-- Wednesday 2pm-6pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T140000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
 
 -- Professional 013 (Sophie Bernard) - Part-time availability
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 1, 9, 360, ARRAY[8]); -- Monday 9am-3pm (360 min, except one Monday)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 2, 10, 360); -- Tuesday 10am-4pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 4, 8, 300); -- Thursday 8am-1pm (300 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae5', 13, 15, 240); -- Special Monday afternoon (240 min) - moved to 3pm-7pm to avoid overlap
+-- Monday 9am-3pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Tuesday 10am-4pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_tuesday, 'YYYYMMDD') || 'T100000Z' || E'\n' || 'RRULE:BYDAY=TU;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+FROM (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+) t;
+
+-- Thursday 8am-1pm (300 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_thursday, 'YYYYMMDD') || 'T080000Z' || E'\n' || 'RRULE:BYDAY=TH;FREQ=WEEKLY',
+  300,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+FROM (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+) th;
 
 -- Professional 014 (Thomas Leroy) - Evening specialist
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 2, 14, 240); -- Tuesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 3, 9, 480, ARRAY[10, 24]); -- Wednesday 9am-5pm (480 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 5, 10, 360); -- Friday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae6', 14, 8, 300); -- Special Tuesday morning (300 min) - moved to 8am-1pm to avoid overlap
+-- Tuesday 2pm-6pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_tuesday, 'YYYYMMDD') || 'T140000Z' || E'\n' || 'RRULE:BYDAY=TU;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae6'
+FROM (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+) t;
 
--- Continue with other professionals...
--- Professional 015 (Lucie Moreau)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 1, 8, 240); -- Monday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 3, 13, 300, ARRAY[17]); -- Wednesday 1pm-6pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 6, 9, 360); -- Saturday 9am-3pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae7', 15, 15, 360); -- Special Saturday afternoon (360 min) - moved to 3pm-9pm to avoid overlap
+-- Wednesday 9am-5pm (480 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  480,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae6'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
 
--- Professional 016 (Antoine Petit)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 2, 10, 240, ARRAY[16]); -- Tuesday 10am-2pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 4, 8, 480); -- Thursday 8am-4pm (480 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 5, 11, 360); -- Friday 11am-5pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae8', 19, 16, 240); -- Special Thursday afternoon (240 min) - moved to 4pm-8pm to avoid overlap
+-- Friday 10am-4pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T100000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae6'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
 
--- Professional 017 (Camille Laurent)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 1, 9, 240); -- Monday 9am-1pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 2, 14, 240, ARRAY[9, 23]); -- Tuesday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 4, 8, 240); -- Thursday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 7, 10, 360); -- Sunday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869ae9', 21, 13, 300); -- Special Monday afternoon (300 min) - moved to 1pm-6pm to avoid overlap
+-- ============================================================================
+-- Additional availabilities for existing professionals (to provide more options)
+-- ============================================================================
 
--- Professional 018 (Julien Simon)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 1, 13, 240, ARRAY[8]); -- Monday 1pm-5pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 3, 9, 360); -- Wednesday 9am-3pm (360 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 5, 10, 360); -- Friday 10am-4pm (360 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aea', 16, 15, 420); -- Special Wednesday afternoon (420 min) - moved to 3pm-10pm to avoid overlap
+-- Professional 010 (John Doe) - Additional Friday availability
+-- Friday 8am-12pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T080000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae2'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
 
--- Professional 019 (Emilie Michel)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 2, 8, 300); -- Tuesday 8am-1pm (300 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 4, 14, 240, ARRAY[11, 25]); -- Thursday 2pm-6pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 6, 9, 480); -- Saturday 9am-5pm (480 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aeb', 22, 17, 360); -- Special Saturday evening (360 min) - moved to 5pm-11pm to avoid overlap
+-- Professional 011 (Marie Martin) - Additional Friday availability
+-- Friday 9am-1pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
 
--- Professional 01a (Nicolas Garcia)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 1, 10, 240, ARRAY[15]); -- Monday 10am-2pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 3, 8, 240); -- Wednesday 8am-12pm (240 min)
-SELECT public.seeds_create_recurring_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 5, 13, 240); -- Friday 1pm-5pm (240 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 17, 11, 240); -- Special Wednesday (240 min)
-SELECT public.seeds_create_onetime_availability('08fb0a72-ee9b-4771-bf24-7fe19c869aec', 24, 8, 180); -- Special Monday morning (180 min) - moved to 8am-11am to avoid overlap
+-- Professional 012 (Pierre Dupont) - Additional Friday availability
+-- Friday 11am-3pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T110000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae4'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
 
--- Clean up temporary functions if desired (optional)
--- DROP FUNCTION public.seeds_create_recurring_availability;
--- DROP FUNCTION public.seeds_create_onetime_availability;
--- DROP FUNCTION public.seeds_format_exdate;
+-- Professional 013 (Sophie Bernard) - Additional Friday availability
+-- Friday 1pm-5pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T130000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae5'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
+
+-- Professional 014 (Thomas Leroy) - Additional Thursday availability
+-- Thursday 2pm-6pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_thursday, 'YYYYMMDD') || 'T140000Z' || E'\n' || 'RRULE:BYDAY=TH;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae6'
+FROM (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+) th;
+
+-- ============================================================================
+-- New professionals without availabilities (ae7, ae8, ae9, aea, aeb)
+-- ============================================================================
+
+-- Professional 015 (Lucie Moreau - ae7) - Morning specialist
+-- Monday 7am-11am (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T070000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Wednesday 8am-12pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T080000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
+
+-- Friday 9am-1pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_friday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=FR;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae7'
+FROM (
+  SELECT
+    CASE
+      WHEN (5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((5 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_friday
+) f;
+
+-- Professional 016 (Antoine Petit - ae8) - Afternoon specialist
+-- Tuesday 1pm-5pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_tuesday, 'YYYYMMDD') || 'T130000Z' || E'\n' || 'RRULE:BYDAY=TU;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae8'
+FROM (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+) t;
+
+-- Thursday 1pm-5pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_thursday, 'YYYYMMDD') || 'T130000Z' || E'\n' || 'RRULE:BYDAY=TH;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae8'
+FROM (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+) th;
+
+-- Professional 017 (Camille Laurent - ae9) - Full day availability
+-- Tuesday 8am-4pm (480 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_tuesday, 'YYYYMMDD') || 'T080000Z' || E'\n' || 'RRULE:BYDAY=TU;FREQ=WEEKLY',
+  480,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae9'
+FROM (
+  SELECT
+    CASE
+      WHEN (2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((2 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_tuesday
+) t;
+
+-- Thursday 9am-3pm (360 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_thursday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=TH;FREQ=WEEKLY',
+  360,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869ae9'
+FROM (
+  SELECT
+    CASE
+      WHEN (4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((4 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_thursday
+) th;
+
+-- Professional 018 (Julien Simon - aea) - Flexible hours
+-- Monday 10am-2pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_monday, 'YYYYMMDD') || 'T100000Z' || E'\n' || 'RRULE:BYDAY=MO;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aea'
+FROM (
+  SELECT
+    CASE
+      WHEN (1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((1 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_monday
+) m;
+
+-- Wednesday 11am-3pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_wednesday, 'YYYYMMDD') || 'T110000Z' || E'\n' || 'RRULE:BYDAY=WE;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aea'
+FROM (
+  SELECT
+    CASE
+      WHEN (3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((3 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_wednesday
+) w;
+
+-- Professional 019 (Emilie Michel - aeb) - Weekend availability
+-- Saturday 9am-1pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_saturday, 'YYYYMMDD') || 'T090000Z' || E'\n' || 'RRULE:BYDAY=SA;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aeb'
+FROM (
+  SELECT
+    CASE
+      WHEN (6 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((6 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_saturday
+) sa;
+
+-- Sunday 10am-2pm (240 min)
+INSERT INTO public.availabilities (rrule, duration_mn, user_id)
+SELECT
+  'DTSTART:' || TO_CHAR(next_sunday, 'YYYYMMDD') || 'T100000Z' || E'\n' || 'RRULE:BYDAY=SU;FREQ=WEEKLY',
+  240,
+  '08fb0a72-ee9b-4771-bf24-7fe19c869aeb'
+FROM (
+  SELECT
+    CASE
+      WHEN (0 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7 = 0
+      THEN CURRENT_DATE + 7
+      ELSE CURRENT_DATE + ((0 - EXTRACT(DOW FROM CURRENT_DATE)::INTEGER + 7) % 7)::INTEGER
+    END AS next_sunday
+) su;
