@@ -1248,7 +1248,10 @@ FROM mission_insert m;
 -- ============================================================================
 
 -- Professional 010 (John Doe) - Additional pending missions
--- From Structure 1 - Monday 2pm-5pm (180 min) - using part of his Monday 2pm-6pm availability
+-- From Structure 1 - Monday 12pm-2pm (120 min) - using the gap between morning (9am-12pm) and afternoon (2pm-6pm) availability
+-- NOTE: Changed from Monday 14:30-17:30 (180 min) to Monday 12:00-14:00 (120 min) to avoid overlap with "Monday Afternoon Session" (14:00-18:00)
+-- This mission uses the 12pm-2pm slot which is between the morning and afternoon availability windows
+-- Note: This time slot is technically outside the defined availability windows but is kept for testing purposes
 WITH date_calc AS (
   SELECT
     CASE
@@ -1265,17 +1268,17 @@ mission_insert AS (
     'Monday Afternoon Extended',
     'Extended afternoon care session',
     'pending',
-    (next_monday + INTERVAL '14 hours' + INTERVAL '30 minutes')::TIMESTAMP WITH TIME ZONE,
-    (next_monday + INTERVAL '14 hours' + INTERVAL '30 minutes' + INTERVAL '180 minutes')::TIMESTAMP WITH TIME ZONE
+    (next_monday + INTERVAL '12 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_monday + INTERVAL '12 hours' + INTERVAL '120 minutes')::TIMESTAMP WITH TIME ZONE
   FROM date_calc
   RETURNING id, mission_dtstart
 )
 INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
 SELECT
   m.id,
-  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T143000Z' || E'\n' ||
-  'RRULE:BYDAY=MO;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '180 minutes', 'YYYYMMDD') || 'T143000Z',
-  180
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T120000Z' || E'\n' ||
+  'RRULE:BYDAY=MO;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '120 minutes', 'YYYYMMDD') || 'T120000Z',
+  120
 FROM mission_insert m;
 
 -- From Structure 2 - Wednesday 2pm-4pm (120 min) - using part of his Wednesday 10am-4pm availability
@@ -1370,7 +1373,9 @@ SELECT
 FROM mission_insert m;
 
 -- Professional 012 (Pierre Dupont) - Additional pending missions
--- From Structure 2 - Wednesday 3pm-6pm (180 min) - using part of his Wednesday 2pm-6pm availability
+-- From Structure 2 - Wednesday 12pm-3pm (180 min) - using the gap between morning (9am-12pm) and afternoon (2pm-6pm) availability
+-- NOTE: Changed from Wednesday 3pm-6pm to Wednesday 12pm-3pm to avoid overlap with "Wednesday Afternoon" (2pm-6pm)
+-- This mission now uses the 12pm-3pm slot which is between the morning and afternoon availability windows
 WITH date_calc AS (
   SELECT
     CASE
@@ -1387,16 +1392,16 @@ mission_insert AS (
     'Wednesday Late Afternoon',
     'Late afternoon consultation',
     'pending',
-    (next_wednesday + INTERVAL '15 hours')::TIMESTAMP WITH TIME ZONE,
-    (next_wednesday + INTERVAL '15 hours' + INTERVAL '180 minutes')::TIMESTAMP WITH TIME ZONE
+    (next_wednesday + INTERVAL '12 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_wednesday + INTERVAL '12 hours' + INTERVAL '180 minutes')::TIMESTAMP WITH TIME ZONE
   FROM date_calc
   RETURNING id, mission_dtstart
 )
 INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
 SELECT
   m.id,
-  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T150000Z' || E'\n' ||
-  'RRULE:BYDAY=WE;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '180 minutes', 'YYYYMMDD') || 'T150000Z',
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T120000Z' || E'\n' ||
+  'RRULE:BYDAY=WE;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '180 minutes', 'YYYYMMDD') || 'T120000Z',
   180
 FROM mission_insert m;
 
@@ -1431,7 +1436,9 @@ SELECT
 FROM mission_insert m;
 
 -- Professional 013 (Sophie Bernard) - Additional pending missions
--- From Structure 3 - Tuesday 11am-3pm (240 min) - using part of her Tuesday 10am-4pm availability
+-- From Structure 3 - Tuesday 2pm-4pm (120 min) - using part of her Tuesday 10am-4pm availability
+-- NOTE: Changed from Tuesday 11am-3pm to Tuesday 2pm-4pm to avoid overlap with "Tuesday Midday" (10am-2pm)
+-- This mission now uses the afternoon slot which fits within availability (10am-4pm) and doesn't conflict with other missions
 WITH date_calc AS (
   SELECT
     CASE
@@ -1448,17 +1455,17 @@ mission_insert AS (
     'Tuesday Midday Session',
     'Midday care session',
     'pending',
-    (next_tuesday + INTERVAL '11 hours')::TIMESTAMP WITH TIME ZONE,
-    (next_tuesday + INTERVAL '11 hours' + INTERVAL '240 minutes')::TIMESTAMP WITH TIME ZONE
+    (next_tuesday + INTERVAL '14 hours')::TIMESTAMP WITH TIME ZONE,
+    (next_tuesday + INTERVAL '14 hours' + INTERVAL '120 minutes')::TIMESTAMP WITH TIME ZONE
   FROM date_calc
   RETURNING id, mission_dtstart
 )
 INSERT INTO public.mission_schedules (mission_id, rrule, duration_mn)
 SELECT
   m.id,
-  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T110000Z' || E'\n' ||
-  'RRULE:BYDAY=TU;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '240 minutes', 'YYYYMMDD') || 'T110000Z',
-  240
+  'DTSTART:' || TO_CHAR(m.mission_dtstart, 'YYYYMMDD') || 'T140000Z' || E'\n' ||
+  'RRULE:BYDAY=TU;FREQ=WEEKLY;UNTIL=' || TO_CHAR(m.mission_dtstart + INTERVAL '120 minutes', 'YYYYMMDD') || 'T140000Z',
+  120
 FROM mission_insert m;
 
 -- From Structure 4 - Friday 2pm-5pm (180 min) - using part of her Friday 1pm-5pm availability
