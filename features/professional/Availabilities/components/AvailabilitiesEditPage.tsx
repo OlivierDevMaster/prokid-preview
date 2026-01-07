@@ -2,7 +2,6 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { addDays, format, parseISO, startOfWeek } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Clock, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
@@ -119,10 +118,7 @@ export default function AvailabilitiesEditPage({
         res[dayKey] = {
           enabled: timeSlots.length > 0,
           recurring: false,
-          slots:
-            timeSlots.length > 0
-              ? timeSlots
-              : [{ end: '17:00', start: '09:00' }],
+          slots: timeSlots.length > 0 ? timeSlots : [],
         };
       });
 
@@ -520,7 +516,7 @@ export default function AvailabilitiesEditPage({
           <DialogTitle>{tAvailabilities('modifyAvailabilities')}</DialogTitle>
           <DialogDescription>
             {tAvailabilities('weekOf')}{' '}
-            {mounted && format(weekStartDate, 'd MMMM yyyy', { locale: fr })}
+            {mounted && format(weekStartDate, 'd MMMM yyyy')}
           </DialogDescription>
         </DialogHeader>
 
@@ -549,7 +545,7 @@ export default function AvailabilitiesEditPage({
                         className='cursor-pointer text-lg font-bold text-gray-900'
                         htmlFor={dayKey}
                       >
-                        {dayLabel} ({format(day, 'd MMM', { locale: fr })})
+                        {dayLabel} ({format(day, 'd MMM')})
                       </Label>
                     </div>
                     {!daySchedule.enabled && (
