@@ -34,6 +34,29 @@ export const createStructureInvitation = async (
   return data;
 };
 
+export const createStructureInvitations = async (
+  body: {
+    professional_ids: string[];
+  } & Omit<CreateStructureInvitationRequestBody, 'professional_id'>
+): Promise<StructureInvitation[]> => {
+  const supabase = createClient();
+
+  const invitations = body.professional_ids.map(professional_id => ({
+    professional_id,
+    status: body.status ?? 'pending',
+    structure_id: body.structure_id,
+  }));
+
+  const { data, error } = await supabase
+    .from('structure_invitations')
+    .insert(invitations)
+    .select('*');
+
+  if (error) throw error;
+
+  return data ?? [];
+};
+
 export const findStructureInvitation = async (
   invitationId: string
 ): Promise<null | StructureInvitation> => {
