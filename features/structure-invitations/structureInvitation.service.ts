@@ -148,3 +148,73 @@ export const declineStructureInvitation = async (
     status: InvitationStatus.declined,
   });
 };
+
+export interface StructureInvitationWithStructure {
+  created_at: string;
+  id: string;
+  professional_id: string;
+  status: 'accepted' | 'declined' | 'pending';
+  structure: {
+    name: null | string;
+    profile: {
+      avatar_url: null | string;
+      email: string;
+    } | null;
+    user_id: string;
+  } | null;
+  structure_id: string;
+  updated_at: string;
+}
+
+export const findStructureInvitationsWithStructure = async (
+  filters: StructureInvitationFilters = {},
+  paginationOptions: PaginationOptions = {}
+): Promise<PaginationResult<StructureInvitationWithStructure>> => {
+  const supabase = createClient();
+
+  let query = supabase.from('structure_invitations').select(
+    `
+      *,
+      structure:structures(
+        user_id,
+        name,
+        profile:profiles(
+          avatar_url,
+          email
+        )
+      )
+    `,
+    { count: 'exact' }
+  );
+
+  if (filters.structure_id) {
+    query = query.eq('structure_id', filters.structure_id);
+  }
+
+  if (filters.professional_id) {
+    query = query.eq('professional_id', filters.professional_id);
+  }
+
+  if (filters.status) {
+    query = query.eq('status', filters.status);
+  }
+
+  const page = paginationOptions.page ?? StructureInvitationConfig.PAGE_DEFAULT;
+
+  const limit =
+    paginationOptions.limit ?? StructureInvitationConfig.PAGE_SIZE_DEFAULT;
+
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  query = query.order('created_at', { ascending: false }).range(from, to);
+
+  const { count, data, error } = await query;
+
+  if (error) throw error;
+
+  return {
+    count: count ?? 0,
+    data: (data ?? []) as StructureInvitationWithStructure[],
+  };
+};

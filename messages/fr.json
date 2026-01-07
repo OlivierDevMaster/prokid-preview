@@ -522,6 +522,23 @@
       "goToDashboard": "Retour au tableau de bord",
       "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
       "checkoutError": "Échec de la création de la session de paiement"
+    },
+    "invitations": {
+      "title": "Mes invitations",
+      "subtitle": "Gérez toutes vos invitations de structures",
+      "name": "Structure",
+      "status": "Statut",
+      "createdAt": "Date de création",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "actions": "Actions",
+      "noResults": "Aucune invitation trouvée",
+      "acceptSuccess": "Invitation acceptée avec succès",
+      "acceptError": "Échec de l'acceptation de l'invitation",
+      "declineSuccess": "Invitation refusée avec succès",
+      "declineError": "Échec du refus de l'invitation",
+      "description": "Description",
+      "noActions": "Aucune action disponible"
     }
   },
   "structure": {
@@ -725,12 +742,6 @@
       "mostActiveProfessional": "Professionnel le Plus Actif",
       "mostActiveProfessionalDescription": "Professionnel avec le plus grand nombre de missions",
       "missions": "missions"
-    },
-    "navigation": {
-      "dashboard": "Tableau de Bord",
-      "professionals": "Professionnels",
-      "structures": "Structures",
-      "missions": "Missions"
     },
     "missions": {
       "title": "Missions",
@@ -1157,11 +1168,12 @@
       "reports": "Mes Rapports",
       "structure": "Structure",
       "users": "Utilisateurs",
-      "professionals": "Professionnels",
-      "structures": "Structures",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de bord",
-      "missions": "Missions"
+      "dashboard": "Tableau de Bord",
+      "missions": "Missions",
+      "invitations": "Invitations",
+      "professionals": "Professionnels",
+      "structures": "Structures"
     },
     "notifications": {
       "title": "Notifications",
