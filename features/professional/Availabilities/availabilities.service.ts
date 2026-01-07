@@ -1,4 +1,4 @@
-import { differenceInDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { parseISO } from 'date-fns';
 import { RRule, RRuleSet, rrulestr } from 'rrule';
 
@@ -356,7 +356,6 @@ export async function saveWeekAvailabilities({
 
     // Create one-time availabilities for slots that don't match existing recurrences
     // Only process active (non-deleted) slots
-    const dayOffset = getDayOffsetFromToday(targetDate);
     for (const slot of activeSlots) {
       const startMinutes = parseTimeToMinutes(slot.start);
       const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
@@ -553,17 +552,51 @@ export async function saveWeekAvailabilities({
 
         // Only create if it doesn't already exist
         if (!existingRecurring) {
-          const hour = parseTimeToHour(slot.start);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { error } = await (supabase.rpc as any)(
-            'create_recurring_availability',
-            {
-              day_offset: dayOffset,
-              duration_minutes: durationMinutes,
-              hour,
-              user_id_param: userId,
-            }
-          );
+          // Create Date object with local time
+          const slotDate = new Date(targetDate);
+          const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
+          slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+          // Map day abbreviations to RRule constants
+          const rruleDayMap: Record<string, number> = {
+            FR: RRule.FR as unknown as number,
+            MO: RRule.MO as unknown as number,
+            SA: RRule.SA as unknown as number,
+            SU: RRule.SU as unknown as number,
+            TH: RRule.TH as unknown as number,
+            TU: RRule.TU as unknown as number,
+            WE: RRule.WE as unknown as number,
+          };
+
+          // Find the day abbreviation for the day of week
+          const dayAbbrev = Object.entries(dayMap).find(
+            ([, jsDay]) => jsDay === dayOfWeek
+          )?.[0];
+
+          if (!dayAbbrev) {
+            throw new Error(`Invalid day of week: ${dayOfWeek}`);
+          }
+
+          const rruleDay = rruleDayMap[dayAbbrev];
+          if (rruleDay === undefined) {
+            throw new Error(`Invalid day abbreviation: ${dayAbbrev}`);
+          }
+
+          // Create recurring rrule using RRule library
+          const newRule = new RRule({
+            byweekday: [rruleDay],
+            dtstart: slotDate,
+            freq: RRule.WEEKLY,
+          });
+
+          const rruleString = newRule.toString();
+
+          // Insert directly into database
+          const { error } = await supabase.from('availabilities').insert({
+            duration_mn: durationMinutes,
+            rrule: rruleString,
+            user_id: userId,
+          });
 
           if (error) {
             throw new Error(
@@ -657,17 +690,25 @@ export async function saveWeekAvailabilities({
 
         // Only create if it doesn't already exist
         if (!alreadyExists) {
-          const hour = parseTimeToHour(slot.start);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { error } = await (supabase.rpc as any)(
-            'create_onetime_availability',
-            {
-              day_offset: dayOffset,
-              duration_minutes: durationMinutes,
-              hour,
-              user_id_param: userId,
-            }
-          );
+          // Create Date object with local time (slotDate is already created above)
+          // slotDate is created at line 366-368 with setHours() using local time
+          // This ensures proper timezone conversion when RRule formats it
+
+          // Create one-time rrule using RRule library (DAILY with COUNT=1)
+          const newRule = new RRule({
+            count: 1,
+            dtstart: slotDate,
+            freq: RRule.DAILY,
+          });
+
+          const rruleString = newRule.toString();
+
+          // Insert directly into database
+          const { error } = await supabase.from('availabilities').insert({
+            duration_mn: durationMinutes,
+            rrule: rruleString,
+            user_id: userId,
+          });
 
           if (error) {
             throw new Error(
@@ -1065,20 +1106,6 @@ function calculateDurationMinutes(start: string, end: string): number {
   const endTotalMinutes = endHours * 60 + endMinutes;
 
   return endTotalMinutes - startTotalMinutes;
-}
-
-function getDayOffsetFromToday(targetDate: Date): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(targetDate);
-  target.setHours(0, 0, 0, 0);
-
-  return differenceInDays(target, today);
-}
-
-function parseTimeToHour(time: string): number {
-  const [hours] = time.split(':');
-  return parseInt(hours, 10);
 }
 
 function parseTimeToMinutes(time: string): number {

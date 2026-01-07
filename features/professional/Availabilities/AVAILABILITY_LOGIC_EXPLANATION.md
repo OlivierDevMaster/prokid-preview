@@ -126,8 +126,9 @@ If `slot.recurring === true` and `!matchesRecurring`:
    - Match by time (≤15 min difference) and duration
 
 2. **Create new recurring availability:**
-   - If no existing recurring found, call `create_recurring_availability` RPC
-   - Pass: `day_offset`, `duration_minutes`, `hour`, `user_id_param`
+   - If no existing recurring found, create using RRule library
+   - Create Date object with local time, use RRule to generate RRULE string
+   - Insert directly into database
    - Skip creating one-time availability (continue to next slot)
 
 #### Step 4: Handle One-Time Slots (Lines 538-631)
@@ -144,8 +145,9 @@ If `!matchesRecurring && !slotShouldBeRecurring`:
    - Compare date/time (≤15 min tolerance) and duration
 
 2. **Create one-time availability:**
-   - If doesn't exist, call `create_onetime_availability` RPC
-   - Pass: `day_offset`, `duration_minutes`, `hour`, `user_id_param`
+   - If doesn't exist, create using RRule library
+   - Create Date object with local time, use RRule to generate RRULE string (DAILY with COUNT=1)
+   - Insert directly into database
 
 ---
 
@@ -374,15 +376,21 @@ If `!matchesRecurring && !slotShouldBeRecurring`:
 - `rrulestr()`: Parses RRULE string to RRule/RRuleSet object
 - `format()` (date-fns): Formats date to string
 
-## Database RPC Functions Called
+## Availability Creation
 
-1. **`create_recurring_availability`**
-   - Parameters: `day_offset`, `duration_minutes`, `hour`, `user_id_param`
-   - Creates a weekly recurring availability
+Availabilities are now created using the RRule library directly in the application code:
 
-2. **`create_onetime_availability`**
-   - Parameters: `day_offset`, `duration_minutes`, `hour`, `user_id_param`
-   - Creates a one-time availability (COUNT=1)
+1. **Recurring availability:**
+   - Create Date object with local time using `setHours()`
+   - Use RRule library to generate RRULE string with proper UTC conversion
+   - Insert directly into database
+
+2. **One-time availability:**
+   - Create Date object with local time using `setHours()`
+   - Use RRule library to generate RRULE string (DAILY with COUNT=1)
+   - Insert directly into database
+
+**Note:** The database RPC functions `create_recurring_availability` and `create_onetime_availability` have been removed due to timezone issues. All availability creation now uses the RRule library in the service layer.
 
 ## Important Notes
 
