@@ -584,6 +584,8 @@
       "filterByStatus": "Filtrer par statut",
       "allStatuses": "Tous les statuts",
       "step": "Étape",
+      "step1Title": "Informations de la mission",
+      "step2Title": "Sélection des disponibilités",
       "next": "Suivant",
       "back": "Retour",
       "selectAvailabilities": "Sélectionner les disponibilités du professionnel",
