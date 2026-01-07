@@ -12,6 +12,9 @@ export const useAcceptStructureInvitation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['structure-invitation'] });
+      queryClient.invalidateQueries({
+        queryKey: ['structure-invitations-with-structure'],
+      });
       queryClient.invalidateQueries({ queryKey: ['structure-members'] });
       // Invalidate dashboard queries for structure
       queryClient.invalidateQueries({
