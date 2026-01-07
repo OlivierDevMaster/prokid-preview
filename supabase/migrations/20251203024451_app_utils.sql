@@ -1,6 +1,6 @@
 -- Migration: app_utils
 -- Purpose: Create utility functions for application operations
--- Affected objects: update_updated_at_column function, is_admin function, extract_rrule_dates function, get_vault_secret function, get_rrule_day function, create_recurring_availability function, create_onetime_availability function
+-- Affected objects: update_updated_at_column function, is_admin function, extract_rrule_dates function, get_vault_secret function, get_rrule_day function
 
 
 -- Helper function to get secret from vault
@@ -153,89 +153,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 COMMENT ON FUNCTION "public"."extract_rrule_dates"() IS 'Calls extract-rrule-dates Edge Function to extract DTSTART and UNTIL from RRULE string using rrule library. The Edge Function updates the record directly, so this trigger fires the request asynchronously.';
 
--- Function to create recurring availability with optional EXDATE
-CREATE OR REPLACE FUNCTION public.create_recurring_availability(
-  user_id_param UUID,
-  day_offset INTEGER,
-  hour INTEGER,
-  duration_minutes INTEGER,
-  exdate_offsets INTEGER[] DEFAULT NULL
-) RETURNS TEXT AS $$
-DECLARE
-  dtstart_text TEXT;
-  rrule_text TEXT;
-  exdate_text TEXT := '';
-  i INTEGER;
-  exdate_date DATE;
-  final_rrule TEXT;
-  target_dow INTEGER;
-  base_date DATE;
-BEGIN
-  -- Build DTSTART (newline-separated format)
-  dtstart_text := 'DTSTART:' ||
-                  TO_CHAR(CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL, 'YYYYMMDD') ||
-                  'T' || LPAD(hour::TEXT, 2, '0') || '0000Z';
+-- Drop deprecated availability creation functions (replaced by RRule library in application code)
+-- These functions had timezone issues and are no longer used
+DROP FUNCTION IF EXISTS public.create_recurring_availability(UUID, INTEGER, INTEGER, INTEGER, INTEGER[]);
+DROP FUNCTION IF EXISTS public.create_onetime_availability(UUID, INTEGER, INTEGER, INTEGER);
 
-  -- Build RRULE (newline-separated format)
-  rrule_text := E'\nRRULE:BYDAY=' || public.get_rrule_day(day_offset) || ';FREQ=WEEKLY';
-
-  -- Get the target day of week (0=Sunday, 1=Monday, etc.)
-  base_date := CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL;
-  target_dow := EXTRACT(DOW FROM base_date);
-
-  -- Add EXDATE if provided (newline-separated format)
-  IF exdate_offsets IS NOT NULL AND array_length(exdate_offsets, 1) > 0 THEN
-    exdate_text := E'\nEXDATE:';
-    FOR i IN 1..array_length(exdate_offsets, 1) LOOP
-      IF i > 1 THEN
-        exdate_text := exdate_text || ',';
-      END IF;
-      -- Start from the offset date
-      exdate_date := CURRENT_DATE + (exdate_offsets[i]::TEXT || ' days')::INTERVAL;
-      -- Find the next occurrence of the target day of week
-      WHILE EXTRACT(DOW FROM exdate_date) != target_dow LOOP
-        exdate_date := exdate_date + INTERVAL '1 day';
-      END LOOP;
-      exdate_text := exdate_text ||
-                    TO_CHAR(exdate_date, 'YYYYMMDD') ||
-                    'T' || LPAD(hour::TEXT, 2, '0') || '0000Z';
-    END LOOP;
-  END IF;
-
-  -- Combine all parts (newline-separated format)
-  final_rrule := dtstart_text || rrule_text || exdate_text;
-
-  -- Insert the availability
-  INSERT INTO public.availabilities (rrule, duration_mn, user_id)
-  VALUES (final_rrule, duration_minutes, user_id_param);
-
-  RETURN 'Created availability for user ' || user_id_param;
-END;
-$$ LANGUAGE plpgsql SET search_path = '';
-
-COMMENT ON FUNCTION public.create_recurring_availability(UUID, INTEGER, INTEGER, INTEGER, INTEGER[]) IS 'Creates a recurring weekly availability for a user. day_offset is days from today, hour is 0-23, duration_minutes is the slot duration, and exdate_offsets is an optional array of day offsets to exclude from the recurrence.';
-
--- Function to create one-time availability
-CREATE OR REPLACE FUNCTION public.create_onetime_availability(
-  user_id_param UUID,
-  day_offset INTEGER,
-  hour INTEGER,
-  duration_minutes INTEGER
-) RETURNS TEXT AS $$
-DECLARE
-  rrule_text TEXT;
-BEGIN
-  -- Build RRULE for one-time event (newline-separated format)
-  rrule_text := 'DTSTART:' ||
-                TO_CHAR(CURRENT_DATE + (day_offset::TEXT || ' days')::INTERVAL, 'YYYYMMDD') ||
-                'T' || LPAD(hour::TEXT, 2, '0') || '0000Z' ||
-                E'\nRRULE:COUNT=1;FREQ=DAILY';
-
-  INSERT INTO public.availabilities (rrule, duration_mn, user_id)
-  VALUES (rrule_text, duration_minutes, user_id_param);
-
-  RETURN 'Created one-time availability for user ' || user_id_param;
-END;
-$$ LANGUAGE plpgsql SET search_path = '';
-
-COMMENT ON FUNCTION public.create_onetime_availability(UUID, INTEGER, INTEGER, INTEGER) IS 'Creates a one-time availability for a user. day_offset is days from today, hour is 0-23, and duration_minutes is the slot duration.';
