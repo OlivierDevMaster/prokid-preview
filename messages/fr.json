@@ -642,7 +642,9 @@
       "back": "Retour",
       "cancel": "Annuler",
       "sendInvitation": "Envoyer l'invitation",
+      "sendInvitations": "Envoyer {count} invitation(s)",
       "sending": "Envoi en cours...",
+      "selected": "{count} sélectionné(s)",
       "search": {
         "label": "Rechercher un professionnel",
         "placeholder": "Rechercher par nom, email ou description...",
@@ -651,10 +653,11 @@
         "results": "{count} professionnel(s) trouvé(s)"
       },
       "success": {
-        "invitationSent": "Invitation envoyée avec succès !"
+        "invitationSent": "Invitation envoyée avec succès !",
+        "invitationsSent": "{count} invitation(s) envoyée(s) avec succès !"
       },
       "errors": {
-        "selectProfessional": "Veuillez sélectionner un professionnel à inviter",
+        "selectProfessional": "Veuillez sélectionner au moins un professionnel à inviter",
         "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
       }
     },
