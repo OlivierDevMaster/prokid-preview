@@ -1048,11 +1048,23 @@ async function addExdateForDay(
   rrule: string
 ): Promise<void> {
   // Extract hour from DTSTART
-  const dtstartMatch = rrule.match(/DTSTART:(\d{8})T(\d{2})(\d{2})/);
-  if (!dtstartMatch) return;
+  let rule = rrulestr(rrule);
 
-  const hour = parseInt(dtstartMatch[2], 10);
-  const minute = parseInt(dtstartMatch[3], 10);
+  if (rule instanceof RRuleSet) {
+    const rules = rule.rrules();
+    if (rules.length === 0) {
+      throw new Error('RRULESet has no rules');
+    }
+    rule = rules[0];
+  }
+
+  const dtstart = rule.options.dtstart;
+  if (!dtstart) {
+    throw new Error('DTSTART not found in RRULE');
+  }
+
+  const hour = dtstart.getUTCHours();
+  const minute = dtstart.getUTCMinutes();
 
   // Create date with the same hour as the recurring availability
   const dateToExclude = new Date(date);
