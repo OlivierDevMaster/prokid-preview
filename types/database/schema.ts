@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -976,25 +971,6 @@ export type Database = {
         Returns: boolean
       }
       cleanup_ended_mission_reminders: { Args: never; Returns: number }
-      create_onetime_availability: {
-        Args: {
-          day_offset: number
-          duration_minutes: number
-          hour: number
-          user_id_param: string
-        }
-        Returns: string
-      }
-      create_recurring_availability: {
-        Args: {
-          day_offset: number
-          duration_minutes: number
-          exdate_offsets?: number[]
-          hour: number
-          user_id_param: string
-        }
-        Returns: string
-      }
       end_accepted_missions: { Args: never; Returns: number }
       expire_pending_missions: { Args: never; Returns: number }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
@@ -1006,60 +982,6 @@ export type Database = {
       }
       process_appointment_reminders: { Args: never; Returns: number }
       queue_appointment_reminders: { Args: never; Returns: number }
-      seeds_create_mission_from_availability: {
-        Args: {
-          day_offset: number
-          description_param?: string
-          duration_minutes: number
-          hour: number
-          professional_id_param: string
-          status_param?: string
-          structure_id_param: string
-          title_param?: string
-          until_offset?: number
-          weeks_ahead?: number
-        }
-        Returns: string
-      }
-      seeds_create_mission_rrule: {
-        Args: {
-          day_offset: number
-          duration_minutes: number
-          hour: number
-          until_offset?: number
-          weeks_ahead?: number
-        }
-        Returns: string
-      }
-      seeds_create_onetime_availability: {
-        Args: {
-          day_offset: number
-          duration_minutes: number
-          hour: number
-          user_id_param: string
-        }
-        Returns: string
-      }
-      seeds_create_recurring_availability: {
-        Args: {
-          day_offset: number
-          duration_minutes: number
-          exdate_offsets?: number[]
-          hour: number
-          user_id_param: string
-        }
-        Returns: string
-      }
-      seeds_format_exdate: { Args: { date_offset: number }; Returns: string }
-      seeds_get_next_weekday: {
-        Args: { days_ahead?: number; target_dow: number }
-        Returns: string
-      }
-      seeds_get_rrule_day: { Args: { day_offset: number }; Returns: string }
-      seeds_update_availabilities_for_mission: {
-        Args: { mission_id_param: string }
-        Returns: undefined
-      }
       select_pending_reminders: {
         Args: { batch_size_param?: number }
         Returns: {
@@ -1291,3 +1213,4 @@ export const Constants = {
     },
   },
 } as const
+

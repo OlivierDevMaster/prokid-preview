@@ -1,4 +1,4 @@
-import { differenceInDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { parseISO } from 'date-fns';
 import { RRule, RRuleSet, rrulestr } from 'rrule';
 
@@ -20,6 +20,7 @@ interface SaveWeekAvailabilitiesParams {
 interface TimeSlot {
   end: string;
   isDeleted?: boolean;
+  originalSlot?: AvailabilitySlot;
   recurring?: boolean;
   start: string;
 }
@@ -355,7 +356,6 @@ export async function saveWeekAvailabilities({
 
     // Create one-time availabilities for slots that don't match existing recurrences
     // Only process active (non-deleted) slots
-    const dayOffset = getDayOffsetFromToday(targetDate);
     for (const slot of activeSlots) {
       const startMinutes = parseTimeToMinutes(slot.start);
       const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
@@ -365,6 +365,56 @@ export async function saveWeekAvailabilities({
       const slotDate = new Date(targetDate);
       const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
       slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+      // CRITICAL: If slot has an originalSlot with availabilityId, update existing availability instead of creating new one
+      const originalSlot = slot.originalSlot;
+      const availabilityId = originalSlot?.availabilityId;
+      if (availabilityId) {
+        // Fetch the existing availability to get its current state
+        const { data: existingAvailability, error: fetchError } = await supabase
+          .from('availabilities')
+          .select('id, rrule, duration_mn, user_id')
+          .eq('id', availabilityId)
+          .eq('user_id', userId)
+          .single();
+
+        if (fetchError || !existingAvailability) {
+          console.warn(
+            `Availability ${availabilityId} not found or access denied, will create new one:`,
+            fetchError?.message
+          );
+          // Fall through to normal creation logic
+        } else {
+          // Check if this availability is in the recurringToExclude list
+          // If it is, remove it from the list since we're updating it instead
+          const indexToRemove = recurringToExclude.indexOf(availabilityId);
+          if (indexToRemove !== -1) {
+            recurringToExclude.splice(indexToRemove, 1);
+          }
+
+          // Update the existing availability with new start time, duration, and rrule
+          const slotShouldBeRecurring = slot.recurring === true;
+          try {
+            await updateAvailabilityForSlot(
+              supabase,
+              existingAvailability,
+              slotDate,
+              durationMinutes,
+              slotShouldBeRecurring,
+              dayOfWeek,
+              dayMap
+            );
+            // Skip the rest of the loop since we've updated the existing availability
+            continue;
+          } catch (updateError) {
+            console.error(
+              `Failed to update availability ${availabilityId}:`,
+              updateError
+            );
+            // Fall through to normal creation logic as fallback
+          }
+        }
+      }
 
       // Check if this slot matches a recurring availability that wasn't excluded
       // This is critical: if it matches, we should NOT create a one-time availability
@@ -460,8 +510,19 @@ export async function saveWeekAvailabilities({
 
       // If slot should be recurring and doesn't match an existing recurrence, create a new weekly recurrence
       if (slotShouldBeRecurring && !matchesRecurring) {
+        // Get the originalSlot's availabilityId if it exists (to exclude it from the check)
+        const originalAvailabilityId = slot.originalSlot?.availabilityId;
+
         // Check if a recurring availability already exists for this slot
+        // Exclude the originalSlot's availability from the check since we're updating it
         const existingRecurring = recurringForDay.find(recurring => {
+          // Skip if this is the availability we're updating
+          if (
+            originalAvailabilityId &&
+            recurring.id === originalAvailabilityId
+          ) {
+            return false;
+          }
           try {
             const rule = rrulestr(recurring.rrule);
             const ruleDtstart = rule.options.dtstart;
@@ -491,17 +552,51 @@ export async function saveWeekAvailabilities({
 
         // Only create if it doesn't already exist
         if (!existingRecurring) {
-          const hour = parseTimeToHour(slot.start);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { error } = await (supabase.rpc as any)(
-            'create_recurring_availability',
-            {
-              day_offset: dayOffset,
-              duration_minutes: durationMinutes,
-              hour,
-              user_id_param: userId,
-            }
-          );
+          // Create Date object with local time
+          const slotDate = new Date(targetDate);
+          const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
+          slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+          // Map day abbreviations to RRule constants
+          const rruleDayMap: Record<string, number> = {
+            FR: RRule.FR as unknown as number,
+            MO: RRule.MO as unknown as number,
+            SA: RRule.SA as unknown as number,
+            SU: RRule.SU as unknown as number,
+            TH: RRule.TH as unknown as number,
+            TU: RRule.TU as unknown as number,
+            WE: RRule.WE as unknown as number,
+          };
+
+          // Find the day abbreviation for the day of week
+          const dayAbbrev = Object.entries(dayMap).find(
+            ([, jsDay]) => jsDay === dayOfWeek
+          )?.[0];
+
+          if (!dayAbbrev) {
+            throw new Error(`Invalid day of week: ${dayOfWeek}`);
+          }
+
+          const rruleDay = rruleDayMap[dayAbbrev];
+          if (rruleDay === undefined) {
+            throw new Error(`Invalid day abbreviation: ${dayAbbrev}`);
+          }
+
+          // Create recurring rrule using RRule library
+          const newRule = new RRule({
+            byweekday: [rruleDay],
+            dtstart: slotDate,
+            freq: RRule.WEEKLY,
+          });
+
+          const rruleString = newRule.toString();
+
+          // Insert directly into database
+          const { error } = await supabase.from('availabilities').insert({
+            duration_mn: durationMinutes,
+            rrule: rruleString,
+            user_id: userId,
+          });
 
           if (error) {
             throw new Error(
@@ -517,9 +612,17 @@ export async function saveWeekAvailabilities({
       // IMPORTANT: If matchesRecurring is true, the slot is already covered by a recurrence
       // and we should NOT create a one-time availability
       if (!matchesRecurring && !slotShouldBeRecurring) {
+        // Get the originalSlot's availabilityId if it exists (to exclude it from the check)
+        const originalAvailabilityId = slot.originalSlot?.availabilityId;
+
         // Check if this slot already exists as a one-time availability
         // Use the same logic as deleteAvailabilityBySlot to extract dtstart from RRULE
+        // Exclude the originalSlot's availability from the check since we're updating it
         const alreadyExists = oneTimeAvailabilities?.some(oneTime => {
+          // Skip if this is the availability we're updating
+          if (originalAvailabilityId && oneTime.id === originalAvailabilityId) {
+            return false;
+          }
           if (!oneTime.rrule) return false;
 
           let dtstartToCompare: Date | null = null;
@@ -587,17 +690,25 @@ export async function saveWeekAvailabilities({
 
         // Only create if it doesn't already exist
         if (!alreadyExists) {
-          const hour = parseTimeToHour(slot.start);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { error } = await (supabase.rpc as any)(
-            'create_onetime_availability',
-            {
-              day_offset: dayOffset,
-              duration_minutes: durationMinutes,
-              hour,
-              user_id_param: userId,
-            }
-          );
+          // Create Date object with local time (slotDate is already created above)
+          // slotDate is created at line 366-368 with setHours() using local time
+          // This ensures proper timezone conversion when RRule formats it
+
+          // Create one-time rrule using RRule library (DAILY with COUNT=1)
+          const newRule = new RRule({
+            count: 1,
+            dtstart: slotDate,
+            freq: RRule.DAILY,
+          });
+
+          const rruleString = newRule.toString();
+
+          // Insert directly into database
+          const { error } = await supabase.from('availabilities').insert({
+            duration_mn: durationMinutes,
+            rrule: rruleString,
+            user_id: userId,
+          });
 
           if (error) {
             throw new Error(
@@ -937,11 +1048,23 @@ async function addExdateForDay(
   rrule: string
 ): Promise<void> {
   // Extract hour from DTSTART
-  const dtstartMatch = rrule.match(/DTSTART:(\d{8})T(\d{2})(\d{2})/);
-  if (!dtstartMatch) return;
+  let rule = rrulestr(rrule);
 
-  const hour = parseInt(dtstartMatch[2], 10);
-  const minute = parseInt(dtstartMatch[3], 10);
+  if (rule instanceof RRuleSet) {
+    const rules = rule.rrules();
+    if (rules.length === 0) {
+      throw new Error('RRULESet has no rules');
+    }
+    rule = rules[0];
+  }
+
+  const dtstart = rule.options.dtstart;
+  if (!dtstart) {
+    throw new Error('DTSTART not found in RRULE');
+  }
+
+  const hour = dtstart.getUTCHours();
+  const minute = dtstart.getUTCMinutes();
 
   // Create date with the same hour as the recurring availability
   const dateToExclude = new Date(date);
@@ -985,21 +1108,103 @@ function calculateDurationMinutes(start: string, end: string): number {
   return endTotalMinutes - startTotalMinutes;
 }
 
-function getDayOffsetFromToday(targetDate: Date): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(targetDate);
-  target.setHours(0, 0, 0, 0);
-
-  return differenceInDays(target, today);
-}
-
-function parseTimeToHour(time: string): number {
-  const [hours] = time.split(':');
-  return parseInt(hours, 10);
-}
-
 function parseTimeToMinutes(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
   return hours * 60 + (minutes || 0);
+}
+
+/**
+ * Update an existing availability for a modified slot
+ * Updates the start time, duration, and rrule to reflect the slot changes
+ */
+async function updateAvailabilityForSlot(
+  supabase: ReturnType<typeof createClient>,
+  existingAvailability: { duration_mn: number; id: string; rrule: string },
+  newSlotDate: Date,
+  newDurationMinutes: number,
+  shouldBeRecurring: boolean,
+  dayOfWeek: number,
+  dayMap: Record<string, number>
+): Promise<void> {
+  // Map day abbreviations to RRule constants
+  const rruleDayMap: Record<string, number> = {
+    FR: RRule.FR as unknown as number,
+    MO: RRule.MO as unknown as number,
+    SA: RRule.SA as unknown as number,
+    SU: RRule.SU as unknown as number,
+    TH: RRule.TH as unknown as number,
+    TU: RRule.TU as unknown as number,
+    WE: RRule.WE as unknown as number,
+  };
+
+  // Find the day abbreviation for the day of week
+  const dayAbbrev = Object.entries(dayMap).find(
+    ([, jsDay]) => jsDay === dayOfWeek
+  )?.[0];
+
+  if (!dayAbbrev) {
+    throw new Error(`Invalid day of week: ${dayOfWeek}`);
+  }
+
+  const rruleDay = rruleDayMap[dayAbbrev];
+  if (rruleDay === undefined) {
+    throw new Error(`Invalid day abbreviation: ${dayAbbrev}`);
+  }
+
+  let updatedRrule: string;
+
+  if (shouldBeRecurring) {
+    // Create new recurring rrule with updated start time
+    const newRule = new RRule({
+      byweekday: [rruleDay],
+      dtstart: newSlotDate,
+      freq: RRule.WEEKLY,
+    });
+
+    // If the existing rule had EXDATEs, preserve them
+    if (existingAvailability.rrule.includes('EXDATE')) {
+      try {
+        const originalRuleSet = rrulestr(existingAvailability.rrule);
+        if (originalRuleSet instanceof RRuleSet) {
+          const rruleSet = new RRuleSet();
+          rruleSet.rrule(newRule);
+          const exdates = originalRuleSet.exdates();
+          for (const exdate of exdates) {
+            rruleSet.exdate(exdate);
+          }
+          updatedRrule = rruleSet.toString();
+        } else {
+          updatedRrule = newRule.toString();
+        }
+      } catch {
+        // If parsing fails, use the new rule without EXDATEs
+        updatedRrule = newRule.toString();
+      }
+    } else {
+      updatedRrule = newRule.toString();
+    }
+  } else {
+    // Convert to or update as one-time availability
+    // Create a one-time rrule (DAILY with COUNT=1)
+    const newRule = new RRule({
+      count: 1,
+      dtstart: newSlotDate,
+      freq: RRule.DAILY,
+    });
+    updatedRrule = newRule.toString();
+  }
+
+  // Update the availability
+  const { error: updateError } = await supabase
+    .from('availabilities')
+    .update({
+      dtstart: newSlotDate.toISOString(),
+      duration_mn: newDurationMinutes,
+      rrule: updatedRrule,
+    })
+    .eq('id', existingAvailability.id);
+
+  if (updateError) {
+    throw new Error(`Failed to update availability: ${updateError.message}`);
+  }
 }

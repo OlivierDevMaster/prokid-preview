@@ -1,3 +1,5 @@
+import { RRule } from 'rrule';
+
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { createClient } from '@/lib/supabase/client';
@@ -147,16 +149,49 @@ async function createAvailabilityRrule(
 ): Promise<void> {
   const supabase = createClient();
   const targetDow = DAY_NAME_TO_DOW[dayName];
-  const dayOffset = getDaysUntilNextDayOfWeek(targetDow);
-  const hour = parseTimeToHour(slot.start);
+  const daysUntil = getDaysUntilNextDayOfWeek(targetDow);
   const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
 
-  const { error } = await supabase.rpc('create_recurring_availability', {
-    day_offset: dayOffset,
-    duration_minutes: durationMinutes,
-    exdate_offsets: undefined,
-    hour,
-    user_id_param: userId,
+  // Calculate the target date
+  const today = new Date();
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + daysUntil);
+
+  // Create Date object with local time
+  const slotDate = new Date(targetDate);
+  const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
+  slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+  // Map day abbreviations to RRule constants
+  const rruleDayMap: Record<DayName, number> = {
+    friday: RRule.FR as unknown as number,
+    monday: RRule.MO as unknown as number,
+    saturday: RRule.SA as unknown as number,
+    sunday: RRule.SU as unknown as number,
+    thursday: RRule.TH as unknown as number,
+    tuesday: RRule.TU as unknown as number,
+    wednesday: RRule.WE as unknown as number,
+  };
+
+  const rruleDay = rruleDayMap[dayName];
+  if (rruleDay === undefined) {
+    throw new Error(`Invalid day name: ${dayName}`);
+  }
+
+  // Create recurring rrule using RRule library
+  const newRule = new RRule({
+    byweekday: [rruleDay],
+    dtstart: slotDate,
+    freq: RRule.WEEKLY,
+  });
+
+  const rruleString = newRule.toString();
+
+  // Insert directly into database
+  const { error } = await supabase.from('availabilities').insert({
+    duration_mn: durationMinutes,
+    rrule: rruleString,
+    user_id: userId,
   });
 
   if (error) {
@@ -173,15 +208,33 @@ async function createOnetimeAvailability(
 ): Promise<void> {
   const supabase = createClient();
   const targetDow = DAY_NAME_TO_DOW[dayName];
-  const dayOffset = getDaysUntilNextDayOfWeek(targetDow);
-  const hour = parseTimeToHour(slot.start);
+  const daysUntil = getDaysUntilNextDayOfWeek(targetDow);
   const durationMinutes = calculateDurationMinutes(slot.start, slot.end);
 
-  const { error } = await supabase.rpc('create_onetime_availability', {
-    day_offset: dayOffset,
-    duration_minutes: durationMinutes,
-    hour,
-    user_id_param: userId,
+  // Calculate the target date
+  const today = new Date();
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + daysUntil);
+
+  // Create Date object with local time
+  const slotDate = new Date(targetDate);
+  const [slotHours, slotMinutes] = slot.start.split(':').map(Number);
+  slotDate.setHours(slotHours, slotMinutes, 0, 0);
+
+  // Create one-time rrule using RRule library (DAILY with COUNT=1)
+  const newRule = new RRule({
+    count: 1,
+    dtstart: slotDate,
+    freq: RRule.DAILY,
+  });
+
+  const rruleString = newRule.toString();
+
+  // Insert directly into database
+  const { error } = await supabase.from('availabilities').insert({
+    duration_mn: durationMinutes,
+    rrule: rruleString,
+    user_id: userId,
   });
 
   if (error) {
@@ -196,9 +249,4 @@ function getDaysUntilNextDayOfWeek(targetDow: number): number {
   const currentDow = today.getDay();
   const daysUntil = (targetDow - currentDow + 7) % 7;
   return daysUntil === 0 ? 7 : daysUntil;
-}
-
-function parseTimeToHour(time: string): number {
-  const [hours] = time.split(':');
-  return parseInt(hours, 10);
 }
