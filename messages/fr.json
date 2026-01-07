@@ -538,6 +538,11 @@
       "declineSuccess": "Invitation refusée avec succès",
       "declineError": "Échec du refus de l'invitation",
       "description": "Description",
+      "filterByStructure": "Filtrer par structure",
+      "filterByStatus": "Filtrer par statut",
+      "allStructures": "Toutes les structures",
+      "allStatuses": "Tous les statuts",
+      "unknownStructure": "Structure inconnue",
       "noActions": "Aucune action disponible"
     }
   },
