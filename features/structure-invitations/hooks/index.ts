@@ -1,6 +1,9 @@
 export { useAcceptStructureInvitation } from './useAcceptStructureInvitation';
 export { useCreateStructureInvitation } from './useCreateStructureInvitation';
 export { useDeclineStructureInvitation } from './useDeclineStructureInvitation';
+export { useDeleteStructureInvitation } from './useDeleteStructureInvitation';
 export { useFindStructureInvitation } from './useFindStructureInvitation';
 export { useFindStructureInvitations } from './useFindStructureInvitations';
+export { useFindStructureInvitationsWithProfessional } from './useFindStructureInvitationsWithProfessional';
+export { useFindStructureInvitationsWithStructure } from './useFindStructureInvitationsWithStructure';
 export { useUpdateStructureInvitation } from './useUpdateStructureInvitation';
