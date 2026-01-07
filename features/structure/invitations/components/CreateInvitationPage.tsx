@@ -17,7 +17,7 @@ import { useRouter } from '@/i18n/routing';
 import { useCreateInvitations } from '../hooks/useCreateInvitation';
 
 export function CreateInvitationPage() {
-  const t = useTranslations('structure.invitations');
+  const t = useTranslations('structure.invitations.new');
   const tCommon = useTranslations('common.messages');
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');

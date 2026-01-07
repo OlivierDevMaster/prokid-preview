@@ -1,4 +1,4 @@
-import { FileText, LayoutDashboard, Target, Users } from 'lucide-react';
+import { FileText, LayoutDashboard, Mail, Target, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -25,6 +25,11 @@ export function useGetStructureSidebarItems(): SidebarNavItem[] {
       href: '/structure/professionals',
       icon: Users,
       label: tStructure('professionals'),
+    },
+    {
+      href: '/structure/invitations',
+      icon: Mail,
+      label: tStructure('invitations'),
     },
   ];
   return items;
