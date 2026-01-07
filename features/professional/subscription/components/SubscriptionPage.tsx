@@ -85,7 +85,7 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className='min-h-screen bg-blue-50/30'>
+    <div className='min-h-full bg-blue-50/30'>
       {/* Success Message */}
       {showSuccess && (
         <div className='bg-green-50 p-4'>

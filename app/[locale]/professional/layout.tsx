@@ -96,7 +96,11 @@ export default function ProtectedLayout({
 
   // Allow access to subscription page
   if (subscriptionPath === 'professional/subscription') {
-    return <div>{children}</div>;
+    return (
+      <div className='flex h-screen flex-col overflow-hidden'>
+        <main className='flex-1 overflow-y-auto'>{children}</main>
+      </div>
+    );
   }
 
   // If not onboarded, the useEffect will redirect, but we should still show loading
