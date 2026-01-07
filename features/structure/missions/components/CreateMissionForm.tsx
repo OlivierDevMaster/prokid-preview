@@ -346,28 +346,52 @@ export function CreateMissionForm() {
       </div>
 
       {/* Step Indicator */}
-      <div className='flex items-center gap-2 sm:gap-3'>
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-full text-sm sm:h-8 sm:w-8 ${
-            step >= 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-          }`}
-        >
-          1
-        </div>
-        <div className='h-1 w-12 bg-gray-200 sm:w-20'>
-          <div
-            className={`h-full transition-all ${
-              step >= 2 ? 'bg-blue-500' : 'bg-gray-200'
-            }`}
-            style={{ width: step >= 2 ? '100%' : '0%' }}
-          />
-        </div>
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-full text-sm sm:h-8 sm:w-8 ${
-            step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-          }`}
-        >
-          2
+      <div className='space-y-3'>
+        <div className='flex items-center gap-2 sm:gap-3'>
+          <div className='flex flex-col items-center gap-1'>
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold sm:h-8 sm:w-8 ${
+                step >= 1
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-600'
+              }`}
+            >
+              1
+            </div>
+            <span
+              className={`text-xs font-medium sm:text-sm ${
+                step >= 1 ? 'text-blue-600' : 'text-gray-500'
+              }`}
+            >
+              {t('step1Title') || 'Mission Information'}
+            </span>
+          </div>
+          <div className='h-1 flex-1 bg-gray-200'>
+            <div
+              className={`h-full transition-all ${
+                step >= 2 ? 'bg-blue-500' : 'bg-gray-200'
+              }`}
+              style={{ width: step >= 2 ? '100%' : '0%' }}
+            />
+          </div>
+          <div className='flex flex-col items-center gap-1'>
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold sm:h-8 sm:w-8 ${
+                step >= 2
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-600'
+              }`}
+            >
+              2
+            </div>
+            <span
+              className={`text-xs font-medium sm:text-sm ${
+                step >= 2 ? 'text-blue-600' : 'text-gray-500'
+              }`}
+            >
+              {t('step2Title') || 'Select Availabilities'}
+            </span>
+          </div>
         </div>
       </div>
 
