@@ -1101,6 +1101,7 @@
       },
       "notificationPreferences": {
         "title": "Préférences de notification",
+        "emailNotifications": "Recevoir les notifications par e-mail",
         "appointmentReminders": "Recevoir des rappels de rendez-vous par e-mail (24h avant)",
         "newInterventions": "Recevoir les notifications de nouvelles demandes d'intervention",
         "reportConfirmation": "Recevoir une confirmation d'envoi des rapports",
