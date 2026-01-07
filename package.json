@@ -11,7 +11,7 @@
     "functions:serve": "supabase functions serve --env-file .env",
     "db:reset:local": "supabase db reset --local && npm run db:accept-pending-missions",
     "db:accept-pending-missions": "dotenvx run -- tsx scripts/accept-pending-missions.ts",
-    "db:reset:remote": "supabase db reset --linked",
+    "db:reset:remote": "supabase db reset --linked && npm run db:accept-pending-missions",
     "db:generate:local": "supabase gen types typescript --local > types/database/schema.ts",
     "db:generate:remote": "supabase gen types typescript --linked > types/database/schema.ts",
     "db:delete-all": "tsx scripts/delete-all-data.ts",
