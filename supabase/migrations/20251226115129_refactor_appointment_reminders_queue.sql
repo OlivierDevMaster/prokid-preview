@@ -188,13 +188,14 @@ BEGIN
     END IF;
 
     -- Prepare request body for single mission
-    -- Convert timestamps to ISO 8601 format for Edge Function validation
+    -- Format timestamps as ISO 8601 strings with Z suffix for UTC
+    -- z.iso.datetime() requires Z format for UTC (doesn't accept +00:00)
     request_body := jsonb_build_object(
       'missions', jsonb_build_array(
         jsonb_build_object(
           'mission_id', mission_record.mission_id,
-          'mission_dtstart', to_jsonb(mission_record.mission_dtstart::timestamptz)::text,
-          'mission_until', to_jsonb(mission_record.mission_until::timestamptz)::text,
+          'mission_dtstart', to_char(mission_record.mission_dtstart AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+          'mission_until', to_char(mission_record.mission_until AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
           'schedules', mission_record.schedules
         )
       )
@@ -231,7 +232,7 @@ EXCEPTION
 END;
 $$;
 
-COMMENT ON FUNCTION public.queue_appointment_reminders() IS 'Queues accepted missions for RRULE expansion. Calls the expand-rrules Edge Function which expands RRULEs and populates the appointment_reminders_pending queue. Returns the number of missions queued.';
+COMMENT ON FUNCTION public.queue_appointment_reminders() IS 'Queues accepted missions for RRULE expansion. Calls the expand-rrules Edge Function which expands RRULEs and populates the appointment_reminders_pending queue. Returns the number of missions queued. Dates are formatted as ISO 8601 with Z suffix for UTC compatibility with z.iso.datetime() validation.';
 
 -- ============================================================================
 -- Function: select_pending_reminders
