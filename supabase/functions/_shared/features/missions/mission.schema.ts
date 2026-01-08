@@ -7,8 +7,8 @@ export const MissionStatusSchema = z.enum(MissionStatuses);
 export const CreateMissionRequestBodySchema = z
   .object({
     description: z.string().optional(),
-    mission_dtstart: z.string().datetime('Invalid mission start date format'),
-    mission_until: z.string().datetime('Invalid mission end date format'),
+    mission_dtstart: z.iso.datetime('Invalid mission start date format'),
+    mission_until: z.iso.datetime('Invalid mission end date format'),
     professional_id: z.uuid(),
     schedules: z
       .array(

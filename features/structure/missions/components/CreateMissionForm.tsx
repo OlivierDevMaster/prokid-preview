@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formatISO } from 'date-fns';
 import {
   addDays,
   addWeeks,
@@ -25,10 +24,23 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { RRule, RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr, type Weekday } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
+
+// Map JavaScript getDay() numbers to RRule weekday constants
+// JavaScript: 0=Sunday, 1=Monday, 2=Tuesday, etc.
+// RRule: SU=0, MO=1, TU=2, WE=3, TH=4, FR=5, SA=6
+const DAY_MAP: Record<number, Weekday> = {
+  0: RRule.SU, // Sunday
+  1: RRule.MO, // Monday
+  2: RRule.TU, // Tuesday
+  3: RRule.WE, // Wednesday
+  4: RRule.TH, // Thursday
+  5: RRule.FR, // Friday
+  6: RRule.SA, // Saturday
+};
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -53,8 +65,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useFindAvailabilitySlots } from '@/features/availabilities/hooks/useFindAvailabilitySlots';
 import { useGroupedAvailabilitySlots } from '@/features/availabilities/hooks/useGroupedAvailabilitySlots';
-import { useCreateMissionDirect } from '@/features/missions/hooks/useCreateMissionDirect';
-import { useCreateMissionSchedules } from '@/features/missions/hooks/useCreateMissionSchedule';
+import { useCreateMission } from '@/features/missions/hooks/useCreateMission';
 import { Link } from '@/i18n/routing';
 
 import { useGetProfessionals } from '../../professionals/hooks/useGetProfessionals';
@@ -76,7 +87,6 @@ export function CreateMissionForm() {
   const professionalIdFromUrl = searchParams.get('professional_id');
 
   const [step, setStep] = useState<1 | 2>(1);
-  const [createdMissionId, setCreatedMissionId] = useState<null | string>(null);
   const [missionUntilDate, setMissionUntilDate] = useState<Date | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [mounted, setMounted] = useState(false);
@@ -100,7 +110,6 @@ export function CreateMissionForm() {
   // Step 2 form
   const step2Form = useForm<MissionSchedulesFormData>({
     defaultValues: {
-      mission_id: '',
       schedules: [],
     },
     resolver: zodResolver(missionSchedulesFormSchema),
@@ -111,8 +120,7 @@ export function CreateMissionForm() {
     name: 'schedules',
   });
 
-  const createMission = useCreateMissionDirect();
-  const createSchedules = useCreateMissionSchedules();
+  const createMission = useCreateMission();
 
   useEffect(() => {
     setMounted(true);
@@ -129,12 +137,6 @@ export function CreateMissionForm() {
       step1Form.setValue('professional_id', professionalIdFromUrl);
     }
   }, [professionalIdFromUrl, step1Form]);
-
-  useEffect(() => {
-    if (createdMissionId) {
-      step2Form.setValue('mission_id', createdMissionId);
-    }
-  }, [createdMissionId, step2Form]);
 
   // Update rrule when isRecurrent changes
   const watchedSchedules = step2Form.watch('schedules');
@@ -169,7 +171,7 @@ export function CreateMissionForm() {
           // Create recurring rrule
           const dayOfWeek = startDate.getDay();
           const rrule = new RRule({
-            byweekday: [dayOfWeek],
+            byweekday: [DAY_MAP[dayOfWeek]],
             dtstart: startDate,
             freq: RRule.WEEKLY,
           });
@@ -240,32 +242,34 @@ export function CreateMissionForm() {
       return;
     }
 
-    try {
-      const mission = await createMission.mutateAsync({
-        description: data.description || null,
-        mission_dtstart: formatISO(data.mission_dtstart),
-        mission_until: formatISO(data.mission_until),
-        professional_id: data.professional_id,
-        structure_id: structureId,
-        title: data.title,
-      });
-
-      setCreatedMissionId(mission.id);
-      setMissionUntilDate(data.mission_until);
-      setStep(2);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t('createError'));
-    }
+    setMissionUntilDate(data.mission_until);
+    setStep(2);
   };
 
   const handleStep2Submit = async (data: MissionSchedulesFormData) => {
-    if (!missionUntilDate) {
+    if (!missionUntilDate || !structureId) {
       toast.error(t('missionEndDateRequired'));
       return;
     }
 
+    // Get step 1 data
+    const step1Data = step1Form.getValues();
+
+    if (!step1Data.mission_dtstart || !step1Data.mission_until) {
+      toast.error(t('missionDatesRequired'));
+      return;
+    }
+
+    if (data.schedules.length === 0) {
+      toast.error(
+        t('atLeastOneScheduleRequired') || 'At least one schedule is required'
+      );
+      return;
+    }
+
     try {
-      const schedulesToCreate = data.schedules.map(schedule => {
+      // Prepare schedules for edge function (only rrule and duration_mn)
+      const schedules = data.schedules.map(schedule => {
         const startDate = schedule.dtstart
           ? new Date(schedule.dtstart)
           : schedule.startAt
@@ -286,7 +290,7 @@ export function CreateMissionForm() {
             // Should be recurring but isn't - fix it using RRule library
             const dayOfWeek = startDate.getDay();
             const rrule = new RRule({
-              byweekday: [dayOfWeek],
+              byweekday: [DAY_MAP[dayOfWeek]],
               dtstart: startDate,
               freq: RRule.WEEKLY,
             });
@@ -305,15 +309,22 @@ export function CreateMissionForm() {
         }
 
         return {
-          dtstart: schedule.dtstart || schedule.startAt,
           duration_mn: schedule.duration_mn,
-          mission_id: data.mission_id,
           rrule: finalRrule,
-          until: schedule.isRecurrent ? formatISO(missionUntilDate) : null,
         };
       });
 
-      await createSchedules.mutateAsync(schedulesToCreate);
+      // Call edge function with mission + schedules in one request
+      // Use toISOString() to ensure UTC format compatible with z.iso.datetime()
+      await createMission.mutateAsync({
+        description: step1Data.description || undefined,
+        mission_dtstart: step1Data.mission_dtstart.toISOString(),
+        mission_until: step1Data.mission_until.toISOString(),
+        professional_id: step1Data.professional_id,
+        schedules,
+        structure_id: structureId,
+        title: step1Data.title,
+      });
 
       toast.success(t('createSuccess') || 'Mission created successfully');
       router.push('/structure/missions');
@@ -321,7 +332,7 @@ export function CreateMissionForm() {
       toast.error(
         error instanceof Error
           ? error.message
-          : t('createError') || 'Failed to create schedules'
+          : t('createError') || 'Failed to create mission'
       );
     }
   };
@@ -412,7 +423,7 @@ export function CreateMissionForm() {
         // Create recurring rrule (weekly on the same day)
         const dayOfWeek = startDate.getDay();
         const rrule = new RRule({
-          byweekday: [dayOfWeek],
+          byweekday: [DAY_MAP[dayOfWeek]],
           dtstart: startDate,
           freq: RRule.WEEKLY,
         });
@@ -1189,10 +1200,10 @@ export function CreateMissionForm() {
               </Button>
               <Button
                 className='w-full bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
-                disabled={createSchedules.isPending || fields.length === 0}
+                disabled={createMission.isPending || fields.length === 0}
                 type='submit'
               >
-                {createSchedules.isPending
+                {createMission.isPending
                   ? t('creating') || 'Creating...'
                   : t('create') || 'Create Mission'}
               </Button>
