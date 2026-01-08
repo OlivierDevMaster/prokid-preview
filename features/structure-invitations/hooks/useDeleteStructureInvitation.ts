@@ -1,19 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { acceptStructureInvitation } from '../structureInvitation.service';
+import { deleteStructureInvitation } from '../structureInvitation.service';
 
-export const useAcceptStructureInvitation = () => {
+export const useDeleteStructureInvitation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (invitationId: string) => {
-      return acceptStructureInvitation(invitationId);
+      return deleteStructureInvitation(invitationId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['structure-invitation'] });
       queryClient.invalidateQueries({
         queryKey: ['structure-invitations-with-structure'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['structure-invitations-with-professional'],
       });
       queryClient.invalidateQueries({ queryKey: ['structure-members'] });
       // Invalidate dashboard queries for structure

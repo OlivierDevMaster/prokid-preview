@@ -522,6 +522,28 @@
       "goToDashboard": "Retour au tableau de bord",
       "checkoutSuccess": "Abonnement activé avec succès ! Votre statut d'abonnement a été mis à jour.",
       "checkoutError": "Échec de la création de la session de paiement"
+    },
+    "invitations": {
+      "title": "Mes invitations",
+      "subtitle": "Gérez toutes vos invitations de structures",
+      "name": "Structure",
+      "status": "Statut",
+      "createdAt": "Date de création",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "actions": "Actions",
+      "noResults": "Aucune invitation trouvée",
+      "acceptSuccess": "Invitation acceptée avec succès",
+      "acceptError": "Échec de l'acceptation de l'invitation",
+      "declineSuccess": "Invitation refusée avec succès",
+      "declineError": "Échec du refus de l'invitation",
+      "description": "Description",
+      "filterByStructure": "Filtrer par structure",
+      "filterByStatus": "Filtrer par statut",
+      "allStructures": "Toutes les structures",
+      "allStatuses": "Tous les statuts",
+      "unknownStructure": "Structure inconnue",
+      "noActions": "Aucune action disponible"
     }
   },
   "structure": {
@@ -529,7 +551,55 @@
       "missions": "Missions",
       "professionals": "Professionnels",
       "dashboard": "Tableau de bord",
-      "reports": "Rapports"
+      "reports": "Rapports",
+      "invitations": "Invitations"
+    },
+    "invitations": {
+      "title": "Mes invitations",
+      "subtitle": "Gérez toutes les invitations envoyées aux professionnels.",
+      "name": "Nom",
+      "status": "Statut",
+      "createdAt": "Créé le",
+      "actions": "Actions",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "loading": "Chargement...",
+      "noResults": "Aucune invitation trouvée.",
+      "noActions": "Aucune action disponible",
+      "cancelSuccess": "Invitation annulée avec succès",
+      "cancelError": "Échec de l'annulation de l'invitation",
+      "deleteSuccess": "Invitation supprimée avec succès",
+      "deleteError": "Échec de la suppression de l'invitation",
+      "filterByProfessional": "Filtrer par professionnel",
+      "filterByStatus": "Filtrer par statut",
+      "allProfessionals": "Tous les professionnels",
+      "allStatuses": "Tous les statuts",
+      "unknownProfessional": "Professionnel inconnu",
+      "new": {
+        "title": "Inviter un Professionnel",
+        "description": "Recherchez et invitez un professionnel à rejoindre votre structure.",
+        "back": "Retour",
+        "cancel": "Annuler",
+        "sendInvitation": "Envoyer l'invitation",
+        "sendInvitations": "Envoyer {count} invitation(s)",
+        "sending": "Envoi en cours...",
+        "selected": "{count} sélectionné(s)",
+        "search": {
+          "label": "Rechercher un professionnel",
+          "placeholder": "Rechercher par nom, email ou description...",
+          "startSearching": "Commencez à taper pour rechercher des professionnels",
+          "noResults": "Aucun professionnel trouvé correspondant à votre recherche.",
+          "results": "{count} professionnel(s) trouvé(s)"
+        },
+        "success": {
+          "invitationSent": "Invitation envoyée avec succès !",
+          "invitationsSent": "{count} invitation(s) envoyée(s) avec succès !"
+        },
+        "errors": {
+          "selectProfessional": "Veuillez sélectionner au moins un professionnel à inviter",
+          "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
+        }
+      }
     },
     "missions": {
       "title": "Mes missions",
@@ -638,31 +708,6 @@
       "pendingInvitations": "Invitations en Attente",
       "acceptedInvitations": "Invitations Acceptées"
     },
-    "invitations": {
-      "title": "Inviter un Professionnel",
-      "description": "Recherchez et invitez un professionnel à rejoindre votre structure.",
-      "back": "Retour",
-      "cancel": "Annuler",
-      "sendInvitation": "Envoyer l'invitation",
-      "sendInvitations": "Envoyer {count} invitation(s)",
-      "sending": "Envoi en cours...",
-      "selected": "{count} sélectionné(s)",
-      "search": {
-        "label": "Rechercher un professionnel",
-        "placeholder": "Rechercher par nom, email ou description...",
-        "startSearching": "Commencez à taper pour rechercher des professionnels",
-        "noResults": "Aucun professionnel trouvé correspondant à votre recherche.",
-        "results": "{count} professionnel(s) trouvé(s)"
-      },
-      "success": {
-        "invitationSent": "Invitation envoyée avec succès !",
-        "invitationsSent": "{count} invitation(s) envoyée(s) avec succès !"
-      },
-      "errors": {
-        "selectProfessional": "Veuillez sélectionner au moins un professionnel à inviter",
-        "failedToSend": "Échec de l'envoi de l'invitation. Veuillez réessayer."
-      }
-    },
     "ratings": {
       "rateProfessional": "Ajouter aux favoris",
       "rateProfessionalDescription": "Partagez votre expérience avec ce professionnel en le notant et en commentant.",
@@ -727,12 +772,6 @@
       "mostActiveProfessional": "Professionnel le Plus Actif",
       "mostActiveProfessionalDescription": "Professionnel avec le plus grand nombre de missions",
       "missions": "missions"
-    },
-    "navigation": {
-      "dashboard": "Tableau de Bord",
-      "professionals": "Professionnels",
-      "structures": "Structures",
-      "missions": "Missions"
     },
     "missions": {
       "title": "Missions",
@@ -1160,11 +1199,12 @@
       "reports": "Mes Rapports",
       "structure": "Structure",
       "users": "Utilisateurs",
-      "professionals": "Professionnels",
-      "structures": "Structures",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de bord",
-      "missions": "Missions"
+      "dashboard": "Tableau de Bord",
+      "missions": "Missions",
+      "invitations": "Invitations",
+      "professionals": "Professionnels",
+      "structures": "Structures"
     },
     "notifications": {
       "title": "Notifications",

@@ -3,6 +3,7 @@ import {
   Calendar,
   ClipboardMinus,
   LayoutDashboard,
+  Mail,
   Target,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -37,6 +38,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       href: '/professional/structures',
       icon: Building2,
       label: tProfessional('navigation.structure'),
+    },
+    {
+      href: '/professional/invitations',
+      icon: Mail,
+      label: tProfessional('navigation.invitations'),
     },
   ];
 

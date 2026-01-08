@@ -71,6 +71,9 @@ export function useCreateInvitations() {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'invitations'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['structure-invitations-with-professional'],
+      });
     },
   });
 }
