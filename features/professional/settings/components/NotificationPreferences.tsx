@@ -16,6 +16,7 @@ interface NotificationPreference {
   checked: boolean;
   field:
     | 'appointment_reminders'
+    | 'email_notifications'
     | 'new_interventions'
     | 'newsletter'
     | 'report_confirmation';
@@ -31,6 +32,7 @@ export function NotificationPreferences() {
   const [isEditing, setIsEditing] = useState(false);
   const [localPreferences, setLocalPreferences] = useState<{
     appointment_reminders: boolean;
+    email_notifications: boolean;
     new_interventions: boolean;
     newsletter: boolean;
     report_confirmation: boolean;
@@ -47,6 +49,12 @@ export function NotificationPreferences() {
     const currentPrefs =
       isEditing && localPreferences ? localPreferences : preferences;
     return [
+      {
+        checked: currentPrefs?.email_notifications ?? true,
+        field: 'email_notifications',
+        id: 'email_notifications',
+        label: tAdmin('setting.notificationPreferences.emailNotifications'),
+      },
       {
         checked: currentPrefs?.appointment_reminders ?? true,
         field: 'appointment_reminders',
@@ -78,6 +86,7 @@ export function NotificationPreferences() {
     if (preferences) {
       setLocalPreferences({
         appointment_reminders: preferences.appointment_reminders ?? true,
+        email_notifications: preferences.email_notifications ?? true,
         new_interventions: preferences.new_interventions ?? true,
         newsletter: preferences.newsletter ?? false,
         report_confirmation: preferences.report_confirmation ?? false,
@@ -85,6 +94,7 @@ export function NotificationPreferences() {
     } else {
       setLocalPreferences({
         appointment_reminders: true,
+        email_notifications: true,
         new_interventions: true,
         newsletter: false,
         report_confirmation: false,

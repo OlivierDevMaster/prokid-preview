@@ -14,15 +14,16 @@ import { Professional } from '@/features/professionals/professional.model';
 import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
 import { useRouter } from '@/i18n/routing';
 
-import { useCreateInvitation } from '../hooks/useCreateInvitation';
+import { useCreateInvitations } from '../hooks/useCreateInvitation';
 
 export function CreateInvitationPage() {
-  const t = useTranslations('structure.invitations');
+  const t = useTranslations('structure.invitations.new');
   const tCommon = useTranslations('common.messages');
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProfessional, setSelectedProfessional] =
-    useState<null | Professional>(null);
+  const [selectedProfessionalIds, setSelectedProfessionalIds] = useState<
+    Set<string>
+  >(new Set());
 
   const { data: professionalsData } = useFindProfessionals(
     {
@@ -48,28 +49,38 @@ export function CreateInvitationPage() {
     );
   }, [professionalsData, structureProfessionalIds]);
 
-  const createInvitation = useCreateInvitation();
+  const createInvitations = useCreateInvitations();
 
-  const handleSelectProfessional = (professional: Professional) => {
-    setSelectedProfessional(professional);
+  const handleToggleProfessional = (professional: Professional) => {
+    setSelectedProfessionalIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(professional.user_id)) {
+        newSet.delete(professional.user_id);
+      } else {
+        newSet.add(professional.user_id);
+      }
+      return newSet;
+    });
   };
 
   const handleSubmit = async () => {
-    if (!selectedProfessional) {
+    if (selectedProfessionalIds.size === 0) {
       toast.error(t('errors.selectProfessional'));
       return;
     }
 
     try {
-      await createInvitation.mutateAsync({
-        professional_id: selectedProfessional.user_id,
+      await createInvitations.mutateAsync({
+        professional_ids: Array.from(selectedProfessionalIds),
         status: 'pending',
       });
-      toast.success(t('success.invitationSent'));
+      toast.success(
+        t('success.invitationsSent', { count: selectedProfessionalIds.size })
+      );
       router.push('/structure/missions');
     } catch (error) {
       toast.error(t('errors.failedToSend'));
-      console.error('Failed to create invitation:', error);
+      console.error('Failed to create invitations:', error);
     }
   };
 
@@ -120,13 +131,21 @@ export function CreateInvitationPage() {
         {/* Professionals List */}
         {professionals.length > 0 && (
           <div className='space-y-2'>
-            <p className='text-sm font-medium text-gray-700'>
-              {t('search.results', { count: professionals.length })}
-            </p>
+            <div className='flex items-center justify-between'>
+              <p className='text-sm font-medium text-gray-700'>
+                {t('search.results', { count: professionals.length })}
+              </p>
+              {selectedProfessionalIds.size > 0 && (
+                <p className='text-sm font-medium text-blue-600'>
+                  {t('selected', { count: selectedProfessionalIds.size })}
+                </p>
+              )}
+            </div>
             <div className='max-h-96 space-y-2 overflow-y-auto'>
               {professionals.map(professional => {
-                const isSelected =
-                  selectedProfessional?.user_id === professional.user_id;
+                const isSelected = selectedProfessionalIds.has(
+                  professional.user_id
+                );
                 const name =
                   `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim() ||
                   professional.profile.email ||
@@ -138,10 +157,23 @@ export function CreateInvitationPage() {
                       isSelected ? 'border-blue-500 bg-blue-50' : ''
                     }`}
                     key={professional.user_id}
-                    onClick={() => handleSelectProfessional(professional)}
+                    onClick={() => handleToggleProfessional(professional)}
                   >
                     <div className='flex items-center justify-between p-4'>
                       <div className='flex items-center gap-4'>
+                        <div className='flex h-6 w-6 items-center justify-center'>
+                          <div
+                            className={`flex h-5 w-5 items-center justify-center rounded border-2 ${
+                              isSelected
+                                ? 'border-blue-500 bg-blue-500'
+                                : 'border-gray-300'
+                            }`}
+                          >
+                            {isSelected && (
+                              <Check className='h-3 w-3 text-white' />
+                            )}
+                          </div>
+                        </div>
                         <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
                           {professional.profile.avatar_url ? (
                             <Image
@@ -172,11 +204,6 @@ export function CreateInvitationPage() {
                           )}
                         </div>
                       </div>
-                      {isSelected && (
-                        <div className='flex h-6 w-6 items-center justify-center rounded-full bg-blue-500'>
-                          <Check className='h-4 w-4 text-white' />
-                        </div>
-                      )}
                     </div>
                   </Card>
                 );
@@ -205,10 +232,16 @@ export function CreateInvitationPage() {
         </Button>
         <Button
           className='bg-blue-400 text-white hover:bg-blue-500'
-          disabled={!selectedProfessional || createInvitation.isPending}
+          disabled={
+            selectedProfessionalIds.size === 0 || createInvitations.isPending
+          }
           onClick={handleSubmit}
         >
-          {createInvitation.isPending ? t('sending') : t('sendInvitation')}
+          {createInvitations.isPending
+            ? t('sending')
+            : selectedProfessionalIds.size > 0
+              ? t('sendInvitations', { count: selectedProfessionalIds.size })
+              : t('sendInvitation')}
         </Button>
       </div>
     </div>

@@ -349,6 +349,7 @@ export type Database = {
         Row: {
           appointment_reminders: boolean
           created_at: string
+          email_notifications: boolean
           new_interventions: boolean
           newsletter: boolean
           report_confirmation: boolean
@@ -358,6 +359,7 @@ export type Database = {
         Insert: {
           appointment_reminders?: boolean
           created_at?: string
+          email_notifications?: boolean
           new_interventions?: boolean
           newsletter?: boolean
           report_confirmation?: boolean
@@ -367,6 +369,7 @@ export type Database = {
         Update: {
           appointment_reminders?: boolean
           created_at?: string
+          email_notifications?: boolean
           new_interventions?: boolean
           newsletter?: boolean
           report_confirmation?: boolean
@@ -820,6 +823,35 @@ export type Database = {
             foreignKeyName: "structure_membership_history_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      structure_notification_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structure_notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "structures"
             referencedColumns: ["user_id"]
           },
