@@ -43,6 +43,60 @@ export const MissionStatusLabel: Record<
   },
 };
 
+export interface MissionStatusConfig {
+  bgColor: string;
+  dotColor: string;
+  label: string;
+  textColor: string;
+}
+
+export const getMissionStatusConfig = (
+  locale: 'en' | 'fr'
+): Record<MissionStatus, MissionStatusConfig> => ({
+  accepted: {
+    bgColor: 'bg-green-50',
+    dotColor: 'bg-green-500',
+    label: MissionStatusLabel[locale].accepted,
+    textColor: 'text-green-700',
+  },
+  cancelled: {
+    bgColor: 'bg-gray-50',
+    dotColor: 'bg-gray-500',
+    label: MissionStatusLabel[locale].cancelled,
+    textColor: 'text-gray-700',
+  },
+  declined: {
+    bgColor: 'bg-red-50',
+    dotColor: 'bg-red-500',
+    label: MissionStatusLabel[locale].declined,
+    textColor: 'text-red-700',
+  },
+  draft: {
+    bgColor: 'bg-gray-50',
+    dotColor: 'bg-gray-500',
+    label: MissionStatusLabel[locale].draft,
+    textColor: 'text-gray-700',
+  },
+  ended: {
+    bgColor: 'bg-blue-50',
+    dotColor: 'bg-blue-500',
+    label: MissionStatusLabel[locale].ended,
+    textColor: 'text-blue-700',
+  },
+  expired: {
+    bgColor: 'bg-orange-50',
+    dotColor: 'bg-orange-500',
+    label: MissionStatusLabel[locale].expired,
+    textColor: 'text-orange-700',
+  },
+  pending: {
+    bgColor: 'bg-yellow-50',
+    dotColor: 'bg-yellow-500',
+    label: MissionStatusLabel[locale].pending,
+    textColor: 'text-yellow-700',
+  },
+});
+
 export interface CreateMissionRequestBody {
   description?: string;
   mission_dtstart: string;

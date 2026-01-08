@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -1046,6 +1051,7 @@ export type Database = {
         | "cancelled"
         | "expired"
         | "ended"
+        | "draft"
       notification_type:
         | "invitation_received"
         | "invitation_accepted"
@@ -1215,6 +1221,7 @@ export const Constants = {
         "cancelled",
         "expired",
         "ended",
+        "draft",
       ],
       notification_type: [
         "invitation_received",
@@ -1245,4 +1252,3 @@ export const Constants = {
     },
   },
 } as const
-

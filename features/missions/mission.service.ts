@@ -195,6 +195,9 @@ export const getProfessionalMissions = async (
 
   if (filters.status) {
     query = query.eq('status', filters.status);
+  } else {
+    // Exclude draft missions by default
+    query = query.neq('status', 'draft');
   }
 
   const page = paginationOptions.page ?? 1;
