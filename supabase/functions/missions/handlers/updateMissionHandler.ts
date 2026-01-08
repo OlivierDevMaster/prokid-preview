@@ -174,7 +174,8 @@ export const updateMissionHandler = factory.createHandlers(
 
       // Handle schedule updates if provided
       if (body.schedules) {
-        // Verify that all schedule IDs to update/delete belong to this mission
+        // Verify that schedule IDs to update/delete belong to this mission
+        // Filter out invalid ones and continue with valid ones
         const scheduleIdsToCheck = [
           ...(body.schedules.update?.map(s => s.id) || []),
           ...(body.schedules.delete || []),
@@ -201,17 +202,36 @@ export const updateMissionHandler = factory.createHandlers(
           const existingScheduleIds = new Set(
             existingSchedules?.map(s => s.id) || []
           );
-          const invalidScheduleIds = scheduleIdsToCheck.filter(
-            id => !existingScheduleIds.has(id)
-          );
 
-          if (invalidScheduleIds.length > 0) {
-            return apiResponse.badRequest(
-              'INVALID_SCHEDULE_IDS',
-              'One or more schedule IDs do not belong to this mission',
-              {
-                invalidIds: invalidScheduleIds,
-              }
+          // Filter out invalid schedule IDs from delete array
+          if (body.schedules.delete && body.schedules.delete.length > 0) {
+            const invalidDeleteIds = body.schedules.delete.filter(
+              id => !existingScheduleIds.has(id)
+            );
+            if (invalidDeleteIds.length > 0) {
+              console.warn(
+                `Skipping ${invalidDeleteIds.length} invalid schedule IDs from delete:`,
+                invalidDeleteIds
+              );
+            }
+            body.schedules.delete = body.schedules.delete.filter(id =>
+              existingScheduleIds.has(id)
+            );
+          }
+
+          // Filter out invalid schedule IDs from update array
+          if (body.schedules.update && body.schedules.update.length > 0) {
+            const invalidUpdateIds = body.schedules.update
+              .filter(s => !existingScheduleIds.has(s.id))
+              .map(s => s.id);
+            if (invalidUpdateIds.length > 0) {
+              console.warn(
+                `Skipping ${invalidUpdateIds.length} invalid schedule IDs from update:`,
+                invalidUpdateIds
+              );
+            }
+            body.schedules.update = body.schedules.update.filter(s =>
+              existingScheduleIds.has(s.id)
             );
           }
         }
@@ -365,7 +385,8 @@ export const updateMissionHandler = factory.createHandlers(
           const { error: deleteError } = await supabaseAdminClient
             .from('mission_schedules')
             .delete()
-            .in('id', body.schedules.delete);
+            .in('id', body.schedules.delete)
+            .eq('mission_id', missionId); // Extra safety check
 
           if (deleteError) {
             console.error('Error deleting schedules:', deleteError);

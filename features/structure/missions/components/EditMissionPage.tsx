@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { addDays, addWeeks, isSameDay, startOfWeek, subWeeks } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -17,7 +16,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Options, RRule, RRuleSet, rrulestr } from 'rrule';
+import { ByWeekday, Options, RRule, RRuleSet, rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
@@ -37,6 +36,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useFindAvailabilitySlots } from '@/features/availabilities/hooks/useFindAvailabilitySlots';
 import { useGroupedAvailabilitySlots } from '@/features/availabilities/hooks/useGroupedAvailabilitySlots';
 import { useGetMissionSchedules } from '@/features/missions/hooks/useGetMissionSchedules';
@@ -82,13 +87,7 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
     resolver: zodResolver(editMissionFormSchema),
   });
 
-  const {
-    control,
-    formState: { errors },
-    getValues,
-    setValue,
-    watch,
-  } = form;
+  const { control, getValues, setValue, watch } = form;
 
   const { append, fields, remove } = useFieldArray({
     control: control,
@@ -157,6 +156,123 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
     }
   };
 
+  // Helper function to update DTSTART in rrule
+  const updateRruleDtstart = (
+    rruleString: string,
+    newDtstart: Date
+  ): string => {
+    try {
+      const rule = rrulestr(rruleString);
+      let options: Partial<Options>;
+
+      if (rule instanceof RRuleSet) {
+        const rruleSet = rule as RRuleSet;
+        const rules = rruleSet.rrules();
+        if (rules.length > 0) {
+          options = { ...rules[0].options };
+        } else {
+          return rruleString; // Return original if no rules found
+        }
+      } else {
+        options = { ...rule.options };
+      }
+
+      // Set the new dtstart
+      options.dtstart = newDtstart;
+
+      // Create new RRule with updated options
+      const newRule = new RRule(options);
+      return newRule.toString();
+    } catch (error) {
+      console.error('Error updating DTSTART in rrule:', error);
+      return rruleString; // Return original on error
+    }
+  };
+
+  // Helper function to update frequency and until date in rrule
+  const updateRruleFrequencyAndUntil = (
+    rruleString: string,
+    frequency: number,
+    untilDate: Date
+  ): string => {
+    try {
+      const rule = rrulestr(rruleString);
+      let options: Partial<Options>;
+      let hasExdates = false;
+      let exdates: Date[] = [];
+
+      if (rule instanceof RRuleSet) {
+        const rruleSet = rule as RRuleSet;
+        const rules = rruleSet.rrules();
+        if (rules.length > 0) {
+          options = { ...rules[0].options };
+        } else {
+          return rruleString; // Return original if no rules found
+        }
+        // Preserve EXDATEs if they exist
+        exdates = rruleSet.exdates();
+        hasExdates = exdates.length > 0;
+      } else {
+        options = { ...rule.options };
+      }
+
+      // Preserve dtstart (it should already be in options, but ensure it's set)
+      const dtstart = options.dtstart;
+      if (!dtstart) {
+        console.error('No dtstart found in rrule');
+        return rruleString;
+      }
+
+      // Update frequency and until date
+      options.freq = frequency;
+      options.until = untilDate;
+
+      // Remove count if present (we're using until instead)
+      delete options.count;
+
+      // Handle byweekday based on frequency
+      if (frequency === RRule.WEEKLY) {
+        // For WEEKLY, set byweekday based on dtstart's day of the week
+        // Map JavaScript getDay() (0=Sunday) to RRule constants
+        const dayOfWeek = dtstart.getDay();
+        const dayMap: ByWeekday[] = [
+          RRule.SU, // 0 = Sunday
+          RRule.MO, // 1 = Monday
+          RRule.TU, // 2 = Tuesday
+          RRule.WE, // 3 = Wednesday
+          RRule.TH, // 4 = Thursday
+          RRule.FR, // 5 = Friday
+          RRule.SA, // 6 = Saturday
+        ];
+        options.byweekday = [dayMap[dayOfWeek]];
+      } else if (frequency === RRule.DAILY) {
+        // For DAILY, remove byweekday (not needed)
+        delete options.byweekday;
+      }
+
+      // Ensure dtstart is preserved
+      options.dtstart = dtstart;
+
+      // Create new RRule with updated options
+      const newRule = new RRule(options);
+
+      // If there were EXDATEs, preserve them in an RRuleSet
+      if (hasExdates) {
+        const rruleSet = new RRuleSet();
+        rruleSet.rrule(newRule);
+        for (const exdate of exdates) {
+          rruleSet.exdate(exdate);
+        }
+        return rruleSet.toString();
+      }
+
+      return newRule.toString();
+    } catch (error) {
+      console.error('Error updating frequency and UNTIL in rrule:', error);
+      return rruleString; // Return original on error
+    }
+  };
+
   // Initialize form with mission data and schedules
   useEffect(() => {
     if (mission) {
@@ -217,9 +333,12 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
     }
   }, [existingSchedules, form, mission, missionId]);
 
-  console.info({ errors, formValues: getValues() });
   // Get selected professional from step 1
   const selectedProfessionalId = form.watch('professional_id');
+
+  // Get mission dates from form to filter availabilities
+  const missionStartDate = form.watch('mission_dtstart');
+  const missionEndDate = form.watch('mission_until');
 
   // Get availability slots for selected professional
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
@@ -233,13 +352,26 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
     startAt: weekStart.toISOString(),
   });
 
+  // Filter slots to only include those within mission date range
+  const filteredSlots = slots.filter(slot => {
+    if (!missionStartDate || !missionEndDate) return true; // Show all if mission dates not set
+
+    const slotStart = new Date(slot.startAt);
+    const slotEnd = new Date(slot.endAt);
+    const missionStart = new Date(missionStartDate);
+    const missionEnd = new Date(missionEndDate);
+
+    // Slot must start on or after mission start and end on or before mission end
+    return slotStart >= missionStart && slotEnd <= missionEnd;
+  });
+
   // Get availabilities to match with slots for rrule
   const { data: availabilitiesData } = useGetProfessionalAvailabilities(
     selectedProfessionalId || null
   );
   const availabilities = availabilitiesData?.data ?? [];
 
-  const groupedSlots = useGroupedAvailabilitySlots(slots);
+  const groupedSlots = useGroupedAvailabilitySlots(filteredSlots);
 
   const goToPreviousWeek = () => {
     setCurrentWeek(subWeeks(currentWeek, 1));
@@ -273,6 +405,23 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
       return;
     }
 
+    // Validate slot is within mission date range
+    const missionStart = missionStartDate ? new Date(missionStartDate) : null;
+    const missionEnd = missionEndDate ? new Date(missionEndDate) : null;
+
+    if (missionStart && missionEnd) {
+      const slotStart = new Date(slot.startAt);
+      const slotEnd = new Date(slot.endAt);
+
+      if (slotStart < missionStart || slotEnd > missionEnd) {
+        toast.error(
+          t('slotOutsideMissionRange') ||
+            'This availability slot is outside the mission date range'
+        );
+        return;
+      }
+    }
+
     const start = new Date(slot.startAt);
     const end = new Date(slot.endAt);
     const durationMn = Math.round((end.getTime() - start.getTime()) / 60000);
@@ -298,14 +447,27 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
         matchingAvailability.rrule.includes('FREQ=MONTHLY')
       : false;
 
-    let rrule = matchingAvailability?.rrule;
-    if (!rrule) {
-      const dayOfWeek = start.getDay();
-      const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-      rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
-    }
+    const dayOfWeek = start.getDay();
+    // Map JavaScript getDay() (0=Sunday) to RRule constants
+    const dayMap: ByWeekday[] = [
+      RRule.SU, // 0 = Sunday
+      RRule.MO, // 1 = Monday
+      RRule.TU, // 2 = Tuesday
+      RRule.WE, // 3 = Wednesday
+      RRule.TH, // 4 = Thursday
+      RRule.FR, // 5 = Friday
+      RRule.SA, // 6 = Saturday
+    ];
 
-    append({
+    const slotStartDate = new Date(slot.startAt);
+    const rule = new RRule({
+      byweekday: [dayMap[dayOfWeek]],
+      dtstart: slotStartDate,
+      freq: RRule.DAILY,
+      until: undefined,
+    });
+
+    const data = {
       availabilityEndAt: slot.endAt,
       availabilityStartAt: slot.startAt,
       dtstart: slot.startAt,
@@ -314,10 +476,12 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
       isAvailabilityRecurrent: isAvailabilityRecurrent,
       isRecurrent: false,
       missionId: missionId,
-      rrule: rrule,
+      rrule: rule.toString(),
       startAt: slot.startAt,
       until: null,
-    });
+    };
+
+    append(data);
   };
 
   const handleSubmit = async (data: EditMissionFormData) => {
@@ -332,6 +496,9 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
     }
 
     // Validate all schedules before submission
+    const missionStart = new Date(data.mission_dtstart);
+    const missionEnd = new Date(data.mission_until);
+
     if (data.missionSchedules && data.missionSchedules.length > 0) {
       for (const schedule of data.missionSchedules) {
         if (!schedule.startAt || !schedule.endAt) {
@@ -361,12 +528,41 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
           toast.error(t('scheduleEndOutOfRange'));
           return;
         }
+
+        // Validate: schedule must be within mission date range
+        if (startDate < missionStart || endDate > missionEnd) {
+          toast.error(
+            t('scheduleOutsideMissionRange') ||
+              'Schedule must be within the mission date range'
+          );
+          return;
+        }
+
+        // Validate: recurring schedules must have UNTIL set to mission end date
+        if (schedule.isRecurrent) {
+          if (!schedule.rrule.includes('UNTIL=')) {
+            // This will be set in the processing below, but validate the pattern
+            const untilDate = new Date(data.mission_until);
+            const rruleWithUntil = setRruleUntil(schedule.rrule, untilDate);
+            if (!rruleWithUntil.includes('UNTIL=')) {
+              toast.error(
+                t('recurrentScheduleUntilRequired') ||
+                  'Recurring schedules must have UNTIL set to mission end date'
+              );
+              return;
+            }
+          }
+        }
       }
     }
 
     try {
       // Determine new status
-      const newStatus = data.is_draft ? 'draft' : mission.status;
+      const newStatus = data.is_draft
+        ? 'draft'
+        : mission.status === 'draft'
+          ? 'pending'
+          : mission.status;
 
       // Process schedules: separate into create, update, and delete
       const existingScheduleIds = new Set(
@@ -383,18 +579,34 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
         id => !formScheduleIds.has(id)
       );
 
+      // Helper function to ensure UNTIL is set for recurring rrules
+      const ensureRruleUntil = (
+        rrule: string,
+        missionEndDate: Date
+      ): string => {
+        // Check if rrule is recurring (has FREQ)
+        const isRecurring =
+          rrule.includes('FREQ=WEEKLY') ||
+          rrule.includes('FREQ=DAILY') ||
+          rrule.includes('FREQ=MONTHLY') ||
+          rrule.includes('FREQ=YEARLY');
+
+        if (isRecurring) {
+          // Always set UNTIL to mission end date for recurring schedules
+          return setRruleUntil(rrule, missionEndDate);
+        }
+        return rrule;
+      };
+
+      const missionEndDate = new Date(data.mission_until);
+
       // Schedules to update (exist in both)
       const schedulesToUpdate = (data.missionSchedules || [])
         .filter(s => s.scheduleId || s.id)
         .map(schedule => {
           const scheduleId = schedule.scheduleId || schedule.id!;
-          // Build rrule with until if recurrent
-          let rrule = schedule.rrule;
-          if (schedule.isRecurrent) {
-            // Ensure UNTIL is set in rrule using the rrule library
-            const untilDate = new Date(data.mission_until);
-            rrule = setRruleUntil(rrule, untilDate);
-          }
+          // Ensure UNTIL is set for recurring rrules
+          const rrule = ensureRruleUntil(schedule.rrule, missionEndDate);
           return {
             duration_mn: schedule.duration_mn,
             id: scheduleId,
@@ -406,13 +618,8 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
       const schedulesToCreate = (data.missionSchedules || [])
         .filter(s => !s.scheduleId && !s.id)
         .map(schedule => {
-          // Build rrule with until if recurrent
-          let rrule = schedule.rrule;
-          if (schedule.isRecurrent) {
-            // Ensure UNTIL is set in rrule using the rrule library
-            const untilDate = new Date(data.mission_until);
-            rrule = setRruleUntil(rrule, untilDate);
-          }
+          // Ensure UNTIL is set for recurring rrules
+          const rrule = ensureRruleUntil(schedule.rrule, missionEndDate);
           return {
             duration_mn: schedule.duration_mn,
             rrule: rrule,
@@ -883,12 +1090,10 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                     <h3 className='flex-1 text-center text-xs font-bold text-blue-900 sm:text-sm md:text-base lg:text-lg'>
                       <span className='hidden sm:inline'>
                         {t('weekOf')}{' '}
-                        {mounted &&
-                          format(weekStart, 'd MMMM yyyy', { locale: fr })}
+                        {mounted && format(weekStart, 'd MMMM yyyy')}
                       </span>
                       <span className='sm:hidden'>
-                        {mounted &&
-                          format(weekStart, 'd MMM yyyy', { locale: fr })}
+                        {mounted && format(weekStart, 'd MMM yyyy')}
                       </span>
                     </h3>
                     <Button
@@ -911,7 +1116,7 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                       const isToday = mounted && isSameDay(day, new Date());
                       const dayName = dayNames[index];
                       const dayNumber = format(day, 'd');
-                      const month = format(day, 'MMM', { locale: fr });
+                      const month = format(day, 'MMM');
                       const daySlots = groupedSlots.getSlotsByDay(day);
 
                       return (
@@ -944,18 +1149,30 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                                   );
 
                                   return (
-                                    <Button
-                                      className='h-8 w-full justify-start border border-green-300 bg-green-50 px-2 text-[10px] text-green-700 transition-colors hover:bg-green-100 sm:h-9 sm:px-2.5 sm:text-xs md:text-sm'
-                                      key={slotIndex}
-                                      onClick={() => handleAddSchedule(slot)}
-                                      size='sm'
-                                      type='button'
-                                    >
-                                      <Plus className='h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5' />
-                                      <span className='truncate'>
-                                        {startTime} - {endTime}
-                                      </span>
-                                    </Button>
+                                    <TooltipProvider key={slotIndex}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            className='h-8 w-full justify-start border border-green-300 bg-green-50 px-2 text-[10px] text-green-700 transition-colors hover:bg-green-100 sm:h-9 sm:px-2.5 sm:text-xs md:text-sm'
+                                            onClick={() =>
+                                              handleAddSchedule(slot)
+                                            }
+                                            size='sm'
+                                            type='button'
+                                          >
+                                            <Plus className='h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5' />
+                                            <span className='truncate'>
+                                              {startTime} - {endTime}
+                                            </span>
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <span className='truncate'>
+                                            {startTime} - {endTime}
+                                          </span>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   );
                                 })}
                               {daySlots.filter(slot => slot.isAvailable)
@@ -1028,15 +1245,13 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                                   <span className='hidden sm:inline'>
                                     {format(
                                       new Date(field.startAt),
-                                      'EEEE, d MMMM yyyy',
-                                      { locale: fr }
+                                      'EEEE, d MMMM yyyy'
                                     )}
                                   </span>
                                   <span className='sm:hidden'>
                                     {format(
                                       new Date(field.startAt),
-                                      'EEE, d MMM yyyy',
-                                      { locale: fr }
+                                      'EEE, d MMM yyyy'
                                     )}
                                   </span>
                                 </div>
@@ -1161,6 +1376,22 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                                               `missionSchedules.${index}.dtstart`,
                                               newStart.toISOString()
                                             );
+
+                                            // Update rrule dtstart
+                                            const currentRrule = getValues(
+                                              `missionSchedules.${index}.rrule`
+                                            );
+                                            if (currentRrule) {
+                                              const updatedRrule =
+                                                updateRruleDtstart(
+                                                  currentRrule,
+                                                  newStart
+                                                );
+                                              setValue(
+                                                `missionSchedules.${index}.rrule`,
+                                                updatedRrule
+                                              );
+                                            }
                                           }}
                                           type='datetime-local'
                                           value={
@@ -1381,7 +1612,63 @@ export function EditMissionPage({ missionId }: EditMissionPageProps) {
                                         disabled={
                                           !field.isAvailabilityRecurrent
                                         }
-                                        onCheckedChange={checkboxField.onChange}
+                                        onCheckedChange={checked => {
+                                          checkboxField.onChange(checked);
+
+                                          // Update rrule frequency and until date
+                                          const currentRrule = getValues(
+                                            `missionSchedules.${index}.rrule`
+                                          );
+                                          if (currentRrule) {
+                                            const isRecurrent =
+                                              checked === true;
+                                            const frequency = isRecurrent
+                                              ? RRule.WEEKLY
+                                              : RRule.DAILY;
+
+                                            // Get mission end date
+                                            const missionUntil =
+                                              getValues('mission_until');
+                                            if (!missionUntil) return;
+
+                                            // Get schedule end time
+                                            const endAt = getValues(
+                                              `missionSchedules.${index}.endAt`
+                                            );
+                                            if (!endAt) return;
+
+                                            const endAtDate = new Date(endAt);
+                                            const missionEndDate = new Date(
+                                              missionUntil
+                                            );
+
+                                            // Create until date: mission end date with schedule end time
+                                            const untilDate = new Date(
+                                              missionEndDate
+                                            );
+                                            untilDate.setHours(
+                                              endAtDate.getHours(),
+                                              endAtDate.getMinutes(),
+                                              endAtDate.getSeconds(),
+                                              endAtDate.getMilliseconds()
+                                            );
+
+                                            const updatedRrule =
+                                              updateRruleFrequencyAndUntil(
+                                                currentRrule,
+                                                frequency,
+                                                untilDate
+                                              );
+                                            setValue(
+                                              `missionSchedules.${index}.rrule`,
+                                              updatedRrule
+                                            );
+                                            setValue(
+                                              `missionSchedules.${index}.until`,
+                                              untilDate.toISOString()
+                                            );
+                                          }
+                                        }}
                                       />
                                     </FormControl>
                                     <div className='space-y-0.5 leading-none sm:space-y-1'>

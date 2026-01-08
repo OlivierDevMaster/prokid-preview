@@ -15,9 +15,16 @@ export function useUpdateMission() {
       missionId: string;
       updateData: UpdateMissionRequestBody;
     }) => updateStructureMission(missionId, updateData),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      const { missionId } = variables;
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });
       queryClient.invalidateQueries({ queryKey: ['structure-mission'] });
+      queryClient.invalidateQueries({
+        queryKey: ['structure-mission', missionId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['mission-schedules', missionId],
+      });
       // Invalidate dashboard queries for structure
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'structure', 'missions'],
