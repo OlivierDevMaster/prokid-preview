@@ -40,7 +40,7 @@ BEGIN
   END;
 
   -- Only send email for INSERT operations (new notifications)
-  IF TG_OP = 'INSERT' AND NEW IS NOT NULL THEN
+  IF TG_OP = 'INSERT' AND NEW.id IS NOT NULL THEN
     -- Get Supabase URL and service role key from vault
     supabase_url := public.get_vault_secret('supabase_url');
     supabase_service_role_key := public.get_vault_secret('supabase_service_role_key');
