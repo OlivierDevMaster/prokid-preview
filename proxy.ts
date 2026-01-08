@@ -124,8 +124,77 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Special handling for /professionals route: block professionals from accessing it
+  if (pathWithoutLocale.startsWith('/professionals')) {
+    // Get NextAuth token to check if user is authenticated
+    const token = await getToken({
+      req: request,
+      secret: authOptions.secret,
+    });
+
+    // If user is authenticated, check their role
+    if (token && token.id) {
+      // Create Supabase client to get user role
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+      if (supabaseUrl && supabaseAnonKey) {
+        const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll();
+            },
+            setAll() {
+              // Cookies are set via the response in updateSession
+            },
+          },
+        });
+
+        // Get user profile role from Supabase
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('user_id', token.id as string)
+          .maybeSingle();
+
+        // If user is a professional, redirect them to their dashboard
+        if (profile?.role === 'professional') {
+          // Create service role client for subscription checks
+          let supabaseServiceRole: null | ReturnType<
+            typeof createServiceRoleClient
+          > = null;
+          try {
+            supabaseServiceRole = createServiceRoleClient();
+          } catch {
+            // Continue with regular client
+          }
+
+          const subscriptionClient = supabaseServiceRole || supabase;
+          const { data: isSubscribed } = await subscriptionClient.rpc(
+            'is_professional_subscribed',
+            {
+              user_id_param: token.id as string,
+            }
+          );
+
+          const redirectPath = isSubscribed
+            ? `/${locale}/professional/dashboard`
+            : `/${locale}/professional/subscription`;
+
+          const redirectUrl = new URL(redirectPath, request.url);
+          return NextResponse.redirect(redirectUrl);
+        }
+        // If user is admin or structure, allow access (continue to public route handling)
+        // If user is unauthenticated or has no profile, allow access (public route)
+      }
+    }
+    // Allow access for unauthenticated users, admins, and structures
+    const supabaseResponse = await updateSession(request);
+    return supabaseResponse;
+  }
+
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/professionals', '/faq', '/auth'];
+  const publicRoutes = ['/', '/faq', '/auth'];
 
   // Check if the current path is a public route
   const isPublicRoute = publicRoutes.some(route => {
