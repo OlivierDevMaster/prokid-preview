@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMissionDuration } from '@/features/mission-durations';
 import {
-  MissionStatusLabel,
+  getMissionStatusConfig,
   type MissionWithStructure,
 } from '@/features/missions/mission.model';
 import { useLastReportForMission } from '@/features/professional/missions/hooks/useLastReportForMission';
@@ -40,45 +40,7 @@ export function ProfessionalMissionCard({
     ? Math.round(missionDuration.total_duration_mn / 60)
     : 0;
 
-  const statusConfig = {
-    accepted: {
-      bgColor: 'bg-green-50',
-      dotColor: 'bg-green-500',
-      label: MissionStatusLabel[locale].accepted,
-      textColor: 'text-green-700',
-    },
-    cancelled: {
-      bgColor: 'bg-gray-50',
-      dotColor: 'bg-gray-500',
-      label: MissionStatusLabel[locale].cancelled,
-      textColor: 'text-gray-700',
-    },
-    declined: {
-      bgColor: 'bg-red-50',
-      dotColor: 'bg-red-500',
-      label: MissionStatusLabel[locale].declined,
-      textColor: 'text-red-700',
-    },
-    ended: {
-      bgColor: 'bg-blue-50',
-      dotColor: 'bg-blue-500',
-      label: MissionStatusLabel[locale].ended,
-      textColor: 'text-blue-700',
-    },
-    expired: {
-      bgColor: 'bg-orange-50',
-      dotColor: 'bg-orange-500',
-      label: MissionStatusLabel[locale].expired,
-      textColor: 'text-orange-700',
-    },
-    pending: {
-      bgColor: 'bg-yellow-50',
-      dotColor: 'bg-yellow-500',
-      label: MissionStatusLabel[locale].pending,
-      textColor: 'text-yellow-700',
-    },
-  };
-
+  const statusConfig = getMissionStatusConfig(locale);
   const status = statusConfig[mission.status] || statusConfig.pending;
 
   const structureName =

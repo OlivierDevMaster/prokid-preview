@@ -6,6 +6,7 @@ import {
   Building2,
   Calendar,
   Check,
+  FilePlus,
   FileText,
   Loader2,
   Mail,
@@ -27,8 +28,8 @@ import {
 import { useMissionDuration } from '@/features/mission-durations';
 import { useAcceptMission, useDeclineMission } from '@/features/missions/hooks';
 import {
+  getMissionStatusConfig,
   MissionStatus,
-  MissionStatusLabel,
   type MissionWithStructure,
 } from '@/features/missions/mission.model';
 import { useLastReportForMission } from '@/features/professional/missions/hooks/useLastReportForMission';
@@ -99,6 +100,9 @@ function MissionDetailsContent({
 
   const isProcessing = isAccepting || isDeclining;
   const canAcceptOrDecline = mission.status === MissionStatus.pending;
+  const canCreateReport =
+    mission.status === MissionStatus.accepted ||
+    mission.status === MissionStatus.ended;
 
   const progressPercentage = missionDuration?.percentage ?? 0;
   const pastDurationHours = missionDuration?.past_duration_mn
@@ -108,45 +112,7 @@ function MissionDetailsContent({
     ? Math.round(missionDuration.total_duration_mn / 60)
     : 0;
 
-  const statusConfig = {
-    accepted: {
-      bgColor: 'bg-green-50',
-      dotColor: 'bg-green-500',
-      label: MissionStatusLabel[locale].accepted,
-      textColor: 'text-green-700',
-    },
-    cancelled: {
-      bgColor: 'bg-gray-50',
-      dotColor: 'bg-gray-500',
-      label: MissionStatusLabel[locale].cancelled,
-      textColor: 'text-gray-700',
-    },
-    declined: {
-      bgColor: 'bg-red-50',
-      dotColor: 'bg-red-500',
-      label: MissionStatusLabel[locale].declined,
-      textColor: 'text-red-700',
-    },
-    ended: {
-      bgColor: 'bg-blue-50',
-      dotColor: 'bg-blue-500',
-      label: MissionStatusLabel[locale].ended,
-      textColor: 'text-blue-700',
-    },
-    expired: {
-      bgColor: 'bg-orange-50',
-      dotColor: 'bg-orange-500',
-      label: MissionStatusLabel[locale].expired,
-      textColor: 'text-orange-700',
-    },
-    pending: {
-      bgColor: 'bg-yellow-50',
-      dotColor: 'bg-yellow-500',
-      label: MissionStatusLabel[locale].pending,
-      textColor: 'text-yellow-700',
-    },
-  };
-
+  const statusConfig = getMissionStatusConfig(locale);
   const status = statusConfig[mission.status] || statusConfig.pending;
 
   const structureName =
@@ -324,15 +290,26 @@ function MissionDetailsContent({
           </div>
         </div>
 
-        {/* View Reports Link */}
+        {/* Reports Actions */}
         <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <Link
-            className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
-            href={`/professional/reports?mission=${mission.id}`}
-          >
-            <FileText className='h-4 w-4' />
-            <span>{t('viewReports')}</span>
-          </Link>
+          <div className='flex flex-col gap-3'>
+            <Link
+              className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
+              href={`/professional/reports?mission=${mission.id}`}
+            >
+              <FileText className='h-4 w-4' />
+              <span>{t('viewReports')}</span>
+            </Link>
+            {canCreateReport && (
+              <Link
+                className='flex items-center gap-2 text-sm text-green-600 hover:text-green-800 hover:underline'
+                href={`/professional/reports/new?mission=${mission.id}`}
+              >
+                <FilePlus className='h-4 w-4' />
+                <span>{t('createReport')}</span>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 

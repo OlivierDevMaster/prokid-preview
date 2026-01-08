@@ -4,11 +4,15 @@ import { format } from 'date-fns';
 import { Clock, FileText, MapPin, Phone, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMissionDuration } from '@/features/mission-durations';
-import { MissionStatusLabel } from '@/features/missions/mission.model';
+import {
+  getMissionStatusConfig,
+  MissionStatus,
+} from '@/features/missions/mission.model';
 import { useLastReportForMission } from '@/features/professional/missions/hooks/useLastReportForMission';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +26,7 @@ interface MissionCardProps {
 export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
   const t = useTranslations('structure.missions');
   const locale = (useLocale() as 'en' | 'fr') || 'en';
+  const router = useRouter();
 
   const { data: missionDuration, isLoading: isLoadingDuration } =
     useMissionDuration(mission.id);
@@ -37,46 +42,11 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
     ? Math.round(missionDuration.total_duration_mn / 60)
     : 0;
 
-  const statusConfig = {
-    accepted: {
-      bgColor: 'bg-green-50',
-      dotColor: 'bg-green-500',
-      label: MissionStatusLabel[locale].accepted,
-      textColor: 'text-green-700',
-    },
-    cancelled: {
-      bgColor: 'bg-gray-50',
-      dotColor: 'bg-gray-500',
-      label: MissionStatusLabel[locale].cancelled,
-      textColor: 'text-gray-700',
-    },
-    declined: {
-      bgColor: 'bg-red-50',
-      dotColor: 'bg-red-500',
-      label: MissionStatusLabel[locale].declined,
-      textColor: 'text-red-700',
-    },
-    ended: {
-      bgColor: 'bg-blue-50',
-      dotColor: 'bg-blue-500',
-      label: MissionStatusLabel[locale].ended,
-      textColor: 'text-blue-700',
-    },
-    expired: {
-      bgColor: 'bg-orange-50',
-      dotColor: 'bg-orange-500',
-      label: MissionStatusLabel[locale].expired,
-      textColor: 'text-orange-700',
-    },
-    pending: {
-      bgColor: 'bg-yellow-50',
-      dotColor: 'bg-yellow-500',
-      label: MissionStatusLabel[locale].pending,
-      textColor: 'text-yellow-700',
-    },
-  };
-
+  const statusConfig = getMissionStatusConfig(locale);
   const status = statusConfig[mission.status] || statusConfig.pending;
+  const canEdit =
+    mission.status === MissionStatus.pending ||
+    mission.status === MissionStatus.draft;
 
   const professionalName = mission.professional?.profile
     ? `${mission.professional.profile.first_name || ''} ${mission.professional.profile.last_name || ''}`.trim() ||
@@ -199,14 +169,27 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
           </div>
         </div>
 
-        {/* Action Button */}
-        <Button
-          className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={() => onViewDetails?.(mission.id)}
-          variant='outline'
-        >
-          {t('viewDetails')}
-        </Button>
+        {/* Action Buttons */}
+        <div className='flex gap-2'>
+          <Button
+            className='flex-1 border-gray-300 text-gray-700 hover:bg-gray-50'
+            onClick={() => onViewDetails?.(mission.id)}
+            variant='outline'
+          >
+            {t('viewDetails')}
+          </Button>
+          {canEdit && (
+            <Button
+              className='flex-1 border-gray-300 text-gray-700 hover:bg-gray-50'
+              onClick={() =>
+                router.push(`/structure/missions/${mission.id}/edit`)
+              }
+              variant='outline'
+            >
+              {t('edit')}
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

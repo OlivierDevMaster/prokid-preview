@@ -10,7 +10,8 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { parseAsString, useQueryState } from 'nuqs';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,10 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   const { form, isLoading, onSubmit, submitReport } = useReportForm();
   const router = useRouter();
   const { data: missionsData } = useGetMissions();
-  const missions = missionsData?.data ?? [];
+  const missions = useMemo(
+    () => missionsData?.data ?? [],
+    [missionsData?.data]
+  );
   const { isPending: isSending, mutate: sendReport } = useSendReport();
   const { isPending: isUpdating, mutate: updateReport } = useUpdateReport();
   const { mutate: deleteAttachment } = useDeleteReportAttachment();
@@ -63,6 +67,13 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { handleSubmit, setValue } = form;
+  const [missionIdFromQuery] = useQueryState(
+    'mission',
+    parseAsString.withDefault('')
+  );
+
+  const [hasSetMissionFromQuery, setHasSetMissionFromQuery] = useState(false);
+
   useEffect(() => {
     if (isEdit && report) {
       form.reset({
@@ -72,8 +83,31 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
         title: report.title,
       });
       setCurrentReport(report);
+    } else if (!isEdit && missionIdFromQuery && !hasSetMissionFromQuery) {
+      // Wait for missions to be loaded before setting the value
+      if (missions.length > 0) {
+        const missionExists = missions.some(
+          (m: { id: string }) => m.id === missionIdFromQuery
+        );
+        if (missionExists) {
+          // Use reset to properly set the initial value
+          form.reset({
+            content: '',
+            mission_id: missionIdFromQuery,
+            title: '',
+          });
+          setHasSetMissionFromQuery(true);
+        }
+      }
     }
-  }, [isEdit, report, form]);
+  }, [
+    isEdit,
+    report,
+    form,
+    missionIdFromQuery,
+    missions,
+    hasSetMissionFromQuery,
+  ]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -370,58 +404,63 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                 <FormField
                   control={form.control}
                   name='mission_id'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='text-sm font-semibold text-gray-700'>
-                        {t('selectMission') || 'Mission'}{' '}
-                        <span className='text-red-500'>*</span>
-                      </FormLabel>
-                      <Select
-                        disabled={isEdit && currentReport?.status === 'sent'}
-                        onValueChange={async value => {
-                          field.onChange(value);
-                          // await handleMissionChange(value);
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                t('selectMissionPlaceholder') ||
-                                'Select a mission'
-                              }
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {missions.map(mission => {
-                            const missionWithStructure = mission as {
-                              id: string;
-                              structure?: {
-                                name?: string;
-                                profile?: { email?: string };
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel className='text-sm font-semibold text-gray-700'>
+                          {t('selectMission') || 'Mission'}{' '}
+                          <span className='text-red-500'>*</span>
+                        </FormLabel>
+                        <Select
+                          disabled={isEdit && currentReport?.status === 'sent'}
+                          onValueChange={async value => {
+                            if (value) {
+                              field.onChange(value);
+                            }
+                            // await handleMissionChange(value);
+                          }}
+                          value={field.value || undefined}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={
+                                  t('selectMissionPlaceholder') ||
+                                  'Select a mission'
+                                }
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {missions.map(mission => {
+                              const missionWithStructure = mission as {
+                                id: string;
+                                structure?: {
+                                  name?: string;
+                                  profile?: { email?: string };
+                                };
+                                title: string;
                               };
-                              title: string;
-                            };
-                            const structureName =
-                              missionWithStructure.structure?.name ||
-                              missionWithStructure.structure?.profile?.email ||
-                              'N/A';
-                            return (
-                              <SelectItem
-                                key={missionWithStructure.id}
-                                value={missionWithStructure.id}
-                              >
-                                {missionWithStructure.title} - {structureName}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                              const structureName =
+                                missionWithStructure.structure?.name ||
+                                missionWithStructure.structure?.profile
+                                  ?.email ||
+                                'N/A';
+                              return (
+                                <SelectItem
+                                  key={missionWithStructure.id}
+                                  value={missionWithStructure.id}
+                                >
+                                  {missionWithStructure.title} - {structureName}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 

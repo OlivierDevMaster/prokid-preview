@@ -355,9 +355,7 @@ export type Database = {
           appointment_reminders: boolean
           created_at: string
           email_notifications: boolean
-          new_interventions: boolean
           newsletter: boolean
-          report_confirmation: boolean
           updated_at: string
           user_id: string
         }
@@ -365,9 +363,7 @@ export type Database = {
           appointment_reminders?: boolean
           created_at?: string
           email_notifications?: boolean
-          new_interventions?: boolean
           newsletter?: boolean
-          report_confirmation?: boolean
           updated_at?: string
           user_id: string
         }
@@ -375,9 +371,7 @@ export type Database = {
           appointment_reminders?: boolean
           created_at?: string
           email_notifications?: boolean
-          new_interventions?: boolean
           newsletter?: boolean
-          report_confirmation?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -1051,6 +1045,7 @@ export type Database = {
         | "cancelled"
         | "expired"
         | "ended"
+        | "draft"
       notification_type:
         | "invitation_received"
         | "invitation_accepted"
@@ -1220,6 +1215,7 @@ export const Constants = {
         "cancelled",
         "expired",
         "ended",
+        "draft",
       ],
       notification_type: [
         "invitation_received",
