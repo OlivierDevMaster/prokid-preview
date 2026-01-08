@@ -63,4 +63,3 @@ export const notificationBodyTemplateFr = `          <!-- Body content -->
           </tr>
 
 `;
-

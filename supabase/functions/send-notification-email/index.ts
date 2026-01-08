@@ -15,4 +15,3 @@ app.options('*', () => apiResponse.options());
 app.post('/', ...sendNotificationEmailHandler);
 
 Deno.serve(app.fetch);
-
