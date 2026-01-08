@@ -4,11 +4,15 @@ import { format } from 'date-fns';
 import { Clock, FileText, MapPin, Phone, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMissionDuration } from '@/features/mission-durations';
-import { getMissionStatusConfig } from '@/features/missions/mission.model';
+import {
+  getMissionStatusConfig,
+  MissionStatus,
+} from '@/features/missions/mission.model';
 import { useLastReportForMission } from '@/features/professional/missions/hooks/useLastReportForMission';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +26,7 @@ interface MissionCardProps {
 export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
   const t = useTranslations('structure.missions');
   const locale = (useLocale() as 'en' | 'fr') || 'en';
+  const router = useRouter();
 
   const { data: missionDuration, isLoading: isLoadingDuration } =
     useMissionDuration(mission.id);
@@ -39,6 +44,9 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
 
   const statusConfig = getMissionStatusConfig(locale);
   const status = statusConfig[mission.status] || statusConfig.pending;
+  const canEdit =
+    mission.status === MissionStatus.pending ||
+    mission.status === MissionStatus.draft;
 
   const professionalName = mission.professional?.profile
     ? `${mission.professional.profile.first_name || ''} ${mission.professional.profile.last_name || ''}`.trim() ||
@@ -161,14 +169,27 @@ export function MissionCard({ mission, onViewDetails }: MissionCardProps) {
           </div>
         </div>
 
-        {/* Action Button */}
-        <Button
-          className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={() => onViewDetails?.(mission.id)}
-          variant='outline'
-        >
-          {t('viewDetails')}
-        </Button>
+        {/* Action Buttons */}
+        <div className='flex gap-2'>
+          <Button
+            className='flex-1 border-gray-300 text-gray-700 hover:bg-gray-50'
+            onClick={() => onViewDetails?.(mission.id)}
+            variant='outline'
+          >
+            {t('viewDetails')}
+          </Button>
+          {canEdit && (
+            <Button
+              className='flex-1 border-gray-300 text-gray-700 hover:bg-gray-50'
+              onClick={() =>
+                router.push(`/structure/missions/${mission.id}/edit`)
+              }
+              variant='outline'
+            >
+              {t('edit')}
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

@@ -658,7 +658,12 @@
       "viewReports": "Voir les rapports",
       "close": "Fermer",
       "unknownProfessional": "Professionnel inconnu",
+      "edit": "Modifier",
+      "update": "Mettre à jour",
       "isDraft": "Brouillon",
+      "editMission": "Modifier la mission",
+      "updating": "Mise à jour en cours...",
+      "editMissionDescription": "Modifier les détails de la mission",
       "isDraftDescription": "Si coché, la mission sera enregistrée comme brouillon et ne sera pas visible par les professionnels"
     },
     "professionals": {
