@@ -87,6 +87,7 @@ export function CreateMissionForm() {
   const professionalIdFromUrl = searchParams.get('professional_id');
 
   const [step, setStep] = useState<1 | 2>(1);
+  const [missionStatus, setMissionStatus] = useState<boolean>(false);
   const [missionUntilDate, setMissionUntilDate] = useState<Date | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [mounted, setMounted] = useState(false);
@@ -98,6 +99,7 @@ export function CreateMissionForm() {
   const step1Form = useForm<MissionFormData>({
     defaultValues: {
       description: '',
+      is_draft: false,
       mission_dtstart: undefined,
       mission_until: undefined,
       professional_id: professionalIdFromUrl || '',
@@ -276,6 +278,41 @@ export function CreateMissionForm() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
+  //   const handleStep1Submit = async (data: MissionFormData) => {
+  //     if (!structureId) {
+  //       toast.error(t('structureIdRequired'));
+  //       return;
+  //     }
+
+  // <<<<<<< HEAD
+  //     try {
+  //       const mission = await createMission.mutateAsync({
+  //         description: data.description || null,
+  //         mission_dtstart: formatISO(data.mission_dtstart),
+  //         mission_until: formatISO(data.mission_until),
+  //         professional_id: data.professional_id,
+  //         status: (data.is_draft
+  //           ? 'draft'
+  //           : 'pending') as Database['public']['Enums']['mission_status'],
+  //         structure_id: structureId,
+  //         title: data.title,
+  //       });
+
+  //       setCreatedMissionId(mission.id);
+  //       setMissionUntilDate(data.mission_until);
+  //       setStep(2);
+  //     } catch (error) {
+  //       toast.error(error instanceof Error ? error.message : t('createError'));
+  // =======
+  //     setMissionUntilDate(data.mission_until);
+  //     // Initialize currentWeek to mission start date when entering step 2
+  //     if (data.mission_dtstart) {
+  //       setCurrentWeek(data.mission_dtstart);
+  // >>>>>>> develop
+  //     }
+  //     setStep(2);
+  //   };
+
   const handleStep1Submit = async (data: MissionFormData) => {
     if (!structureId) {
       toast.error(t('structureIdRequired'));
@@ -287,9 +324,10 @@ export function CreateMissionForm() {
     if (data.mission_dtstart) {
       setCurrentWeek(data.mission_dtstart);
     }
+
+    setMissionStatus(data.is_draft ?? false);
     setStep(2);
   };
-
   const handleStep2Submit = async (data: MissionSchedulesFormData) => {
     if (!missionUntilDate || !structureId) {
       toast.error(t('missionEndDateRequired'));
@@ -396,6 +434,7 @@ export function CreateMissionForm() {
         mission_until: step1Data.mission_until.toISOString(),
         professional_id: step1Data.professional_id,
         schedules,
+        status: missionStatus ? 'draft' : 'pending',
         structure_id: structureId,
         title: step1Data.title,
       });
@@ -848,6 +887,31 @@ export function CreateMissionForm() {
                     </FormItem>
                   );
                 }}
+              />
+
+              {/* Draft Checkbox */}
+              <FormField
+                control={step1Form.control}
+                name='is_draft'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className='space-y-1 leading-none'>
+                      <FormLabel className='cursor-pointer text-sm font-normal'>
+                        {t('isDraft') || 'Save as draft'}
+                      </FormLabel>
+                      <FormDescription className='text-xs'>
+                        {t('isDraftDescription') ||
+                          'If checked, the mission will be saved as a draft and will not be sent to the professional'}
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
               />
 
               {/* Description */}
