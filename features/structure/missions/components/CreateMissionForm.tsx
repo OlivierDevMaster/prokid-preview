@@ -196,6 +196,10 @@ export function CreateMissionForm() {
   // Get selected professional from step 1
   const selectedProfessionalId = step1Form.watch('professional_id');
 
+  // Get mission dates from step 1
+  const missionDtstart = step1Form.watch('mission_dtstart');
+  const missionUntil = step1Form.watch('mission_until');
+
   // Get availability slots for selected professional
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = new Date(weekStart);
@@ -208,20 +212,56 @@ export function CreateMissionForm() {
     startAt: weekStart.toISOString(),
   });
 
+  // Filter slots to only show those within mission date range
+  const filteredSlots = slots.filter(slot => {
+    if (!missionDtstart || !missionUntil) return true;
+    const slotStart = new Date(slot.startAt);
+    const slotEnd = new Date(slot.endAt);
+    // Slot must start on or after mission start and end on or before mission end
+    return slotStart >= missionDtstart && slotEnd <= missionUntil;
+  });
+
   // Get availabilities to match with slots for rrule
   const { data: availabilitiesData } = useGetProfessionalAvailabilities(
     selectedProfessionalId || null
   );
   const availabilities = availabilitiesData?.data ?? [];
 
-  const groupedSlots = useGroupedAvailabilitySlots(slots);
+  const groupedSlots = useGroupedAvailabilitySlots(filteredSlots);
+
+  // Check if we can navigate to previous week
+  const canGoToPreviousWeek = () => {
+    if (!missionDtstart) return true;
+    const previousWeek = subWeeks(currentWeek, 1);
+    const previousWeekStart = startOfWeek(previousWeek, { weekStartsOn: 1 });
+    const previousWeekEnd = new Date(previousWeekStart);
+    previousWeekEnd.setDate(previousWeekEnd.getDate() + 6);
+    previousWeekEnd.setHours(23, 59, 59, 999);
+    // Allow navigation if the previous week ends on or after the mission start date
+    // The week can start before mission start - slots will be filtered anyway
+    return previousWeekEnd >= missionDtstart;
+  };
+
+  // Check if we can navigate to next week
+  const canGoToNextWeek = () => {
+    if (!missionUntil) return true;
+    const nextWeek = addWeeks(currentWeek, 1);
+    const nextWeekStart = startOfWeek(nextWeek, { weekStartsOn: 1 });
+    // Allow navigation if the next week starts before or on the mission end date
+    // The week can extend beyond mission end - slots will be filtered anyway
+    return nextWeekStart <= missionUntil;
+  };
 
   const goToPreviousWeek = () => {
-    setCurrentWeek(subWeeks(currentWeek, 1));
+    if (!canGoToPreviousWeek()) return;
+    const previousWeek = subWeeks(currentWeek, 1);
+    setCurrentWeek(previousWeek);
   };
 
   const goToNextWeek = () => {
-    setCurrentWeek(addWeeks(currentWeek, 1));
+    if (!canGoToNextWeek()) return;
+    const nextWeek = addWeeks(currentWeek, 1);
+    setCurrentWeek(nextWeek);
   };
 
   const dayNames = [
@@ -243,6 +283,10 @@ export function CreateMissionForm() {
     }
 
     setMissionUntilDate(data.mission_until);
+    // Initialize currentWeek to mission start date when entering step 2
+    if (data.mission_dtstart) {
+      setCurrentWeek(data.mission_dtstart);
+    }
     setStep(2);
   };
 
@@ -265,6 +309,36 @@ export function CreateMissionForm() {
         t('atLeastOneScheduleRequired') || 'At least one schedule is required'
       );
       return;
+    }
+
+    // Validate that all schedules are within mission date range
+    const missionStart = step1Data.mission_dtstart;
+    const missionEnd = step1Data.mission_until;
+    if (missionStart && missionEnd) {
+      for (const schedule of data.schedules) {
+        const scheduleStart = schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : schedule.startAt
+            ? new Date(schedule.startAt)
+            : null;
+        const scheduleEnd = schedule.endAt ? new Date(schedule.endAt) : null;
+
+        if (scheduleStart && scheduleStart < missionStart) {
+          toast.error(
+            t('scheduleBeforeMissionStart') ||
+              'One or more schedules start before the mission start date'
+          );
+          return;
+        }
+
+        if (scheduleEnd && scheduleEnd > missionEnd) {
+          toast.error(
+            t('scheduleAfterMissionEnd') ||
+              'One or more schedules end after the mission end date'
+          );
+          return;
+        }
+      }
     }
 
     try {
@@ -338,6 +412,23 @@ export function CreateMissionForm() {
   };
 
   const handleAddSchedule = (slot: AvailabilitySlot) => {
+    // Validate that slot is within mission date range
+    const missionDtstart = step1Form.getValues('mission_dtstart');
+    const missionUntil = step1Form.getValues('mission_until');
+
+    if (missionDtstart && missionUntil) {
+      const slotStart = new Date(slot.startAt);
+      const slotEnd = new Date(slot.endAt);
+
+      if (slotStart < missionDtstart || slotEnd > missionUntil) {
+        toast.error(
+          t('slotOutsideMissionRange') ||
+            'This slot is outside the mission date range'
+        );
+        return;
+      }
+    }
+
     // Check if slot is already added
     const existingIndex = fields.findIndex(
       field =>
@@ -825,6 +916,7 @@ export function CreateMissionForm() {
                 <div className='mb-3 flex items-center justify-between gap-2 sm:mb-4 sm:gap-4'>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
+                    disabled={!canGoToPreviousWeek()}
                     onClick={goToPreviousWeek}
                     size='sm'
                     type='button'
@@ -848,6 +940,7 @@ export function CreateMissionForm() {
                   </h3>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
+                    disabled={!canGoToNextWeek()}
                     onClick={goToNextWeek}
                     size='sm'
                     type='button'
