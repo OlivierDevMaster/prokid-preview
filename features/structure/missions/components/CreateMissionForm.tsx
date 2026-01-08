@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formatISO } from 'date-fns';
 import {
   addDays,
   addWeeks,
@@ -25,11 +24,23 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr, type Weekday } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
-import type { Database } from '@/types/database/schema';
+
+// Map JavaScript getDay() numbers to RRule weekday constants
+// JavaScript: 0=Sunday, 1=Monday, 2=Tuesday, etc.
+// RRule: SU=0, MO=1, TU=2, WE=3, TH=4, FR=5, SA=6
+const DAY_MAP: Record<number, Weekday> = {
+  0: RRule.SU, // Sunday
+  1: RRule.MO, // Monday
+  2: RRule.TU, // Tuesday
+  3: RRule.WE, // Wednesday
+  4: RRule.TH, // Thursday
+  5: RRule.FR, // Friday
+  6: RRule.SA, // Saturday
+};
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -54,8 +65,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useFindAvailabilitySlots } from '@/features/availabilities/hooks/useFindAvailabilitySlots';
 import { useGroupedAvailabilitySlots } from '@/features/availabilities/hooks/useGroupedAvailabilitySlots';
-import { useCreateMissionDirect } from '@/features/missions/hooks/useCreateMissionDirect';
-import { useCreateMissionSchedules } from '@/features/missions/hooks/useCreateMissionSchedule';
+import { useCreateMission } from '@/features/missions/hooks/useCreateMission';
 import { Link } from '@/i18n/routing';
 
 import { useGetProfessionals } from '../../professionals/hooks/useGetProfessionals';
@@ -77,7 +87,7 @@ export function CreateMissionForm() {
   const professionalIdFromUrl = searchParams.get('professional_id');
 
   const [step, setStep] = useState<1 | 2>(1);
-  const [createdMissionId, setCreatedMissionId] = useState<null | string>(null);
+  const [missionStatus, setMissionStatus] = useState<boolean>(false);
   const [missionUntilDate, setMissionUntilDate] = useState<Date | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [mounted, setMounted] = useState(false);
@@ -102,7 +112,6 @@ export function CreateMissionForm() {
   // Step 2 form
   const step2Form = useForm<MissionSchedulesFormData>({
     defaultValues: {
-      mission_id: '',
       schedules: [],
     },
     resolver: zodResolver(missionSchedulesFormSchema),
@@ -113,8 +122,7 @@ export function CreateMissionForm() {
     name: 'schedules',
   });
 
-  const createMission = useCreateMissionDirect();
-  const createSchedules = useCreateMissionSchedules();
+  const createMission = useCreateMission();
 
   useEffect(() => {
     setMounted(true);
@@ -132,14 +140,67 @@ export function CreateMissionForm() {
     }
   }, [professionalIdFromUrl, step1Form]);
 
+  // Update rrule when isRecurrent changes
+  const watchedSchedules = step2Form.watch('schedules');
   useEffect(() => {
-    if (createdMissionId) {
-      step2Form.setValue('mission_id', createdMissionId);
-    }
-  }, [createdMissionId, step2Form]);
+    if (!watchedSchedules || watchedSchedules.length === 0) return;
+
+    watchedSchedules.forEach((schedule, index) => {
+      if (!schedule) return;
+
+      const startDate = schedule.startAt
+        ? new Date(schedule.startAt)
+        : schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : null;
+
+      if (!startDate) return;
+
+      const isRecurrent = schedule.isRecurrent || false;
+      const currentRrule = schedule.rrule || '';
+
+      // Check if rrule needs to be updated
+      const hasCount = currentRrule.includes('COUNT=1');
+      const isRecurringPattern =
+        currentRrule.includes('FREQ=WEEKLY') && !hasCount;
+
+      // Only update if there's a mismatch
+      if ((isRecurrent && !isRecurringPattern) || (!isRecurrent && !hasCount)) {
+        // Use RRule library to generate proper RFC 5545 format
+        // The toString() method already includes DTSTART in the correct format
+        let newRrule: string;
+        if (isRecurrent) {
+          // Create recurring rrule
+          const dayOfWeek = startDate.getDay();
+          const rrule = new RRule({
+            byweekday: [DAY_MAP[dayOfWeek]],
+            dtstart: startDate,
+            freq: RRule.WEEKLY,
+          });
+          newRrule = rrule.toString();
+        } else {
+          // Create single-occurrence rrule
+          const rrule = new RRule({
+            count: 1,
+            dtstart: startDate,
+            freq: RRule.DAILY,
+          });
+          newRrule = rrule.toString();
+        }
+
+        step2Form.setValue(`schedules.${index}.rrule`, newRrule, {
+          shouldDirty: false,
+        });
+      }
+    });
+  }, [watchedSchedules, step2Form]);
 
   // Get selected professional from step 1
   const selectedProfessionalId = step1Form.watch('professional_id');
+
+  // Get mission dates from step 1
+  const missionDtstart = step1Form.watch('mission_dtstart');
+  const missionUntil = step1Form.watch('mission_until');
 
   // Get availability slots for selected professional
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
@@ -153,20 +214,56 @@ export function CreateMissionForm() {
     startAt: weekStart.toISOString(),
   });
 
+  // Filter slots to only show those within mission date range
+  const filteredSlots = slots.filter(slot => {
+    if (!missionDtstart || !missionUntil) return true;
+    const slotStart = new Date(slot.startAt);
+    const slotEnd = new Date(slot.endAt);
+    // Slot must start on or after mission start and end on or before mission end
+    return slotStart >= missionDtstart && slotEnd <= missionUntil;
+  });
+
   // Get availabilities to match with slots for rrule
   const { data: availabilitiesData } = useGetProfessionalAvailabilities(
     selectedProfessionalId || null
   );
   const availabilities = availabilitiesData?.data ?? [];
 
-  const groupedSlots = useGroupedAvailabilitySlots(slots);
+  const groupedSlots = useGroupedAvailabilitySlots(filteredSlots);
+
+  // Check if we can navigate to previous week
+  const canGoToPreviousWeek = () => {
+    if (!missionDtstart) return true;
+    const previousWeek = subWeeks(currentWeek, 1);
+    const previousWeekStart = startOfWeek(previousWeek, { weekStartsOn: 1 });
+    const previousWeekEnd = new Date(previousWeekStart);
+    previousWeekEnd.setDate(previousWeekEnd.getDate() + 6);
+    previousWeekEnd.setHours(23, 59, 59, 999);
+    // Allow navigation if the previous week ends on or after the mission start date
+    // The week can start before mission start - slots will be filtered anyway
+    return previousWeekEnd >= missionDtstart;
+  };
+
+  // Check if we can navigate to next week
+  const canGoToNextWeek = () => {
+    if (!missionUntil) return true;
+    const nextWeek = addWeeks(currentWeek, 1);
+    const nextWeekStart = startOfWeek(nextWeek, { weekStartsOn: 1 });
+    // Allow navigation if the next week starts before or on the mission end date
+    // The week can extend beyond mission end - slots will be filtered anyway
+    return nextWeekStart <= missionUntil;
+  };
 
   const goToPreviousWeek = () => {
-    setCurrentWeek(subWeeks(currentWeek, 1));
+    if (!canGoToPreviousWeek()) return;
+    const previousWeek = subWeeks(currentWeek, 1);
+    setCurrentWeek(previousWeek);
   };
 
   const goToNextWeek = () => {
-    setCurrentWeek(addWeeks(currentWeek, 1));
+    if (!canGoToNextWeek()) return;
+    const nextWeek = addWeeks(currentWeek, 1);
+    setCurrentWeek(nextWeek);
   };
 
   const dayNames = [
@@ -181,49 +278,166 @@ export function CreateMissionForm() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
+  //   const handleStep1Submit = async (data: MissionFormData) => {
+  //     if (!structureId) {
+  //       toast.error(t('structureIdRequired'));
+  //       return;
+  //     }
+
+  // <<<<<<< HEAD
+  //     try {
+  //       const mission = await createMission.mutateAsync({
+  //         description: data.description || null,
+  //         mission_dtstart: formatISO(data.mission_dtstart),
+  //         mission_until: formatISO(data.mission_until),
+  //         professional_id: data.professional_id,
+  //         status: (data.is_draft
+  //           ? 'draft'
+  //           : 'pending') as Database['public']['Enums']['mission_status'],
+  //         structure_id: structureId,
+  //         title: data.title,
+  //       });
+
+  //       setCreatedMissionId(mission.id);
+  //       setMissionUntilDate(data.mission_until);
+  //       setStep(2);
+  //     } catch (error) {
+  //       toast.error(error instanceof Error ? error.message : t('createError'));
+  // =======
+  //     setMissionUntilDate(data.mission_until);
+  //     // Initialize currentWeek to mission start date when entering step 2
+  //     if (data.mission_dtstart) {
+  //       setCurrentWeek(data.mission_dtstart);
+  // >>>>>>> develop
+  //     }
+  //     setStep(2);
+  //   };
+
   const handleStep1Submit = async (data: MissionFormData) => {
     if (!structureId) {
       toast.error(t('structureIdRequired'));
       return;
     }
 
-    try {
-      const mission = await createMission.mutateAsync({
-        description: data.description || null,
-        mission_dtstart: formatISO(data.mission_dtstart),
-        mission_until: formatISO(data.mission_until),
-        professional_id: data.professional_id,
-        status: (data.is_draft
-          ? 'draft'
-          : 'pending') as Database['public']['Enums']['mission_status'],
-        structure_id: structureId,
-        title: data.title,
-      });
-
-      setCreatedMissionId(mission.id);
-      setMissionUntilDate(data.mission_until);
-      setStep(2);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t('createError'));
+    setMissionUntilDate(data.mission_until);
+    // Initialize currentWeek to mission start date when entering step 2
+    if (data.mission_dtstart) {
+      setCurrentWeek(data.mission_dtstart);
     }
-  };
 
+    setMissionStatus(data.is_draft ?? false);
+    setStep(2);
+  };
   const handleStep2Submit = async (data: MissionSchedulesFormData) => {
-    if (!missionUntilDate) {
+    if (!missionUntilDate || !structureId) {
       toast.error(t('missionEndDateRequired'));
       return;
     }
 
-    try {
-      const schedulesToCreate = data.schedules.map(schedule => ({
-        dtstart: schedule.dtstart || schedule.startAt,
-        duration_mn: schedule.duration_mn,
-        mission_id: data.mission_id,
-        rrule: schedule.rrule,
-        until: schedule.isRecurrent ? formatISO(missionUntilDate) : null,
-      }));
+    // Get step 1 data
+    const step1Data = step1Form.getValues();
 
-      await createSchedules.mutateAsync(schedulesToCreate);
+    if (!step1Data.mission_dtstart || !step1Data.mission_until) {
+      toast.error(t('missionDatesRequired'));
+      return;
+    }
+
+    if (data.schedules.length === 0) {
+      toast.error(
+        t('atLeastOneScheduleRequired') || 'At least one schedule is required'
+      );
+      return;
+    }
+
+    // Validate that all schedules are within mission date range
+    const missionStart = step1Data.mission_dtstart;
+    const missionEnd = step1Data.mission_until;
+    if (missionStart && missionEnd) {
+      for (const schedule of data.schedules) {
+        const scheduleStart = schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : schedule.startAt
+            ? new Date(schedule.startAt)
+            : null;
+        const scheduleEnd = schedule.endAt ? new Date(schedule.endAt) : null;
+
+        if (scheduleStart && scheduleStart < missionStart) {
+          toast.error(
+            t('scheduleBeforeMissionStart') ||
+              'One or more schedules start before the mission start date'
+          );
+          return;
+        }
+
+        if (scheduleEnd && scheduleEnd > missionEnd) {
+          toast.error(
+            t('scheduleAfterMissionEnd') ||
+              'One or more schedules end after the mission end date'
+          );
+          return;
+        }
+      }
+    }
+
+    try {
+      // Prepare schedules for edge function (only rrule and duration_mn)
+      const schedules = data.schedules.map(schedule => {
+        const startDate = schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : schedule.startAt
+            ? new Date(schedule.startAt)
+            : null;
+
+        // Ensure rrule matches isRecurrent state
+        let finalRrule = schedule.rrule;
+        if (startDate) {
+          const isRecurrent = schedule.isRecurrent || false;
+
+          // Check if current rrule matches the isRecurrent state
+          const hasCount = finalRrule.includes('COUNT=1');
+          const isRecurringPattern =
+            finalRrule.includes('FREQ=WEEKLY') && !hasCount;
+
+          if (isRecurrent && !isRecurringPattern) {
+            // Should be recurring but isn't - fix it using RRule library
+            const dayOfWeek = startDate.getDay();
+            const rrule = new RRule({
+              byweekday: [DAY_MAP[dayOfWeek]],
+              dtstart: startDate,
+              freq: RRule.WEEKLY,
+            });
+            // toString() already includes DTSTART in proper RFC 5545 format
+            finalRrule = rrule.toString();
+          } else if (!isRecurrent && !hasCount) {
+            // Should be single occurrence but isn't - fix it using RRule library
+            const rrule = new RRule({
+              count: 1,
+              dtstart: startDate,
+              freq: RRule.DAILY,
+            });
+            // toString() already includes DTSTART in proper RFC 5545 format
+            finalRrule = rrule.toString();
+          }
+        }
+
+        return {
+          duration_mn: schedule.duration_mn,
+          rrule: finalRrule,
+        };
+      });
+
+      // Call edge function with mission + schedules in one request
+      // Use toISOString() to ensure UTC format compatible with z.iso.datetime()
+      await createMission.mutateAsync({
+        description: step1Data.description || undefined,
+        mission_dtstart: step1Data.mission_dtstart.toISOString(),
+        mission_until: step1Data.mission_until.toISOString(),
+        professional_id: step1Data.professional_id,
+        schedules,
+        status: missionStatus ? 'draft' : 'pending',
+        structure_id: structureId,
+        title: step1Data.title,
+      });
 
       toast.success(t('createSuccess') || 'Mission created successfully');
       router.push('/structure/missions');
@@ -231,12 +445,29 @@ export function CreateMissionForm() {
       toast.error(
         error instanceof Error
           ? error.message
-          : t('createError') || 'Failed to create schedules'
+          : t('createError') || 'Failed to create mission'
       );
     }
   };
 
   const handleAddSchedule = (slot: AvailabilitySlot) => {
+    // Validate that slot is within mission date range
+    const missionDtstart = step1Form.getValues('mission_dtstart');
+    const missionUntil = step1Form.getValues('mission_until');
+
+    if (missionDtstart && missionUntil) {
+      const slotStart = new Date(slot.startAt);
+      const slotEnd = new Date(slot.endAt);
+
+      if (slotStart < missionDtstart || slotEnd > missionUntil) {
+        toast.error(
+          t('slotOutsideMissionRange') ||
+            'This slot is outside the mission date range'
+        );
+        return;
+      }
+    }
+
     // Check if slot is already added
     const existingIndex = fields.findIndex(
       field =>
@@ -313,13 +544,33 @@ export function CreateMissionForm() {
         matchingAvailability.rrule.includes('FREQ=MONTHLY')
       : false;
 
-    // Always use rrule from matching availability if found, otherwise create a simple one
-    let rrule = matchingAvailability?.rrule;
-    if (!rrule) {
-      const dayOfWeek = start.getDay();
-      const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-      rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
-    }
+    // Helper function to create rrule based on recurrence preference
+    // Always create a new rrule to avoid issues with EXDATE, DTSTART mismatch, or UNTIL dates
+    const createRrule = (isRecurrent: boolean, startDate: Date): string => {
+      // Use RRule library to generate proper RFC 5545 format
+      // The toString() method already includes DTSTART in the correct format
+      if (isRecurrent) {
+        // Create recurring rrule (weekly on the same day)
+        const dayOfWeek = startDate.getDay();
+        const rrule = new RRule({
+          byweekday: [DAY_MAP[dayOfWeek]],
+          dtstart: startDate,
+          freq: RRule.WEEKLY,
+        });
+        return rrule.toString();
+      } else {
+        // Create single-occurrence rrule (COUNT=1)
+        const rrule = new RRule({
+          count: 1,
+          dtstart: startDate,
+          freq: RRule.DAILY,
+        });
+        return rrule.toString();
+      }
+    };
+
+    // By default, create a single-occurrence rrule (isRecurrent: false)
+    const initialRrule = createRrule(false, start);
 
     append({
       availabilityEndAt: slot.endAt,
@@ -329,7 +580,7 @@ export function CreateMissionForm() {
       endAt: slot.endAt,
       isAvailabilityRecurrent: isAvailabilityRecurrent,
       isRecurrent: false,
-      rrule: rrule,
+      rrule: initialRrule,
       startAt: slot.startAt,
       until: null,
     });
@@ -729,6 +980,7 @@ export function CreateMissionForm() {
                 <div className='mb-3 flex items-center justify-between gap-2 sm:mb-4 sm:gap-4'>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
+                    disabled={!canGoToPreviousWeek()}
                     onClick={goToPreviousWeek}
                     size='sm'
                     type='button'
@@ -752,6 +1004,7 @@ export function CreateMissionForm() {
                   </h3>
                   <Button
                     className='text-gray-600 hover:text-gray-800'
+                    disabled={!canGoToNextWeek()}
                     onClick={goToNextWeek}
                     size='sm'
                     type='button'
@@ -1104,10 +1357,10 @@ export function CreateMissionForm() {
               </Button>
               <Button
                 className='w-full bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
-                disabled={createSchedules.isPending || fields.length === 0}
+                disabled={createMission.isPending || fields.length === 0}
                 type='submit'
               >
-                {createSchedules.isPending
+                {createMission.isPending
                   ? t('creating') || 'Creating...'
                   : t('create') || 'Create Mission'}
               </Button>

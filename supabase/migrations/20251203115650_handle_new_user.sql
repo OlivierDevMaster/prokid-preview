@@ -194,15 +194,11 @@ BEGIN
   INSERT INTO public.professional_notification_preferences (
     user_id,
     appointment_reminders,
-    new_interventions,
-    report_confirmation,
     newsletter
   )
   VALUES (
     NEW.user_id,
     TRUE,
-    TRUE,
-    FALSE,
     FALSE
   )
   ON CONFLICT (user_id) DO NOTHING;

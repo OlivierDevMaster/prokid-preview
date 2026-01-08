@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
+import { MissionStatus } from '@/features/missions/mission.model';
 import { createClient } from '@/lib/supabase/client';
 
 export function useGetMissions() {
@@ -15,7 +16,7 @@ export function useGetMissions() {
       }
       const supabase = createClient();
 
-      // Get all accepted and ended missions for the professional with structure info
+      // Get only accepted and ended missions for the professional with structure info
       const { data, error } = await supabase
         .from('missions')
         .select(
@@ -28,6 +29,7 @@ export function useGetMissions() {
         `
         )
         .eq('professional_id', professionalId)
+        .in('status', [MissionStatus.accepted, MissionStatus.ended])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
