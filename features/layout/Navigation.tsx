@@ -3,7 +3,7 @@
 import { Menu, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 // import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
@@ -28,10 +28,18 @@ export function Navigation() {
   } = useRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { href: '/professionals', label: t('professionals') },
-    { href: '/faq', label: t('howItWorks') },
-  ];
+  // Filter out professionals link for professionals
+  const navItems = useMemo(() => {
+    const allNavItems = [
+      { href: '/professionals', label: t('professionals') },
+      { href: '/faq', label: t('howItWorks') },
+    ];
+
+    if (isProfessional) {
+      return allNavItems.filter(item => item.href !== '/professionals');
+    }
+    return allNavItems;
+  }, [isProfessional, t]);
 
   // Close mobile menu when pathname changes
   useEffect(() => {
