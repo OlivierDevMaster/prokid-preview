@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
@@ -136,6 +136,61 @@ export function CreateMissionForm() {
     }
   }, [createdMissionId, step2Form]);
 
+  // Update rrule when isRecurrent changes
+  const watchedSchedules = step2Form.watch('schedules');
+  useEffect(() => {
+    if (!watchedSchedules || watchedSchedules.length === 0) return;
+
+    watchedSchedules.forEach((schedule, index) => {
+      if (!schedule) return;
+
+      const startDate = schedule.startAt
+        ? new Date(schedule.startAt)
+        : schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : null;
+
+      if (!startDate) return;
+
+      const isRecurrent = schedule.isRecurrent || false;
+      const currentRrule = schedule.rrule || '';
+
+      // Check if rrule needs to be updated
+      const hasCount = currentRrule.includes('COUNT=1');
+      const isRecurringPattern =
+        currentRrule.includes('FREQ=WEEKLY') && !hasCount;
+
+      // Only update if there's a mismatch
+      if ((isRecurrent && !isRecurringPattern) || (!isRecurrent && !hasCount)) {
+        // Use RRule library to generate proper RFC 5545 format
+        // The toString() method already includes DTSTART in the correct format
+        let newRrule: string;
+        if (isRecurrent) {
+          // Create recurring rrule
+          const dayOfWeek = startDate.getDay();
+          const rrule = new RRule({
+            byweekday: [dayOfWeek],
+            dtstart: startDate,
+            freq: RRule.WEEKLY,
+          });
+          newRrule = rrule.toString();
+        } else {
+          // Create single-occurrence rrule
+          const rrule = new RRule({
+            count: 1,
+            dtstart: startDate,
+            freq: RRule.DAILY,
+          });
+          newRrule = rrule.toString();
+        }
+
+        step2Form.setValue(`schedules.${index}.rrule`, newRrule, {
+          shouldDirty: false,
+        });
+      }
+    });
+  }, [watchedSchedules, step2Form]);
+
   // Get selected professional from step 1
   const selectedProfessionalId = step1Form.watch('professional_id');
 
@@ -210,13 +265,53 @@ export function CreateMissionForm() {
     }
 
     try {
-      const schedulesToCreate = data.schedules.map(schedule => ({
-        dtstart: schedule.dtstart || schedule.startAt,
-        duration_mn: schedule.duration_mn,
-        mission_id: data.mission_id,
-        rrule: schedule.rrule,
-        until: schedule.isRecurrent ? formatISO(missionUntilDate) : null,
-      }));
+      const schedulesToCreate = data.schedules.map(schedule => {
+        const startDate = schedule.dtstart
+          ? new Date(schedule.dtstart)
+          : schedule.startAt
+            ? new Date(schedule.startAt)
+            : null;
+
+        // Ensure rrule matches isRecurrent state
+        let finalRrule = schedule.rrule;
+        if (startDate) {
+          const isRecurrent = schedule.isRecurrent || false;
+
+          // Check if current rrule matches the isRecurrent state
+          const hasCount = finalRrule.includes('COUNT=1');
+          const isRecurringPattern =
+            finalRrule.includes('FREQ=WEEKLY') && !hasCount;
+
+          if (isRecurrent && !isRecurringPattern) {
+            // Should be recurring but isn't - fix it using RRule library
+            const dayOfWeek = startDate.getDay();
+            const rrule = new RRule({
+              byweekday: [dayOfWeek],
+              dtstart: startDate,
+              freq: RRule.WEEKLY,
+            });
+            // toString() already includes DTSTART in proper RFC 5545 format
+            finalRrule = rrule.toString();
+          } else if (!isRecurrent && !hasCount) {
+            // Should be single occurrence but isn't - fix it using RRule library
+            const rrule = new RRule({
+              count: 1,
+              dtstart: startDate,
+              freq: RRule.DAILY,
+            });
+            // toString() already includes DTSTART in proper RFC 5545 format
+            finalRrule = rrule.toString();
+          }
+        }
+
+        return {
+          dtstart: schedule.dtstart || schedule.startAt,
+          duration_mn: schedule.duration_mn,
+          mission_id: data.mission_id,
+          rrule: finalRrule,
+          until: schedule.isRecurrent ? formatISO(missionUntilDate) : null,
+        };
+      });
 
       await createSchedules.mutateAsync(schedulesToCreate);
 
@@ -308,13 +403,33 @@ export function CreateMissionForm() {
         matchingAvailability.rrule.includes('FREQ=MONTHLY')
       : false;
 
-    // Always use rrule from matching availability if found, otherwise create a simple one
-    let rrule = matchingAvailability?.rrule;
-    if (!rrule) {
-      const dayOfWeek = start.getDay();
-      const dayNames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-      rrule = `FREQ=WEEKLY;BYDAY=${dayNames[dayOfWeek]}`;
-    }
+    // Helper function to create rrule based on recurrence preference
+    // Always create a new rrule to avoid issues with EXDATE, DTSTART mismatch, or UNTIL dates
+    const createRrule = (isRecurrent: boolean, startDate: Date): string => {
+      // Use RRule library to generate proper RFC 5545 format
+      // The toString() method already includes DTSTART in the correct format
+      if (isRecurrent) {
+        // Create recurring rrule (weekly on the same day)
+        const dayOfWeek = startDate.getDay();
+        const rrule = new RRule({
+          byweekday: [dayOfWeek],
+          dtstart: startDate,
+          freq: RRule.WEEKLY,
+        });
+        return rrule.toString();
+      } else {
+        // Create single-occurrence rrule (COUNT=1)
+        const rrule = new RRule({
+          count: 1,
+          dtstart: startDate,
+          freq: RRule.DAILY,
+        });
+        return rrule.toString();
+      }
+    };
+
+    // By default, create a single-occurrence rrule (isRecurrent: false)
+    const initialRrule = createRrule(false, start);
 
     append({
       availabilityEndAt: slot.endAt,
@@ -324,7 +439,7 @@ export function CreateMissionForm() {
       endAt: slot.endAt,
       isAvailabilityRecurrent: isAvailabilityRecurrent,
       isRecurrent: false,
-      rrule: rrule,
+      rrule: initialRrule,
       startAt: slot.startAt,
       until: null,
     });
