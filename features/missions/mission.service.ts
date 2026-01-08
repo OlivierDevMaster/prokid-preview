@@ -9,7 +9,6 @@ import type {
   CreateMissionRequestBody,
   Mission,
   MissionFilters,
-  MissionInsert,
   MissionUpdate,
   MissionWithStructure,
 } from './mission.model';
@@ -38,23 +37,6 @@ export const createMission = async (
       method: 'POST',
     }
   );
-};
-
-// Create mission directly in database (for 2-step creation)
-export const createMissionDirect = async (
-  missionData: MissionInsert
-): Promise<Mission> => {
-  const supabase = createClient();
-
-  const { data, error } = await supabase
-    .from('missions')
-    .insert(missionData)
-    .select('*')
-    .single();
-
-  if (error) throw error;
-
-  return data;
 };
 
 export const findMission = async (

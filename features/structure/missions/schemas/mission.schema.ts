@@ -68,7 +68,6 @@ export type MissionScheduleFormData = z.infer<typeof missionScheduleFormSchema>;
 
 // Form schema for step 2 with field array
 export const missionSchedulesFormSchema = z.object({
-  mission_id: z.string().min(1, 'Mission ID is required'),
   schedules: z
     .array(missionScheduleFormSchema)
     .min(1, 'At least one schedule is required'),
