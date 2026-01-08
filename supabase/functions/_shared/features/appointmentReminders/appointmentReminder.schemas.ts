@@ -7,13 +7,13 @@ export const MissionScheduleSchema = z.object({
 });
 
 export const MissionForReminderSchema = z.object({
-  mission_dtstart: z
-    .string()
-    .datetime('Mission start date must be a valid ISO datetime'),
+  mission_dtstart: z.iso.datetime({
+    message: 'Mission start date must be a valid ISO datetime',
+  }),
   mission_id: z.string().uuid('Mission ID must be a valid UUID'),
-  mission_until: z
-    .string()
-    .datetime('Mission until date must be a valid ISO datetime'),
+  mission_until: z.iso.datetime({
+    message: 'Mission until date must be a valid ISO datetime',
+  }),
   schedules: z
     .array(MissionScheduleSchema)
     .min(1, 'At least one schedule is required'),
