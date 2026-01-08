@@ -14,12 +14,7 @@ import {
 
 interface NotificationPreference {
   checked: boolean;
-  field:
-    | 'appointment_reminders'
-    | 'email_notifications'
-    | 'new_interventions'
-    | 'newsletter'
-    | 'report_confirmation';
+  field: 'appointment_reminders' | 'email_notifications' | 'newsletter';
   id: string;
   label: string;
 }
@@ -33,9 +28,7 @@ export function NotificationPreferences() {
   const [localPreferences, setLocalPreferences] = useState<{
     appointment_reminders: boolean;
     email_notifications: boolean;
-    new_interventions: boolean;
     newsletter: boolean;
-    report_confirmation: boolean;
   } | null>(null);
 
   const {
@@ -62,18 +55,6 @@ export function NotificationPreferences() {
         label: tAdmin('setting.notificationPreferences.appointmentReminders'),
       },
       {
-        checked: currentPrefs?.new_interventions ?? true,
-        field: 'new_interventions',
-        id: 'new_interventions',
-        label: tAdmin('setting.notificationPreferences.newInterventions'),
-      },
-      {
-        checked: currentPrefs?.report_confirmation ?? false,
-        field: 'report_confirmation',
-        id: 'report_confirmation',
-        label: tAdmin('setting.notificationPreferences.reportConfirmation'),
-      },
-      {
         checked: currentPrefs?.newsletter ?? false,
         field: 'newsletter',
         id: 'newsletter',
@@ -87,17 +68,13 @@ export function NotificationPreferences() {
       setLocalPreferences({
         appointment_reminders: preferences.appointment_reminders ?? true,
         email_notifications: preferences.email_notifications ?? true,
-        new_interventions: preferences.new_interventions ?? true,
         newsletter: preferences.newsletter ?? false,
-        report_confirmation: preferences.report_confirmation ?? false,
       });
     } else {
       setLocalPreferences({
         appointment_reminders: true,
         email_notifications: true,
-        new_interventions: true,
         newsletter: false,
-        report_confirmation: false,
       });
     }
     setIsEditing(true);

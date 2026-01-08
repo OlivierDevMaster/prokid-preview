@@ -217,8 +217,6 @@ CREATE TABLE IF NOT EXISTS "public"."professional_notification_preferences" (
   "created_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "appointment_reminders" BOOLEAN DEFAULT TRUE NOT NULL,
-  "new_interventions" BOOLEAN DEFAULT TRUE NOT NULL,
-  "report_confirmation" BOOLEAN DEFAULT FALSE NOT NULL,
   "newsletter" BOOLEAN DEFAULT FALSE NOT NULL
 );
 
@@ -226,8 +224,6 @@ CREATE TABLE IF NOT EXISTS "public"."professional_notification_preferences" (
 COMMENT ON TABLE "public"."professional_notification_preferences" IS 'Notification preferences for professional users';
 COMMENT ON COLUMN "public"."professional_notification_preferences"."user_id" IS 'Reference to the professional user';
 COMMENT ON COLUMN "public"."professional_notification_preferences"."appointment_reminders" IS 'Receive appointment reminders by email (24 hours before)';
-COMMENT ON COLUMN "public"."professional_notification_preferences"."new_interventions" IS 'Receive new intervention requests notifications';
-COMMENT ON COLUMN "public"."professional_notification_preferences"."report_confirmation" IS 'Receive report sending confirmation';
 COMMENT ON COLUMN "public"."professional_notification_preferences"."newsletter" IS 'Receive newsletter and ProKid tips by email';
 
 -- Indexes
