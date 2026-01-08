@@ -10,7 +10,6 @@ import type {
   Mission,
   MissionFilters,
   MissionInsert,
-  MissionUpdate,
   MissionWithStructure,
 } from './mission.model';
 
@@ -123,22 +122,55 @@ export const getMissionsCount = async (): Promise<number> => {
 
   return count ?? 0;
 };
+export interface UpdateMissionRequestBody {
+  description?: null | string;
+  mission_dtstart?: string;
+  mission_until?: string;
+  schedules?: {
+    create?: Array<{
+      duration_mn: number;
+      rrule: string;
+    }>;
+    delete?: string[];
+    update?: Array<{
+      duration_mn: number;
+      id: string;
+      rrule: string;
+    }>;
+  };
+  status?: Mission['status'];
+  title?: string;
+}
+
+export interface UpdateMissionResponse {
+  mission: {
+    mission_schedules: Array<{
+      created_at: string;
+      dtstart: null | string;
+      duration_mn: number;
+      id: string;
+      mission_id: string;
+      rrule: string;
+      until: null | string;
+      updated_at: string;
+    }>;
+  } & Mission;
+}
+
 export const updateMission = async (
   missionId: string,
-  updateData: MissionUpdate
-): Promise<Mission> => {
+  updateData: UpdateMissionRequestBody
+): Promise<UpdateMissionResponse['mission']> => {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from('missions')
-    .update(updateData)
-    .eq('id', missionId)
-    .select('*')
-    .single();
-
-  if (error) throw error;
-
-  return data;
+  return invokeEdgeFunction<
+    UpdateMissionResponse['mission'],
+    UpdateMissionRequestBody
+  >(supabase, 'missions', {
+    body: updateData,
+    method: 'PUT',
+    path: `/${missionId}`,
+  });
 };
 
 export const acceptMission = async (missionId: string): Promise<Mission> => {

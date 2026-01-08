@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { MissionUpdate } from '@/features/missions/mission.model';
+import type { UpdateMissionRequestBody } from '@/features/missions/mission.service';
 
 import { updateStructureMission } from '../services/mission.service';
 
@@ -13,7 +13,7 @@ export function useUpdateMission() {
       updateData,
     }: {
       missionId: string;
-      updateData: MissionUpdate;
+      updateData: UpdateMissionRequestBody;
     }) => updateStructureMission(missionId, updateData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });

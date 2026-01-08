@@ -80,6 +80,27 @@ export type MissionSchedulesFormData = z.infer<
   typeof missionSchedulesFormSchema
 >;
 
+// Step 2: Mission schedule schema
+// This represents the selected availability slot data
+export const missionScheduleSchema = z.object({
+  availabilityEndAt: z.string().min(1, 'Availability end time is required'), // Original availability slot end time
+  availabilityStartAt: z.string().min(1, 'Availability start time is required'), // Original availability slot start time
+  dtstart: z.string().optional(), // Will be set from startAt
+  duration_mn: z.number().int().positive('Duration must be positive'),
+  endAt: z.string().min(1, 'End time is required'),
+  id: z.string().optional(),
+  isAvailabilityRecurrent: z.boolean(), // Whether the original availability is recurrent
+
+  isRecurrent: z.boolean(),
+  missionId: z.string().min(1, 'Mission ID is required'),
+  rrule: z.string().min(1, 'RRULE is required'),
+  scheduleId: z.string().optional(), // ID of existing schedule (for updates)
+  startAt: z.string().min(1, 'Start time is required'),
+  until: z.string().nullable().optional(), // Will be set based on isRecurrent
+});
+
+export type MissionScheduleSchema = z.infer<typeof missionScheduleSchema>;
+
 // Edit mission schema (allows past dates for existing missions)
 export const editMissionFormSchema = z
   .object({
@@ -91,6 +112,7 @@ export const editMissionFormSchema = z
     mission_until: z.date({
       message: 'Mission end date is required',
     }),
+    missionSchedules: z.array(missionScheduleSchema).optional(),
     professional_id: z.string().min(1, 'Professional selection is required'),
     structure_id: z.string().min(1, 'Structure ID is required'),
     title: z.string().min(1, 'Mission title is required'),

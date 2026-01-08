@@ -1,7 +1,4 @@
-import type {
-  MissionFilters,
-  MissionUpdate,
-} from '@/features/missions/mission.model';
+import type { MissionFilters } from '@/features/missions/mission.model';
 
 import { updateMission } from '@/features/missions/mission.service';
 import {
@@ -82,9 +79,11 @@ export const getStructureMission = async (
   return data as null | StructureMission;
 };
 
+import type { UpdateMissionRequestBody } from '@/features/missions/mission.service';
+
 export const updateStructureMission = async (
   missionId: string,
-  updateData: MissionUpdate
+  updateData: UpdateMissionRequestBody
 ) => {
   return updateMission(missionId, updateData);
 };

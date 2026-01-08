@@ -8,6 +8,7 @@ import {
   cancelMissionHandler,
   createMissionHandler,
   declineMissionHandler,
+  updateMissionHandler,
 } from './handlers/index.ts';
 
 const app = new Hono().basePath('/missions');
@@ -20,6 +21,9 @@ app.use('*', authMiddleware);
 
 // POST /missions - Create a new mission invitation
 app.post('/', ...createMissionHandler);
+
+// PUT /missions/:id - Update a mission
+app.put('/:id', ...updateMissionHandler);
 
 // POST /missions/:id/accept - Accept a mission
 app.post('/:id/accept', ...acceptMissionHandler);
