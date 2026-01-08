@@ -6,6 +6,7 @@ import {
   Building2,
   Calendar,
   Check,
+  FilePlus,
   FileText,
   Loader2,
   Mail,
@@ -99,6 +100,9 @@ function MissionDetailsContent({
 
   const isProcessing = isAccepting || isDeclining;
   const canAcceptOrDecline = mission.status === MissionStatus.pending;
+  const canCreateReport =
+    mission.status === MissionStatus.accepted ||
+    mission.status === MissionStatus.ended;
 
   const progressPercentage = missionDuration?.percentage ?? 0;
   const pastDurationHours = missionDuration?.past_duration_mn
@@ -324,15 +328,26 @@ function MissionDetailsContent({
           </div>
         </div>
 
-        {/* View Reports Link */}
+        {/* Reports Actions */}
         <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <Link
-            className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
-            href={`/professional/reports?mission=${mission.id}`}
-          >
-            <FileText className='h-4 w-4' />
-            <span>{t('viewReports')}</span>
-          </Link>
+          <div className='flex flex-col gap-3'>
+            <Link
+              className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
+              href={`/professional/reports?mission=${mission.id}`}
+            >
+              <FileText className='h-4 w-4' />
+              <span>{t('viewReports')}</span>
+            </Link>
+            {canCreateReport && (
+              <Link
+                className='flex items-center gap-2 text-sm text-green-600 hover:text-green-800 hover:underline'
+                href={`/professional/reports/new?mission=${mission.id}`}
+              >
+                <FilePlus className='h-4 w-4' />
+                <span>{t('createReport')}</span>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
