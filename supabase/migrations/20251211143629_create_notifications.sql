@@ -372,24 +372,26 @@ BEGIN
   FROM "public"."structures"
   WHERE "user_id" = NEW."structure_id";
 
-  -- Create notification for the professional
-  INSERT INTO "public"."notifications" (
-    "type",
-    "recipient_id",
-    "recipient_role",
-    "data"
-  )
-  VALUES (
-    'mission_received',
-    NEW."professional_id",
-    'professional',
-    jsonb_build_object(
-      'mission_id', NEW."id",
-      'mission_title', NEW."title",
-      'structure_id', NEW."structure_id",
-      'structure_name', structure_name
+  IF NEW."status" != 'draft' THEN
+    -- Create notification for the professional
+    INSERT INTO "public"."notifications" (
+      "type",
+      "recipient_id",
+      "recipient_role",
+      "data"
     )
-  );
+    VALUES (
+      'mission_received',
+      NEW."professional_id",
+      'professional',
+      jsonb_build_object(
+        'mission_id', NEW."id",
+        'mission_title', NEW."title",
+        'structure_id', NEW."structure_id",
+        'structure_name', structure_name
+      )
+    );
+  END IF;
 
   RETURN NEW;
 END;
@@ -397,10 +399,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 COMMENT ON FUNCTION "public"."create_mission_received_notification"() IS 'Creates a notification when a professional receives a new mission';
 
--- Trigger for mission received
+-- Trigger for mission received (on INSERT)
 CREATE TRIGGER "trigger_create_mission_received_notification"
   AFTER INSERT ON "public"."missions"
   FOR EACH ROW
+  EXECUTE FUNCTION "public"."create_mission_received_notification"();
+
+-- Trigger for mission received (on UPDATE from draft to pending)
+CREATE TRIGGER "trigger_create_mission_received_notification_on_update"
+  AFTER UPDATE OF "status" ON "public"."missions"
+  FOR EACH ROW
+  WHEN (OLD."status" = 'draft' AND NEW."status" = 'pending')
   EXECUTE FUNCTION "public"."create_mission_received_notification"();
 
 -- ============================================================================
