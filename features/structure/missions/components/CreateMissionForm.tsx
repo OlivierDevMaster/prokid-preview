@@ -29,6 +29,7 @@ import { RRuleSet, rrulestr } from 'rrule';
 import { toast } from 'sonner';
 
 import type { AvailabilitySlot } from '@/features/availabilities/availability.model';
+import type { Database } from '@/types/database/schema';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -88,6 +89,7 @@ export function CreateMissionForm() {
   const step1Form = useForm<MissionFormData>({
     defaultValues: {
       description: '',
+      is_draft: false,
       mission_dtstart: undefined,
       mission_until: undefined,
       professional_id: professionalIdFromUrl || '',
@@ -191,6 +193,9 @@ export function CreateMissionForm() {
         mission_dtstart: formatISO(data.mission_dtstart),
         mission_until: formatISO(data.mission_until),
         professional_id: data.professional_id,
+        status: (data.is_draft
+          ? 'draft'
+          : 'pending') as Database['public']['Enums']['mission_status'],
         structure_id: structureId,
         title: data.title,
       });
@@ -631,6 +636,31 @@ export function CreateMissionForm() {
                     </FormItem>
                   );
                 }}
+              />
+
+              {/* Draft Checkbox */}
+              <FormField
+                control={step1Form.control}
+                name='is_draft'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className='space-y-1 leading-none'>
+                      <FormLabel className='cursor-pointer text-sm font-normal'>
+                        {t('isDraft') || 'Save as draft'}
+                      </FormLabel>
+                      <FormDescription className='text-xs'>
+                        {t('isDraftDescription') ||
+                          'If checked, the mission will be saved as a draft and will not be sent to the professional'}
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
               />
 
               {/* Description */}

@@ -657,7 +657,9 @@
       "viewDetails": "Voir les détails",
       "viewReports": "Voir les rapports",
       "close": "Fermer",
-      "unknownProfessional": "Professionnel inconnu"
+      "unknownProfessional": "Professionnel inconnu",
+      "isDraft": "Brouillon",
+      "isDraftDescription": "Si coché, la mission sera enregistrée comme brouillon et ne sera pas visible par les professionnels"
     },
     "professionals": {
       "title": "Mes professionnels",

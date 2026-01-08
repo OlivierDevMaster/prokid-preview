@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const missionFormSchema = z
   .object({
     description: z.string().optional(),
+    is_draft: z.boolean().optional(),
     mission_dtstart: z
       .date({
         message: 'Mission start date is required',
