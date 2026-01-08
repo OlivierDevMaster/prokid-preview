@@ -35,7 +35,7 @@ export function ReportDetailsDialog({
 }: ReportDetailsDialogProps) {
   const t = useTranslations('admin.report');
   const tReports = useTranslations('admin.reports');
-  const tCommon = useTranslations('common.messages');
+  const tCommon = useTranslations('common');
 
   const { data: reportData, isLoading: isLoadingReport } =
     useGetReport(reportId);
@@ -49,8 +49,8 @@ export function ReportDetailsDialog({
   const professionalName = report?.author?.profile
     ? `${report.author.profile.first_name || ''} ${report.author.profile.last_name || ''}`.trim() ||
       report.author.profile.email ||
-      tCommon('unknown')
-    : tCommon('unknown');
+      tCommon('messages.unknown')
+    : tCommon('messages.unknown');
 
   const professionalEmail = report?.author?.profile?.email;
 
@@ -213,7 +213,7 @@ export function ReportDetailsDialog({
                             </span>
                             {downloadingAttachmentId === attachment.id ? (
                               <span className='text-xs text-gray-500'>
-                                {tCommon('loading')}
+                                {tCommon('messages.loading')}
                               </span>
                             ) : (
                               <Download className='h-4 w-4 flex-shrink-0 text-gray-400' />
