@@ -405,13 +405,6 @@ CREATE TRIGGER "trigger_create_mission_received_notification"
   FOR EACH ROW
   EXECUTE FUNCTION "public"."create_mission_received_notification"();
 
--- Trigger for mission received (on UPDATE from draft to pending)
-CREATE TRIGGER "trigger_create_mission_received_notification_on_update"
-  AFTER UPDATE OF "status" ON "public"."missions"
-  FOR EACH ROW
-  WHEN (OLD."status" = 'draft' AND NEW."status" = 'pending')
-  EXECUTE FUNCTION "public"."create_mission_received_notification"();
-
 -- ============================================================================
 -- Function: create_mission_accepted_notification
 -- ============================================================================
