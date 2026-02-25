@@ -467,6 +467,16 @@
       "noMissions": "Aucune mission",
       "reports": "RAPPORTS",
       "noReports": "Aucun rapport",
+      "availabilityPopover": {
+        "confirmed": "Disponibilité confirmée",
+        "questionAvailable": "Disponible pour recevoir des propositions ?",
+        "yes": "Oui",
+        "no": "Non",
+        "questionDuration": "Pour combien de temps ?",
+        "days": "{count} jours",
+        "greenBadgeInfo": "Pastille verte pendant {count} jours.",
+        "confirm": "Confirmer"
+      },
       "viewAll": "Tout voir"
     },
     "structure": {
