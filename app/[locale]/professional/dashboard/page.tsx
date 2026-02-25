@@ -1,18 +1,11 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
+import { AvailabilityStatusPopover } from '@/features/professional/Availabilities/components/AvailabilityStatusPopover';
 import { ProfessionalMissionCard } from '@/features/professional/missions/components/ProfessionalMissionCard';
 import { ProfessionalMissionDetailsDialog } from '@/features/professional/missions/components/ProfessionalMissionDetailsDialog';
 import { useGetProfessionalMission } from '@/features/professional/missions/hooks/useGetProfessionalMission';
@@ -20,7 +13,6 @@ import { ProfessionalReportCard } from '@/features/professional/reports/componen
 import { useReports } from '@/features/professional/reports/hooks/useReports';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { Link } from '@/i18n/routing';
-import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const t = useTranslations('professional.dashboard');
@@ -34,7 +26,6 @@ export default function DashboardPage() {
   // Mock values for UI only
   const availabilityDaysCount = 30;
   const unreadCount = 2;
-  const isAvailable = true;
 
   // Get missions for dashboard (limit to 2)
   const { data: missionsData, isLoading: isLoadingMissions } =
@@ -85,36 +76,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Availability Status Button */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className={cn(
-                'flex items-center gap-2 rounded-full px-4 py-2',
-                isAvailable
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              )}
-              variant='outline'
-            >
-              <div
-                className={cn(
-                  'h-2 w-2 rounded-full',
-                  isAvailable ? 'bg-green-500' : 'bg-gray-400'
-                )}
-              />
-              <span>
-                {isAvailable ? t('availableStatus') : t('unavailableStatus')}
-              </span>
-              <ChevronDown className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem>
-              {isAvailable ? t('unavailableStatus') : t('availableStatus')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Availability Status Popover */}
+        <AvailabilityStatusPopover />
       </div>
 
       {/* Missions Section */}
