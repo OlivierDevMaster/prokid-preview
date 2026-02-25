@@ -1,11 +1,4 @@
-import {
-  Building2,
-  Calendar,
-  ClipboardMinus,
-  LayoutDashboard,
-  Mail,
-  Target,
-} from 'lucide-react';
+import { ClipboardMinus, LayoutDashboard, Mail, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -19,30 +12,22 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       icon: LayoutDashboard,
       label: tProfessional('navigation.dashboard'),
     },
-    {
-      href: '/professional/availabilities',
-      icon: Calendar,
-      label: tProfessional('navigation.availabilities'),
-    },
-    {
-      href: '/professional/missions',
-      icon: Target,
-      label: tProfessional('navigation.missions'),
-    },
+
     {
       href: '/professional/reports',
       icon: ClipboardMinus,
       label: tProfessional('navigation.reports'),
     },
     {
-      href: '/professional/structures',
-      icon: Building2,
-      label: tProfessional('navigation.structure'),
-    },
-    {
+      badgeCount: 1,
       href: '/professional/invitations',
       icon: Mail,
-      label: tProfessional('navigation.invitations'),
+      label: tProfessional('navigation.messaging'),
+    },
+    {
+      href: '/professional/setting',
+      icon: User,
+      label: tProfessional('navigation.profile'),
     },
   ];
 
