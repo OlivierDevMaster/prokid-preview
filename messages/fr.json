@@ -751,8 +751,7 @@
     "acheteurs": "Acheteurs",
     "correspondances": "Correspondances",
     "admin": "Admin",
-    "profile": "Profil",
-    "settings": "Paramètres",
+    "profile": "Mon profil",
     "logout": "Déconnexion",
     "dashboard": {
       "title": "Tableau de Bord",
@@ -773,7 +772,7 @@
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
       "completedMissions": "Missions Terminées",
-      "invitations": "Invitations",
+      "messaging": "Messagerie",
       "pendingInvitations": "Invitations en Attente",
       "totalInvitations": "Invitations Totales",
       "reports": "Comptes Rendus",
@@ -1216,15 +1215,17 @@
     },
     "navigation": {
       "planning": "Mon Planning",
-      "reports": "Mes Rapports",
+      "reports": "Rapports",
       "structure": "Structure",
       "users": "Utilisateurs",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de Bord",
+      "dashboard": "Tableau de bord",
       "missions": "Missions",
       "invitations": "Invitations",
       "professionals": "Professionnels",
-      "structures": "Structures"
+      "structures": "Structures",
+      "messaging": "Messagerie",
+      "profile": "Mon profil"
     },
     "notifications": {
       "title": "Notifications",
