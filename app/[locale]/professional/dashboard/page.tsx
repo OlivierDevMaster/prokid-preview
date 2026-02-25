@@ -1,147 +1,83 @@
 'use client';
-import {
-  Building2,
-  Calendar,
-  CheckCircle,
-  ClipboardList,
-  Clock,
-  FileCheck,
-  FileText,
-  MessageSquare,
-  Percent,
-  Send,
-  UserPlus,
-} from 'lucide-react';
+
+import { ChevronDown } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
-import { StatCard } from '@/features/admin/StatCard';
-import { useGetDashboardStats } from '@/features/professional/hooks/useGetDashboardStats';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const t = useTranslations('professional.dashboard');
+  const { data: session } = useSession();
+  const { data: professional } = useFindProfessional(session?.user?.id);
 
-  const {
-    acceptedMissionsCount,
-    activeAvailabilitiesCount,
-    completedMissionsCount,
-    draftReportsCount,
-    missionsCount,
-    pendingInvitationsCount,
-    pendingMissionsCount,
-    reportsCount,
-    responseRate,
-    sentReportsCount,
-    structuresCount,
-    upcomingMissionsCount,
-  } = useGetDashboardStats();
+  // Get user's first name from professional profile
+  const firstName =
+    professional?.profile?.first_name || session?.user?.name || '';
+
+  // Mock values for UI only
+  const availabilityDaysCount = 30;
+  const unreadCount = 2;
+  const isAvailable = true;
 
   return (
-    <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
-      {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
-        <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
-      </div>
-
-      {/* Stats Cards - Main KPIs */}
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        <StatCard
-          icon={Building2}
-          title={t('totalStructures')}
-          value={structuresCount.toString()}
-        />
-        <StatCard
-          icon={MessageSquare}
-          title={t('totalMissions')}
-          value={missionsCount.toString()}
-        />
-        <StatCard
-          icon={ClipboardList}
-          title={t('totalReports')}
-          value={reportsCount.toString()}
-        />
-      </div>
-
-      {/* Mission Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('missionStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
-          <StatCard
-            icon={Clock}
-            title={t('pendingMissions')}
-            value={pendingMissionsCount.toString()}
-          />
-          <StatCard
-            icon={FileCheck}
-            title={t('acceptedMissions')}
-            value={acceptedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CheckCircle}
-            title={t('completedMissions')}
-            value={completedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={MessageSquare}
-            title={t('upcomingMissions')}
-            value={upcomingMissionsCount.toString()}
-          />
+    <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
+      {/* Header with greeting and status */}
+      <div className='mb-6 flex items-center justify-between'>
+        <div>
+          <h1 className='text-2xl font-bold text-gray-900'>
+            {t('greeting', { name: firstName })}
+          </h1>
+          <div className='mt-1 flex items-center gap-2 text-sm text-gray-600'>
+            <span>{t('availabilityDaysShort')}</span>
+            <span className='text-blue-600'>
+              {availabilityDaysCount} {t('daysLabel')}
+            </span>
+            <span className='text-gray-400'>·</span>
+            <span className='text-blue-600'>
+              {t('unreadNotifications', { count: unreadCount })}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Reports Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('reportStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={FileText}
-            title={t('draftReports')}
-            value={draftReportsCount.toString()}
-          />
-          <StatCard
-            icon={Send}
-            title={t('sentReports')}
-            value={sentReportsCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Performance Metrics */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('performanceMetrics')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={Percent}
-            subtitle={t('responseRateDescription')}
-            title={t('responseRate')}
-            value={`${responseRate}%`}
-          />
-          <StatCard
-            icon={Calendar}
-            title={t('activeAvailabilities')}
-            value={activeAvailabilitiesCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Invitations */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('invitations')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
-          <StatCard
-            icon={UserPlus}
-            title={t('pendingInvitations')}
-            value={pendingInvitationsCount.toString()}
-          />
-        </div>
+        {/* Availability Status Button */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className={cn(
+                'flex items-center gap-2 rounded-full px-4 py-2',
+                isAvailable
+                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              )}
+              variant='outline'
+            >
+              <div
+                className={cn(
+                  'h-2 w-2 rounded-full',
+                  isAvailable ? 'bg-green-500' : 'bg-gray-400'
+                )}
+              />
+              <span>
+                {isAvailable ? t('availableStatus') : t('unavailableStatus')}
+              </span>
+              <ChevronDown className='h-4 w-4' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem>
+              {isAvailable ? t('unavailableStatus') : t('availableStatus')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -455,7 +455,13 @@
       "responseRate": "Taux de Réponse",
       "responseRateDescription": "% acceptées vs refusées",
       "invitations": "Invitations",
-      "pendingInvitations": "Invitations en Attente"
+      "pendingInvitations": "Invitations en Attente",
+      "greeting": "Bonjour {name}",
+      "availabilityDaysShort": "Dispo",
+      "daysLabel": "jours",
+      "unreadNotifications": "{count} non lus",
+      "availableStatus": "Disponible",
+      "unavailableStatus": "Indisponible"
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",
