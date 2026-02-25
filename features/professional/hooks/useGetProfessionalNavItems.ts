@@ -1,4 +1,10 @@
-import { ClipboardMinus, LayoutDashboard, Mail, User } from 'lucide-react';
+import {
+  ClipboardMinus,
+  LayoutDashboard,
+  Mail,
+  Target,
+  User,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -12,7 +18,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       icon: LayoutDashboard,
       label: tProfessional('navigation.dashboard'),
     },
-
+    {
+      href: '/professional/missions',
+      icon: Target,
+      label: tProfessional('navigation.missions'),
+    },
     {
       href: '/professional/reports',
       icon: ClipboardMinus,

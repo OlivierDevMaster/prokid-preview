@@ -3,6 +3,7 @@
 import { ChevronDown } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
+import { ProfessionalMissionCard } from '@/features/professional/missions/components/ProfessionalMissionCard';
+import { ProfessionalMissionDetailsDialog } from '@/features/professional/missions/components/ProfessionalMissionDetailsDialog';
+import { useGetProfessionalMission } from '@/features/professional/missions/hooks/useGetProfessionalMission';
+import { ProfessionalReportCard } from '@/features/professional/reports/components/ProfessionalReportCard';
+import { useReports } from '@/features/professional/reports/hooks/useReports';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -27,6 +35,35 @@ export default function DashboardPage() {
   const availabilityDaysCount = 30;
   const unreadCount = 2;
   const isAvailable = true;
+
+  // Get missions for dashboard (limit to 2)
+  const { data: missionsData, isLoading: isLoadingMissions } =
+    useGetProfessionalMissions({}, { limit: 2, page: 1 });
+
+  const missions = missionsData?.data ?? [];
+
+  // Get reports for dashboard (limit to 2)
+  const { data: reportsData, isLoading: isLoadingReports } = useReports();
+  const reports = (reportsData ?? []).slice(0, 2);
+
+  // Dialog state
+  const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { data: selectedMission, isLoading: isLoadingMission } =
+    useGetProfessionalMission(selectedMissionId);
+
+  const handleViewDetails = (id: string) => {
+    setSelectedMissionId(id);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedMissionId(null);
+  };
 
   return (
     <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
@@ -79,6 +116,70 @@ export default function DashboardPage() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Missions Section */}
+      <div className='mb-6'>
+        <div className='mb-4 flex items-center justify-between'>
+          <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
+            {t('missions')}
+          </h2>
+          <Link
+            className='text-md font-medium text-blue-600 hover:underline'
+            href='/professional/missions'
+          >
+            {t('viewAll')}
+          </Link>
+        </div>
+        {isLoadingMissions ? (
+          <p className='text-sm text-gray-600'>{t('loading')}</p>
+        ) : missions.length > 0 ? (
+          <div className='space-y-3'>
+            {missions.map(mission => (
+              <ProfessionalMissionCard
+                key={mission.id}
+                mission={mission}
+                onViewDetails={handleViewDetails}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className='text-sm text-gray-600'>{t('noMissions')}</p>
+        )}
+      </div>
+
+      {/* Reports Section */}
+      <div className='mb-6'>
+        <div className='mb-4 flex items-center justify-between'>
+          <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
+            {t('reports')}
+          </h2>
+          <Link
+            className='text-md font-medium text-blue-600 hover:underline'
+            href='/professional/reports'
+          >
+            {t('viewAll')}
+          </Link>
+        </div>
+        {isLoadingReports ? (
+          <p className='text-sm text-gray-600'>{t('loading')}</p>
+        ) : reports.length > 0 ? (
+          <div className='space-y-3'>
+            {reports.map(report => (
+              <ProfessionalReportCard key={report.id} report={report} />
+            ))}
+          </div>
+        ) : (
+          <p className='text-sm text-gray-600'>{t('noReports')}</p>
+        )}
+      </div>
+
+      {/* Mission Details Dialog */}
+      <ProfessionalMissionDetailsDialog
+        isLoading={isLoadingMission}
+        mission={selectedMission ?? null}
+        onClose={handleCloseDialog}
+        open={isDialogOpen}
+      />
     </div>
   );
 }

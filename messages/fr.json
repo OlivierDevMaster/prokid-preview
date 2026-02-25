@@ -461,7 +461,13 @@
       "daysLabel": "jours",
       "unreadNotifications": "{count} non lus",
       "availableStatus": "Disponible",
-      "unavailableStatus": "Indisponible"
+      "unavailableStatus": "Indisponible",
+      "missions": "MISSIONS",
+      "loading": "Chargement...",
+      "noMissions": "Aucune mission",
+      "reports": "RAPPORTS",
+      "noReports": "Aucun rapport",
+      "viewAll": "Tout voir"
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",
