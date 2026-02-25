@@ -87,7 +87,7 @@ export default function DashboardPage() {
             {t('missions')}
           </h2>
           <Link
-            className='text-md font-medium text-blue-600 hover:underline'
+            className='text-sm font-medium text-blue-600 hover:underline'
             href='/professional/missions'
           >
             {t('viewAll')}
@@ -117,7 +117,7 @@ export default function DashboardPage() {
             {t('reports')}
           </h2>
           <Link
-            className='text-md font-medium text-blue-600 hover:underline'
+            className='text-sm font-medium text-blue-600 hover:underline'
             href='/professional/reports'
           >
             {t('viewAll')}

@@ -60,13 +60,16 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
   return (
     <aside className='flex h-full w-64 flex-col border-r border-blue-100 bg-gradient-to-b from-blue-50/80 to-white'>
       {/* Brand */}
-      <div className='flex items-center gap-3 px-4 pb-3 pt-4'>
+      <Link
+        className='flex items-center gap-3 px-4 pb-3 pt-4 transition-colors hover:bg-blue-50/60'
+        href='/'
+      >
         <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm'>
           {projectInitial}
         </div>
         <div className='flex flex-1 items-center justify-between gap-2'>
           <div className='flex flex-col'>
-            <span className='text-sm font-semibold text-blue-900'>
+            <span className='text-xl font-semibold text-blue-900'>
               {projectName}
             </span>
           </div>
@@ -76,7 +79,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
             </span>
           )}
         </div>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav
