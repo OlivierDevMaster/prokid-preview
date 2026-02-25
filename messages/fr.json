@@ -455,7 +455,29 @@
       "responseRate": "Taux de Réponse",
       "responseRateDescription": "% acceptées vs refusées",
       "invitations": "Invitations",
-      "pendingInvitations": "Invitations en Attente"
+      "pendingInvitations": "Invitations en Attente",
+      "greeting": "Bonjour {name}",
+      "availabilityDaysShort": "Dispo",
+      "daysLabel": "jours",
+      "unreadNotifications": "{count} non lus",
+      "availableStatus": "Disponible",
+      "unavailableStatus": "Indisponible",
+      "missions": "MISSIONS",
+      "loading": "Chargement...",
+      "noMissions": "Aucune mission",
+      "reports": "RAPPORTS",
+      "noReports": "Aucun rapport",
+      "availabilityPopover": {
+        "confirmed": "Disponibilité confirmée",
+        "questionAvailable": "Disponible pour recevoir des propositions ?",
+        "yes": "Oui",
+        "no": "Non",
+        "questionDuration": "Pour combien de temps ?",
+        "days": "{count} jours",
+        "greenBadgeInfo": "Pastille verte pendant {count} jours.",
+        "confirm": "Confirmer"
+      },
+      "viewAll": "Tout voir"
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",
@@ -751,8 +773,7 @@
     "acheteurs": "Acheteurs",
     "correspondances": "Correspondances",
     "admin": "Admin",
-    "profile": "Profil",
-    "settings": "Paramètres",
+    "profile": "Mon profil",
     "logout": "Déconnexion",
     "dashboard": {
       "title": "Tableau de Bord",
@@ -773,7 +794,7 @@
       "pendingMissions": "Missions en Attente",
       "activeMissions": "Missions Actives",
       "completedMissions": "Missions Terminées",
-      "invitations": "Invitations",
+      "messaging": "Messagerie",
       "pendingInvitations": "Invitations en Attente",
       "totalInvitations": "Invitations Totales",
       "reports": "Comptes Rendus",
@@ -1216,15 +1237,17 @@
     },
     "navigation": {
       "planning": "Mon Planning",
-      "reports": "Mes Rapports",
+      "reports": "Rapports",
       "structure": "Structure",
       "users": "Utilisateurs",
       "availabilities": "Disponibilités",
-      "dashboard": "Tableau de Bord",
+      "dashboard": "Tableau de bord",
       "missions": "Missions",
       "invitations": "Invitations",
       "professionals": "Professionnels",
-      "structures": "Structures"
+      "structures": "Structures",
+      "messaging": "Messagerie",
+      "profile": "Mon profil"
     },
     "notifications": {
       "title": "Notifications",
