@@ -2,10 +2,11 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import {FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 import type { Report } from '@/services/admin/reports/report.types';
 
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 interface ProfessionalReportCardProps {
@@ -22,7 +23,10 @@ export function ProfessionalReportCard({
   const isDraft = report.status === 'draft';
 
   return (
-    <div className='flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50'>
+    <Link
+      className='flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50'
+      href={`/professional/reports/${report.id}`}
+    >
       {/* Icon */}
       <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100'>
         <FileText className='h-6 w-6 text-green-600' />
@@ -52,8 +56,6 @@ export function ProfessionalReportCard({
           {isDraft ? 'Rédigé' : 'Envoyé'}
         </span>
       </div>
-
-
-    </div>
+    </Link>
   );
 }
