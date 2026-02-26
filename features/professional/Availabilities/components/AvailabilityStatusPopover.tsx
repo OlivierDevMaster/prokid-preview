@@ -2,7 +2,7 @@
 
 import { ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useProfessionalAvailability } from '@/features/professionals/hooks/useProfessionalAvailability';
 import { cn } from '@/lib/utils';
 
 const DURATIONS = [7, 5, 3, 1] as const;
@@ -19,21 +20,71 @@ export function AvailabilityStatusPopover() {
   const t = useTranslations('professional.dashboard');
   const [open, setOpen] = useState(false);
   const [isAvailableChoice, setIsAvailableChoice] = useState<'no' | 'yes'>(
-    'yes'
+    'no'
   );
   const [duration, setDuration] = useState<Duration>(7);
 
+  const {
+    isAvailable: dbIsAvailable,
+    isLoading,
+    isUpdating,
+    updateAvailabilityAsync,
+  } = useProfessionalAvailability();
+
+  useEffect(() => {
+    if (!isLoading) {
+      setIsAvailableChoice(dbIsAvailable ? 'yes' : 'no');
+    }
+  }, [dbIsAvailable, isLoading]);
+
+  const isAvailable = dbIsAvailable;
+  const isAvailableSelected = isAvailableChoice === 'yes';
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen && !isLoading) {
+      setIsAvailableChoice(dbIsAvailable ? 'yes' : 'no');
+    }
+  };
+
+  const handleConfirm = async () => {
+    try {
+      await updateAvailabilityAsync(isAvailableSelected);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to update availability:', error);
+    }
+  };
+
   return (
-    <Popover onOpenChange={setOpen} open={open}>
+    <Popover onOpenChange={handleOpenChange} open={open}>
       <PopoverTrigger asChild>
         <Button
-          className='flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-200'
+          className={cn(
+            'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium',
+            isAvailable
+              ? 'bg-green-100 text-green-700 hover:bg-green-200'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          )}
           type='button'
           variant='outline'
         >
-          <span className='h-2 w-2 rounded-3xl bg-green-500' />
-          <span>{t('availableStatus')}</span>
-          <ChevronDown className='h-3 w-3 text-green-700' />
+          <span
+            className={cn(
+              'h-2 w-2 rounded-3xl',
+              isAvailable ? 'bg-green-500' : 'bg-gray-400'
+            )}
+          />
+          <span>
+            {isAvailable ? t('availableStatus') : t('unavailableStatus')}
+          </span>
+          <ChevronDown
+            className={cn(
+              'h-3 w-3',
+              isAvailable ? 'text-green-700' : 'text-gray-500'
+            )}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -44,12 +95,21 @@ export function AvailabilityStatusPopover() {
         {/* Header */}
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-2 text-sm font-medium text-gray-800'>
-            <span className='h-3 w-3 rounded-full bg-green-500' />
-            <span>{t('availabilityPopover.confirmed')}</span>
+            <span
+              className={cn(
+                'h-3 w-3 rounded-full',
+                isAvailable ? 'bg-green-500' : 'bg-gray-300'
+              )}
+            />
+            <span>
+              {isAvailable
+                ? t('availabilityPopover.confirmed')
+                : t('unavailableStatus')}
+            </span>
           </div>
           <button
             className='text-gray-400 hover:text-gray-600'
-            onClick={() => setOpen(false)}
+            onClick={() => handleOpenChange(false)}
             type='button'
           >
             <X className='h-4 w-4' />
@@ -116,15 +176,21 @@ export function AvailabilityStatusPopover() {
 
           {/* Info pill */}
           <div className='rounded-xl bg-blue-50 px-3 py-3 text-sm text-blue-700'>
-            {t('availabilityPopover.greenBadgeInfo', { count: duration })}
+            {isAvailableSelected
+              ? t('availabilityPopover.greenBadgeInfo', { count: duration })
+              : t('availabilityPopover.greenBadgeRemoved')}
           </div>
 
           {/* Confirm button */}
           <Button
             className='w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700'
+            disabled={isUpdating || isLoading}
+            onClick={handleConfirm}
             type='button'
           >
-            {t('availabilityPopover.confirm')}
+            {isUpdating
+              ? t('loading', { defaultValue: 'Chargement...' })
+              : t('availabilityPopover.confirm')}
           </Button>
         </div>
       </PopoverContent>
