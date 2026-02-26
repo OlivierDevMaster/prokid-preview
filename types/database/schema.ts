@@ -465,6 +465,8 @@ export type Database = {
           hourly_rate: number
           intervention_radius_km: number
           is_available: boolean
+          availability_start: string | null
+          availability_end: string | null
           is_certified: boolean
           phone: string | null
           postal_code: string | null
@@ -486,6 +488,8 @@ export type Database = {
           hourly_rate: number
           intervention_radius_km: number
           is_available?: boolean
+          availability_start?: string | null
+          availability_end?: string | null
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
@@ -507,6 +511,8 @@ export type Database = {
           hourly_rate?: number
           intervention_radius_km?: number
           is_available?: boolean
+          availability_start?: string | null
+          availability_end?: string | null
           is_certified?: boolean
           phone?: string | null
           postal_code?: string | null
