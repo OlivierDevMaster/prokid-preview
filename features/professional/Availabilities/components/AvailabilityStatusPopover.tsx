@@ -50,7 +50,10 @@ export function AvailabilityStatusPopover() {
 
   const handleConfirm = async () => {
     try {
-      await updateAvailabilityAsync(isAvailableSelected);
+      await updateAvailabilityAsync({
+        durationDays: isAvailableSelected ? duration : null,
+        isAvailable: isAvailableSelected,
+      });
       setOpen(false);
     } catch (error) {
       console.error('Failed to update availability:', error);

@@ -1,12 +1,18 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addDays, isAfter } from 'date-fns';
 import { useSession } from 'next-auth/react';
 
 import {
   findProfessional,
   updateProfessional,
 } from '@/features/professionals/professional.service';
+
+type UpdateAvailabilityPayload = {
+  durationDays: null | number;
+  isAvailable: boolean;
+};
 
 export function useProfessionalAvailability() {
   const { data: session } = useSession();
@@ -27,13 +33,39 @@ export function useProfessionalAvailability() {
     queryKey: ['professional', userId],
   });
 
-  // Mutation to update availability status
+  const effectiveIsAvailable =
+    !!professional?.is_available &&
+    (!professional.availability_end ||
+      isAfter(new Date(professional.availability_end), new Date()));
+
+  // Mutation to update availability status with optional duration window
   const updateAvailabilityMutation = useMutation({
-    mutationFn: async (isAvailable: boolean) => {
+    mutationFn: async ({
+      durationDays,
+      isAvailable,
+    }: UpdateAvailabilityPayload) => {
       if (!userId) {
         throw new Error('User ID is required');
       }
-      return await updateProfessional(userId, { is_available: isAvailable });
+
+      if (!isAvailable) {
+        return await updateProfessional(userId, {
+          availability_end: null,
+          availability_start: null,
+          is_available: false,
+        });
+      }
+
+      const now = new Date();
+      const availabilityStart = now.toISOString();
+      const endDate = durationDays ? addDays(now, durationDays) : null;
+      const availabilityEnd = endDate ? endDate.toISOString() : null;
+
+      return await updateProfessional(userId, {
+        availability_end: availabilityEnd,
+        availability_start: availabilityStart,
+        is_available: true,
+      });
     },
     onSuccess: () => {
       // Invalidate and refetch professional data
@@ -43,7 +75,7 @@ export function useProfessionalAvailability() {
 
   return {
     error,
-    isAvailable: professional?.is_available ?? false,
+    isAvailable: effectiveIsAvailable,
     isLoading,
     isUpdating: updateAvailabilityMutation.isPending,
     updateAvailability: updateAvailabilityMutation.mutate,
