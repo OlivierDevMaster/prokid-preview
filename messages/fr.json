@@ -475,6 +475,7 @@
         "questionDuration": "Pour combien de temps ?",
         "days": "{count} jours",
         "greenBadgeInfo": "Pastille verte pendant {count} jours.",
+        "greenBadgeRemoved": "Pastille verte retirée.",
         "confirm": "Confirmer"
       },
       "viewAll": "Tout voir"
