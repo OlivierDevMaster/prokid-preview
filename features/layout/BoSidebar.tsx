@@ -76,23 +76,23 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
         <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm'>
           {projectInitial}
         </div>
-          <div className='flex flex-1 items-center justify-between gap-2'>
-            <div className='flex flex-col'>
-              <span className='text-xl font-semibold text-blue-900'>
-                {projectName}
-              </span>
-            </div>
-            {roleBadgeLabel && (
-              <span
-                className={cn(
-                  'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
-                  roleBadgeStyles
-                )}
-              >
-                {roleBadgeLabel}
-              </span>
-            )}
+        <div className='flex flex-1 items-center justify-between gap-2'>
+          <div className='flex flex-col'>
+            <span className='text-xl font-semibold text-blue-900'>
+              {projectName}
+            </span>
           </div>
+          {roleBadgeLabel && (
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                roleBadgeStyles
+              )}
+            >
+              {roleBadgeLabel}
+            </span>
+          )}
+        </div>
       </Link>
 
       {/* Navigation */}
