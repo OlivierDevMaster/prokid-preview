@@ -495,6 +495,7 @@
     "missions": {
       "title": "Mes missions",
       "description": "Consultez et gérez toutes vos missions avec les structures.",
+      "backToDashboard": "Retour au tableau de bord",
       "noMissions": "Aucune mission trouvée.",
       "loading": "Chargement...",
       "hoursCompleted": "Heures effectuées",
@@ -630,6 +631,7 @@
     "missions": {
       "title": "Mes missions",
       "description": "Gérez vos interventions et suivis pour chaque établissement.",
+      "backToDashboard": "Retour au tableau de bord",
       "addMission": "Ajouter une mission",
       "noMissions": "Aucune mission trouvée.",
       "loading": "Chargement...",

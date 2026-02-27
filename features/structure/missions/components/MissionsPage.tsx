@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -82,6 +82,10 @@ export function MissionsPage() {
     setSelectedStatus(value as 'all' | MissionStatus);
   };
 
+  const handleBackToDashboard = () => {
+    router.push('/structure/dashboard');
+  };
+
   if (isLoading) {
     return (
       <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
@@ -95,7 +99,18 @@ export function MissionsPage() {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
+          <div className='flex items-center gap-3'>
+          <Button
+              aria-label={t('backToDashboard')}
+              className='h-8 w-8'
+              onClick={handleBackToDashboard}
+              variant='ghost'
+            >
+              <ArrowLeft className='h-8 w-8' />
+            </Button>
+            <h1 className='text-3xl font-bold text-gray-800'>{t('title')}</h1>
+
+          </div>
           <p className='mt-2 text-gray-600'>{t('description')}</p>
         </div>
       </div>
