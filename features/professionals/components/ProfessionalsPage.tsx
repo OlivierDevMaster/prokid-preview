@@ -96,7 +96,7 @@ export default function ProfessionalsPage() {
         </div>
 
         <div
-          className='mb-6 rounded-lg bg-gray-100 bg-white p-4 ring-2 sm:p-6'
+          className='mb-6 rounded-lg bg-gray-100  p-4 ring-2 sm:p-6'
           style={{
             boxShadow: 'inset 0 1px 4px 1px rgba(59, 130, 246, 0.3)',
           }}
