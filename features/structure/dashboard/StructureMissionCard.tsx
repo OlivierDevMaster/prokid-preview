@@ -55,6 +55,8 @@ export function StructureMissionCard({
   );
   const avatarColors = AVATAR_COLOR_VARIANTS[colorIndex];
 
+  console.log(avatarColors.bg);
+
   return (
     <button
       className='flex w-full items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 text-left transition-colors hover:bg-blue-50/60'
@@ -65,7 +67,7 @@ export function StructureMissionCard({
       <div
         className={cn(
           'relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full',
-          avatarColors.bg
+           avatarColors.bg
         )}
       >
         <span className={cn('text-sm font-semibold', avatarColors.text)}>
