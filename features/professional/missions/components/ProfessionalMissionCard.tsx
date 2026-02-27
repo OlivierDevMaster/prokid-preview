@@ -9,6 +9,11 @@ import {
   type MissionWithStructure,
 } from '@/features/missions/mission.model';
 import { cn } from '@/lib/utils';
+import {
+  AVATAR_COLOR_VARIANTS,
+  getAvatarColorVariantIndex,
+} from '@/shared/utils/avatar-colors';
+import { extractInitials } from '@/shared/utils/extract-initials';
 
 interface ProfessionalMissionCardProps {
   mission: MissionWithStructure;
@@ -33,7 +38,10 @@ export function ProfessionalMissionCard({
         t('unknownStructure')
       : t('unknownStructure'));
 
-  const initials = getInitials(mission.title);
+  const initials = extractInitials( mission.title);
+
+  const colorIndex = getAvatarColorVariantIndex(mission.title);
+  const avatarColors = AVATAR_COLOR_VARIANTS[colorIndex];
 
   return (
     <div
@@ -41,8 +49,15 @@ export function ProfessionalMissionCard({
       onClick={() => onViewDetails?.(mission.id)}
     >
       {/* Circle with initials */}
-      <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cyan-100'>
-        <span className='text-sm font-semibold text-cyan-600'>{initials}</span>
+      <div
+        className={cn(
+          'relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full',
+          avatarColors.bg
+        )}
+      >
+        <span className={cn('text-sm font-semibold', avatarColors.text)}>
+          {initials}
+        </span>
       </div>
 
       {/* Mission details */}
@@ -75,12 +90,4 @@ export function ProfessionalMissionCard({
       <ChevronRight className='h-5 w-5 text-gray-400' />
     </div>
   );
-}
-
-function getInitials(name: string): string {
-  const words = name.trim().split(/\s+/);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
 }

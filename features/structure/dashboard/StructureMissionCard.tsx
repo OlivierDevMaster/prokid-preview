@@ -41,7 +41,7 @@ export function StructureMissionCard({
       t('unknownProfessional')
     : t('unknownProfessional');
 
-  const initials = extractInitials(professionalName || mission.title);
+  const initials = extractInitials( mission.title);
 
   const period =
     mission.mission_dtstart && mission.mission_until
