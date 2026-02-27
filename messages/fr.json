@@ -753,7 +753,14 @@
       "missionAcceptanceRateDescription": "% acceptées vs refusées",
       "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente",
-      "acceptedInvitations": "Invitations Acceptées"
+      "acceptedInvitations": "Invitations Acceptées",
+      "missionsCardTitle": "MISSIONS",
+      "reportsCardTitle": "RAPPORTS",
+      "viewAll": "Tout voir",
+      "structureNameFallback": "Ma structure",
+      "missionsCount": "{count} missions",
+      "messagesPlaceholder": "1 message",
+      "findProCta": "Trouver un pro"
     },
     "ratings": {
       "rateProfessional": "Ajouter aux favoris",
