@@ -54,6 +54,15 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
     return null;
   })();
 
+  const roleBadgeStyles =
+    roleBadgeLabel === 'Structure'
+      ? 'bg-purple-100 text-purple-700'
+      : roleBadgeLabel === 'Pro'
+        ? 'bg-emerald-100 text-emerald-700'
+        : roleBadgeLabel === 'Admin'
+          ? 'bg-amber-100 text-amber-700'
+          : '';
+
   const projectName = tTitle('project');
   const projectInitial = projectName?.charAt(0).toUpperCase() || 'P';
 
@@ -67,18 +76,23 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
         <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm'>
           {projectInitial}
         </div>
-        <div className='flex flex-1 items-center justify-between gap-2'>
-          <div className='flex flex-col'>
-            <span className='text-xl font-semibold text-blue-900'>
-              {projectName}
-            </span>
+          <div className='flex flex-1 items-center justify-between gap-2'>
+            <div className='flex flex-col'>
+              <span className='text-xl font-semibold text-blue-900'>
+                {projectName}
+              </span>
+            </div>
+            {roleBadgeLabel && (
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                  roleBadgeStyles
+                )}
+              >
+                {roleBadgeLabel}
+              </span>
+            )}
           </div>
-          {roleBadgeLabel && (
-            <span className='inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700'>
-              {roleBadgeLabel}
-            </span>
-          )}
-        </div>
       </Link>
 
       {/* Navigation */}
@@ -105,7 +119,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
                 <item.icon
                   className={cn(
                     'h-5 w-5',
-                    active ? 'text-blue-600' : 'text-gray-500'
+                    active ? 'text-blue-700' : 'text-gray-500'
                   )}
                 />
                 <span className='flex-1 truncate'>{item.label}</span>
