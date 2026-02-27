@@ -576,7 +576,9 @@
       "professionals": "Professionnels",
       "dashboard": "Tableau de bord",
       "reports": "Rapports",
-      "invitations": "Invitations"
+      "invitations": "Invitations",
+      "search": "Recherche",
+      "messaging": "Messagerie"
     },
     "invitations": {
       "title": "Mes invitations",
