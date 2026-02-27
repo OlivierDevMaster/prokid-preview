@@ -54,6 +54,15 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
     return null;
   })();
 
+  const roleBadgeStyles =
+    roleBadgeLabel === 'Structure'
+      ? 'bg-purple-100 text-purple-700'
+      : roleBadgeLabel === 'Pro'
+        ? 'bg-emerald-100 text-emerald-700'
+        : roleBadgeLabel === 'Admin'
+          ? 'bg-amber-100 text-amber-700'
+          : '';
+
   const projectName = tTitle('project');
   const projectInitial = projectName?.charAt(0).toUpperCase() || 'P';
 
@@ -74,7 +83,12 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
             </span>
           </div>
           {roleBadgeLabel && (
-            <span className='inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700'>
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                roleBadgeStyles
+              )}
+            >
               {roleBadgeLabel}
             </span>
           )}
@@ -105,7 +119,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
                 <item.icon
                   className={cn(
                     'h-5 w-5',
-                    active ? 'text-blue-600' : 'text-gray-500'
+                    active ? 'text-blue-700' : 'text-gray-500'
                   )}
                 />
                 <span className='flex-1 truncate'>{item.label}</span>

@@ -495,6 +495,7 @@
     "missions": {
       "title": "Mes missions",
       "description": "Consultez et gérez toutes vos missions avec les structures.",
+      "backToDashboard": "Retour au tableau de bord",
       "noMissions": "Aucune mission trouvée.",
       "loading": "Chargement...",
       "hoursCompleted": "Heures effectuées",
@@ -576,7 +577,9 @@
       "professionals": "Professionnels",
       "dashboard": "Tableau de bord",
       "reports": "Rapports",
-      "invitations": "Invitations"
+      "invitations": "Invitations",
+      "search": "Recherche",
+      "messaging": "Messagerie"
     },
     "invitations": {
       "title": "Mes invitations",
@@ -628,6 +631,7 @@
     "missions": {
       "title": "Mes missions",
       "description": "Gérez vos interventions et suivis pour chaque établissement.",
+      "backToDashboard": "Retour au tableau de bord",
       "addMission": "Ajouter une mission",
       "noMissions": "Aucune mission trouvée.",
       "loading": "Chargement...",
@@ -751,7 +755,14 @@
       "missionAcceptanceRateDescription": "% acceptées vs refusées",
       "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente",
-      "acceptedInvitations": "Invitations Acceptées"
+      "acceptedInvitations": "Invitations Acceptées",
+      "missionsCardTitle": "MISSIONS",
+      "reportsCardTitle": "RAPPORTS",
+      "viewAll": "Tout voir",
+      "structureNameFallback": "Ma structure",
+      "missionsCount": "{count} missions",
+      "messagesPlaceholder": "1 message",
+      "findProCta": "Trouver un pro"
     },
     "ratings": {
       "rateProfessional": "Ajouter aux favoris",
