@@ -73,7 +73,7 @@ export function ProfessionalCard({ professional }: ProfessionalCardProps) {
           {/* Skills/Tags */}
           <div className='pt-4'>
             {professional.skills && professional.skills.length > 0 && (
-              <div className='flex flex-wrap !justify-start justify-start gap-2'>
+              <div className='flex flex-wrap  justify-start gap-2'>
                 {professional.skills.slice(0, 5).map((skill, index) => (
                   <span
                     className='rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700'
