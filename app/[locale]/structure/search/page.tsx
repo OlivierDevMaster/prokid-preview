@@ -2,8 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Pagination } from '@/features/paginations/components/Pagination';
 import { ProfessionalFiltersSection } from '@/features/professionals/components/ProfessionalFiltersSection';
 import { ProfessionalSearchCard } from '@/features/professionals/components/ProfessionalSearchCard';
@@ -11,9 +12,15 @@ import { useFindProfessionals } from '@/features/professionals/hooks/useFindProf
 import { useProfessionalSearch } from '@/features/professionals/hooks/useProfessionalSearch';
 import { ProfessionalConfig } from '@/features/professionals/professional.config';
 import { Professional } from '@/features/professionals/professional.model';
+import { useRouter } from '@/i18n/routing';
+import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function StructureSearchPage() {
+  const { selectedProfessionalIds, setSelectedProfessionalIds, handleToggleProfessional, handleClearSelection } = useSelectedProfessional();
   const t = useTranslations('professional');
+  const tCommon = useTranslations('common.actions');
+  const tMissions = useTranslations('structure.missions');
+  const router = useRouter();
   const { actions, state } = useProfessionalSearch();
 
   const [page, setPage] = useQueryState(
@@ -24,6 +31,8 @@ export default function StructureSearchPage() {
     'limit',
     parseAsInteger.withDefault(ProfessionalConfig.PAGE_SIZE_DEFAULT)
   );
+
+
 
   const { data } = useFindProfessionals(
     {
@@ -40,6 +49,17 @@ export default function StructureSearchPage() {
   const totalCount = data?.count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   const resultsCount = totalCount;
+
+
+  const handleSendMission = () => {
+    if (selectedProfessionalIds.size === 0) {
+      return;
+    }
+    const professionalIds = Array.from(selectedProfessionalIds);
+    router.push(
+      `/structure/missions/new?professional_ids=${professionalIds.join(',')}`
+    );
+  };
 
   return (
     <main className='min-h-screen bg-[#f5f7f5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8'>
@@ -60,14 +80,52 @@ export default function StructureSearchPage() {
           </p>
         </div>
 
-        <div className='space-y-3 sm:space-y-4'>
+        <div className='mt-4 flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3'>
+          <p className='text-sm font-medium text-blue-700 sm:text-base'>
+            {selectedProfessionalIds.size === 0 ? (
+              tMissions('noneSelected')
+            ) : (
+              <>
+                {selectedProfessionalIds.size}{' '}
+                {selectedProfessionalIds.size === 1
+                  ? tMissions('selected')
+                  : tMissions('selectedPlural')}
+              </>
+            )}
+          </p>
+          <div className='flex gap-3'>
+            <Button
+              className='text-blue-600 hover:bg-blue-100 hover:text-blue-700'
+              onClick={handleClearSelection}
+              variant='ghost'
+            >
+              {tCommon('cancel')}
+            </Button>
+            <Button
+              className='bg-blue-500 text-white hover:bg-blue-600'
+              disabled={selectedProfessionalIds.size === 0}
+              onClick={handleSendMission}
+            >
+              {tMissions('sendMission')}
+            </Button>
+          </div>
+        </div>
+
+
+
+        <div className='space-y-3 sm:space-y-4 mt-4'>
           {professionals.map((professional: Professional) => (
             <ProfessionalSearchCard
               key={professional.user_id}
+              onToggleSelect={(professional) => handleToggleProfessional(professional.user_id)}
               professional={professional}
+              selectable
+              selected={selectedProfessionalIds.has(professional.user_id)}
             />
           ))}
         </div>
+
+
 
         {totalCount > 0 && (
           <div className='mt-8'>

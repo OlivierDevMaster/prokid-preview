@@ -201,7 +201,7 @@ export default function ProfessionalProfile() {
                         {professional.profile.last_name}
                       </span>
                     </h1>
-                    <p className='mb-3 text-center text-lg text-sm text-blue-500'>
+                    <p className='mb-3 text-center text-lg  text-blue-500'>
                       {getJobTranslation(professional.current_job)}
                     </p>
 

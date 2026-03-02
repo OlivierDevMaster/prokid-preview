@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, MapPin, MessageCircle, Star } from 'lucide-react';
+import { Calendar, Check, MapPin, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -14,10 +14,16 @@ import { Professional } from '../professional.model';
 
 interface ProfessionalSearchCardProps {
   professional: Professional;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (professional: Professional) => void;
 }
 
 export function ProfessionalSearchCard({
   professional,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
 }: ProfessionalSearchCardProps) {
   const t = useTranslations('professional.card');
   const tProfile = useTranslations('professional.profile');
@@ -30,10 +36,38 @@ export function ProfessionalSearchCard({
     ? `/professionals/${username}/${professional.user_id}`
     : `/professionals/${professional.user_id}`;
 
+  const handleToggleSelect = () => {
+    if (!selectable || !onToggleSelect) {
+      return;
+    }
+
+    onToggleSelect(professional);
+  };
+
+  const selectableCardClasses = selectable
+    ? selected
+      ? 'border-blue-500 bg-blue-50'
+      : 'border-green-100/50 bg-white'
+    : 'border-green-100/50 bg-white';
+
   return (
-    <Card className='rounded-lg border border-green-100/50 bg-white shadow-sm transition-shadow hover:shadow-md'>
+    <Card
+      className={`cursor-pointer rounded-lg border shadow-sm transition-shadow hover:shadow-md ${selectableCardClasses}`}
+      onClick={handleToggleSelect}
+    >
       <div className='p-4 sm:p-6'>
         <div className='flex gap-3 sm:gap-4'>
+          {selectable && (
+            <div className='flex h-6 w-6 items-center justify-center'>
+              <div
+                className={`flex h-5 w-5 items-center justify-center rounded border-2 ${
+                  selected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                }`}
+              >
+                {selected && <Check className='h-3 w-3 text-white' />}
+              </div>
+            </div>
+          )}
           <div className='flex-shrink-0'>
             <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-16 sm:w-16'>
               {professional.profile.avatar_url ? (
@@ -120,7 +154,15 @@ export function ProfessionalSearchCard({
                 </div>
                 <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                   <div className='flex gap-2'>
-                    <Link className='w-full sm:w-auto' href={profileUrl}>
+                    <Link
+                      className='w-full sm:w-auto'
+                      href={profileUrl}
+                      onClick={event => {
+                        if (selectable) {
+                          event.stopPropagation();
+                        }
+                      }}
+                    >
                       <Button
                         className='w-full rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 sm:w-auto'
                         size='sm'
@@ -135,6 +177,11 @@ export function ProfessionalSearchCard({
                     <Button
                       className='w-full rounded-lg bg-blue-500 text-white hover:bg-blue-600 sm:w-auto'
                       size='sm'
+                      onClick={event => {
+                        if (selectable) {
+                          event.stopPropagation();
+                        }
+                      }}
                     >
 
                       <span className='text-xs sm:text-sm'>
