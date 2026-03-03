@@ -16,7 +16,7 @@ import { useRouter } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function StructureSearchPage() {
-  const { selectedProfessionalIds, setSelectedProfessionalIds, handleToggleProfessional, handleClearSelection } = useSelectedProfessional();
+  const { selectedProfessionalIds, handleToggleProfessional, handleClearSelection } = useSelectedProfessional();
   const t = useTranslations('professional');
   const tCommon = useTranslations('common.actions');
   const tMissions = useTranslations('structure.missions');

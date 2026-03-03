@@ -1,5 +1,5 @@
-import { CreateMissionForm } from '@/features/structure/missions/components/CreateMissionForm';
+import { CreateMissionPage } from '@/features/structure/missions/components/CreateMissionPage';
 
 export default function NewMissionPage() {
-  return <CreateMissionForm />;
+  return <CreateMissionPage />;
 }
