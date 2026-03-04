@@ -9,6 +9,7 @@ import { useFindProfessionals } from '@/features/professionals/hooks/useFindProf
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 import { MissionRecipient } from './MissionRecipient';
+import { MissionPropositionForm } from './MissionPropositionForm';
 
 export function CreateMissionPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export function CreateMissionPage() {
 
   return (
     <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
-      <div className='mx-auto flex max-w-3xl flex-col gap-6'>
+      <div className='mx-auto flex max-w-6xl flex-col gap-6'>
         <header className=''>
           <button
             className='inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-500'
@@ -52,6 +53,7 @@ export function CreateMissionPage() {
             </div>
           )}
         </header>
+        <MissionPropositionForm/>
       </div>
     </div>
   );
