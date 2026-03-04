@@ -20,24 +20,24 @@ export function RecapPropositionCard() {
 
       {/* Rows */}
       <div className='space-y-4 px-5 pb-5 text-sm'>
-        <p className='mt-1 text-xs text-blue-100'>
+        <p className='mt-1 text-sm text-blue-100'>
           {t('recapSentToProfessionals', { count: 2 })}
         </p>
         <div className='border-white/25 pt-2'>
           <div className='flex items-center justify-between'>
-            <p className='text-xs text-blue-100'>{t('recapFieldTitle')}</p>
+              <p className='text-sm text-blue-100'>{t('recapFieldTitle')}</p>
             <p className='text-sm font-semibold'>Jean Dupont</p>
           </div>
         </div>
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
-          <p className='text-xs text-blue-100'>{t('recapFieldDuration')}</p>
+          <p className='text-sm text-blue-100'>{t('recapFieldDuration')}</p>
           <p className='text-sm font-semibold'>
             {`10 ${t('durationUnitDays')}`}
           </p>
         </div>
 
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
-          <p className='text-xs text-blue-100'>{t('recapFieldLocation')}</p>
+          <p className='text-sm text-blue-100'>{t('recapFieldLocation')}</p>
           <p className='text-sm font-semibold'>Paris</p>
         </div>
 

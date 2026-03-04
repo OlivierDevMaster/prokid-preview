@@ -4,6 +4,9 @@ import Image from 'next/image';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
+import { Link } from '@/i18n/routing';
+import { generateUsernameSlug } from '@/lib/utils';
+
 type MissionRecipientProps = {
   professional: Professional;
 };
@@ -15,8 +18,19 @@ export function MissionRecipient({ professional }: MissionRecipientProps) {
   const displayName =
     `${firstName} ${lastName}`.trim() || professional.profile.email;
 
+  const username = generateUsernameSlug(
+    professional.profile.first_name,
+    professional.profile.last_name
+  );
+  const profileUrl = username
+    ? `/professionals/${username}/${professional.user_id}`
+    : `/professionals/${professional.user_id}`;
+
   return (
-    <div className='inline-flex items-center gap-2 rounded-full border border-blue-500 bg-blue-50 px-3 py-2'>
+    <Link
+      className='inline-flex cursor-pointer items-center gap-2 rounded-full border border-blue-500 bg-blue-50/40 px-2 py-1 pr-6'
+      href={profileUrl}
+    >
       <div className='relative flex items-center'>
         <div className='flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-emerald-100'>
           {professional.profile.avatar_url ? (
@@ -48,6 +62,6 @@ export function MissionRecipient({ professional }: MissionRecipientProps) {
           {displayName}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
