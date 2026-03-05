@@ -1,16 +1,55 @@
-import { Info, Mail, Send } from 'lucide-react';
+import { differenceInCalendarDays, format } from 'date-fns';
+import { Info, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
-export function RecapPropositionCard() {
+type RecapPropositionCardProps = {
+  city: string;
+  isPeriodMode?: boolean;
+  desiredStartDate?: Date;
+  durationDays: string;
+  periodEndDate?: Date;
+  periodStartDate?: Date;
+  title: string;
+};
+
+export function RecapPropositionCard({
+  city,
+  isPeriodMode,
+  desiredStartDate,
+  durationDays,
+  periodEndDate,
+  periodStartDate,
+  title,
+}: RecapPropositionCardProps) {
   const t = useTranslations('structure.missions.proposition');
+  const period = useTranslations('structure.missions');
   const { selectedProfessionalIds } = useSelectedProfessional();
   const selectedCount = selectedProfessionalIds.size;
 
+  const formattedDesiredStartDate = desiredStartDate
+    ? format(desiredStartDate, 'dd/MM/yyyy')
+    : '';
+
+  const hasPeriod =
+    isPeriodMode && periodStartDate && periodEndDate
+      ? true
+      : false;
+
+  const formattedPeriod =
+    periodStartDate && periodEndDate
+      ? `${format(periodStartDate, 'dd/MM/yyyy')} - ${format(periodEndDate, 'dd/MM/yyyy')}`
+      : '';
+
+  const periodDurationDays =
+    periodStartDate && periodEndDate
+      ? differenceInCalendarDays(periodEndDate, periodStartDate) + 1
+      : null;
+
   return (
-    <Card className='rounded-3xl border-none bg-blue-900 text-white shadow-lg'>
+    <Card className='rounded-3xl border-none bg-blue-900 px-4 py-4 text-white shadow-lg'>
       {/* Header */}
       <div className='flex items-center gap-2 px-5 py-4'>
         <span className='flex h-6 w-6 items-center justify-center rounded-full bg-white/20'>
@@ -27,21 +66,39 @@ export function RecapPropositionCard() {
           {t('recapSentToProfessionals', { count: selectedCount })}
         </p>
         <div className='border-white/25 pt-2'>
+        {/* Title */}
           <div className='flex items-center justify-between'>
             <p className='text-sm text-blue-100'>{t('recapFieldTitle')}</p>
-            <p className='text-sm font-semibold'>Jean Dupont</p>
+            <p className='text-sm font-semibold'>{title || ''}</p>
           </div>
         </div>
+        {/* Duration */}
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
           <p className='text-sm text-blue-100'>{t('recapFieldDuration')}</p>
           <p className='text-sm font-semibold'>
-            {`10 ${t('durationUnitDays')}`}
+            {hasPeriod && periodDurationDays
+              ? `${periodDurationDays} ${t('durationUnitDays')}`
+              : durationDays
+                ? `${durationDays} ${t('durationUnitDays')}`
+                : ''}
           </p>
         </div>
-
+        {/* Location */}
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
           <p className='text-sm text-blue-100'>{t('recapFieldLocation')}</p>
-          <p className='text-sm font-semibold'>Paris</p>
+          <p className='text-sm font-semibold'>{city || ''}</p>
+        </div>
+
+        {/* Date / Period */}
+        <div className='flex items-center justify-between border-t border-white/25 pt-4'>
+          <p className='text-sm text-blue-100'>
+            {hasPeriod
+              ? period('period')
+              : t('desiredStartLabel')}
+          </p>
+          <p className='text-sm font-semibold'>
+            {hasPeriod ? formattedPeriod : formattedDesiredStartDate || ''}
+          </p>
         </div>
 
         {/* Actions */}
@@ -49,13 +106,6 @@ export function RecapPropositionCard() {
           <button className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-200'>
             <Send className='h-4 w-4' />
             <span className='text-sm font-semibold'>{t('actionSend')}</span>
-          </button>
-
-          <button className='flex w-full items-center justify-center gap-2 rounded-full border border-white/50 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/20 hover:text-white'>
-            <Mail className='h-4 w-4' />
-            <span className='text-sm font-semibold'>
-              {t('actionSaveDraft')}
-            </span>
           </button>
         </div>
       </div>
