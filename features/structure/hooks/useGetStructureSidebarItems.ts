@@ -1,4 +1,4 @@
-import { FileText, LayoutDashboard, Mail, Search, User } from 'lucide-react';
+import { FileText, LayoutDashboard, MessageCircle, Search, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -19,7 +19,7 @@ export function useGetStructureSidebarItems(): SidebarNavItem[] {
     },
     {
       href: '/structure/invitations',
-      icon: Mail,
+      icon: MessageCircle,
       label: tStructure('messaging'),
     },
     {

@@ -736,10 +736,11 @@
         "recapTitle": "Récapitulatif",
         "recapSentToProfessionals": "Mission envoyée à {count} professionnels",
         "recapFieldTitle": "Titre",
+        "recapFieldDescription": "Description",
         "recapFieldDuration": "Durée",
         "recapFieldLocation": "Lieu",
         "actionSend": "Envoyer",
-        "actionSaveDraft": "Enregistrer brouillon"
+        "to": "à"
       }
     },
     "professionals": {
