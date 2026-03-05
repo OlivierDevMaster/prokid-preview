@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import {
   CalendarDays,
   Clock3,
@@ -22,13 +23,32 @@ export function MissionPropositionForm() {
   const [durationMode, setDurationMode] = useState<'duration' | 'period'>(
     'duration'
   );
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [durationDays, setDurationDays] = useState('');
+  const [city, setCity] = useState('');
+  const [desiredStartDate, setDesiredStartDate] = useState<Date | undefined>(
+    undefined
+  );
+  const [periodStartDate, setPeriodStartDate] = useState<Date | undefined>(
+    undefined
+  );
+  const [periodEndDate, setPeriodEndDate] = useState<Date | undefined>(
+    undefined
+  );
 
   const selectDuration = () => {
     setDurationMode('duration');
+    setDesiredStartDate(undefined);
+    setPeriodStartDate(undefined);
+    setPeriodEndDate(undefined);
   };
 
   const selectPeriod = () => {
     setDurationMode('period');
+    setDesiredStartDate(undefined);
+    setPeriodStartDate(undefined);
+    setPeriodEndDate(undefined);
   };
 
   return (
@@ -51,7 +71,9 @@ export function MissionPropositionForm() {
               <Input
                 className='rounded-xl border border-blue-100 bg-blue-50/40 text-sm placeholder:text-gray-400'
                 id='mission-title'
+                onChange={event => setTitle(event.target.value)}
                 placeholder={t('missionSectionPlaceholder')}
+                value={title}
               />
             </div>
           </Card>
@@ -71,7 +93,9 @@ export function MissionPropositionForm() {
               <Textarea
                 className='min-h-[180px] resize-y rounded-2xl border border-blue-100 bg-blue-50/40 text-sm placeholder:text-gray-400'
                 id='mission-description'
+                onChange={event => setDescription(event.target.value)}
                 placeholder={t('descriptionPlaceholder')}
+                value={description}
               />
             </div>
           </Card>
@@ -130,8 +154,10 @@ export function MissionPropositionForm() {
                         className='w-full max-w-[140px] rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400'
                         id='mission-duration'
                         min={1}
+                        onChange={event => setDurationDays(event.target.value)}
                         placeholder='10'
                         type='number'
+                        value={durationDays}
                       />
                       <div className='rounded-xl bg-gray-100 px-4 py-3 text-xs font-medium text-gray-900'>
                         {t('durationUnitDays')}
@@ -154,7 +180,13 @@ export function MissionPropositionForm() {
                       >
                         {t('periodStartLabel')}
                       </label>
-                      <InputDate id='period-start' />
+                      <InputDate
+                        id='period-start'
+                        onChange={date => {
+                          setDesiredStartDate(date);
+                          setPeriodStartDate(date ?? undefined);
+                        }}
+                      />
                     </div>
                     <div className='space-y-1.5'>
                       <label
@@ -163,7 +195,12 @@ export function MissionPropositionForm() {
                       >
                         {t('periodEndLabel')}
                       </label>
-                      <InputDate id='period-end' />
+                      <InputDate
+                        id='period-end'
+                        onChange={date => {
+                          setPeriodEndDate(date ?? undefined);
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -178,7 +215,7 @@ export function MissionPropositionForm() {
                 <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
                   <MapPin className='h-4 w-4 text-blue-600' />
                 </span>
-                    <span>4. {t('locationSectionTitle')}</span>
+                <span>4. {t('locationSectionTitle')}</span>
               </h2>
             </div>
 
@@ -189,7 +226,9 @@ export function MissionPropositionForm() {
               <Input
                 className='rounded-xl border border-blue-100 bg-blue-50/40 text-sm placeholder:text-gray-400'
                 id='mission-city'
+                onChange={event => setCity(event.target.value)}
                 placeholder={t('cityPlaceholder')}
+                value={city}
               />
             </div>
           </Card>
@@ -216,14 +255,39 @@ export function MissionPropositionForm() {
                   {t('desiredStartLabel')}
                 </label>
                 <div className='relative'>
-                  <InputDate fullWidth id='desired-start-date' />
+                  {durationMode === 'period' ? (
+                    <Input
+                      className='w-full rounded-xl border border-blue-100 bg-blue-50/40 pl-4 pr-9 text-sm placeholder:text-gray-400'
+                      id='desired-start-date'
+                      readOnly
+                      value={
+                        desiredStartDate
+                          ? format(desiredStartDate, 'dd/MM/yyyy')
+                          : ''
+                      }
+                    />
+                  ) : (
+                    <InputDate
+                      fullWidth
+                      id='desired-start-date'
+                      onChange={setDesiredStartDate}
+                    />
+                  )}
                 </div>
               </div>
             </div>
           </Card>
 
           {/* Recap card */}
-          <RecapPropositionCard />
+          <RecapPropositionCard
+            city={city}
+            desiredStartDate={desiredStartDate}
+            durationDays={durationDays}
+            isPeriodMode={durationMode === 'period'}
+            periodEndDate={periodEndDate}
+            periodStartDate={periodStartDate}
+            title={title}
+          />
         </div>
       </div>
     </div>
