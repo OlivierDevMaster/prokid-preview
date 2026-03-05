@@ -2,9 +2,12 @@ import { Info, Mail, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
+import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export function RecapPropositionCard() {
   const t = useTranslations('structure.missions.proposition');
+  const { selectedProfessionalIds } = useSelectedProfessional();
+  const selectedCount = selectedProfessionalIds.size;
 
   return (
     <Card className='rounded-3xl border-none bg-blue-900 text-white shadow-lg'>
@@ -21,11 +24,11 @@ export function RecapPropositionCard() {
       {/* Rows */}
       <div className='space-y-4 px-5 pb-5 text-sm'>
         <p className='mt-1 text-sm text-blue-100'>
-          {t('recapSentToProfessionals', { count: 2 })}
+          {t('recapSentToProfessionals', { count: selectedCount })}
         </p>
         <div className='border-white/25 pt-2'>
           <div className='flex items-center justify-between'>
-              <p className='text-sm text-blue-100'>{t('recapFieldTitle')}</p>
+            <p className='text-sm text-blue-100'>{t('recapFieldTitle')}</p>
             <p className='text-sm font-semibold'>Jean Dupont</p>
           </div>
         </div>
