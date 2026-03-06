@@ -1,10 +1,18 @@
-import { FileText, LayoutDashboard, Mail, Search, User } from 'lucide-react';
+import {
+  FileText,
+  LayoutDashboard,
+  Mail,
+  MessageCircle,
+  Search,
+  User,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
 
 export function useGetStructureSidebarItems(): SidebarNavItem[] {
   const tStructure = useTranslations('structure.navigation');
+  const tChat = useTranslations('chat.navigation');
   const tAdmin = useTranslations('admin');
   const items: SidebarNavItem[] = [
     {
@@ -21,6 +29,11 @@ export function useGetStructureSidebarItems(): SidebarNavItem[] {
       href: '/structure/invitations',
       icon: Mail,
       label: tStructure('messaging'),
+    },
+    {
+      href: '/structure/chat',
+      icon: MessageCircle,
+      label: tChat('chat'),
     },
     {
       href: '/structure/reports',
