@@ -220,7 +220,7 @@ export function ChatPanel({
       {/* Mission block */}
       {mission && (
         <div className='border-b bg-[#f8fafc] px-4 py-3'>
-          <MissionCard mission={mission} />
+          <MissionCard conversationId={conversation.id} mission={mission} />
         </div>
       )}
 

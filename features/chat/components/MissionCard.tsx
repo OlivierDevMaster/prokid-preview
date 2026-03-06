@@ -1,5 +1,4 @@
-'use client';
-
+import { useQueryClient } from '@tanstack/react-query';
 import {
   differenceInMonths,
   differenceInWeeks,
@@ -8,12 +7,27 @@ import {
   parseISO,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar, ClipboardList, MapPin, Timer } from 'lucide-react';
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  MapPin,
+  Timer,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAcceptMission } from '@/features/missions/hooks/useAcceptMission';
+import { useDeclineMission } from '@/features/missions/hooks/useDeclineMission';
 
-import type { MissionRow } from '../types/chat.types';
+import type { MissionRow, MissionStatus } from '../types/chat.types';
+
+import { conversationQueryKey } from '../hooks/useConversation';
+import { MissionStatusBadge } from './MissionStatusBadge';
+import { cn } from '@/lib/utils';
 
 const MOCK_DESCRIPTION =
   "Migration d'une architecture monolithique vers des microservices avec React et Node.js. Optimisation SEO et performance.";
@@ -22,16 +36,47 @@ const MOCK_START_DATE = '2023-10-12';
 const MOCK_DURATION_MONTHS = 3;
 
 export interface MissionCardProps {
+  conversationId?: null | string;
   mission: Partial<
     Pick<
       MissionRow,
-      'description' | 'mission_dtstart' | 'mission_until' | 'title'
+      | 'description'
+      | 'id'
+      | 'mission_dtstart'
+      | 'mission_until'
+      | 'status'
+      | 'title'
     >
   >;
 }
 
-export function MissionCard({ mission }: MissionCardProps) {
+export function MissionCard({ conversationId, mission }: MissionCardProps) {
   const t = useTranslations('chat');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const queryClient = useQueryClient();
+  const acceptMission = useAcceptMission();
+  const declineMission = useDeclineMission();
+
+  const status: MissionStatus | undefined = mission?.status;
+  const missionId = mission?.id;
+
+  const invalidateConversation = () => {
+    if (conversationId) {
+      queryClient.invalidateQueries({
+        queryKey: conversationQueryKey(conversationId),
+      });
+    }
+  };
+
+  const handleAccept = () => {
+    if (!missionId) return;
+    acceptMission.mutate(missionId, { onSuccess: invalidateConversation });
+  };
+
+  const handleDecline = () => {
+    if (!missionId) return;
+    declineMission.mutate(missionId, { onSuccess: invalidateConversation });
+  };
 
   const title = mission?.title ?? 'Bloc Mission: Développement Web Fullstack';
   const description = mission?.description ?? MOCK_DESCRIPTION;
@@ -57,7 +102,7 @@ export function MissionCard({ mission }: MissionCardProps) {
 
   return (
     <Card className='rounded-2xl border bg-white shadow-sm'>
-      <CardHeader className='space-y-0 pb-2'>
+      <CardHeader className={cn('space-y-0 pb-2', isCollapsed && 'pb-6')}>
         <div className='flex items-center justify-between gap-3'>
           <div className='flex min-w-0 items-center gap-2'>
             <ClipboardList className='h-5 w-5 shrink-0 text-primary' />
@@ -65,52 +110,87 @@ export function MissionCard({ mission }: MissionCardProps) {
               {title}
             </CardTitle>
           </div>
-          <span
-            aria-label={t('missionStatusActive')}
-            className='shrink-0 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary'
-          >
-            {t('missionStatusActive').toUpperCase()}
-          </span>
+          <div className='flex shrink-0 items-center gap-2'>
+            {status ? <MissionStatusBadge status={status} /> : null}
+            <Button
+              aria-label={
+                isCollapsed ? t('missionCardExpand') : t('missionCardCollapse')
+              }
+              className='h-8 w-8 rounded-full p-0'
+              onClick={() => setIsCollapsed(prev => !prev)}
+              size='icon'
+              variant='ghost'
+            >
+              {isCollapsed ? (
+                <ChevronDown className='h-4 w-4' />
+              ) : (
+                <ChevronUp className='h-4 w-4' />
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className='space-y-3 pt-0'>
-        <p className='text-sm text-muted-foreground'>{description}</p>
-        <div className='flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-gray-100 pt-2 text-muted-foreground'>
-          <span className='flex items-center gap-2'>
-            <Timer className='h-4 w-4 shrink-0' />
-            <div>
-              <div className='text-[11px] font-medium uppercase'>
-                {t('duration')}
+      {!isCollapsed && (
+        <CardContent className='space-y-3 pt-0'>
+          <p className='text-sm text-muted-foreground'>{description}</p>
+          <div className='flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-gray-100 pt-2 text-muted-foreground'>
+            <span className='flex items-center gap-2'>
+              <Timer className='h-4 w-4 shrink-0' />
+              <div>
+                <div className='text-[11px] font-medium uppercase'>
+                  {t('duration')}
+                </div>
+                <div className='text-sm font-semibold text-foreground'>
+                  {durationStr}
+                </div>
               </div>
-              <div className='text-sm font-semibold text-foreground'>
-                {durationStr}
+            </span>
+            <span className='flex items-center gap-2'>
+              <MapPin className='h-4 w-4 shrink-0' />
+              <div>
+                <div className='text-[11px] font-medium uppercase'>
+                  {t('modality')}
+                </div>
+                <div className='text-sm font-semibold text-foreground'>
+                  {modality}
+                </div>
               </div>
+            </span>
+            <span className='flex items-center gap-2'>
+              <Calendar className='h-4 w-4 shrink-0' />
+              <div>
+                <div className='text-[11px] font-medium uppercase'>
+                  {t('start')}
+                </div>
+                <div className='text-sm font-semibold text-foreground'>
+                  {startDateFormatted}
+                </div>
+              </div>
+            </span>
+          </div>
+          {status === 'pending' && missionId && (
+            <div className='flex justify-end gap-2 border-t border-gray-100 pt-3'>
+              <Button
+                className='flex-1 rounded-full'
+                disabled={acceptMission.isPending || declineMission.isPending}
+                onClick={handleDecline}
+                size='lg'
+                variant='outline'
+              >
+                {t('declineMission')}
+              </Button>
+              <Button
+                className='flex-1 rounded-full shadow-lg'
+                disabled={acceptMission.isPending || declineMission.isPending}
+                onClick={handleAccept}
+                size='lg'
+              >
+                {t('acceptMission')}
+              </Button>
             </div>
-          </span>
-          <span className='flex items-center gap-2'>
-            <MapPin className='h-4 w-4 shrink-0' />
-            <div>
-              <div className='text-[11px] font-medium uppercase'>
-                {t('modality')}
-              </div>
-              <div className='text-smfont-semibold text-foreground'>
-                {modality}
-              </div>
-            </div>
-          </span>
-          <span className='flex items-center gap-2'>
-            <Calendar className='h-4 w-4 shrink-0' />
-            <div>
-              <div className='text-[11px] font-medium uppercase'>
-                {t('start')}
-              </div>
-              <div className='text-sm font-semibold text-foreground'>
-                {startDateFormatted}
-              </div>
-            </div>
-          </span>
-        </div>
-      </CardContent>
+          )}
+        </CardContent>
+      )}
     </Card>
   );
 }

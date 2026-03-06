@@ -5,17 +5,15 @@ import { Building2, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   AVATAR_COLOR_VARIANTS,
   getAvatarColorVariantIndex,
 } from '@/shared/utils/avatar-colors';
 
-import type {
-  ConversationWithDetails,
-  MissionStatus,
-} from '../types/chat.types';
+import type { ConversationWithDetails } from '../types/chat.types';
+
+import { MissionStatusBadge } from './MissionStatusBadge';
 
 interface ConversationListProps {
   conversations: ConversationWithDetails[];
@@ -75,7 +73,6 @@ export function ConversationList({
               const isSelected = conv.id === selectedConversationId;
               const name = getOtherPartyName(conv, viewRole);
               const isStructure = viewRole === 'professional';
-              const mission = conv.mission;
 
               return (
                 <li key={conv.id}>
@@ -129,15 +126,12 @@ export function ConversationList({
                           : conv.mission?.title}
                       </p>
                       {conv.mission?.status ? (
-                        <Badge
-                          className='mt-1 self-start text-xs'
-                          variant='secondary'
-                        >
-                          {getMissionStatusLabel(
-                            conv.mission?.status as MissionStatus,
-                            k => t(k)
-                          )}
-                        </Badge>
+                        <span className='mt-1 self-start'>
+                          <MissionStatusBadge
+                            compact
+                            status={conv.mission.status}
+                          />
+                        </span>
                       ) : null}
                     </div>
                   </button>
@@ -163,21 +157,6 @@ function formatLastMessageAt(
     return format(d, 'EEE'); // Mon, Tue...
   }
   return formatDistanceToNow(d, { addSuffix: false });
-}
-
-function getMissionStatusLabel(
-  status: MissionStatus,
-  t: (k: string) => string
-): string {
-  const key: Record<MissionStatus, string> = {
-    accepted: 'statusAccepted',
-    cancelled: 'statusCancelled',
-    declined: 'statusDeclined',
-    ended: 'statusEnded',
-    expired: 'statusExpired',
-    pending: 'statusPending',
-  };
-  return t(key[status] ?? 'statusPending');
 }
 
 function getOtherPartyName(
