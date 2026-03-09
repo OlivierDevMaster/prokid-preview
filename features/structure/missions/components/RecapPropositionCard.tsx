@@ -1,25 +1,28 @@
-import { differenceInCalendarDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Info, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
+import { getDurationInDays } from '@/shared/utils/date';
 
 type RecapPropositionCardProps = {
-  city: string;
-  isPeriodMode?: boolean;
+  address: string;
   desiredStartDate?: Date;
   durationDays: string;
+  isPeriodMode?: boolean;
+  isSubmitting?: boolean;
   periodEndDate?: Date;
   periodStartDate?: Date;
   title: string;
 };
 
 export function RecapPropositionCard({
-  city,
-  isPeriodMode,
+  address,
   desiredStartDate,
   durationDays,
+  isPeriodMode,
+  isSubmitting,
   periodEndDate,
   periodStartDate,
   title,
@@ -34,9 +37,7 @@ export function RecapPropositionCard({
     : '';
 
   const hasPeriod =
-    isPeriodMode && periodStartDate && periodEndDate
-      ? true
-      : false;
+    isPeriodMode && periodStartDate && periodEndDate ? true : false;
 
   const formattedPeriod =
     periodStartDate && periodEndDate
@@ -45,7 +46,7 @@ export function RecapPropositionCard({
 
   const periodDurationDays =
     periodStartDate && periodEndDate
-      ? differenceInCalendarDays(periodEndDate, periodStartDate) + 1
+      ? getDurationInDays(periodStartDate, periodEndDate)
       : null;
 
   return (
@@ -66,7 +67,7 @@ export function RecapPropositionCard({
           {t('recapSentToProfessionals', { count: selectedCount })}
         </p>
         <div className='border-white/25 pt-2'>
-        {/* Title */}
+          {/* Title */}
           <div className='flex items-center justify-between'>
             <p className='text-sm text-blue-100'>{t('recapFieldTitle')}</p>
             <p className='text-sm font-semibold'>{title || ''}</p>
@@ -86,15 +87,13 @@ export function RecapPropositionCard({
         {/* Location */}
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
           <p className='text-sm text-blue-100'>{t('recapFieldLocation')}</p>
-          <p className='text-sm font-semibold'>{city || ''}</p>
+          <p className='text-sm font-semibold'>{address || ''}</p>
         </div>
 
         {/* Date / Period */}
         <div className='flex items-center justify-between border-t border-white/25 pt-4'>
           <p className='text-sm text-blue-100'>
-            {hasPeriod
-              ? period('period')
-              : t('desiredStartLabel')}
+            {hasPeriod ? period('period') : t('desiredStartLabel')}
           </p>
           <p className='text-sm font-semibold'>
             {hasPeriod ? formattedPeriod : formattedDesiredStartDate || ''}
@@ -103,7 +102,11 @@ export function RecapPropositionCard({
 
         {/* Actions */}
         <div className='mt-3 space-y-3 pt-1'>
-          <button className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-200'>
+          <button
+            className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-70'
+            disabled={isSubmitting}
+            type='submit'
+          >
             <Send className='h-4 w-4' />
             <span className='text-sm font-semibold'>{t('actionSend')}</span>
           </button>
