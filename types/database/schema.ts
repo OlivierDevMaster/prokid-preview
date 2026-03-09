@@ -240,6 +240,7 @@ export type Database = {
           professional_id: string
           status: Database["public"]["Enums"]["mission_status"]
           structure_id: string
+          address: string | null
           title: string
           updated_at: string
         }
@@ -252,6 +253,7 @@ export type Database = {
           professional_id: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id: string
+          address?: string | null
           title: string
           updated_at?: string
         }
@@ -264,6 +266,7 @@ export type Database = {
           professional_id?: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id?: string
+          address?: string | null
           title?: string
           updated_at?: string
         }
