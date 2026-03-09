@@ -729,8 +729,8 @@
         "periodStartLabel": "Date de début",
         "periodEndLabel": "Date de fin",
         "locationSectionTitle": "Localisation",
-        "locationHelper": "Ville principale de réalisation de la mission.",
-        "cityPlaceholder": "Ex : Paris, Lyon, Lille...",
+        "locationHelper": "Adresse principale de réalisation de la mission.",
+        "addressPlaceholder": "Entrez l'adresse principale de réalisation de la mission",
         "desiredStartSectionTitle": "Début souhaité",
         "desiredStartLabel": "Date de début souhaitée",
         "recapTitle": "Récapitulatif",
@@ -740,7 +740,19 @@
         "recapFieldDuration": "Durée",
         "recapFieldLocation": "Lieu",
         "actionSend": "Envoyer",
-        "to": "à"
+        "to": "à",
+        "validation": {
+          "titleRequired": "Le titre est requis",
+          "descriptionRequired": "La description est requise",
+          "addressRequired": "L'adresse est requise",
+          "durationPositive": "La durée doit être un nombre positif",
+          "durationRequired": "La durée en jours est requise ",
+          "desiredStartRequired": "La date de début souhaitée est requise ",
+          "periodStartRequired": "La date de début de période est requise ",
+          "periodEndRequired": "La date de fin de période est requise ",
+          "periodEndAfterStart": "La date de fin doit être après la date de début",
+          "professionalRequired": "Veuillez sélectionner au moins un professionnel"
+        }
       }
     },
     "professionals": {
