@@ -1,106 +1,127 @@
 'use client';
 
-import { format, isValid, parse } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-const DISPLAY_DATE_FORMAT = 'dd/MM/yyyy';
-
-export type InputDateProps = {
-  defaultDate?: Date;
+export type DatePickerInputProps = {
+  className?: string;
   fullWidth?: boolean;
-  id: string;
+  hasError?: boolean;
+  id?: string;
+  inputGroupClassName?: string;
   onChange?: (date: Date | undefined) => void;
   placeholder?: string;
+  value?: Date | undefined;
 };
 
-export function InputDate({
-  defaultDate,
-  fullWidth,
+export function DatePickerInput({
+  className,
+  fullWidth = false,
+  hasError = false,
   id,
+  inputGroupClassName,
   onChange,
   placeholder = 'jj/mm/aaaa',
-}: InputDateProps) {
+  value: valueProp,
+}: DatePickerInputProps) {
+  const isControlled = onChange !== undefined;
   const [open, setOpen] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    defaultDate
+  const [internalDate, setInternalDate] = React.useState<Date | undefined>(
+    isControlled ? undefined : new Date('2025-06-01')
   );
-  const [inputValue, setInputValue] = React.useState<string>(
-    formatDateForInput(defaultDate)
-  );
+  const date = isControlled ? valueProp : internalDate;
+  const displayValue = date !== undefined ? formatDate(date) : '';
+  const [month, setMonth] = React.useState<Date | undefined>(date);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const [triggerWidth, setTriggerWidth] = React.useState<number | undefined>();
 
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const nextValue = event.target.value;
-    setInputValue(nextValue);
-
-    const parsedDate = parseInputToDate(nextValue);
-    if (parsedDate) {
-      setSelectedDate(parsedDate);
-      if (onChange) {
-        onChange(parsedDate);
-      }
+  React.useEffect(() => {
+    if (open && triggerRef.current) {
+      setTriggerWidth(triggerRef.current.offsetWidth);
     }
-  };
+  }, [open]);
 
-  const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ): void => {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setOpen(true);
-    }
-  };
+  React.useEffect(() => {
+    if (date) setMonth(date);
+  }, [date]);
 
-  const handleSelect = (date: Date | undefined): void => {
-    setSelectedDate(date);
-    setInputValue(formatDateForInput(date));
-    if (onChange) {
-      onChange(date);
-    }
+  const handleSelect = (selectedDate: Date | undefined) => {
+    if (!isControlled) setInternalDate(selectedDate);
+    onChange?.(selectedDate);
     setOpen(false);
   };
 
   return (
-    <div className={`relative w-full ${fullWidth ? '' : 'max-w-[160px]'}`}>
-      <Input
-        className='w-full rounded-xl border border-blue-100 bg-blue-50/40 pl-4 pr-9 text-sm placeholder:text-gray-400'
-        id={id}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        value={inputValue}
-      />
+    <div className={fullWidth ? 'w-full' : undefined}>
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
-          <button
-            aria-label='Sélectionner une date'
-            className='absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500'
-            id={`${id}-trigger`}
-            type='button'
+          <div
+            className={`cursor-pointer ${className ?? ''}`.trim()}
+            onClick={() => setOpen(true)}
+            ref={triggerRef}
           >
-            <CalendarDays className='h-4 w-4' />
-            <span className='sr-only'>Sélectionner une date</span>
-          </button>
+            <InputGroup className={inputGroupClassName}>
+              <InputGroupInput
+                aria-invalid={hasError || undefined}
+                aria-label='Select date'
+                id={id ?? 'date-required'}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setOpen(true);
+                  }
+                }}
+                placeholder={placeholder}
+                readOnly
+                value={displayValue}
+              />
+              <InputGroupAddon align='inline-end'>
+                <InputGroupButton
+                  aria-label='Open calendar'
+                  id='date-picker'
+                  size='icon-xs'
+                  type='button'
+                  variant='ghost'
+                >
+                  <CalendarIcon className='size-4' />
+                  <span className='sr-only'>Open calendar</span>
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
         </PopoverTrigger>
         <PopoverContent
-          align='end'
-          className='w-auto overflow-hidden p-0'
-          sideOffset={8}
+          align='start'
+          alignOffset={0}
+          className='overflow-hidden p-0'
+          sideOffset={4}
+          style={
+            triggerWidth !== undefined
+              ? { minWidth: `${triggerWidth}px`, width: `${triggerWidth}px` }
+              : undefined
+          }
         >
           <Calendar
+            className='w-full'
             mode='single'
+            month={month}
+            onMonthChange={setMonth}
             onSelect={handleSelect}
-            selected={selectedDate}
+            selected={date}
           />
         </PopoverContent>
       </Popover>
@@ -108,23 +129,11 @@ export function InputDate({
   );
 }
 
-function formatDateForInput(date: Date | undefined): string {
-  if (!date || !isValid(date)) {
+const DISPLAY_DATE_FORMAT = 'dd/MM/yyyy';
+
+function formatDate(date: Date | undefined) {
+  if (!date) {
     return '';
   }
-
   return format(date, DISPLAY_DATE_FORMAT);
-}
-
-function parseInputToDate(value: string): Date | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = parse(value, DISPLAY_DATE_FORMAT, new Date());
-  if (!isValid(parsed)) {
-    return undefined;
-  }
-
-  return parsed;
 }
