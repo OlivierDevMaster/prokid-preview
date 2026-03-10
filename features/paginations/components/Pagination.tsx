@@ -36,6 +36,8 @@ export function Pagination({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
   const handlePageSizeChange = (value: string) => {
     const newPageSize = parseInt(value, 10);
     onPageSizeChange?.(newPageSize);
@@ -43,18 +45,16 @@ export function Pagination({
   };
 
   return (
-    <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-      <div className='flex items-center gap-2'>
+    <div className='flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex items-center gap-2 text-sm text-muted-foreground'>
         {onPageSizeChange && (
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-muted-foreground'>
-              {t('itemsPerPage')}:
-            </span>
+          <>
+            <span>{t('itemsPerPage')}:</span>
             <Select
               onValueChange={handlePageSizeChange}
               value={String(pageSize)}
             >
-              <SelectTrigger className='h-8 w-[70px]'>
+              <SelectTrigger className='h-8 w-[70px] rounded-full'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -65,37 +65,56 @@ export function Pagination({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </>
         )}
-        <div className='hidden text-sm text-muted-foreground md:block'>
+        <span className='hidden md:inline'>
           {t('showing')} {startItem} {t('to')} {endItem} {t('ofItems')}{' '}
           {totalItems}
-        </div>
-        <div className='text-sm text-muted-foreground md:hidden'>
+        </span>
+        <span className='md:hidden'>
           {t('showing')} {startItem} / {endItem} {totalItems}
-        </div>
+        </span>
       </div>
-      <div className='flex items-center gap-2'>
+
+      <div className='flex items-center gap-3'>
         <Button
+          aria-label={t('previous')}
+          className='h-9 w-9 rounded-full'
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
-          size='sm'
+          size='icon'
           variant='outline'
         >
-          <ChevronLeft className='mr-1 h-4 w-4' />
-          {t('previous')}
+          <ChevronLeft className='h-4 w-4' />
         </Button>
-        <div className='text-sm text-muted-foreground'>
-          {t('page')} {currentPage} {t('of')} {totalPages}
+
+        <div className='flex items-center gap-2'>
+          {pages.map(pageNumber => (
+            <Button
+              className={`h-9 w-9 rounded-full text-sm ${
+                pageNumber === currentPage
+                  ? 'bg-blue-500 text-white shadow-md hover:bg-blue-600'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-600'
+              }`}
+              key={pageNumber}
+              onClick={() => onPageChange(pageNumber)}
+              size='icon'
+              variant={pageNumber === currentPage ? 'default' : 'outline'}
+            >
+              {pageNumber}
+            </Button>
+          ))}
         </div>
+
         <Button
+          aria-label={t('next')}
+          className='h-9 w-9 rounded-full'
           disabled={currentPage >= totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          size='sm'
+          size='icon'
           variant='outline'
         >
-          {t('next')}
-          <ChevronRight className='ml-1 h-4 w-4' />
+          <ChevronRight className='h-4 w-4' />
         </Button>
       </div>
     </div>
