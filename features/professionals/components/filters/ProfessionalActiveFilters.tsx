@@ -42,8 +42,8 @@ export function ProfessionalActiveFilters({
   }
 
   return (
-    <div className='flex flex-wrap items-center gap-2'>
-      <div className='flex items-center gap-2 text-xs text-gray-600 sm:text-sm'>
+    <div className='mt-4 flex flex-wrap items-center gap-2'>
+      <div className='flex items-center gap-2 text-xs text-slate-500 sm:text-sm'>
         <Funnel className='h-3 w-3 sm:h-4 sm:w-4' />
         <span>{t('search.activeFilters')}</span>
       </div>
@@ -122,12 +122,12 @@ export function ProfessionalActiveFilters({
       )}
 
       <Button
-        className='h-7 text-xs'
+        className='ml-auto h-7 px-0 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline'
         onClick={onClearAll}
         size='sm'
-        variant='ghost'
+        variant='link'
       >
-        {t('search.clearAll') || 'Clear all'}
+        {t('search.reset')}
       </Button>
     </div>
   );
