@@ -1,8 +1,9 @@
 'use client';
 
+import { Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/features/paginations/components/Pagination';
@@ -16,9 +17,9 @@ import { useRouter } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function StructureSearchPage() {
-  const { selectedProfessionalIds, handleToggleProfessional, handleClearSelection } = useSelectedProfessional();
+  const { handleToggleProfessional, selectedProfessionalIds } =
+    useSelectedProfessional();
   const t = useTranslations('professional');
-  const tCommon = useTranslations('common.actions');
   const tMissions = useTranslations('structure.missions');
   const router = useRouter();
   const { actions, state } = useProfessionalSearch();
@@ -31,8 +32,6 @@ export default function StructureSearchPage() {
     'limit',
     parseAsInteger.withDefault(ProfessionalConfig.PAGE_SIZE_DEFAULT)
   );
-
-
 
   const { data } = useFindProfessionals(
     {
@@ -50,7 +49,6 @@ export default function StructureSearchPage() {
   const totalPages = Math.ceil(totalCount / pageSize);
   const resultsCount = totalCount;
 
-
   const handleSendMission = () => {
     if (selectedProfessionalIds.size === 0) {
       return;
@@ -62,73 +60,33 @@ export default function StructureSearchPage() {
   };
 
   return (
-    <main className='min-h-screen bg-[#f5f7f5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8'>
-      <div className='mx-auto max-w-7xl'>
-        <div className='mb-6 sm:mb-8'>
-          <h1 className='mb-2 text-2xl font-bold text-gray-800 sm:text-3xl md:text-4xl'>
-            {t('title')}
-          </h1>
-          <p className='text-base text-gray-600 sm:text-lg'>{t('subtitle')}</p>
-        </div>
-
+    <main className='min-h-screen bg-gray-100 pb-4'>
+      <div className='mx-auto max-w-7xl space-y-4 sm:space-y-6'>
         <ProfessionalFiltersSection actions={actions} state={state} />
-
-        <div className='mb-4 sm:mb-6'>
-          <p className='text-sm text-gray-700 sm:text-base'>
+        <div className='mx-4 mb-2 sm:mb-4'>
+          <h2 className='text-xl font-semibold text-gray-800'>
             <span className='font-semibold'>{resultsCount}</span>{' '}
             {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
+          </h2>
+          <p className='text-sm text-gray-400'>
+            {t('results.foundDescription')}
           </p>
         </div>
-
-        <div className='mt-4 flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3'>
-          <p className='text-sm font-medium text-blue-700 sm:text-base'>
-            {selectedProfessionalIds.size === 0 ? (
-              tMissions('noneSelected')
-            ) : (
-              <>
-                {selectedProfessionalIds.size}{' '}
-                {selectedProfessionalIds.size === 1
-                  ? tMissions('selected')
-                  : tMissions('selectedPlural')}
-              </>
-            )}
-          </p>
-          <div className='flex gap-3'>
-            <Button
-              className='text-blue-600 hover:bg-blue-100 hover:text-blue-700'
-              onClick={handleClearSelection}
-              variant='ghost'
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              className='bg-blue-500 text-white hover:bg-blue-600'
-              disabled={selectedProfessionalIds.size === 0}
-              onClick={handleSendMission}
-            >
-              {tMissions('sendMission')}
-            </Button>
-          </div>
-        </div>
-
-
-
-        <div className='space-y-3 sm:space-y-4 mt-4'>
+        <div className='mx-4 mt-4 grid max-w-7xl grid-cols-1 gap-4 sm:mt-6 md:grid-cols-2 xl:grid-cols-3'>
           {professionals.map((professional: Professional) => (
             <ProfessionalSearchCard
               key={professional.user_id}
-              onToggleSelect={(professional) => handleToggleProfessional(professional.user_id)}
+              onToggleSelect={professional =>
+                handleToggleProfessional(professional.user_id)
+              }
               professional={professional}
               selectable
               selected={selectedProfessionalIds.has(professional.user_id)}
             />
           ))}
         </div>
-
-
-
         {totalCount > 0 && (
-          <div className='mt-8'>
+          <div className='mt-8 flex justify-center'>
             <Pagination
               currentPage={page}
               onPageChange={setPage}
@@ -139,6 +97,33 @@ export default function StructureSearchPage() {
             />
           </div>
         )}
+
+        <div className='flex justify-end p-4'>
+          <div className='flex items-center gap-6 rounded-2xl border border-gray-200 px-4 py-4'>
+            <p className='text-xs font-medium sm:text-base'>
+              {selectedProfessionalIds.size === 0 ? (
+                tMissions('noneSelected')
+              ) : (
+                <>
+                  {selectedProfessionalIds.size}{' '}
+                  {selectedProfessionalIds.size === 1
+                    ? tMissions('selected')
+                    : tMissions('selectedPlural')}
+                </>
+              )}
+            </p>
+            <div className='flex gap-3 px-4 py-2'>
+              <Button
+                className='flex items-center gap-3 rounded-full px-6 py-6 text-sm font-semibold text-white shadow-md hover:bg-blue-700 sm:text-base'
+                disabled={selectedProfessionalIds.size === 0}
+                onClick={handleSendMission}
+              >
+                <Send className='h-4 w-4' />
+                <span>{tMissions('sendMission')}</span>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
