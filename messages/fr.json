@@ -341,22 +341,26 @@
       "placeholder": "Rechercher par nom, rôle ou compétence...",
       "locationPlaceholder": "Ville ou code postal",
       "role": "Rôle",
-      "availability": "Dispon.",
+      "availability": "Disponibilité",
       "activeFilters": "Filtres actifs :",
-      "clearAll": "Tout effacer"
+      "reset": "Réinitialiser"
     },
     "results": {
       "found": "professionnels trouvés",
-      "foundOne": "professionnel trouvé"
+      "foundOne": "professionnel trouvé",
+      "foundDescription": "Basé sur votre critère de recherche récents"
     },
     "card": {
       "viewProfile": "Voir le profil",
       "hourlyRate": "/h",
+      "perDay": "/ jour",
       "reviews": "avis",
-      "upTo": "Jusqu'à",
+      "to": "À",
       "km": "km",
       "available": "Disponible",
-      "unavailable": "Indisponible"
+      "unavailable": "Indisponible",
+      "select": "Sélectionner ce professionnel",
+      "unselect": "Désélectionner ce professionnel"
     },
     "profile": {
       "notFound": "Professionnel non trouvé",
@@ -411,7 +415,7 @@
       }
     },
     "roles": {
-      "all": "Tous les rôles",
+      "all": "Tous les métiers",
       "rsai": "RSAI",
       "technicalReferent": "Référente Technique",
       "eje": "EJE",
@@ -653,7 +657,7 @@
       "cancel": "Annuler",
       "creating": "Création en cours...",
       "create": "Créer la mission",
-      "sendMission": "Envoyer mission",
+      "sendMission": "Proposer une mission",
       "noneSelected": "Aucun élément sélectionné",
       "selected": "sélectionné",
       "selectedPlural": "sélectionnés",
