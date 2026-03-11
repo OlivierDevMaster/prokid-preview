@@ -3,6 +3,12 @@
  * Mirrors DB tables: conversations, messages.
  */
 
+export type AppointmentStatus =
+  | 'cancelled'
+  | 'confirmed'
+  | 'pending'
+  | 'rejected';
+
 export type ConversationListFilters = {
   search?: string;
 };
@@ -42,7 +48,11 @@ export interface MessageRow {
   created_at: string;
   id: string;
   sender_id: string;
+  status?: AppointmentStatus | null;
+  type?: MessageType;
 }
+
+export type MessageType = 'appointment_link' | 'text';
 
 export interface MessageWithSender extends MessageRow {
   sender?: null | ProfileRow;
@@ -87,6 +97,7 @@ export interface ProfileRow {
 
 export type SendMessageParams = {
   content: string;
+  type?: MessageType;
 };
 
 /** Structure fields used in chat */
@@ -98,5 +109,9 @@ export interface StructureRow {
   profile?: null | ProfileRow;
   user_id: string;
 }
+
+export type UpdateAppointmentStatusParams = {
+  status: 'confirmed' | 'rejected';
+};
 
 export type ViewRole = 'professional' | 'structure';

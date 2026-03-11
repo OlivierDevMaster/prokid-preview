@@ -11,6 +11,8 @@ const MESSAGES_SELECT = `
   conversation_id,
   sender_id,
   content,
+  type,
+  status,
   created_at,
   sender:profiles(user_id, first_name, last_name, avatar_url, email)
 `;
@@ -49,14 +51,26 @@ export async function sendMessage(
   params: SendMessageParams
 ): Promise<MessageWithSender> {
   const supabase = createClient();
+  const type = params.type ?? 'text';
+  const payload: {
+    content: string;
+    conversation_id: string;
+    sender_id: string;
+    status?: string;
+    type: string;
+  } = {
+    content: params.content.trim(),
+    conversation_id: conversationId,
+    sender_id: senderId,
+    type,
+  };
+  if (type === 'appointment_link') {
+    payload.status = 'pending';
+  }
 
   const { data, error } = await supabase
     .from('messages')
-    .insert({
-      content: params.content.trim(),
-      conversation_id: conversationId,
-      sender_id: senderId,
-    })
+    .insert(payload)
     .select(MESSAGES_SELECT)
     .single();
 
@@ -64,6 +78,59 @@ export async function sendMessage(
 
   if (!data) {
     throw new Error('Failed to send message: no data returned');
+  }
+
+  return data as MessageWithSender;
+}
+
+export async function updateMessageContent(
+  messageId: string,
+  content: string
+): Promise<MessageWithSender> {
+  const supabase = createClient();
+
+  const message = await supabase.from('messages').select(MESSAGES_SELECT).eq('id', messageId).maybeSingle();
+
+  console.log('message', message.data);
+  console.log('error', message.error);
+
+  const { data, error } = await supabase
+    .from('messages')
+    .update({ content: content.trim() })
+    .eq('id', messageId)
+    .select(MESSAGES_SELECT)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (data === null) {
+    throw new Error(
+      'Failed to update message content: message not found or you do not have permission to update it'
+    );
+  }
+
+  return data as MessageWithSender;
+}
+
+export async function updateMessageStatus(
+  messageId: string,
+  status: 'cancelled' | 'confirmed' | 'rejected'
+): Promise<MessageWithSender> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('messages')
+    .update({ status })
+    .eq('id', messageId)
+    .select(MESSAGES_SELECT)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (data === null) {
+    throw new Error(
+      'Failed to update message status: message not found or you do not have permission to update it'
+    );
   }
 
   return data as MessageWithSender;

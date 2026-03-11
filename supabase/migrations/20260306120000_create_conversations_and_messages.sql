@@ -90,6 +90,8 @@ create table if not exists "public"."messages" (
   "conversation_id" uuid not null references "public"."conversations"("id") on delete cascade,
   "sender_id" uuid not null references "public"."profiles"("user_id") on delete cascade,
   "content" text not null,
+  "type" text not null default 'text' check ("type" in ('text', 'appointment_link')),
+  "status" text check ("status" is null or "status" in ('pending', 'confirmed', 'rejected', 'cancelled')),
   "created_at" timestamp with time zone default now() not null
 );
 
@@ -97,6 +99,8 @@ comment on table "public"."messages" is 'Chat messages within a conversation';
 comment on column "public"."messages"."conversation_id" is 'Reference to the conversation';
 comment on column "public"."messages"."sender_id" is 'User who sent the message (structure or professional participant)';
 comment on column "public"."messages"."content" is 'Message text content';
+comment on column "public"."messages"."type" is 'Message type: text or appointment_link';
+comment on column "public"."messages"."status" is 'For appointment_link: pending, confirmed, rejected, or cancelled';
 
 create index if not exists "idx_messages_conversation_id" on "public"."messages" ("conversation_id");
 create index if not exists "idx_messages_created_at" on "public"."messages" ("created_at");
@@ -144,7 +148,10 @@ begin
   update "public"."conversations"
   set
     "last_message_at" = new."created_at",
-    "last_message_preview" = left(new."content", 80),
+    "last_message_preview" = case
+      when new."type" = 'appointment_link' then 'Rendez-vous proposé'
+      else left(new."content", 80)
+    end,
     "updated_at" = now()
   where "id" = new."conversation_id";
   return new;
@@ -284,6 +291,16 @@ create policy "Professionals can insert messages in their conversations" on "pub
       select 1 from "public"."conversations" c
       where c."id" = "conversation_id" and c."professional_id" = (select auth.uid())
     )
+  );
+
+-- Professionals or Structures can update their own messages
+create policy "Professionals or Structures can update their own messages" on public.messages
+  for update to authenticated
+  using (
+    sender_id = auth.uid()
+  )
+  with check (
+    sender_id = auth.uid()
   );
 
 -- Admins can view all messages
