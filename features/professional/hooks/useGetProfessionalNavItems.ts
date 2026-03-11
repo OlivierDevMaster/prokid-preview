@@ -2,6 +2,7 @@ import {
   ClipboardMinus,
   LayoutDashboard,
   Mail,
+  MessageCircle,
   Target,
   User,
 } from 'lucide-react';
@@ -11,6 +12,7 @@ import { SidebarNavItem } from '@/modeles/navigation.modele';
 
 export default function useGetProfessionalNavItems(): SidebarNavItem[] {
   const tProfessional = useTranslations('admin');
+  const tChat = useTranslations('chat.navigation');
 
   const items: SidebarNavItem[] = [
     {
@@ -33,6 +35,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       href: '/professional/invitations',
       icon: Mail,
       label: tProfessional('navigation.messaging'),
+    },
+    {
+      href: '/professional/chat',
+      icon: MessageCircle,
+      label: tChat('chat'),
     },
     {
       href: '/professional/setting',

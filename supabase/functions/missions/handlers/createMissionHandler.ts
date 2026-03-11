@@ -180,6 +180,7 @@ export const createMissionHandler = factory.createHandlers(
           professional_id: body.professional_id,
           status: body.status || 'pending',
           structure_id: body.structure_id,
+          address: body.address,
           title: body.title,
         })
         .select('*')

@@ -98,14 +98,11 @@ export const getMissionStatusConfig = (
 });
 
 export interface CreateMissionRequestBody {
+  address: string;
   description?: string;
   mission_dtstart: string;
   mission_until: string;
   professional_id: string;
-  schedules: Array<{
-    duration_mn: number;
-    rrule: string;
-  }>;
   status?: MissionStatus;
   structure_id: string;
   title: string;
@@ -116,6 +113,7 @@ export type Mission = Tables<'missions'>;
 export type MissionColumn = keyof Tables<'missions'>;
 
 export const MissionColumn = {
+  address: 'address',
   created_at: 'created_at',
   description: 'description',
   id: 'id',
