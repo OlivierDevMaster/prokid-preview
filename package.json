@@ -8,7 +8,7 @@
     "lint:fix": "eslint . --fix",
     "lint:fix:files": "eslint --fix",
     "typecheck": "npx tsc --noEmit --pretty",
-    "fn:serve": "supabase functions serve --env-file .env",
+    "fn:serve": "supabase functions serve",
     "db:restart": "supabase stop && supabase start",
     "db:reset:local": "supabase db reset --local",
     "db:accept-pending-missions": "dotenvx run -- tsx scripts/accept-pending-missions.ts",
