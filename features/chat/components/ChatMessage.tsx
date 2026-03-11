@@ -9,6 +9,7 @@ import type { MessageWithSender, ViewRole } from '../types/chat.types';
 
 import { AppointmentMessageCard } from './AppointmentMessageCard';
 import { ChatMessageBubble } from './ChatMessageBubble';
+import { SystemMessageBadge } from './SystemMessageBadge';
 
 export interface ChatMessageProps {
   currentUserId: string | undefined;
@@ -40,6 +41,10 @@ export function ChatMessage({
           .filter(Boolean)
           .join(' ')
       : (message.sender?.email ?? '');
+
+  if (message.type === 'system') {
+    return <SystemMessageBadge message={message} viewRole={viewRole} />;
+  }
 
   if (message.type === 'appointment_link') {
     return (

@@ -5,6 +5,7 @@ const { rrulestr } = RRulePkg;
 
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
+import { createMissionSystemMessage } from '../utils/createMissionSystemMessage.ts';
 import {
   type MissionSchedule,
   type ProfessionalAvailability,
@@ -315,10 +316,17 @@ export const acceptMissionHandler = factory.createHandlers(
           .select('*')
           .single();
 
-      if (updateError) {
+      if (updateError || !updatedMission) {
         console.error('Error updating mission:', updateError);
         return apiResponse.internalServerError('Failed to accept mission');
       }
+
+      await createMissionSystemMessage({
+        actor: 'professional',
+        mission: updatedMission,
+        status: 'accepted',
+        supabaseAdminClient,
+      });
 
       // Return mission with overlap information in data if any overlaps were found
       return apiResponse.ok({

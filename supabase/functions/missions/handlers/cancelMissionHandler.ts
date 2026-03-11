@@ -4,6 +4,7 @@ import { SupabaseClient, User } from '@supabase/supabase-js';
 import { Mission } from '../../_shared/features/missions/index.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
+import { createMissionSystemMessage } from '../utils/createMissionSystemMessage.ts';
 
 type Variables = {
   supabaseAdminClient: SupabaseClient<Database>;
@@ -71,10 +72,17 @@ export const cancelMissionHandler = factory.createHandlers(
           .select('*')
           .single();
 
-      if (updateError) {
+      if (updateError || !updatedMission) {
         console.error('Error updating mission:', updateError);
         return apiResponse.internalServerError('Failed to cancel mission');
       }
+
+      await createMissionSystemMessage({
+        actor: 'structure',
+        mission: updatedMission,
+        status: 'cancelled',
+        supabaseAdminClient,
+      });
 
       // TODO: If mission was accepted, restore availability (remove UNTIL)
       // This can be implemented later if needed

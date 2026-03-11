@@ -1568,6 +1568,16 @@
     "leaveReviewCommentPlaceholder": "Partagez votre expérience avec {name}...",
     "leaveReviewCancel": "Annuler",
     "leaveReviewSubmit": "Envoyer l'avis",
-    "leaveReviewSubmitting": "Envoi en cours..."
+    "leaveReviewSubmitting": "Envoi en cours...",
+    "systemMissionAcceptedPro": "Vous avez accepté la mission",
+    "systemMissionDeclinedPro": "Vous avez refusé la mission",
+    "systemMissionCancelledPro": "Vous avez annulé la mission",
+    "systemMissionAcceptedStructure": "{name} a accepté la mission",
+    "systemMissionDeclinedStructure": "{name} a refusé la mission",
+    "systemMissionCancelledStructure": "Vous avez annulé la mission",
+    "professionalFallback": "Le professionnel",
+    "systemPreviewAccepted": "Mission acceptée",
+    "systemPreviewDeclined": "Mission refusée",
+    "systemPreviewCancelled": "Mission annulée"
   }
 }

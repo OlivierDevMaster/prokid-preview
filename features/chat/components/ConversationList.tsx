@@ -121,9 +121,7 @@ export function ConversationList({
                         </span>
                       </div>
                       <p className='truncate text-xs text-muted-foreground'>
-                        {conv.mission?.status === 'accepted'
-                          ? conv.last_message_preview || conv.mission?.title
-                          : conv.mission?.title}
+                        {getConversationPreview(conv, k => t(k))}
                       </p>
                       {conv.mission?.status ? (
                         <span className='mt-1 self-start'>
@@ -157,6 +155,20 @@ function formatLastMessageAt(
     return format(d, 'EEE'); // Mon, Tue...
   }
   return formatDistanceToNow(d, { addSuffix: false });
+}
+
+function getConversationPreview(
+  conv: ConversationWithDetails,
+  t: (k: string) => string
+): string {
+  const preview = conv.last_message_preview?.trim();
+  if (preview === 'accepted') return t('systemPreviewAccepted');
+  if (preview === 'declined') return t('systemPreviewDeclined');
+  if (preview === 'cancelled') return t('systemPreviewCancelled');
+  if (conv.mission?.status === 'accepted') {
+    return preview || (conv.mission?.title ?? '');
+  }
+  return conv.mission?.title ?? '';
 }
 
 function getOtherPartyName(

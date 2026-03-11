@@ -64,7 +64,7 @@ export async function sendMessage(
   params: SendMessageParams
 ): Promise<MessageWithSender> {
   const supabase = createClient();
-  const type = params.type ?? 'text';
+  const type = params.type === 'system' ? 'text' : (params.type ?? 'text');
   const payload: {
     content: string;
     conversation_id: string;
