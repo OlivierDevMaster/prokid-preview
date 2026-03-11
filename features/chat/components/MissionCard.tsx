@@ -22,12 +22,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAcceptMission } from '@/features/missions/hooks/useAcceptMission';
 import { useDeclineMission } from '@/features/missions/hooks/useDeclineMission';
+import { cn } from '@/lib/utils';
 
 import type { MissionRow, MissionStatus } from '../types/chat.types';
 
 import { conversationQueryKey } from '../hooks/useConversation';
 import { MissionStatusBadge } from './MissionStatusBadge';
-import { cn } from '@/lib/utils';
 
 const MOCK_DESCRIPTION =
   "Migration d'une architecture monolithique vers des microservices avec React et Node.js. Optimisation SEO et performance.";
@@ -101,89 +101,93 @@ export function MissionCard({ conversationId, mission }: MissionCardProps) {
   const modality = MOCK_MODALITY;
 
   return (
-    <Card className='rounded-2xl border bg-white shadow-sm'>
-      <CardHeader className={cn('space-y-0 pb-2', isCollapsed && 'pb-6')}>
-        <div className='flex items-center justify-between gap-3'>
-          <div className='flex min-w-0 items-center gap-2'>
-            <ClipboardList className='h-5 w-5 shrink-0 text-primary' />
-            <CardTitle className='truncate font-bold text-primary'>
+    <Card className='rounded-xl border bg-white px-4 py-3 shadow-sm'>
+      <CardHeader
+        className={cn('space-y-0 px-0 pb-1 pt-0', isCollapsed && 'pb-0')}
+      >
+        <div className='flex items-center justify-between gap-2'>
+          <div className='flex min-w-0 items-center gap-1.5'>
+            <ClipboardList className='h-4 w-4 shrink-0 text-primary' />
+            <CardTitle className='truncate text-sm font-bold text-primary'>
               {title}
             </CardTitle>
           </div>
-          <div className='flex shrink-0 items-center gap-2'>
+          <div className='flex shrink-0 items-center gap-1'>
             {status ? <MissionStatusBadge status={status} /> : null}
             <Button
               aria-label={
                 isCollapsed ? t('missionCardExpand') : t('missionCardCollapse')
               }
-              className='h-8 w-8 rounded-full p-0'
+              className='h-6 w-6 rounded-full p-0'
               onClick={() => setIsCollapsed(prev => !prev)}
               size='icon'
               variant='ghost'
             >
               {isCollapsed ? (
-                <ChevronDown className='h-4 w-4' />
+                <ChevronDown className='h-3.5 w-3.5' />
               ) : (
-                <ChevronUp className='h-4 w-4' />
+                <ChevronUp className='h-3.5 w-3.5' />
               )}
             </Button>
           </div>
         </div>
       </CardHeader>
       {!isCollapsed && (
-        <CardContent className='space-y-3 pt-0'>
-          <p className='text-sm text-muted-foreground'>{description}</p>
-          <div className='flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-gray-100 pt-2 text-muted-foreground'>
-            <span className='flex items-center gap-2'>
-              <Timer className='h-4 w-4 shrink-0' />
+        <CardContent className='space-y-2 px-0 pb-2 pt-0'>
+          <p className='text-xs leading-snug text-muted-foreground'>
+            {description}
+          </p>
+          <div className='flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-gray-100 pt-1.5 text-muted-foreground'>
+            <span className='flex items-center gap-1.5'>
+              <Timer className='h-3.5 w-3.5 shrink-0' />
               <div>
-                <div className='text-[11px] font-medium uppercase'>
+                <div className='text-[10px] font-medium uppercase'>
                   {t('duration')}
                 </div>
-                <div className='text-sm font-semibold text-foreground'>
+                <div className='text-xs font-semibold text-foreground'>
                   {durationStr}
                 </div>
               </div>
             </span>
-            <span className='flex items-center gap-2'>
-              <MapPin className='h-4 w-4 shrink-0' />
+            <span className='flex items-center gap-1.5'>
+              <MapPin className='h-3.5 w-3.5 shrink-0' />
               <div>
-                <div className='text-[11px] font-medium uppercase'>
+                <div className='text-[10px] font-medium uppercase'>
                   {t('modality')}
                 </div>
-                <div className='text-sm font-semibold text-foreground'>
+                <div className='text-xs font-semibold text-foreground'>
                   {modality}
                 </div>
               </div>
             </span>
-            <span className='flex items-center gap-2'>
-              <Calendar className='h-4 w-4 shrink-0' />
+            <span className='flex items-center gap-1.5'>
+              <Calendar className='h-3.5 w-3.5 shrink-0' />
               <div>
-                <div className='text-[11px] font-medium uppercase'>
+                <div className='text-[10px] font-medium uppercase'>
                   {t('start')}
                 </div>
-                <div className='text-sm font-semibold text-foreground'>
+                <div className='text-xs font-semibold text-foreground'>
                   {startDateFormatted}
                 </div>
               </div>
             </span>
           </div>
           {status === 'pending' && missionId && (
-            <div className='flex justify-end gap-2 border-t border-gray-100 pt-3'>
+            <div className='flex justify-end gap-1.5 border-t border-gray-100 pt-2'>
               <Button
-                className='flex-1 rounded-full'
+                className='flex-1 rounded-full text-xs'
                 disabled={acceptMission.isPending || declineMission.isPending}
                 onClick={handleDecline}
-                size='lg'
+                size='sm'
                 variant='outline'
               >
                 {t('declineMission')}
               </Button>
               <Button
-                className='flex-1 rounded-full shadow-lg'
+                className='flex-1 rounded-full text-xs shadow-lg'
                 disabled={acceptMission.isPending || declineMission.isPending}
                 onClick={handleAccept}
-                size='lg'
+                size='sm'
               >
                 {t('acceptMission')}
               </Button>
