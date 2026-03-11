@@ -24,12 +24,11 @@ import { AvailabilityCalendar } from '@/features/professional/components/Availab
 import { RelatedProfessionals } from '@/features/professionals/components/RelatedProfessionals';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { useCheckStructureMembership } from '@/features/structure-members/hooks/useCheckStructureMembership';
-import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
 import { useCreateInvitation } from '@/features/structure/invitations/hooks/useCreateInvitation';
 import { useHasActiveMission } from '@/features/structure/professionals/hooks/useHasActiveMission';
 import { RatingModal } from '@/features/structure/ratings/components/RatingModal';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
-import { useRatingForMembership } from '@/features/structure/ratings/hooks/useRatingForMembership';
+import { useRatingForStructureAndProfessional } from '@/features/structure/ratings/hooks/useRatingForStructureAndProfessional';
 import { useRole } from '@/hooks/useRole';
 import { Link, useRouter } from '@/i18n/routing';
 
@@ -51,9 +50,9 @@ export default function ProfessionalProfile() {
   const { data: hasActiveMission } = useHasActiveMission(professionalId);
   const { data: hasMembership, isLoading: isLoadingMembership } =
     useCheckStructureMembership(userId, professionalId);
-  const { data: membershipId } = useGetMembershipId(userId, professionalId);
-  const { data: existingRating } = useRatingForMembership(
-    membershipId ?? undefined
+  const { data: existingRating } = useRatingForStructureAndProfessional(
+    userId ?? undefined,
+    professionalId
   );
   const createInvitation = useCreateInvitation();
   const createRating = useCreateRating();
@@ -93,7 +92,7 @@ export default function ProfessionalProfile() {
   };
 
   const handleSubmitRating = async (rating: number, comment: string) => {
-    if (!userId || !professionalId || !membershipId) {
+    if (!userId || !professionalId) {
       toast.error(tRating('ratingError'));
       return;
     }
@@ -101,7 +100,6 @@ export default function ProfessionalProfile() {
     try {
       await createRating.mutateAsync({
         comment: comment || null,
-        membershipId,
         professionalId,
         rating,
         structureId: userId,
@@ -115,8 +113,7 @@ export default function ProfessionalProfile() {
     }
   };
 
-  const canRate =
-    session && isStructure && hasMembership && membershipId && !existingRating;
+  const canRate = session && isStructure && hasMembership && !existingRating;
 
   const getJobTranslation = (job: null | string | undefined): string => {
     if (!job) {
@@ -201,7 +198,7 @@ export default function ProfessionalProfile() {
                         {professional.profile.last_name}
                       </span>
                     </h1>
-                    <p className='mb-3 text-center text-lg  text-blue-500'>
+                    <p className='mb-3 text-center text-lg text-blue-500'>
                       {getJobTranslation(professional.current_job)}
                     </p>
 

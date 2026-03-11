@@ -4,8 +4,10 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
 import { useScrollToBottom } from '@/features/chat/hooks/useScrollToBottom';
-import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
+import { useDeleteRating } from '@/features/structure/ratings/hooks/useDeleteRating';
+import { useRatingForStructureAndProfessional } from '@/features/structure/ratings/hooks/useRatingForStructureAndProfessional';
+import { useUpdateRating } from '@/features/structure/ratings/hooks/useUpdateRating';
 
 import type {
   ConversationWithDetails,
@@ -69,11 +71,13 @@ export function ChatPanel({
 
   const structureId = conversation?.structure_id;
   const professionalId = conversation?.professional_id;
-  const { data: membershipId } = useGetMembershipId(
-    structureId,
-    professionalId
-  );
   const createRating = useCreateRating();
+  const updateRating = useUpdateRating();
+  const deleteRating = useDeleteRating();
+  const { data: existingRating } = useRatingForStructureAndProfessional(
+    viewRole === 'structure' ? structureId : undefined,
+    viewRole === 'structure' ? professionalId : undefined
+  );
 
   const otherPartyName = useMemo(
     () =>
@@ -110,19 +114,38 @@ export function ChatPanel({
 
   const handleReviewSubmit = useCallback(
     (rating: number, comment: string) => {
-      if (!structureId || !professionalId || !membershipId) return;
-      createRating.mutate(
-        {
-          comment: comment.trim() || null,
-          membershipId,
-          professionalId,
-          rating,
-          structureId,
-        },
-        { onSuccess: () => setReviewModalOpen(false) }
-      );
+      if (!structureId || !professionalId) return;
+      if (existingRating) {
+        updateRating.mutate(
+          {
+            comment: comment.trim() || null,
+            rating,
+            ratingId: existingRating.id,
+          },
+          { onSuccess: () => setReviewModalOpen(false) }
+        );
+      } else {
+        createRating.mutate(
+          {
+            comment: comment.trim() || null,
+            professionalId,
+            rating,
+            structureId,
+          },
+          { onSuccess: () => setReviewModalOpen(false) }
+        );
+      }
     },
-    [createRating, membershipId, professionalId, structureId]
+    [createRating, existingRating, professionalId, structureId, updateRating]
+  );
+
+  const handleRemoveReview = useCallback(
+    (ratingId: string) => {
+      deleteRating.mutate(ratingId, {
+        onSuccess: () => setReviewModalOpen(false),
+      });
+    },
+    [deleteRating]
   );
 
   const handleProposeAppointmentSubmit = useCallback(
@@ -206,7 +229,9 @@ export function ChatPanel({
   return (
     <div className='flex flex-1 flex-col bg-background'>
       <ChatPanelHeader
-        membershipId={membershipId}
+        existingRating={
+          viewRole === 'structure' ? (existingRating ?? null) : null
+        }
         onOpenReview={() => setReviewModalOpen(true)}
         otherPartyAddress={otherPartyAddress}
         otherPartyName={otherPartyName}
@@ -214,9 +239,17 @@ export function ChatPanel({
       />
 
       <LeaveReviewModal
+        existingRating={
+          viewRole === 'structure' ? (existingRating ?? null) : null
+        }
         isOpen={reviewModalOpen}
-        isSubmitting={createRating.isPending}
+        isSubmitting={
+          createRating.isPending ||
+          updateRating.isPending ||
+          deleteRating.isPending
+        }
         onClose={() => setReviewModalOpen(false)}
+        onRemove={existingRating ? handleRemoveReview : undefined}
         onSubmit={handleReviewSubmit}
         revieweeName={otherPartyName}
       />

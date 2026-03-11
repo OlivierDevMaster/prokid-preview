@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import type { ViewRole } from '../types/chat.types';
 
 export interface ChatPanelHeaderProps {
-  membershipId: null | string | undefined;
+  existingRating: { id: string } | null;
   onOpenReview: () => void;
   otherPartyAddress: null | string;
   otherPartyName: string;
@@ -16,7 +16,7 @@ export interface ChatPanelHeaderProps {
 }
 
 export function ChatPanelHeader({
-  membershipId,
+  existingRating,
   onOpenReview,
   otherPartyAddress,
   otherPartyName,
@@ -37,14 +37,9 @@ export function ChatPanelHeader({
       </div>
       <div className='flex items-center gap-2'>
         {viewRole === 'structure' && (
-          <Button
-            disabled={!membershipId}
-            onClick={onOpenReview}
-            size='sm'
-            variant='outline'
-          >
+          <Button onClick={onOpenReview} size='sm' variant='outline'>
             <Star className='mr-2 h-4 w-4' />
-            {t('leaveReview')}
+            {existingRating ? t('updateReview') : t('leaveReview')}
           </Button>
         )}
       </div>

@@ -16,7 +16,6 @@ import { RatingConfig } from '../ratings.config';
 export const createRating = async (
   structureId: string,
   professionalId: string,
-  membershipId: string,
   rating: number,
   comment?: null | string
 ): Promise<ProfessionalRating> => {
@@ -24,7 +23,6 @@ export const createRating = async (
 
   const insertData: ProfessionalRatingInsert = {
     comment: comment || null,
-    membership_id: membershipId,
     professional_id: professionalId,
     rating,
     structure_id: structureId,
@@ -76,8 +74,9 @@ export const deleteRating = async (ratingId: string): Promise<void> => {
   if (error) throw error;
 };
 
-export const getRatingForMembership = async (
-  membershipId: string
+export const getRatingForStructureAndProfessional = async (
+  structureId: string,
+  professionalId: string
 ): Promise<null | ProfessionalRatingWithRelations> => {
   const supabase = createClient();
 
@@ -93,11 +92,11 @@ export const getRatingForMembership = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `
     )
-    .eq('membership_id', membershipId)
+    .eq('structure_id', structureId)
+    .eq('professional_id', professionalId)
     .single();
 
   if (error) {
@@ -133,8 +132,7 @@ export const getRatingsForProfessional = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `,
       { count: 'exact' }
     )
@@ -174,8 +172,7 @@ export const getRatingsForStructure = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `,
       { count: 'exact' }
     )
