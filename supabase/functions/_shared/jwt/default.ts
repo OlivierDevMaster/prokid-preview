@@ -22,10 +22,6 @@ export function getAuthToken(req: Request): string {
 }
 
 export function verifySupabaseJWT(jwt: string) {
-  console.log("supabse jwt keys", SUPABASE_JWT_KEYS);
-  console.log("supabse jwt issuer", SUPABASE_JWT_ISSUER);
-  console.log("token", jwt);
-
   return jose.jwtVerify(jwt, SUPABASE_JWT_KEYS, {
     issuer: SUPABASE_JWT_ISSUER,
   });

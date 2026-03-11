@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
@@ -12,6 +12,7 @@ import type {
   ViewRole,
 } from '../types/chat.types';
 
+import { useScrollToBottom } from '@/features/chat/hooks/useScrollToBottom';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useUpdateAppointmentLink } from '../hooks/useUpdateAppointmentLink';
 import { useUpdateAppointmentStatus } from '../hooks/useUpdateAppointmentStatus';
@@ -44,8 +45,9 @@ export function ChatPanel({
   } | null>(null);
   const [proposeAppointmentOpen, setProposeAppointmentOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const { messagesContainerRef, messagesEndRef, scrollToBottom } =
+    useScrollToBottom(conversation?.id, isLoadingMessages, messages.length);
 
   const sendMessage = useSendMessage(conversation?.id ?? null);
   const updateAppointmentLink = useUpdateAppointmentLink(
@@ -88,12 +90,6 @@ export function ChatPanel({
     [conversation, viewRole]
   );
 
-  useEffect(() => {
-    if (!conversation?.id) return;
-    const el = messagesContainerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [conversation?.id, isLoadingMessages]);
-
   const handleSendText = useCallback(
     (content: string) => {
       if (!content || sendMessage.isPending) return;
@@ -134,9 +130,7 @@ export function ChatPanel({
         {
           onSuccess: () => {
             setProposeAppointmentOpen(false);
-            setTimeout(() => {
-              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
+            scrollToBottom('smooth');
           },
         }
       );
@@ -144,6 +138,7 @@ export function ChatPanel({
     [
       conversation?.id,
       editingAppointmentMessage,
+      scrollToBottom,
       sendMessage,
       updateAppointmentLink,
     ]
