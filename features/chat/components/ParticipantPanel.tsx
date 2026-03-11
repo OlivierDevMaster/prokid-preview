@@ -2,6 +2,7 @@
 
 import { Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/routing';
@@ -69,23 +70,36 @@ export function ParticipantPanel({
           </div>
         ) : (
           <div className='flex items-center gap-3'>
-            <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-medium ${
-                AVATAR_COLOR_VARIANTS[
-                  getAvatarColorVariantIndex(conversation.professional_id)
-                ].bg
-              } ${
-                AVATAR_COLOR_VARIANTS[
-                  getAvatarColorVariantIndex(conversation.professional_id)
-                ].text
-              }`}
-            >
-              {name
-                .split(' ')
-                .map(s => s[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase() || '?'}
+            <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-muted'>
+              {professional?.profile?.avatar_url ? (
+                <Image
+                  alt={name}
+                  className='h-full w-full object-cover'
+                  height={48}
+                  src={professional.profile.avatar_url}
+                  unoptimized
+                  width={48}
+                />
+              ) : (
+                <div
+                  className={`flex h-full w-full items-center justify-center rounded-full text-sm font-medium ${
+                    AVATAR_COLOR_VARIANTS[
+                      getAvatarColorVariantIndex(conversation.professional_id)
+                    ].bg
+                  } ${
+                    AVATAR_COLOR_VARIANTS[
+                      getAvatarColorVariantIndex(conversation.professional_id)
+                    ].text
+                  }`}
+                >
+                  {name
+                    .split(' ')
+                    .map(s => s[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase() || '?'}
+                </div>
+              )}
             </div>
             <div>
               <h3 className='font-semibold'>{name}</h3>

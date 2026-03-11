@@ -3,6 +3,7 @@
 import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 import { Building2, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -91,23 +92,40 @@ export function ConversationList({
                           <Building2 className='h-5 w-5 text-muted-foreground' />
                         </div>
                       ) : (
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium ${
-                            AVATAR_COLOR_VARIANTS[
-                              getAvatarColorVariantIndex(conv.professional_id)
-                            ].bg
-                          } ${
-                            AVATAR_COLOR_VARIANTS[
-                              getAvatarColorVariantIndex(conv.professional_id)
-                            ].text
-                          }`}
-                        >
-                          {name
-                            .split(' ')
-                            .map(s => s[0])
-                            .join('')
-                            .slice(0, 2)
-                            .toUpperCase() || '?'}
+                        <div className='flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-muted'>
+                          {conv.professional?.profile?.avatar_url ? (
+                            <Image
+                              alt={name}
+                              className='h-full w-full object-cover'
+                              height={40}
+                              src={conv.professional.profile.avatar_url}
+                              unoptimized
+                              width={40}
+                            />
+                          ) : (
+                            <div
+                              className={`flex h-full w-full items-center justify-center rounded-full text-sm font-medium ${
+                                AVATAR_COLOR_VARIANTS[
+                                  getAvatarColorVariantIndex(
+                                    conv.professional_id
+                                  )
+                                ].bg
+                              } ${
+                                AVATAR_COLOR_VARIANTS[
+                                  getAvatarColorVariantIndex(
+                                    conv.professional_id
+                                  )
+                                ].text
+                              }`}
+                            >
+                              {name
+                                .split(' ')
+                                .map(s => s[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase() || '?'}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

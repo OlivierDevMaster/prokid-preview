@@ -482,7 +482,21 @@
         "greenBadgeRemoved": "Pastille verte retirée.",
         "confirm": "Confirmer"
       },
-      "viewAll": "Tout voir"
+      "viewAll": "Tout voir",
+      "missionHistoryLink": "Historique des missions",
+      "viewMission": "Voir mission",
+      "conversationsCardTitle": "Conversation",
+      "conversationCta": "Ouvrir le centre de messagerie",
+      "conversationNewBadge": "Nouveau",
+      "conversationReadBadge": "Lu",
+      "messageCta": "Message",
+      "helpCardTitle": "Besoin d'aide ?",
+      "helpCardDescription": "Votre conseiller dédié est disponible pour vous aider à trouver les meilleurs profils.",
+      "helpCardCta": "Contacter PROKID",
+      "missionsCardTitle": "Missions récentes",
+      "reportsCardTitle": "Rapports",
+      "viewAllReports": "Voir tous les rapports",
+      "nameFallback": "Mon profil"
     },
     "structure": {
       "hoursCompleted": "Heures effectuées",
