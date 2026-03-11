@@ -439,7 +439,7 @@
       "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
       "other_early_childhood_profession": "Autre profession de la petite enfance"
     },
-    "dashboard": {
+      "dashboard": {
       "title": "Tableau de bord",
       "subtitle": "Aperçu de votre activité professionnelle",
       "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
@@ -807,13 +807,21 @@
       "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente",
       "acceptedInvitations": "Invitations Acceptées",
-      "missionsCardTitle": "MISSIONS",
-      "reportsCardTitle": "RAPPORTS",
+      "missionsCardTitle": "Missions récentes",
+      "reportsCardTitle": "Rapports",
       "viewAll": "Tout voir",
       "structureNameFallback": "Ma structure",
       "missionsCount": "{count} missions",
       "messagesPlaceholder": "1 message",
-      "findProCta": "Trouver un pro"
+      "findProCta": "Trouver un pro",
+      "messageCta": "Message",
+      "conversationsCardTitle": "Conversation",
+      "conversationCta": "Ouvrir le centre de messagerie",
+      "conversationNewBadge": "Nouveau",
+      "helpCardTitle": "Besoin d'aide ?",
+      "helpCardDescription": "Votre conseiller dédié est disponible pour vous aider à trouver les meilleurs profils.",
+      "helpCardCta": "Contacter PROKID",
+      "structureLocationFallback": "Ville non renseignée"
     },
     "ratings": {
       "rateProfessional": "Ajouter aux favoris",
