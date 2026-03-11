@@ -6,7 +6,6 @@ import { createRating } from '../services/rating.service';
 
 export interface CreateRatingParams {
   comment?: null | string;
-  membershipId: string;
   professionalId: string;
   rating: number;
   structureId: string;
@@ -22,14 +21,15 @@ export const useCreateRating = () => {
       return createRating(
         params.structureId,
         params.professionalId,
-        params.membershipId,
         params.rating,
         params.comment
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['professional-ratings'] });
-      queryClient.invalidateQueries({ queryKey: ['rating-for-membership'] });
+      queryClient.invalidateQueries({
+        queryKey: ['rating-for-structure-professional'],
+      });
       queryClient.invalidateQueries({ queryKey: ['ratings-for-professional'] });
       queryClient.invalidateQueries({ queryKey: ['ratings-for-structure'] });
       queryClient.invalidateQueries({ queryKey: ['professionals'] });

@@ -19,11 +19,6 @@ export function useGetStructureSidebarItems(): SidebarNavItem[] {
       label: tStructure('search'),
     },
     {
-      href: '/structure/invitations',
-      icon: MessageCircle,
-      label: tStructure('messaging'),
-    },
-    {
       href: '/structure/chat',
       icon: MessageCircle,
       label: tChat('chat'),

@@ -60,7 +60,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -89,7 +88,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -127,7 +125,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -157,7 +154,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure1.structureId!,
@@ -186,7 +182,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -216,7 +211,6 @@ describe('Professional Ratings RLS - INSERT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,

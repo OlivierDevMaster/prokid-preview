@@ -1,5 +1,6 @@
 'use client';
 
+import { BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { StructureReportCard } from '@/features/structure/dashboard/StructureReportCard';
@@ -14,31 +15,40 @@ export function StructureDashboardReportsSection() {
   const reports = (reportsData ?? []).slice(0, 2);
 
   return (
-    <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
+    <section>
+      <div className='mb-4 flex items-center justify-between'>
+        <h2 className='flex items-center gap-2 text-xl font-bold text-slate-900'>
+          <BarChart3 className='h-5 w-5 text-[#4A90E2]' />
           {tDashboard('reportsCardTitle')}
         </h2>
-        <Link
-          className='text-sm font-medium text-blue-600 hover:underline'
-          href='/structure/reports'
-        >
-          {tDashboard('viewAll')}
-        </Link>
       </div>
-      {isLoadingReports ? (
-        <p className='text-sm text-gray-600'>{tReports('loading')}</p>
-      ) : reports.length > 0 ? (
-        <div className='space-y-3'>
-          {reports.map(report => (
-            <StructureReportCard key={report.id} report={report} />
-          ))}
-        </div>
-      ) : (
-        <p className='text-sm text-gray-600'>
-          {tReports('noReports') || tReports('noResults')}
-        </p>
-      )}
-    </div>
+      <div className='overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm'>
+        {isLoadingReports ? (
+          <div className='p-4 text-sm text-slate-600'>
+            {tReports('loading')}
+          </div>
+        ) : reports.length > 0 ? (
+          <>
+            <div className='divide-y divide-slate-100'>
+              {reports.map(report => (
+                <StructureReportCard key={report.id} report={report} />
+              ))}
+            </div>
+            <div className='border-t border-slate-100 bg-slate-50 p-4 text-center'>
+              <Link
+                className='text-sm font-semibold text-[#4A90E2] hover:underline'
+                href='/structure/reports'
+              >
+                {tDashboard('viewAll')}
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className='p-4 text-sm text-slate-600'>
+            {tReports('noReports') || tReports('noResults')}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

@@ -21,7 +21,9 @@ export const useUpdateRating = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['professional-ratings'] });
-      queryClient.invalidateQueries({ queryKey: ['rating-for-membership'] });
+      queryClient.invalidateQueries({
+        queryKey: ['rating-for-structure-professional'],
+      });
       queryClient.invalidateQueries({ queryKey: ['ratings-for-professional'] });
       queryClient.invalidateQueries({ queryKey: ['ratings-for-structure'] });
       queryClient.invalidateQueries({ queryKey: ['professionals'] });

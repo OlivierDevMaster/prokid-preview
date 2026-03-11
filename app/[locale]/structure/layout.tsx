@@ -65,7 +65,7 @@ export default function StructureLayout({
             </Button>
           </div>
         </div>
-        <div>{children}</div>
+        <div className='h-full w-full'>{children}</div>
       </main>
     </div>
   );

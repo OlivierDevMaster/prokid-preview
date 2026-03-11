@@ -52,7 +52,7 @@ export interface MessageRow {
   type?: MessageType;
 }
 
-export type MessageType = 'appointment_link' | 'text';
+export type MessageType = 'appointment_link' | 'system' | 'text';
 
 export interface MessageWithSender extends MessageRow {
   sender?: null | ProfileRow;

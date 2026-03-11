@@ -439,7 +439,7 @@
       "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
       "other_early_childhood_profession": "Autre profession de la petite enfance"
     },
-    "dashboard": {
+      "dashboard": {
       "title": "Tableau de bord",
       "subtitle": "Aperçu de votre activité professionnelle",
       "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
@@ -807,13 +807,21 @@
       "invitations": "Invitations",
       "pendingInvitations": "Invitations en Attente",
       "acceptedInvitations": "Invitations Acceptées",
-      "missionsCardTitle": "MISSIONS",
-      "reportsCardTitle": "RAPPORTS",
+      "missionsCardTitle": "Missions récentes",
+      "reportsCardTitle": "Rapports",
       "viewAll": "Tout voir",
       "structureNameFallback": "Ma structure",
       "missionsCount": "{count} missions",
       "messagesPlaceholder": "1 message",
-      "findProCta": "Trouver un pro"
+      "findProCta": "Trouver un pro",
+      "messageCta": "Message",
+      "conversationsCardTitle": "Conversation",
+      "conversationCta": "Ouvrir le centre de messagerie",
+      "conversationNewBadge": "Nouveau",
+      "helpCardTitle": "Besoin d'aide ?",
+      "helpCardDescription": "Votre conseiller dédié est disponible pour vous aider à trouver les meilleurs profils.",
+      "helpCardCta": "Contacter PROKID",
+      "structureLocationFallback": "Ville non renseignée"
     },
     "ratings": {
       "rateProfessional": "Ajouter aux favoris",
@@ -1541,12 +1549,13 @@
     "proposeAppointmentLinkDescription": "Le lien sera envoyé directement à votre interlocuteur.",
     "proposeAppointmentConfirm": "Confirmer",
     "proposeAppointmentCancel": "Annuler",
-    "appointmentProposalTitle": "Le professionnel vous propose un rendez-vous.",
+    "appointmentProposalTitle": "Rendez-vous proposé",
     "appointmentProposalSentTitle": "Proposition de RDV",
     "appointmentLinkLabel": "Lien de rendez-vous :",
     "appointmentConfirm": "Confirmer",
     "appointmentRefuse": "Refuser",
     "appointmentEditLink": "Modifier le lien",
+    "appointmentOpenLink": "Ouvrir",
     "appointmentCancelProposal": "Annuler la proposition",
     "appointmentStatusPending": "En attente",
     "appointmentStatusConfirmed": "Confirmé",
@@ -1567,6 +1576,21 @@
     "leaveReviewCommentPlaceholder": "Partagez votre expérience avec {name}...",
     "leaveReviewCancel": "Annuler",
     "leaveReviewSubmit": "Envoyer l'avis",
-    "leaveReviewSubmitting": "Envoi en cours..."
+    "leaveReviewSubmitting": "Envoi en cours...",
+    "updateReview": "Modifier votre avis",
+    "updateReviewTitle": "Modifier votre avis sur {name}",
+    "updateReviewSubmit": "Enregistrer",
+    "removeReview": "Supprimer l'avis",
+    "removeReviewConfirm": "Êtes-vous sûr de vouloir supprimer votre avis ?",
+    "systemMissionAcceptedPro": "Vous avez accepté la mission",
+    "systemMissionDeclinedPro": "Vous avez refusé la mission",
+    "systemMissionCancelledPro": "Vous avez annulé la mission",
+    "systemMissionAcceptedStructure": "{name} a accepté la mission",
+    "systemMissionDeclinedStructure": "{name} a refusé la mission",
+    "systemMissionCancelledStructure": "Vous avez annulé la mission",
+    "professionalFallback": "Le professionnel",
+    "systemPreviewAccepted": "Mission acceptée",
+    "systemPreviewDeclined": "Mission refusée",
+    "systemPreviewCancelled": "Mission annulée"
   }
 }

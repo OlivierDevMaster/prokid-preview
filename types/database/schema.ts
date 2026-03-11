@@ -502,7 +502,6 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
-          membership_id: string
           professional_id: string
           rating: number
           structure_id: string
@@ -512,7 +511,6 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          membership_id: string
           professional_id: string
           rating: number
           structure_id: string
@@ -522,20 +520,12 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          membership_id?: string
           professional_id?: string
           rating?: number
           structure_id?: string
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "professional_ratings_membership_id_fkey"
-            columns: ["membership_id"]
-            isOneToOne: false
-            referencedRelation: "structure_members"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "professional_ratings_professional_id_fkey"
             columns: ["professional_id"]

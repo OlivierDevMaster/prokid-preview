@@ -1,5 +1,6 @@
 'use client';
 
+import { CalendarDays } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -38,22 +39,23 @@ export function StructureDashboardMissionsSection() {
   };
 
   return (
-    <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
+    <section>
+      <div className='mb-4 flex items-center justify-between'>
+        <h2 className='flex items-center gap-2 text-xl font-bold text-slate-900'>
+          <CalendarDays className='h-5 w-5 text-[#4A90E2]' />
           {tDashboard('missionsCardTitle')}
         </h2>
         <Link
-          className='text-sm font-medium text-blue-600 hover:underline'
+          className='text-sm font-semibold text-[#4A90E2] hover:underline'
           href='/structure/missions'
         >
           {tDashboard('viewAll')}
         </Link>
       </div>
       {isLoadingMissions ? (
-        <p className='text-sm text-gray-600'>{tMissions('loading')}</p>
+        <p className='text-sm text-slate-600'>{tMissions('loading')}</p>
       ) : missions.length > 0 ? (
-        <div className='space-y-3'>
+        <div className='space-y-4'>
           {missions.map(mission => (
             <StructureMissionCard
               key={mission.id}
@@ -63,7 +65,7 @@ export function StructureDashboardMissionsSection() {
           ))}
         </div>
       ) : (
-        <p className='text-sm text-gray-600'>{tMissions('noMissions')}</p>
+        <p className='text-sm text-slate-600'>{tMissions('noMissions')}</p>
       )}
 
       <MissionDetailsDialog
@@ -72,6 +74,6 @@ export function StructureDashboardMissionsSection() {
         onClose={handleCloseDialog}
         open={isDialogOpen}
       />
-    </div>
+    </section>
   );
 }

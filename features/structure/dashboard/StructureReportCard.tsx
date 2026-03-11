@@ -27,45 +27,41 @@ export function StructureReportCard({ report }: StructureReportCardProps) {
 
   return (
     <Link
-      className='flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-blue-50/60'
+      className='flex cursor-pointer items-start gap-4 p-4 transition-colors hover:bg-slate-50'
       href={`/structure/reports?reportId=${report.id}`}
     >
-      {/* Icon */}
       <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100'>
         <FileText className='h-5 w-5 text-emerald-600' />
       </div>
 
-      {/* Content */}
       <div className='flex flex-1 flex-col gap-1'>
-        <div className='flex items-center justify-between gap-2'>
-          <h3 className='line-clamp-1 text-sm font-semibold text-gray-900'>
-            {report.title}
-          </h3>
+        <div className='flex items-center justify-between'>
+          <span className='text-xs font-bold uppercase tracking-wide text-slate-400'>
+            {report.mission_id
+              ? `Mission #${report.mission_id.slice(0, 4)}`
+              : ''}
+          </span>
+          <span
+            className={cn(
+              'rounded-full px-2 py-0.5 text-[10px] font-bold',
+              isDraft
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-emerald-100 text-emerald-700'
+            )}
+          >
+            {isDraft ? '🟡 Brouillon' : '🟢 Reçu'}
+          </span>
         </div>
+        <h3 className='mt-1 line-clamp-1 text-sm font-semibold text-slate-900'>
+          {report.title}
+        </h3>
         {(professionalName || formattedDate) && (
-          <div className='flex items-center gap-2 text-xs text-gray-600'>
-            {professionalName && (
-              <span className='truncate'>{professionalName}</span>
-            )}
-            {formattedDate && (
-              <span className='whitespace-nowrap text-gray-500'>
-                {formattedDate}
-              </span>
-            )}
-          </div>
+          <p className='mt-1 text-xs text-slate-500'>
+            {professionalName && <span>{professionalName}</span>}
+            {professionalName && formattedDate && <span> • </span>}
+            {formattedDate && <span>{formattedDate}</span>}
+          </p>
         )}
-      </div>
-
-      {/* Status badge */}
-      <div
-        className={cn(
-          'flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium',
-          isDraft
-            ? 'border border-purple-200 bg-purple-50 text-purple-700'
-            : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-        )}
-      >
-        <span>{isDraft ? 'Brouillon' : 'Reçu'}</span>
       </div>
     </Link>
   );

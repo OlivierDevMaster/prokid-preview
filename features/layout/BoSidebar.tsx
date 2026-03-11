@@ -101,7 +101,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
             return (
               <Link
                 className={cn(
-                  'flex flex-col items-center gap-1 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors',
+                  'mx-auto flex size-12 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors',
                   active
                     ? 'bg-white text-blue-700 shadow-sm'
                     : 'text-gray-700 hover:bg-blue-50/60'

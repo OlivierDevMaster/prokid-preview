@@ -24,7 +24,7 @@ import { useAcceptMission } from '@/features/missions/hooks/useAcceptMission';
 import { useDeclineMission } from '@/features/missions/hooks/useDeclineMission';
 import { cn } from '@/lib/utils';
 
-import type { MissionRow, MissionStatus } from '../types/chat.types';
+import type { MissionRow, MissionStatus, ViewRole } from '../types/chat.types';
 
 import { conversationQueryKey } from '../hooks/useConversation';
 import { MissionStatusBadge } from './MissionStatusBadge';
@@ -48,9 +48,14 @@ export interface MissionCardProps {
       | 'title'
     >
   >;
+  viewRole: ViewRole;
 }
 
-export function MissionCard({ conversationId, mission }: MissionCardProps) {
+export function MissionCard({
+  conversationId,
+  mission,
+  viewRole,
+}: MissionCardProps) {
   const t = useTranslations('chat');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const queryClient = useQueryClient();
@@ -172,7 +177,7 @@ export function MissionCard({ conversationId, mission }: MissionCardProps) {
               </div>
             </span>
           </div>
-          {status === 'pending' && missionId && (
+          {status === 'pending' && missionId && viewRole === 'professional' && (
             <div className='flex justify-end gap-1.5 border-t border-gray-100 pt-2'>
               <Button
                 className='flex-1 rounded-full text-xs'
