@@ -15,6 +15,8 @@ export interface ChatMessageProps {
   message: MessageWithSender;
   onCancel?: () => void;
   onConfirm?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
   onEditLink?: () => void;
   onRefuse?: () => void;
   viewRole: ViewRole;
@@ -25,6 +27,8 @@ export function ChatMessage({
   message,
   onCancel,
   onConfirm,
+  onDelete,
+  onEdit,
   onEditLink,
   onRefuse,
   viewRole,
@@ -76,6 +80,8 @@ export function ChatMessage({
     <ChatMessageBubble
       isOutgoing={isOutgoing}
       message={message}
+      onDelete={isOutgoing ? onDelete : undefined}
+      onEdit={isOutgoing ? onEdit : undefined}
       senderName={senderName}
     />
   );

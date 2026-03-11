@@ -104,13 +104,13 @@ export function ParticipantPanel({
         <p className='text-sm text-muted-foreground'>
           {t('missionHistoryEmpty')}
         </p>
-        <Button
+        {/* <Button
           className='h-auto p-0 text-xs'
           onClick={() => router.push(profileLink)}
           variant='link'
         >
           {t('seeAll')}
-        </Button>
+        </Button> */}
       </section>
 
       <section className='mb-4'>
@@ -120,7 +120,7 @@ export function ParticipantPanel({
         <p className='text-sm text-muted-foreground'>
           {t('recentReportsEmpty')}
         </p>
-        <Button
+        {/* <Button
           className='h-auto p-0 text-xs'
           onClick={() =>
             router.push(
@@ -132,7 +132,7 @@ export function ParticipantPanel({
           variant='link'
         >
           {t('seeAll')}
-        </Button>
+        </Button> */}
       </section>
 
       <Button

@@ -303,6 +303,33 @@ create policy "Professionals or Structures can update their own messages" on pub
     sender_id = auth.uid()
   );
 
+-- Structures can update appointment_link status in their conversations
+create policy "Structures can update appointment status in their conversations" on public.messages
+  for update to authenticated
+  using (
+    type = 'appointment_link'
+    and exists (
+      select 1
+      from public.conversations c
+      where c.id = messages.conversation_id
+        and c.structure_id = auth.uid()
+    )
+  )
+  with check (
+    type = 'appointment_link'
+    and exists (
+      select 1
+      from public.conversations c
+      where c.id = messages.conversation_id
+        and c.structure_id = auth.uid()
+    )
+  );
+
+-- Participants can delete their own messages
+create policy "Participants can delete their own messages" on public.messages
+  for delete to authenticated
+  using (sender_id = auth.uid());
+
 -- Admins can view all messages
 create policy "Admins can view all messages" on "public"."messages"
   for select to authenticated

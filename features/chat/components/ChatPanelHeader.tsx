@@ -1,15 +1,9 @@
 'use client';
 
-import { MapPin, MoreHorizontal, Star } from 'lucide-react';
+import { MapPin, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import type { ViewRole } from '../types/chat.types';
 
@@ -43,19 +37,15 @@ export function ChatPanelHeader({
       </div>
       <div className='flex items-center gap-2'>
         {viewRole === 'structure' && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button aria-label={t('moreOptions')} size='icon' variant='ghost'>
-                <MoreHorizontal className='h-5 w-5' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem disabled={!membershipId} onClick={onOpenReview}>
-                <Star className='mr-2 h-4 w-4' />
-                {t('leaveReview')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            disabled={!membershipId}
+            onClick={onOpenReview}
+            size='sm'
+            variant='outline'
+          >
+            <Star className='mr-2 h-4 w-4' />
+            {t('leaveReview')}
+          </Button>
         )}
       </div>
     </header>
