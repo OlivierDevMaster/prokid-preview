@@ -93,8 +93,7 @@ export const getRatingForMembership = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `
     )
     .eq('membership_id', membershipId)
@@ -133,8 +132,7 @@ export const getRatingsForProfessional = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `,
       { count: 'exact' }
     )
@@ -174,8 +172,7 @@ export const getRatingsForStructure = async (
       professional:professionals(
         *,
         profile:profiles(*)
-      ),
-      membership:structure_members(*)
+      )
     `,
       { count: 'exact' }
     )
