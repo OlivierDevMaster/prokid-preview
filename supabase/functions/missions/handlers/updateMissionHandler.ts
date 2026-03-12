@@ -100,23 +100,6 @@ export const updateMissionHandler = factory.createHandlers(
         );
       }
 
-      // Verify professional is a member of the structure
-      const { data: membership, error: membershipError } =
-        await supabaseAdminClient
-          .from('structure_members')
-          .select('id')
-          .eq('structure_id', existingMission.structure_id)
-          .eq('professional_id', existingMission.professional_id)
-          .is('deleted_at', null)
-          .maybeSingle();
-
-      if (membershipError || !membership) {
-        return apiResponse.badRequest(
-          'PROFESSIONAL_NOT_MEMBER',
-          'Professional is not a member of this structure'
-        );
-      }
-
       // Prepare update data for mission
       const missionUpdateData: Partial<
         Database['public']['Tables']['missions']['Update']
