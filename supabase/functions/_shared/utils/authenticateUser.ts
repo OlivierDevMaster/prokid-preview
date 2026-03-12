@@ -16,11 +16,16 @@ export async function authenticateUser(req: HonoRequest): Promise<AuthResult> {
 
   if (!token) {
     return {
-      response: apiResponse.unauthorized(),
+      response: apiResponse.unauthorized('Token is required'),
       success: false,
     };
   }
 
+  return await getUserAndClient(token);
+}
+
+/** Gets user and Supabase client from an already-verified JWT token. No token extraction or JWT verification. */
+export async function getUserAndClient(token: string): Promise<AuthResult> {
   const supabaseClient = createClient<Database>(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -39,14 +44,14 @@ export async function authenticateUser(req: HonoRequest): Promise<AuthResult> {
   if (authError) {
     console.error('Auth error:', authError);
     return {
-      response: apiResponse.unauthorized(),
+      response: apiResponse.unauthorized('Invalid token'),
       success: false,
     };
   }
 
   if (!user) {
     return {
-      response: apiResponse.unauthorized(),
+      response: apiResponse.unauthorized('User not found'),
       success: false,
     };
   }

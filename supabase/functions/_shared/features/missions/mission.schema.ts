@@ -10,18 +10,8 @@ export const CreateMissionRequestBodySchema = z
     mission_dtstart: z.iso.datetime('Invalid mission start date format'),
     mission_until: z.iso.datetime('Invalid mission end date format'),
     professional_id: z.uuid(),
-    schedules: z
-      .array(
-        z.object({
-          duration_mn: z
-            .number()
-            .int()
-            .positive('Duration must be a positive integer'),
-          rrule: z.string().min(1, 'RRULE cannot be empty'),
-        })
-      )
-      .min(1, 'At least one schedule is required'),
     status: MissionStatusSchema.optional(),
+    address: z.string().optional(),
     structure_id: z.uuid(),
     title: z.string().min(1),
   })
@@ -41,12 +31,6 @@ export type CreateMissionRequestBody = z.infer<
   typeof CreateMissionRequestBodySchema
 >;
 
-// Schedule update schema for mission updates
-export const MissionScheduleUpdateSchema = z.object({
-  duration_mn: z.number().int().positive('Duration must be a positive integer'),
-  rrule: z.string().min(1, 'RRULE cannot be empty'),
-});
-
 export const UpdateMissionRequestBodySchema = z
   .object({
     description: z.string().nullable().optional(),
@@ -58,26 +42,7 @@ export const UpdateMissionRequestBodySchema = z
       .string()
       .datetime('Invalid mission end date format')
       .optional(),
-    schedules: z
-      .object({
-        create: z
-          .array(MissionScheduleUpdateSchema)
-          .min(0, 'Schedules array cannot be negative'),
-        delete: z.array(z.string().uuid()).min(0),
-        update: z
-          .array(
-            z.object({
-              duration_mn: z
-                .number()
-                .int()
-                .positive('Duration must be a positive integer'),
-              id: z.string().uuid('Schedule ID must be a valid UUID'),
-              rrule: z.string().min(1, 'RRULE cannot be empty'),
-            })
-          )
-          .min(0),
-      })
-      .optional(),
+    address: z.string().optional(),
     status: MissionStatusSchema.optional(),
     title: z.string().min(1).optional(),
   })
@@ -93,19 +58,7 @@ export const UpdateMissionRequestBodySchema = z
       path: ['mission_until'],
     }
   )
-  .refine(
-    data => {
-      if (!data.schedules) return true;
-      const totalSchedules =
-        (data.schedules.create?.length ?? 0) +
-        (data.schedules.update?.length ?? 0);
-      return totalSchedules > 0;
-    },
-    {
-      message: 'At least one schedule must remain after update',
-      path: ['schedules'],
-    }
-  );
+
 
 export type UpdateMissionRequestBody = z.infer<
   typeof UpdateMissionRequestBodySchema

@@ -61,23 +61,6 @@ export const getMembershipMissionDurationsHandler = factory.createHandlers(
         );
       }
 
-      // Verify professional is a member of the structure
-      const { data: membership, error: membershipError } =
-        await supabaseAdminClient
-          .from('structure_members')
-          .select('id')
-          .eq('structure_id', structureId)
-          .eq('professional_id', professionalId)
-          .is('deleted_at', null)
-          .maybeSingle();
-
-      if (membershipError || !membership) {
-        return apiResponse.badRequest(
-          'PROFESSIONAL_NOT_MEMBER',
-          'Professional is not a member of this structure'
-        );
-      }
-
       // Fetch all missions for the professional in the structure
       // Exclude declined, cancelled, and expired missions
       const { data: missions, error: missionsError } = await supabaseAdminClient

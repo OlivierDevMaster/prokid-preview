@@ -38,8 +38,6 @@ export function useCreateMissionProposition() {
         missionEnd = startOfDay(periodEnd);
       }
 
-      const missions = [];
-
       for (const professionalId of values.professionalIds) {
         const body: CreateMissionRequestBody = {
           address: values.address,
@@ -47,18 +45,13 @@ export function useCreateMissionProposition() {
           mission_dtstart: missionStart.toISOString(),
           mission_until: missionEnd.toISOString(),
           professional_id: professionalId,
-
           status: undefined,
           structure_id: structureId,
           title: values.title,
         };
 
-        const mission = await createMission.mutateAsync(body);
-
-        missions.push(mission);
+        await createMission.mutateAsync(body);
       }
-
-      return missions;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });
