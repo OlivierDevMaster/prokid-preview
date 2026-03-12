@@ -14,7 +14,7 @@
   // TypeScript/JavaScript
   "[typescript]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -46,10 +46,7 @@
   },
   // Deno configuration (if Deno extension is installed)
   "deno.enable": true,
-  "deno.enablePaths": [
-    "supabase/functions",
-    "tests/supabase"
-  ],
+  "deno.enablePaths": ["supabase/functions", "tests/supabase"],
   "deno.lint": true,
   "deno.unstable": [
     "bare-node-builtins",
