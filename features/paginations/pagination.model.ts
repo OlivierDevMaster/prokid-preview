@@ -1,4 +1,5 @@
 export interface PaginationOptions {
+  enabled?: boolean;
   limit?: number;
   page?: number;
 }

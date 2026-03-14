@@ -9,12 +9,13 @@ export const useFindProfessionals = (
   filters: ProfessionalFilters = {},
   options: PaginationOptions = {}
 ) => {
+  const { enabled = true, ...queryOptions } = options;
   return useQuery({
-    enabled: true,
+    enabled,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      return getProfessionals(filters, options);
+      return getProfessionals(filters, queryOptions);
     },
-    queryKey: ['professionals', filters, options],
+    queryKey: ['professionals', filters, queryOptions],
   });
 };
