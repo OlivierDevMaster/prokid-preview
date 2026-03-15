@@ -83,7 +83,6 @@ export function MissionPropositionForm() {
 
     if (missions.length === 1 && structureId) {
       const conversation = await getOrCreateConversation({
-        mission_id: missions[0].id,
         professional_id: missions[0].professional_id,
         structure_id: structureId,
       });

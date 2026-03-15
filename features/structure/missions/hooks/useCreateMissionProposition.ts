@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 
 import type { CreateMissionsRequestBody } from '@/features/missions/mission.model';
 
+import { conversationsQueryKey } from '@/features/chat/hooks/useConversations';
 import { createMissions } from '@/features/missions/mission.service';
 import { getEndDate } from '@/shared/utils/date';
 
@@ -57,6 +58,7 @@ export function useCreateMissionProposition() {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'admin', 'missions'],
       });
+      queryClient.invalidateQueries({ queryKey: conversationsQueryKey });
     },
   });
 }

@@ -12,10 +12,9 @@
 -- Conversations
 -- ============================================================================
 -- Conv 1: Structure 1 (Happy Kids) <-> John Doe (general, no mission)
--- Conv 2: Structure 1 (Happy Kids) <-> Marie Martin (mission accepted, chat continued)
+-- Conv 2: Structure 1 (Happy Kids) <-> Marie Martin (mission accepted, chat continued; one conv per pair)
 -- Conv 3: Structure 2 (Sunshine) <-> John Doe (general)
 -- Conv 4: Structure 3 (Little Stars) <-> Marie Martin (mission declined)
--- Conv 5: Structure 1 (Happy Kids) <-> Marie Martin (mission pending, pro just received)
 
 INSERT INTO public.conversations (id, structure_id, professional_id, mission_id)
 VALUES
@@ -47,20 +46,7 @@ ORDER BY m.created_at DESC
 LIMIT 1
 ON CONFLICT (id) DO NOTHING;
 
--- Conversation 5: structure 1 + Marie Martin, linked to another mission (stays pending)
-INSERT INTO public.conversations (id, structure_id, professional_id, mission_id)
-SELECT
-  'a1000000-0000-4000-8000-000000000005',
-  '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
-  '08fb0a72-ee9b-4771-bf24-7fe19c869ae3',
-  m.id
-FROM public.missions m
-WHERE m.structure_id = '08fb0a72-ee9b-4771-bf24-7fe19c869af9'
-  AND m.professional_id = '08fb0a72-ee9b-4771-bf24-7fe19c869ae3'
-ORDER BY m.created_at DESC
-OFFSET 1
-LIMIT 1
-ON CONFLICT (id) DO NOTHING;
+-- (Conv 5 removed: only one conversation per (structure, professional); Structure 1 + Marie use conv 2)
 
 -- Conversation 4: structure 3 + Marie Martin, linked to a declined mission
 INSERT INTO public.conversations (id, structure_id, professional_id, mission_id)
@@ -198,13 +184,13 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
--- Messages (conv 5: Happy Kids <-> Marie Martin, mission pending)
+-- Message (new mission notification in conv 2: Happy Kids <-> Marie Martin)
 -- ============================================================================
 INSERT INTO public.messages (id, conversation_id, sender_id, content, created_at)
 VALUES
   (
     'b1000000-0000-4000-8000-000000000012',
-    'a1000000-0000-4000-8000-000000000005',
+    'a1000000-0000-4000-8000-000000000002',
     '08fb0a72-ee9b-4771-bf24-7fe19c869af9',
     'Bonjour Marie, une nouvelle mission vous a été assignée. Merci de consulter les détails et de nous indiquer si vous acceptez.',
     NOW() - INTERVAL '30 minutes'

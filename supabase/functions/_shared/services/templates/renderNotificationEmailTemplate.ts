@@ -72,8 +72,10 @@ export async function renderNotificationEmailTemplate(
   const hasDetails =
     !!missionTitle || !!reportTitle || !!structureName || !!professionalName;
 
-  // Build view notification URL
-  const viewNotificationUrl = `${appUrl}/${locale}/notifications/${notification.id}`;
+  // Use view_chat_url from data when present (e.g. mission_received → chat), else notifications page
+  const viewChatUrl = notificationData.view_chat_url as string | undefined;
+  const viewNotificationUrl =
+    viewChatUrl ?? `${appUrl}/${locale}/notifications/${notification.id}`;
 
   // Prepare template data
   const templateData: Record<string, unknown> = {

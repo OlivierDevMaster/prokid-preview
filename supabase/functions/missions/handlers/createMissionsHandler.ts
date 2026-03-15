@@ -5,6 +5,7 @@ import { CreateMissionsRequestBodySchema } from '../../_shared/features/missions
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
+import { sendMissionReceivedEmail } from '../utils/sendMissionReceivedEmail.ts';
 
 type Variables = {
   supabaseAdminClient: SupabaseClient<Database>;
@@ -120,8 +121,34 @@ export const createMissionsHandler = factory.createHandlers(
         return apiResponse.internalServerError('Failed to create missions');
       }
 
+      const createdMissions = missions ?? [];
+
+      // Send mission_received email to each professional via Resend
+      const { data: structureRow } = await supabaseAdminClient
+        .from('structures')
+        .select('name')
+        .eq('user_id', body.structure_id)
+        .single();
+
+      const structureName = structureRow?.name ?? '';
+
+      await Promise.allSettled(
+        createdMissions.map(mission =>
+          sendMissionReceivedEmail(
+            supabaseAdminClient,
+            {
+              id: mission.id,
+              professional_id: mission.professional_id,
+              structure_id: mission.structure_id,
+              title: mission.title,
+            },
+            structureName
+          )
+        )
+      );
+
       return apiResponse.created({
-        missions: missions ?? [],
+        missions: createdMissions,
       });
     } catch (error) {
       console.error('Error in createMissionsHandler:', error);

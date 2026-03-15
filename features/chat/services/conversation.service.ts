@@ -103,12 +103,6 @@ export async function getOrCreateConversation(
     .eq('structure_id', params.structure_id)
     .eq('professional_id', params.professional_id);
 
-  if (params.mission_id != null) {
-    query = query.eq('mission_id', params.mission_id);
-  } else {
-    query = query.is('mission_id', null);
-  }
-
   const { data: existing, error: findError } = await query.maybeSingle();
 
   if (findError) throw findError;
