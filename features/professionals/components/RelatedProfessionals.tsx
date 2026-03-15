@@ -3,32 +3,36 @@
 import { useTranslations } from 'next-intl';
 
 import { ProfessionalsCard } from '@/features/professionals/components/ProfessionalsCard';
-import { Professional } from '@/features/professionals/professional.model';
+import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 
 import { useFindProfessionals } from '../hooks/useFindProfessionals';
 
-interface RelatedProfessionalsProps {
-  currentProfessional: Professional;
-}
+type RelatedProfessionalsProps = {
+  professionalId: string;
+};
 
 export function RelatedProfessionals({
-  currentProfessional,
+  professionalId,
 }: RelatedProfessionalsProps) {
   const t = useTranslations('professional.profile');
+  const { data: currentProfessional } = useFindProfessional(professionalId);
 
-  // Find related professionals by same job type or location
   const { data: relatedData } = useFindProfessionals(
     {
-      current_job: currentProfessional.current_job || undefined,
-      locationSearch: currentProfessional.city || undefined,
+      current_job: currentProfessional?.current_job || undefined,
+      locationSearch: currentProfessional?.city || undefined,
     },
-    { limit: 4 }
+    { enabled: !!currentProfessional, limit: 4 }
   );
+
+  if (!currentProfessional) {
+    return null;
+  }
 
   const relatedProfessionals =
     relatedData?.data?.filter(
       prof => prof.user_id !== currentProfessional.user_id
-    ) || [];
+    ) ?? [];
 
   if (relatedProfessionals.length === 0) {
     return null;

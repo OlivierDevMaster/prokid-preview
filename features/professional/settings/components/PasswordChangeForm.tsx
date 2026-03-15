@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,13 @@ import {
 import { useFindProfile } from '@/features/profiles/hooks';
 import { createClient } from '@/lib/supabase/client';
 
-export function PasswordChangeForm() {
+type PasswordChangeFormProps = {
+  minimalDialog?: boolean;
+};
+
+export function PasswordChangeForm({
+  minimalDialog = false,
+}: PasswordChangeFormProps) {
   const tAdmin = useTranslations('admin');
   const locale = useLocale();
   const { data: session } = useSession();
@@ -23,8 +29,19 @@ export function PasswordChangeForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [error, setError] = useState<null | string>(null);
+  const primaryButtonRef = useRef<HTMLButtonElement>(null);
 
   const userEmail = profile?.email || session?.user?.email || null;
+
+  useEffect(() => {
+    if (!minimalDialog) {
+      return;
+    }
+    const id = requestAnimationFrame(() => {
+      primaryButtonRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [minimalDialog]);
 
   const handleRequestPasswordReset = async () => {
     if (!userEmail) {
@@ -48,7 +65,9 @@ export function PasswordChangeForm() {
         }
       );
 
-      if (resetError) throw resetError;
+      if (resetError) {
+        throw resetError;
+      }
 
       setShowDialog(true);
     } catch (err) {
@@ -65,9 +84,11 @@ export function PasswordChangeForm() {
   return (
     <>
       <div className='space-y-4'>
-        <h2 className='text-lg font-bold text-blue-900'>
-          {tAdmin('setting.changePassword')}
-        </h2>
+        {!minimalDialog && (
+          <h2 className='text-lg font-bold text-blue-900'>
+            {tAdmin('setting.changePassword')}
+          </h2>
+        )}
 
         <div className='space-y-4'>
           {error && (
@@ -80,6 +101,7 @@ export function PasswordChangeForm() {
             className='bg-blue-500 text-white hover:bg-blue-600'
             disabled={isLoading || !userEmail}
             onClick={handleRequestPasswordReset}
+            ref={primaryButtonRef}
           >
             {isLoading
               ? tAdmin('setting.passwordReset.sending')

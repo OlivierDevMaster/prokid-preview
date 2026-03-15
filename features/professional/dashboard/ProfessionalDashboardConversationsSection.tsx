@@ -1,32 +1,30 @@
+'use client';
+
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { MessagesSquare } from 'lucide-react';
+import { Building2, MessageCircle, MessagesSquare } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 
 import type { ConversationWithDetails } from '@/features/chat/types/chat.types';
 
 import { useConversations } from '@/features/chat/hooks/useConversations';
 import { Link } from '@/i18n/routing';
-import {
-  AVATAR_COLOR_VARIANTS,
-  getAvatarColorVariantIndex,
-} from '@/shared/utils/avatar-colors';
 
-export function StructureDashboardConversationsSection() {
-  const tStructureDashboard = useTranslations('structure.dashboard');
+export function ProfessionalDashboardConversationsSection() {
+  const tDashboard = useTranslations('professional.dashboard');
   const tChat = useTranslations('chat');
   const { data: session } = useSession();
   const { data: conversationsData, isLoading } = useConversations();
 
-  const structureUserId = session?.user?.id;
+  const professionalUserId = session?.user?.id;
 
   const conversations =
     conversationsData
       ?.filter(
         conversation =>
-          !structureUserId || conversation.structure_id === structureUserId
+          !professionalUserId ||
+          conversation.professional_id === professionalUserId
       )
       .slice(0, 2) ?? [];
 
@@ -35,7 +33,7 @@ export function StructureDashboardConversationsSection() {
       <div className='mb-4 flex items-center justify-between'>
         <h2 className='flex items-center gap-2 text-xl font-bold text-slate-900'>
           <MessagesSquare className='h-5 w-5 text-[#4A90E2]' />
-          {tStructureDashboard('conversationsCardTitle')}
+          {tDashboard('conversationsCardTitle')}
         </h2>
       </div>
       <div className='overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm'>
@@ -50,11 +48,11 @@ export function StructureDashboardConversationsSection() {
         ) : (
           <div className='divide-y divide-slate-100'>
             {conversations.map(conversation => {
-              const proName = getProfessionalDisplayName(conversation);
-              const proInitials = getProfessionalInitials(conversation);
-              const avatarUrl =
-                conversation.professional?.profile?.avatar_url ?? null;
-              const timeAgo = getConversationSubtitle(conversation, tChat);
+              const title = getProfessionalConversationTitle(conversation);
+              const subtitle = getProfessionalConversationSubtitle(
+                conversation,
+                tChat
+              );
               const preview =
                 conversation.last_message_preview ??
                 tChat('writeMessagePlaceholder');
@@ -63,51 +61,28 @@ export function StructureDashboardConversationsSection() {
               return (
                 <Link
                   className='block p-6 transition-colors hover:bg-slate-50'
-                  href={`/structure/chat?conversationId=${conversation.id}`}
+                  href={`/professional/chat?conversationId=${conversation.id}`}
                   key={conversation.id}
                 >
                   <div className='flex items-start gap-4'>
-                    <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100'>
-                      {avatarUrl ? (
-                        <Image
-                          alt={proName}
-                          className='h-full w-full object-cover'
-                          height={48}
-                          src={avatarUrl}
-                          unoptimized
-                          width={48}
-                        />
-                      ) : (
-                        <span
-                          className={`flex h-full w-full items-center justify-center rounded-full text-sm font-medium ${
-                            AVATAR_COLOR_VARIANTS[
-                              getAvatarColorVariantIndex(
-                                conversation.professional_id
-                              )
-                            ].bg
-                          } ${
-                            AVATAR_COLOR_VARIANTS[
-                              getAvatarColorVariantIndex(
-                                conversation.professional_id
-                              )
-                            ].text
-                          }`}
-                        >
-                          {proInitials}
-                        </span>
-                      )}
+                    <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600'>
+                      <Building2 className='h-5 w-5' />
                     </div>
                     <div className='flex-1'>
                       <div className='mb-1 flex items-start justify-between'>
                         <div>
                           <h3 className='font-semibold text-slate-900'>
-                            {proName || tChat('selectConversation')}
+                            {title || tChat('selectConversation')}
                           </h3>
-                          <p className='text-xs text-slate-500'>{timeAgo}</p>
+                          <p className='text-xs text-slate-500'>{subtitle}</p>
                         </div>
-                        {isNew && (
+                        {isNew ? (
                           <span className='rounded-full bg-[#4A90E2]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4A90E2]'>
-                            {tStructureDashboard('conversationNewBadge')}
+                            {tDashboard('conversationNewBadge')}
+                          </span>
+                        ) : (
+                          <span className='rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500'>
+                            {tDashboard('conversationReadBadge')}
                           </span>
                         )}
                       </div>
@@ -122,13 +97,13 @@ export function StructureDashboardConversationsSection() {
           </div>
         )}
         <div className='flex justify-end border-t border-slate-100 bg-slate-50 p-4'>
-          <Link href='/structure/chat'>
+          <Link href='/professional/chat'>
             <button
               className='flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-[#4A90E2] transition-colors hover:bg-slate-100'
               type='button'
             >
-              {tStructureDashboard('conversationCta')}
-              <MessagesSquare className='h-4 w-4' />
+              {tDashboard('conversationCta')}
+              <MessageCircle className='h-4 w-4' />
             </button>
           </Link>
         </div>
@@ -137,7 +112,7 @@ export function StructureDashboardConversationsSection() {
   );
 }
 
-function getConversationSubtitle(
+function getProfessionalConversationSubtitle(
   conversation: ConversationWithDetails,
   tChat: ReturnType<typeof useTranslations>
 ) {
@@ -145,35 +120,24 @@ function getConversationSubtitle(
     return tChat('noConversations');
   }
 
+  const profile = conversation.structure?.profile;
+  const contactName =
+    profile?.first_name || profile?.last_name
+      ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+      : null;
+
   const distance = formatDistanceToNow(new Date(conversation.last_message_at), {
     addSuffix: true,
     locale: fr,
   });
 
-  return distance;
+  return contactName ? `${contactName} • ${distance}` : distance;
 }
 
-function getProfessionalDisplayName(
+function getProfessionalConversationTitle(
   conversation: ConversationWithDetails
-): string {
-  const p = conversation.professional?.profile;
-  if (p?.first_name || p?.last_name) {
-    return [p.first_name, p.last_name].filter(Boolean).join(' ') ?? '';
-  }
-  return conversation.professional?.profile?.email ?? '';
-}
-
-function getProfessionalInitials(
-  conversation: ConversationWithDetails
-): string {
-  const name = getProfessionalDisplayName(conversation);
-  const initials = name
-    .split(' ')
-    .map(s => s[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-  return initials || '?';
+) {
+  return conversation.structure?.name ?? '';
 }
 
 function isNewConversation(conversation: ConversationWithDetails) {

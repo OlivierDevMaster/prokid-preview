@@ -1,148 +1,103 @@
 'use client';
 
+import { MessageCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
 
-import { useGetProfessionalMissions } from '@/features/missions/hooks/useGetProfessionalMissions';
+import { Button } from '@/components/ui/button';
 import { AvailabilityStatusPopover } from '@/features/professional/Availabilities/components/AvailabilityStatusPopover';
-import { ProfessionalMissionCard } from '@/features/professional/missions/components/ProfessionalMissionCard';
-import { ProfessionalMissionDetailsDialog } from '@/features/professional/missions/components/ProfessionalMissionDetailsDialog';
-import { useGetProfessionalMission } from '@/features/professional/missions/hooks/useGetProfessionalMission';
-import { ProfessionalReportCard } from '@/features/professional/reports/components/ProfessionalReportCard';
-import { useReports } from '@/features/professional/reports/hooks/useReports';
+import { ProfessionalDashboardConversationsSection } from '@/features/professional/dashboard/ProfessionalDashboardConversationsSection';
+import { ProfessionalDashboardMissionsSection } from '@/features/professional/dashboard/ProfessionalDashboardMissionsSection';
+import { ProfessionalDashboardReportsSection } from '@/features/professional/dashboard/ProfessionalDashboardReportsSection';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { ProfessionalSkills } from '@/features/professionals/professional.config';
 import { Link } from '@/i18n/routing';
 
 export default function DashboardPage() {
   const t = useTranslations('professional.dashboard');
+  const tProfessional = useTranslations('professional');
   const { data: session } = useSession();
   const { data: professional } = useFindProfessional(session?.user?.id);
 
-  // Get user's first name from professional profile
-  const firstName =
-    professional?.profile?.first_name || session?.user?.name || '';
+  const displayName =
+    professional?.profile?.first_name || professional?.profile?.last_name
+      ? `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim()
+      : (session?.user?.name ?? '');
 
-  // Mock values for UI only
-  const availabilityDaysCount = 30;
-  const unreadCount = 2;
-
-  // Get missions for dashboard (limit to 2)
-  const { data: missionsData, isLoading: isLoadingMissions } =
-    useGetProfessionalMissions({}, { limit: 2, page: 1 });
-
-  const missions = missionsData?.data ?? [];
-
-  // Get reports for dashboard (limit to 2)
-  const { data: reportsData, isLoading: isLoadingReports } = useReports();
-  const reports = (reportsData ?? []).slice(0, 2);
-
-  // Dialog state
-  const [selectedMissionId, setSelectedMissionId] = useState<null | string>(
-    null
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const { data: selectedMission, isLoading: isLoadingMission } =
-    useGetProfessionalMission(selectedMissionId);
-
-  const handleViewDetails = (id: string) => {
-    setSelectedMissionId(id);
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedMissionId(null);
-  };
+  const currentJob = professional?.current_job ?? '';
+  const roleLabel =
+    currentJob &&
+    ProfessionalSkills.includes(
+      currentJob as (typeof ProfessionalSkills)[number]
+    )
+      ? tProfessional(`jobs.${currentJob}`)
+      : currentJob;
 
   return (
-    <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
-      {/* Header with greeting and status */}
-      <div className='mb-6 flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold text-gray-900'>
-            {t('greeting', { name: firstName })}
-          </h1>
-          <div className='mt-1 flex items-center gap-2 text-sm text-gray-600'>
-            <span>{t('availabilityDaysShort')}</span>
-            <span className='text-blue-600'>
-              {availabilityDaysCount} {t('daysLabel')}
-            </span>
-            <span className='text-gray-400'>·</span>
-            <span className='text-blue-600'>
-              {t('unreadNotifications', { count: unreadCount })}
-            </span>
+    <div className='min-h-screen bg-[#f6f6f8] text-slate-900'>
+      <header className='border-b border-slate-200 bg-white px-6 py-6 md:px-10'>
+        <div className='mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 md:flex-row md:items-center'>
+          <div className='flex items-center gap-5'>
+            <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-amber-100 shadow-sm'>
+              {professional?.profile?.avatar_url ? (
+                <img
+                  alt={displayName || ''}
+                  className='h-full w-full object-cover'
+                  src={professional.profile.avatar_url}
+                />
+              ) : (
+                <div className='flex h-full w-full items-center justify-center text-2xl font-semibold text-amber-700'>
+                  {displayName.charAt(0).toUpperCase() || 'P'}
+                </div>
+              )}
+            </div>
+            <div>
+              <h1 className='text-3xl font-bold tracking-tight text-slate-900'>
+                {displayName || t('nameFallback')}
+              </h1>
+              {roleLabel && (
+                <p className='mt-1 text-sm font-medium text-slate-500'>
+                  {roleLabel}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className='flex w-full gap-3 md:w-auto'>
+            <Link className='flex-1 md:flex-none' href='/professional/chat'>
+              <Button className='flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#4A90E2] bg-white text-sm font-semibold text-[#4A90E2] shadow-sm transition-colors hover:bg-slate-50'>
+                <MessageCircle className='h-4 w-4' />
+                {t('messageCta')}
+              </Button>
+            </Link>
+            <AvailabilityStatusPopover />
           </div>
         </div>
+      </header>
 
-        {/* Availability Status Popover */}
-        <AvailabilityStatusPopover />
-      </div>
-
-      {/* Missions Section */}
-      <div className='mb-6'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
-            {t('missions')}
-          </h2>
-          <Link
-            className='text-sm font-medium text-blue-600 hover:underline'
-            href='/professional/missions'
-          >
-            {t('viewAll')}
-          </Link>
-        </div>
-        {isLoadingMissions ? (
-          <p className='text-sm text-gray-600'>{t('loading')}</p>
-        ) : missions.length > 0 ? (
-          <div className='space-y-3'>
-            {missions.map(mission => (
-              <ProfessionalMissionCard
-                key={mission.id}
-                mission={mission}
-                onViewDetails={handleViewDetails}
-              />
-            ))}
+      <main className='px-6 py-6 md:px-10 md:py-10'>
+        <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12'>
+          <div className='space-y-8 lg:col-span-8'>
+            <ProfessionalDashboardConversationsSection />
+            <ProfessionalDashboardMissionsSection />
           </div>
-        ) : (
-          <p className='text-sm text-gray-600'>{t('noMissions')}</p>
-        )}
-      </div>
-
-      {/* Reports Section */}
-      <div className='mb-6'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-sm font-semibold uppercase tracking-wide text-gray-500'>
-            {t('reports')}
-          </h2>
-          <Link
-            className='text-sm font-medium text-blue-600 hover:underline'
-            href='/professional/reports'
-          >
-            {t('viewAll')}
-          </Link>
-        </div>
-        {isLoadingReports ? (
-          <p className='text-sm text-gray-600'>{t('loading')}</p>
-        ) : reports.length > 0 ? (
-          <div className='space-y-3'>
-            {reports.map(report => (
-              <ProfessionalReportCard key={report.id} report={report} />
-            ))}
+          <div className='space-y-8 lg:col-span-4'>
+            <ProfessionalDashboardReportsSection />
+            <section className='relative overflow-hidden rounded-2xl bg-[#2C3E50] p-6 text-white shadow-lg shadow-slate-900/20'>
+              <div className='relative z-10'>
+                <h2 className='mb-2 text-lg font-bold'>{t('helpCardTitle')}</h2>
+                <p className='mb-4 text-sm text-slate-200'>
+                  {t('helpCardDescription')}
+                </p>
+                <Link href='/professional/settings'>
+                  <Button className='rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#2C3E50] shadow-sm hover:bg-slate-100'>
+                    {t('helpCardCta')}
+                  </Button>
+                </Link>
+              </div>
+            </section>
           </div>
-        ) : (
-          <p className='text-sm text-gray-600'>{t('noReports')}</p>
-        )}
-      </div>
-
-      {/* Mission Details Dialog */}
-      <ProfessionalMissionDetailsDialog
-        isLoading={isLoadingMission}
-        mission={selectedMission ?? null}
-        onClose={handleCloseDialog}
-        open={isDialogOpen}
-      />
+        </div>
+      </main>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,19 +18,43 @@ import { useFindProfile } from '@/features/profiles/hooks';
 
 import { useUpdateEmail } from '../hooks/useUpdateEmail';
 
-export function IdentifiersForm() {
+type IdentifiersFormProps = {
+  minimalDialog?: boolean;
+};
+
+export function IdentifiersForm({
+  minimalDialog = false,
+}: IdentifiersFormProps) {
   const t = useTranslations('common');
   const tAdmin = useTranslations('admin');
   const locale = useLocale();
   const { data: session } = useSession();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(minimalDialog);
   const [email, setEmail] = useState('');
   const [showEmailCheckDialog, setShowEmailCheckDialog] = useState(false);
   const updateEmailMutation = useUpdateEmail();
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profile } = useFindProfile(session?.user?.id);
 
   const currentEmail = profile?.email || session?.user?.email || '';
+
+  useLayoutEffect(() => {
+    if (minimalDialog && currentEmail) {
+      setEmail(currentEmail);
+      setIsEditing(true);
+    }
+  }, [minimalDialog, currentEmail]);
+
+  useEffect(() => {
+    if (!minimalDialog) {
+      return;
+    }
+    const id = requestAnimationFrame(() => {
+      emailInputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [minimalDialog]);
 
   const handleUpdateClick = () => {
     setEmail(currentEmail);
@@ -38,13 +62,19 @@ export function IdentifiersForm() {
   };
 
   const handleCancel = () => {
+    if (minimalDialog) {
+      setEmail(currentEmail);
+      return;
+    }
     setEmail('');
     setIsEditing(false);
   };
 
   const handleSave = async () => {
     if (!email || email === currentEmail) {
-      setIsEditing(false);
+      if (!minimalDialog) {
+        setIsEditing(false);
+      }
       return;
     }
 
@@ -64,44 +94,53 @@ export function IdentifiersForm() {
         email,
         emailRedirectTo,
       });
-      setIsEditing(false);
+      if (!minimalDialog) {
+        setIsEditing(false);
+      }
       setShowEmailCheckDialog(true);
     } catch (error) {
       console.error('Error updating email:', error);
     }
   };
 
+  const editing = minimalDialog || isEditing;
+  const displayValue = editing ? email : currentEmail;
+
   return (
     <>
       <div className='space-y-4'>
-        <div className='flex items-center justify-between'>
-          <h2 className='text-lg font-bold text-blue-900'>
-            {tAdmin('setting.identifiers')}
-          </h2>
-          {!isEditing && (
-            <Button onClick={handleUpdateClick} size='sm' variant='outline'>
-              {t('actions.edit')}
-            </Button>
-          )}
-        </div>
+        {!minimalDialog && (
+          <div className='flex items-center justify-between'>
+            <h2 className='text-lg font-bold text-blue-900'>
+              {tAdmin('setting.identifiers')}
+            </h2>
+            {!isEditing && (
+              <Button onClick={handleUpdateClick} size='sm' variant='outline'>
+                {t('actions.edit')}
+              </Button>
+            )}
+          </div>
+        )}
 
         <div className='space-y-2'>
           <Label className='text-sm font-medium text-gray-700' htmlFor='email'>
             {t('label.email')} *
           </Label>
           <Input
+            autoFocus={minimalDialog}
             className='w-full'
-            disabled={!isEditing}
+            disabled={!editing}
             id='email'
             onChange={e => setEmail(e.target.value)}
             placeholder='marie.joux@prokid.fr'
-            readOnly={!isEditing}
+            readOnly={!editing}
+            ref={emailInputRef}
             type='email'
-            value={isEditing ? email : currentEmail}
+            value={displayValue}
           />
         </div>
 
-        {isEditing && (
+        {editing && (
           <div className='flex justify-end gap-2'>
             <Button onClick={handleCancel} size='sm' variant='outline'>
               {t('actions.cancel')}

@@ -234,6 +234,14 @@ export function ChatPanel({
         }
         onOpenReview={() => setReviewModalOpen(true)}
         otherPartyAddress={otherPartyAddress}
+        otherPartyAvatarUrl={
+          viewRole === 'structure'
+            ? (conversation.professional?.profile?.avatar_url ?? null)
+            : null
+        }
+        otherPartyId={
+          viewRole === 'structure' ? conversation.professional_id : undefined
+        }
         otherPartyName={otherPartyName}
         viewRole={viewRole}
       />

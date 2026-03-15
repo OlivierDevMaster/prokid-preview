@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, X } from 'lucide-react';
+import { Check, ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -65,27 +65,26 @@ export function AvailabilityStatusPopover() {
       <PopoverTrigger asChild>
         <Button
           className={cn(
-            'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium',
+            'flex h-11 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-colors',
             isAvailable
-              ? 'bg-green-100 text-green-700 hover:bg-green-200'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 hover:text-white'
+              : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
           )}
           type='button'
           variant='outline'
         >
-          <span
-            className={cn(
-              'h-2 w-2 rounded-3xl',
-              isAvailable ? 'bg-green-500' : 'bg-gray-400'
-            )}
-          />
+          {isAvailable ? (
+            <Check className='h-4 w-4' />
+          ) : (
+            <span className='h-2 w-2 rounded-full bg-slate-400' />
+          )}
           <span>
             {isAvailable ? t('availableStatus') : t('unavailableStatus')}
           </span>
           <ChevronDown
             className={cn(
               'h-3 w-3',
-              isAvailable ? 'text-green-700' : 'text-gray-500'
+              isAvailable ? 'text-white' : 'text-slate-500'
             )}
           />
         </Button>
@@ -186,10 +185,10 @@ export function AvailabilityStatusPopover() {
 
           {/* Confirm button */}
           <Button
-            className='w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700'
+            className='w-full rounded-xl'
             disabled={isUpdating || isLoading}
             onClick={handleConfirm}
-            type='button'
+            size='lg'
           >
             {isUpdating
               ? t('loading', { defaultValue: 'Chargement...' })

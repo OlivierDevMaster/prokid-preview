@@ -24,6 +24,8 @@ export default function DashboardPage() {
   const missionsCount = missionsData?.count ?? 0;
 
   const structureName = structure?.name || t('structureNameFallback');
+
+  // FIXME: Add location
   const structureCity =
     structure?.profile?.city ||
     structure?.profile?.postal_code ||
@@ -38,20 +40,20 @@ export default function DashboardPage() {
       <header className='border-b border-slate-200 bg-white px-6 py-6 md:px-10'>
         <div className='mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 md:flex-row md:items-center'>
           <div className='flex items-center gap-5'>
-            <div className='h-20 w-20 overflow-hidden rounded-2xl bg-slate-100 shadow-sm'>
+            <div className='h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 shadow-sm'>
               <div className='flex h-full w-full items-center justify-center text-2xl font-semibold text-slate-500'>
                 {structureName.charAt(0).toUpperCase()}
               </div>
             </div>
             <div>
-              <h1 className='text-3xl font-bold tracking-tight text-slate-900'>
+              <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
                 {structureName}
               </h1>
               <div className='mt-1 flex items-center gap-2 text-slate-500'>
                 <MapPin className='h-4 w-4' />
                 <span className='text-sm font-medium'>{structureCity}</span>
                 <span className='mx-1 text-slate-300'>•</span>
-                <span className='text-xs font-medium text-slate-600'>
+                <span className='text-sm font-medium text-slate-600'>
                   {t('missionsCount', { count: missionsCount })}
                 </span>
               </div>
