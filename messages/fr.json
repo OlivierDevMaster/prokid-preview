@@ -465,7 +465,7 @@
       "childcare_auxiliary_nurse": "Auxiliaire de puériculture",
       "other_early_childhood_profession": "Autre profession de la petite enfance"
     },
-      "dashboard": {
+    "dashboard": {
       "title": "Tableau de bord",
       "subtitle": "Aperçu de votre activité professionnelle",
       "notAuthenticated": "Veuillez vous connecter pour voir votre tableau de bord",
@@ -701,6 +701,7 @@
       "noneSelected": "Aucun élément sélectionné",
       "selected": "sélectionné",
       "selectedPlural": "sélectionnés",
+      "othersCount": "+{count} autres",
       "createSuccess": "Mission créée avec succès",
       "createError": "Échec de la création de la mission",
       "structureIdRequired": "L'ID de la structure est requis",
