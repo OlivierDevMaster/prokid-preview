@@ -13,6 +13,9 @@ import {
 
 import type { ConversationWithDetails, ViewRole } from '../types/chat.types';
 
+import { MissionHistorySection } from './MissionHistorySection';
+import { RecentReportsSection } from './RecentReportsSection';
+
 interface ParticipantPanelProps {
   conversation: ConversationWithDetails | null;
   viewRole: ViewRole;
@@ -111,43 +114,16 @@ export function ParticipantPanel({
         )}
       </div>
 
-      <section className='mb-4'>
-        <h4 className='mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
-          {t('missionHistory')}
-        </h4>
-        <p className='text-sm text-muted-foreground'>
-          {t('missionHistoryEmpty')}
-        </p>
-        {/* <Button
-          className='h-auto p-0 text-xs'
-          onClick={() => router.push(profileLink)}
-          variant='link'
-        >
-          {t('seeAll')}
-        </Button> */}
-      </section>
+      <MissionHistorySection
+        professionalId={conversation.professional_id}
+        structureId={conversation.structure_id}
+      />
 
-      <section className='mb-4'>
-        <h4 className='mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
-          {t('recentReports')}
-        </h4>
-        <p className='text-sm text-muted-foreground'>
-          {t('recentReportsEmpty')}
-        </p>
-        {/* <Button
-          className='h-auto p-0 text-xs'
-          onClick={() =>
-            router.push(
-              viewRole === 'structure'
-                ? '/structure/reports'
-                : '/professional/reports'
-            )
-          }
-          variant='link'
-        >
-          {t('seeAll')}
-        </Button> */}
-      </section>
+      <RecentReportsSection
+        professionalId={conversation.professional_id}
+        structureId={conversation.structure_id}
+        viewRole={viewRole}
+      />
 
       <Button
         className='mt-auto w-full'

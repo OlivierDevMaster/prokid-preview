@@ -37,7 +37,7 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
     },
 
     {
-      href: '/professional/setting',
+      href: '/professional/settings',
       icon: User,
       label: tProfessional('navigation.profile'),
     },
