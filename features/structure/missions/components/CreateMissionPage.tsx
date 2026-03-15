@@ -1,18 +1,20 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
 import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
+import { Link } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
-import { MissionRecipient } from './MissionRecipient';
 import { MissionPropositionForm } from './MissionPropositionForm';
+import { MissionRecipient } from './MissionRecipient';
 
 export function CreateMissionPage() {
-  const router = useRouter();
+  const t = useTranslations('structure');
+  const tMissions = useTranslations('structure.missions');
   const { selectedProfessionalIds } = useSelectedProfessional();
   const { data } = useFindProfessionals({}, { limit: 1000, page: 1 });
 
@@ -23,20 +25,27 @@ export function CreateMissionPage() {
   );
 
   return (
-    <div className='min-h-screen bg-blue-50/30 p-4 sm:p-6 lg:p-8'>
+    <div className='min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8'>
       <div className='mx-auto flex max-w-6xl flex-col gap-6'>
         <header className=''>
-          <button
-            className='inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-500'
-            onClick={() => router.back()}
-            type='button'
+          <nav
+            aria-label='Breadcrumb'
+            className='flex flex-wrap items-center gap-2 text-sm text-slate-500'
           >
-            <ChevronLeft className='h-4 w-4' />
-            <span>Retour</span>
-          </button>
+            <Link
+              className='font-medium text-[#4A90E2] underline-offset-2 hover:underline'
+              href='/structure/search'
+            >
+              {t('navigation.search')}
+            </Link>
+            <ChevronRight className='size-4 shrink-0 text-slate-400' />
+            <span className='font-medium text-slate-900'>
+              {tMissions('sendMission')}
+            </span>
+          </nav>
 
           <h1 className='mt-2 text-2xl font-bold text-gray-900 sm:text-3xl'>
-            Nouvelle mission
+            {tMissions('sendMission')}
           </h1>
 
           {recipients.length > 0 && (
@@ -53,7 +62,7 @@ export function CreateMissionPage() {
             </div>
           )}
         </header>
-        <MissionPropositionForm/>
+        <MissionPropositionForm />
       </div>
     </div>
   );

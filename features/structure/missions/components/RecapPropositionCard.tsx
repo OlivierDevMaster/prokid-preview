@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Info, Send } from 'lucide-react';
+import { Info, Loader2, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
@@ -10,6 +10,7 @@ type RecapPropositionCardProps = {
   address: string;
   desiredStartDate?: Date;
   durationDays: string;
+  errorMessage?: null | string;
   isPeriodMode?: boolean;
   isSubmitting?: boolean;
   periodEndDate?: Date;
@@ -21,6 +22,7 @@ export function RecapPropositionCard({
   address,
   desiredStartDate,
   durationDays,
+  errorMessage,
   isPeriodMode,
   isSubmitting,
   periodEndDate,
@@ -102,12 +104,21 @@ export function RecapPropositionCard({
 
         {/* Actions */}
         <div className='mt-3 space-y-3 pt-1'>
+          {errorMessage && (
+            <p className='text-sm font-medium text-red-200' role='alert'>
+              {errorMessage}
+            </p>
+          )}
           <button
             className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-70'
             disabled={isSubmitting}
             type='submit'
           >
-            <Send className='h-4 w-4' />
+            {isSubmitting ? (
+              <Loader2 className='h-4 w-4 animate-spin' />
+            ) : (
+              <Send className='h-4 w-4' />
+            )}
             <span className='text-sm font-semibold'>{t('actionSend')}</span>
           </button>
         </div>

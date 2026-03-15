@@ -1,7 +1,7 @@
 import { createFactory } from '@hono/hono/factory';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 
-import { CreateMissionRequestBodySchema } from '../../_shared/features/missions/index.ts';
+import { CreateMissionsRequestBodySchema } from '../../_shared/features/missions/index.ts';
 import { validateRequestBody } from '../../_shared/utils/requests.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
@@ -14,11 +14,11 @@ type Variables = {
 
 const factory = createFactory<{ Variables: Variables }>();
 
-export const createMissionHandler = factory.createHandlers(
+export const createMissionsHandler = factory.createHandlers(
   async ({ get, req }) => {
     try {
       const validationResult = await validateRequestBody(
-        CreateMissionRequestBodySchema,
+        CreateMissionsRequestBodySchema,
         req
       );
 
@@ -72,33 +72,59 @@ export const createMissionHandler = factory.createHandlers(
         );
       }
 
-      // Create the mission
-      const { data: mission, error: insertError } = await supabaseAdminClient
-        .from('missions')
-        .insert({
-          address: body.address,
-          description: body.description,
-          mission_dtstart: missionDtstart.toISOString(),
-          mission_until: missionUntil.toISOString(),
-          professional_id: body.professional_id,
-          status: body.status || 'pending',
-          structure_id: body.structure_id,
-          title: body.title,
-        })
-        .select('*')
-        .single();
+      // Verify all professionals exist
+      const { data: existingProfessionals, error: professionalsError } =
+        await supabaseAdminClient
+          .from('professionals')
+          .select('user_id')
+          .in('user_id', body.professional_ids);
 
-      if (insertError) {
-        console.error('Error creating mission:', insertError);
-        return apiResponse.internalServerError('Failed to create mission');
+      if (professionalsError) {
+        console.error('Error fetching professionals:', professionalsError);
+        return apiResponse.internalServerError(
+          'Failed to verify professionals'
+        );
       }
 
-      // Return the created mission
+      const foundIds = new Set(
+        (existingProfessionals ?? []).map(p => p.user_id)
+      );
+      const missingIds = body.professional_ids.filter(id => !foundIds.has(id));
+
+      if (missingIds.length > 0) {
+        return apiResponse.badRequest(
+          'PROFESSIONALS_NOT_FOUND',
+          'One or more professionals do not exist',
+          { professional_ids: missingIds }
+        );
+      }
+
+      const rows = body.professional_ids.map(professional_id => ({
+        address: body.address,
+        description: body.description,
+        mission_dtstart: missionDtstart.toISOString(),
+        mission_until: missionUntil.toISOString(),
+        professional_id,
+        status: body.status || 'pending',
+        structure_id: body.structure_id,
+        title: body.title,
+      }));
+
+      const { data: missions, error: insertError } = await supabaseAdminClient
+        .from('missions')
+        .insert(rows)
+        .select('*');
+
+      if (insertError) {
+        console.error('Error creating missions:', insertError);
+        return apiResponse.internalServerError('Failed to create missions');
+      }
+
       return apiResponse.created({
-        mission,
+        missions: missions ?? [],
       });
     } catch (error) {
-      console.error('Error in createMissionHandler:', error);
+      console.error('Error in createMissionsHandler:', error);
       return apiResponse.internalServerError();
     }
   }

@@ -1,15 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { CreateMissionRequestBody } from '../mission.model';
+import type { CreateMissionsRequestBody, Mission } from '../mission.model';
 
-import { createMission } from '../mission.service';
+import { createMissions } from '../mission.service';
 
 export const useCreateMission = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (body: CreateMissionRequestBody) => {
-      return createMission(body);
+    mutationFn: async (body: CreateMissionsRequestBody): Promise<Mission> => {
+      const missions = await createMissions(body);
+      return missions[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['missions'] });

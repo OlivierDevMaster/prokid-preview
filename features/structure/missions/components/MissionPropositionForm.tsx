@@ -10,6 +10,7 @@ import {
   MapPin,
   Type,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -26,6 +27,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { DatePickerInput } from '@/components/ui/input-date';
 import { Textarea } from '@/components/ui/textarea';
+import { getOrCreateConversation } from '@/features/chat/services/conversation.service';
+import { useRouter } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 import { useCreateMissionProposition } from '../hooks/useCreateMissionProposition';
@@ -37,6 +40,8 @@ import { RecapPropositionCard } from './RecapPropositionCard';
 
 export function MissionPropositionForm() {
   const t = useTranslations('structure.missions.proposition');
+  const router = useRouter();
+  const { data: session } = useSession();
   const missionPropositionSchema = useMemo(
     () => getMissionPropositionSchema(t),
     [t]
@@ -68,7 +73,24 @@ export function MissionPropositionForm() {
   }, [selectedProfessionalIds, form]);
 
   const handleSubmit = async (values: MissionPropositionFormValues) => {
-    await createMissionProposition.mutateAsync(values);
+    const missions = await createMissionProposition.mutateAsync(values);
+    const structureId = session?.user?.id;
+
+    if (missions.length > 1) {
+      router.push('/structure/chat');
+      return;
+    }
+
+    if (missions.length === 1 && structureId) {
+      const conversation = await getOrCreateConversation({
+        mission_id: missions[0].id,
+        professional_id: missions[0].professional_id,
+        structure_id: structureId,
+      });
+      router.push(`/structure/chat?conversationId=${conversation.id}`);
+    } else if (missions.length === 1) {
+      router.push('/structure/chat');
+    }
   };
 
   const durationMode = form.watch('durationMode');
@@ -96,7 +118,7 @@ export function MissionPropositionForm() {
   return (
     <Form {...form}>
       <form
-        className='p-4 sm:p-6 lg:p-8'
+        // className='p-4 sm:p-6 lg:p-8'
         onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className='mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row'>
@@ -459,6 +481,13 @@ export function MissionPropositionForm() {
               address={address}
               desiredStartDate={desiredStartDate}
               durationDays={String(durationDays ?? '')}
+              errorMessage={
+                createMissionProposition.error instanceof Error
+                  ? createMissionProposition.error.message
+                  : createMissionProposition.error
+                    ? String(createMissionProposition.error)
+                    : null
+              }
               isPeriodMode={durationMode === 'period'}
               isSubmitting={createMissionProposition.isPending}
               periodEndDate={periodEndDate}

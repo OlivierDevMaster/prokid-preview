@@ -1,17 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, startOfDay } from 'date-fns';
+import { startOfDay } from 'date-fns';
 import { useSession } from 'next-auth/react';
 
-import type { CreateMissionRequestBody } from '@/features/missions/mission.model';
+import type { CreateMissionsRequestBody } from '@/features/missions/mission.model';
 
-import { useCreateMission } from '@/features/missions/hooks/useCreateMission';
-import { getDurationInDays, getEndDate } from '@/shared/utils/date';
+import { createMissions } from '@/features/missions/mission.service';
+import { getEndDate } from '@/shared/utils/date';
 
 import type { MissionPropositionFormValues } from '../validation/mission.schema';
 
 export function useCreateMissionProposition() {
   const queryClient = useQueryClient();
-  const createMission = useCreateMission();
   const { data: session } = useSession();
   const structureId = session?.user?.id;
 
@@ -38,20 +37,17 @@ export function useCreateMissionProposition() {
         missionEnd = startOfDay(periodEnd);
       }
 
-      for (const professionalId of values.professionalIds) {
-        const body: CreateMissionRequestBody = {
-          address: values.address,
-          description: values.description,
-          mission_dtstart: missionStart.toISOString(),
-          mission_until: missionEnd.toISOString(),
-          professional_id: professionalId,
-          status: undefined,
-          structure_id: structureId,
-          title: values.title,
-        };
+      const body: CreateMissionsRequestBody = {
+        address: values.address,
+        description: values.description,
+        mission_dtstart: missionStart.toISOString(),
+        mission_until: missionEnd.toISOString(),
+        professional_ids: values.professionalIds,
+        structure_id: structureId,
+        title: values.title,
+      };
 
-        await createMission.mutateAsync(body);
-      }
+      return createMissions(body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });

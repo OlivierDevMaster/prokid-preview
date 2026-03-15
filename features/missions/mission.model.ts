@@ -97,12 +97,12 @@ export const getMissionStatusConfig = (
   },
 });
 
-export interface CreateMissionRequestBody {
+export interface CreateMissionsRequestBody {
   address: string;
   description?: string;
   mission_dtstart: string;
   mission_until: string;
-  professional_id: string;
+  professional_ids: string[];
   status?: MissionStatus;
   structure_id: string;
   title: string;

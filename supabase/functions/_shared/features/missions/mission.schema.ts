@@ -6,12 +6,12 @@ export const MissionStatusSchema = z.enum(MissionStatuses);
 
 export const CreateMissionRequestBodySchema = z
   .object({
+    address: z.string().optional(),
     description: z.string().optional(),
     mission_dtstart: z.iso.datetime('Invalid mission start date format'),
     mission_until: z.iso.datetime('Invalid mission end date format'),
     professional_id: z.uuid(),
     status: MissionStatusSchema.optional(),
-    address: z.string().optional(),
     structure_id: z.uuid(),
     title: z.string().min(1),
   })
@@ -31,8 +31,36 @@ export type CreateMissionRequestBody = z.infer<
   typeof CreateMissionRequestBodySchema
 >;
 
+export const CreateMissionsRequestBodySchema = z
+  .object({
+    address: z.string().optional(),
+    description: z.string().optional(),
+    mission_dtstart: z.iso.datetime('Invalid mission start date format'),
+    mission_until: z.iso.datetime('Invalid mission end date format'),
+    professional_ids: z.array(z.uuid()).min(1),
+    status: MissionStatusSchema.optional(),
+    structure_id: z.uuid(),
+    title: z.string().min(1),
+  })
+  .refine(
+    data => {
+      const start = new Date(data.mission_dtstart);
+      const end = new Date(data.mission_until);
+      return end > start;
+    },
+    {
+      message: 'Mission end date must be after start date',
+      path: ['mission_until'],
+    }
+  );
+
+export type CreateMissionsRequestBody = z.infer<
+  typeof CreateMissionsRequestBodySchema
+>;
+
 export const UpdateMissionRequestBodySchema = z
   .object({
+    address: z.string().optional(),
     description: z.string().nullable().optional(),
     mission_dtstart: z
       .string()
@@ -42,7 +70,6 @@ export const UpdateMissionRequestBodySchema = z
       .string()
       .datetime('Invalid mission end date format')
       .optional(),
-    address: z.string().optional(),
     status: MissionStatusSchema.optional(),
     title: z.string().min(1).optional(),
   })
@@ -57,8 +84,7 @@ export const UpdateMissionRequestBodySchema = z
       message: 'Mission end date must be after start date',
       path: ['mission_until'],
     }
-  )
-
+  );
 
 export type UpdateMissionRequestBody = z.infer<
   typeof UpdateMissionRequestBodySchema
