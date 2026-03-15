@@ -1,9 +1,10 @@
 'use client';
 
 import {
-  ArrowLeft,
+  Bold,
   FileText,
-  Link,
+  ImageIcon,
+  List,
   Paperclip,
   Send,
   Trash2,
@@ -40,6 +41,7 @@ import { useUpdateReport } from '@/features/reports/hooks/useUpdateReport';
 import { Report } from '@/features/reports/report.model';
 import { useRouter } from '@/i18n/routing';
 
+import { useGetMissionById } from '../hooks/useGetMissionById';
 import { useGetMissions } from '../hooks/useGetMissions';
 import { useReportForm } from '../hooks/useReportForm';
 
@@ -71,6 +73,22 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     'mission',
     parseAsString.withDefault('')
   );
+  const { data: missionFromQuery } = useGetMissionById(
+    missionIdFromQuery || null
+  );
+
+  // Include mission from URL in options when not in main list (e.g. pending from chat)
+  const displayMissions = useMemo(() => {
+    const list = [...missions];
+    if (
+      missionIdFromQuery &&
+      missionFromQuery &&
+      !list.some((m: { id: string }) => m.id === missionIdFromQuery)
+    ) {
+      list.unshift(missionFromQuery as (typeof missions)[0]);
+    }
+    return list;
+  }, [missions, missionIdFromQuery, missionFromQuery]);
 
   const [hasSetMissionFromQuery, setHasSetMissionFromQuery] = useState(false);
 
@@ -84,20 +102,16 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
       });
       setCurrentReport(report);
     } else if (!isEdit && missionIdFromQuery && !hasSetMissionFromQuery) {
-      // Wait for missions to be loaded before setting the value
-      if (missions.length > 0) {
-        const missionExists = missions.some(
-          (m: { id: string }) => m.id === missionIdFromQuery
-        );
-        if (missionExists) {
-          // Use reset to properly set the initial value
-          form.reset({
-            content: '',
-            mission_id: missionIdFromQuery,
-            title: '',
-          });
-          setHasSetMissionFromQuery(true);
-        }
+      const inList = displayMissions.some(
+        (m: { id: string }) => m.id === missionIdFromQuery
+      );
+      if (inList) {
+        form.reset({
+          content: '',
+          mission_id: missionIdFromQuery,
+          title: '',
+        });
+        setHasSetMissionFromQuery(true);
       }
     }
   }, [
@@ -105,7 +119,7 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     report,
     form,
     missionIdFromQuery,
-    missions,
+    displayMissions,
     hasSetMissionFromQuery,
   ]);
 
@@ -332,182 +346,131 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
     });
   };
 
+  const isPdf = (name: string) =>
+    /\.pdf$/i.test(name) || /\.docx?$/i.test(name);
+  const formatFileSize = (bytes: number) =>
+    `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
   return (
     <Form {...form}>
-      <form className='space-y-6' onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className='space-y-6'>
-          {/* Header */}
-          <div className='flex flex-col items-center justify-between md:flex-row'>
-            <div className='flex items-center gap-3'>
-              <Link href='/professional/reports'>
-                <ArrowLeft className='h-5 w-5 cursor-pointer text-gray-600 hover:text-gray-800' />
-              </Link>
-              <h1 className='text-3xl font-bold text-blue-600'>
-                {isEdit ? t('editReport') : t('newReport')}
-              </h1>
-            </div>
-            <div className='mt-4 flex flex-col gap-3 sm:mt-0 sm:flex-row sm:gap-3'>
-              {(!isEdit || currentReport?.status !== 'sent') && (
-                <Button
-                  className='border-gray-300 text-gray-700 hover:bg-gray-50'
-                  disabled={isLoading || isUpdating}
-                  type='submit'
-                  variant='outline'
-                >
-                  <FileText className='mr-2 h-4 w-4' />
-                  {t('saveDraft')}
-                </Button>
-              )}
-              {currentReport?.status !== 'sent' && (
-                <Button
-                  className='bg-blue-500 text-white hover:bg-blue-600'
-                  disabled={isLoading || isSending}
-                  onClick={handleSendReport}
-                  type='button'
-                >
-                  <Send className='mr-2 h-4 w-4' />
-                  {isSending ? t('sending') || 'Sending...' : t('sendEmail')}
-                </Button>
-              )}
-            </div>
+      <form className='space-y-8' onSubmit={handleSubmit(handleFormSubmit)}>
+        {/* Section: Informations générales */}
+        <Card className='border-none bg-white shadow-sm'>
+          <div className='px-4 pt-4 sm:px-6'>
+            <h2 className='text-sm font-bold uppercase tracking-wider text-gray-500'>
+              Informations générales
+            </h2>
           </div>
-
-          {/* Form Card */}
-          <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
-            <div className='p-8'>
-              <h2 className='mb-6 text-2xl font-bold text-gray-800'>
-                {isEdit ? t('editReport') : t('newReport')}
-              </h2>
-              {/* Title Section */}
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                <FormField
-                  control={form.control}
-                  name='title'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='text-sm font-semibold text-gray-700'>
-                        {t('reportTitle')}{' '}
-                        <span className='text-red-500'>*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t('customTitlePlaceholder')}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Mission Selection */}
-                <FormField
-                  control={form.control}
-                  name='mission_id'
-                  render={({ field }) => {
-                    return (
-                      <FormItem>
-                        <FormLabel className='text-sm font-semibold text-gray-700'>
-                          {t('selectMission') || 'Mission'}{' '}
-                          <span className='text-red-500'>*</span>
-                        </FormLabel>
-                        <Select
-                          disabled={isEdit && currentReport?.status === 'sent'}
-                          onValueChange={async value => {
-                            if (value) {
-                              field.onChange(value);
-                            }
-                            // await handleMissionChange(value);
-                          }}
-                          value={field.value || undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={
-                                  t('selectMissionPlaceholder') ||
-                                  'Select a mission'
-                                }
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {missions.map(mission => {
-                              const missionWithStructure = mission as {
-                                id: string;
-                                structure?: {
-                                  name?: string;
-                                  profile?: { email?: string };
-                                };
-                                title: string;
-                              };
-                              const structureName =
-                                missionWithStructure.structure?.name ||
-                                missionWithStructure.structure?.profile
-                                  ?.email ||
-                                'N/A';
-                              return (
-                                <SelectItem
-                                  key={missionWithStructure.id}
-                                  value={missionWithStructure.id}
-                                >
-                                  {missionWithStructure.title} - {structureName}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-              </div>
-
-              {/* Report Content */}
+          <div className='space-y-2 px-4 py-5 sm:px-6'>
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <FormField
                 control={form.control}
-                name='content'
+                name='title'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='space-y-2'>
                     <FormLabel className='text-sm font-semibold text-gray-700'>
-                      {t('reportContent')}{' '}
-                      <span className='text-red-500'>*</span>
+                      {t('reportTitle')} <span className='text-red-500'>*</span>
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        className='min-h-[300px] resize-y'
-                        placeholder={t('contentPlaceholder')}
+                      <Input
+                        className='rounded-xl border border-blue-100 bg-blue-50/40 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20'
+                        placeholder='Ex: Intervention de suivi hebdomadaire'
                         {...field}
                       />
                     </FormControl>
-                    <div className='mt-2 text-sm text-gray-600'>
-                      <p className='mb-2 font-medium'>
-                        {t('exampleStructure')}
-                      </p>
-                      <ul className='list-inside list-disc space-y-1 text-gray-500'>
-                        <li>{t('example1')}</li>
-                        <li>{t('example2')}</li>
-                        <li>{t('example3')}</li>
-                        <li>{t('example4')}</li>
-                        <li>{t('example5')}</li>
-                      </ul>
-                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name='mission_id'
+                render={({ field }) => (
+                  <FormItem className='space-y-2'>
+                    <FormLabel className='text-sm font-semibold text-gray-700'>
+                      Mission associée <span className='text-red-500'>*</span>
+                    </FormLabel>
+                    <Select
+                      disabled={isEdit && currentReport?.status === 'sent'}
+                      onValueChange={value => value && field.onChange(value)}
+                      value={field.value || undefined}
+                    >
+                      <FormControl>
+                        <SelectTrigger className='rounded-xl border border-blue-100 bg-blue-50/40 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20'>
+                          <SelectValue
+                            placeholder={
+                              t('selectMissionPlaceholder') ||
+                              'Sélectionner une mission'
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {displayMissions.map(mission => {
+                          const missionWithStructure = mission as {
+                            id: string;
+                            structure?: {
+                              name?: string;
+                              profile?: { email?: string };
+                            };
+                            title: string;
+                          };
+                          const structureName =
+                            missionWithStructure.structure?.name ||
+                            missionWithStructure.structure?.profile?.email ||
+                            'N/A';
+                          return (
+                            <SelectItem
+                              key={missionWithStructure.id}
+                              value={missionWithStructure.id}
+                            >
+                              {missionWithStructure.title} - {structureName}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </Card>
 
-              {/* Attachments */}
-              <div className='space-y-4'>
-                <label className='text-sm font-semibold text-gray-700'>
-                  {t('attachments')}{' '}
-                  <span className='text-gray-500'>({t('optional')})</span>
-                </label>
+        {/* Section: Contenu du rapport + Pièces jointes */}
+        <Card className='border-none bg-white shadow-sm'>
+          <div className='flex items-center justify-between px-4 pb-3 pt-4 sm:px-6'>
+            <h2 className='text-sm font-bold uppercase tracking-wider text-gray-500'>
+              Contenu du rapport
+            </h2>
+          </div>
+          <div className='space-y-4 px-4 pb-4 pt-2 sm:px-6 sm:pb-6'>
+            <FormField
+              control={form.control}
+              name='content'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      className='min-h-[280px] resize-y rounded-2xl border border-blue-100 bg-blue-50/40 p-4 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20'
+                      placeholder='Décrivez ici le déroulement de la mission, les points observés et les actions entreprises...'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                {/* File Input */}
+            {/* Pièces jointes */}
+            <div className='mt-8 border-t border-gray-100 pt-6'>
+              <div className='mb-4 flex items-center justify-between'>
+                <h2 className='text-sm font-bold uppercase tracking-wider text-gray-500'>
+                  Pièces jointes
+                </h2>
                 {currentReport?.status !== 'sent' && (
-                  <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
+                  <>
                     <input
                       accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
                       className='hidden'
@@ -517,103 +480,123 @@ export function ReportForm({ isEdit = false, report }: ReportFormProps) {
                       type='file'
                     />
                     <Button
-                      className='border-gray-300 text-gray-700 hover:bg-gray-50'
+                      className='flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50'
                       disabled={isLoading}
                       onClick={() => fileInputRef.current?.click()}
                       type='button'
-                      variant='outline'
                     >
-                      <Paperclip className='mr-2 h-4 w-4' />
-                      {t('addFiles')}
+                      <Paperclip className='h-4 w-4' />
+                      Ajouter des pièces jointes
                     </Button>
-                    <span className='text-sm text-gray-500'>
-                      {t('fileTypes')}
-                    </span>
-                  </div>
+                  </>
                 )}
-
-                {/* Selected Files (Pending Upload) */}
-                {selectedFiles.length > 0 && (
-                  <div className='space-y-2'>
-                    <p className='text-sm font-medium text-gray-700'>
-                      Files to upload:
-                    </p>
-                    <div className='space-y-2'>
-                      {selectedFiles.map((file, index) => (
-                        <div
-                          className='flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3'
-                          key={`${file.name}-${index}`}
-                        >
-                          <div className='flex min-w-0 flex-1 items-center gap-2'>
-                            <Paperclip className='h-4 w-4 flex-shrink-0 text-gray-500' />
-                            <span className='max-w-[120px] truncate text-sm text-gray-700 sm:max-w-none sm:overflow-visible sm:whitespace-normal'>
-                              {file.name}
-                            </span>
-                            <span className='hidden flex-shrink-0 text-xs text-gray-500 sm:inline'>
-                              ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                            </span>
-                          </div>
-                          <Button
-                            className='h-8 w-8 p-0 text-red-500 hover:bg-red-50'
-                            onClick={() => handleRemoveFile(index)}
-                            type='button'
-                            variant='ghost'
-                          >
-                            <X className='h-4 w-4' />
-                          </Button>
-                        </div>
-                      ))}
+              </div>
+              <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+                {selectedFiles.map((file, index) => (
+                  <div
+                    className='flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/40 p-3'
+                    key={`${file.name}-${index}`}
+                  >
+                    <div
+                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded ${
+                        isPdf(file.name)
+                          ? 'bg-red-100 text-red-600 dark:bg-red-900/30'
+                          : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30'
+                      }`}
+                    >
+                      {isPdf(file.name) ? (
+                        <FileText className='h-5 w-5' />
+                      ) : (
+                        <ImageIcon className='h-5 w-5' />
+                      )}
                     </div>
-                  </div>
-                )}
-
-                {/* Existing Attachments */}
-                {currentReport?.attachments &&
-                  currentReport.attachments.length > 0 && (
-                    <div className='space-y-2'>
-                      <p className='text-sm font-medium text-gray-700'>
-                        Current attachments:
+                    <div className='min-w-0 flex-1'>
+                      <p className='truncate text-sm font-medium'>
+                        {file.name}
                       </p>
-                      <div className='space-y-2'>
-                        {currentReport.attachments.map(attachment => (
-                          <div
-                            className='flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3'
-                            key={attachment.id}
-                          >
-                            <div className='flex items-center gap-2'>
-                              <Paperclip className='h-4 w-4 text-gray-500' />
-                              <span className='text-sm text-gray-700'>
-                                {attachment.file_name}
-                              </span>
-                              <span className='text-xs text-gray-500'>
-                                (
-                                {(attachment.file_size / 1024 / 1024).toFixed(
-                                  2
-                                )}{' '}
-                                MB)
-                              </span>
-                            </div>
-                            {currentReport?.status !== 'sent' && (
-                              <Button
-                                className='h-8 w-8 p-0 text-red-500 hover:bg-red-50'
-                                onClick={() =>
-                                  handleRemoveAttachment(attachment.id)
-                                }
-                                type='button'
-                                variant='ghost'
-                              >
-                                <Trash2 className='h-4 w-4' />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      <p className='text-xs text-gray-500'>
+                        {formatFileSize(file.size)}
+                      </p>
                     </div>
-                  )}
+                    <Button
+                      className='p-1 text-gray-500 hover:text-red-500'
+                      onClick={() => handleRemoveFile(index)}
+                      size='icon'
+                      type='button'
+                      variant='ghost'
+                    >
+                      <X className='h-5 w-5' />
+                    </Button>
+                  </div>
+                ))}
+                {currentReport?.attachments?.map(attachment => (
+                  <div
+                    className='flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/40 p-3'
+                    key={attachment.id}
+                  >
+                    <div
+                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded ${
+                        /\.(pdf|docx?)$/i.test(attachment.file_name)
+                          ? 'bg-red-100 text-red-600 dark:bg-red-900/30'
+                          : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30'
+                      }`}
+                    >
+                      {/\.(pdf|docx?)$/i.test(attachment.file_name) ? (
+                        <FileText className='h-5 w-5' />
+                      ) : (
+                        <ImageIcon className='h-5 w-5' />
+                      )}
+                    </div>
+                    <div className='min-w-0 flex-1'>
+                      <p className='truncate text-sm font-medium'>
+                        {attachment.file_name}
+                      </p>
+                      <p className='text-xs text-gray-500'>
+                        {formatFileSize(attachment.file_size)}
+                      </p>
+                    </div>
+                    {currentReport?.status !== 'sent' && (
+                      <Button
+                        className='p-1 text-gray-500 hover:text-red-500'
+                        onClick={() => handleRemoveAttachment(attachment.id)}
+                        size='icon'
+                        type='button'
+                        variant='ghost'
+                      >
+                        <Trash2 className='h-5 w-5' />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </Card>
-        </div>
+
+            {/* Actions */}
+            <div className='mt-8 flex flex-wrap items-center justify-end gap-4'>
+              {(!isEdit || currentReport?.status !== 'sent') && (
+                <Button
+                  className='rounded-full border-gray-200 font-semibold text-gray-700 shadow-sm hover:bg-gray-50'
+                  disabled={isLoading || isUpdating}
+                  type='submit'
+                  variant='outline'
+                >
+                  {t('saveDraft')}
+                </Button>
+              )}
+              {currentReport?.status !== 'sent' && (
+                <Button
+                  className='flex items-center gap-2 rounded-full bg-blue-600 px-8 py-2.5 font-semibold text-white shadow-sm hover:bg-blue-700'
+                  disabled={isLoading || isSending}
+                  onClick={handleSendReport}
+                  type='button'
+                >
+                  {isSending ? t('sending') : 'Envoyer le rapport'}
+                  <Send className='h-4 w-4' />
+                </Button>
+              )}
+            </div>
+          </div>
+        </Card>
       </form>
     </Form>
   );

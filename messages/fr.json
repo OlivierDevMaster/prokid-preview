@@ -1146,6 +1146,7 @@
       "recurring": "Récurrent"
     },
     "report": {
+      "creationTitle": "Création de compte-rendu",
       "title": "Créer un rapport",
       "details": "Détail du rapport",
       "saveDraft": "Enregistrer brouillon",
