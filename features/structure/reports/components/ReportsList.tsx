@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { useGetMissions } from '@/features/structure/missions/hooks/useGetMissions';
 import { useGetProfessionals } from '@/features/structure/professionals/hooks/useGetProfessionals';
+import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 import useReportColumnDefs from '../hooks/useReportColumnDefs';
 import { useReports } from '../hooks/useReports';
@@ -26,8 +27,13 @@ interface ReportsListProps {
 export function ReportsList({ locale = 'en' }: ReportsListProps) {
   const t = useTranslations('admin.reports');
   const tCommon = useTranslations('common.messages');
+  const { handleClearSelection } = useSelectedProfessional();
   const [selectedReportId, setSelectedReportId] = useState<null | string>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    handleClearSelection();
+  }, [handleClearSelection]);
 
   const [professionalId, setProfessionalId] = useQueryState(
     'professional',
