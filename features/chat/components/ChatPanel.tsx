@@ -3,8 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
-import { useGetMembershipId } from '@/features/structure-members/hooks/useGetMembershipId';
+import { useScrollToBottom } from '@/features/chat/hooks/useScrollToBottom';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
+import { useDeleteRating } from '@/features/structure/ratings/hooks/useDeleteRating';
+import { useRatingForStructureAndProfessional } from '@/features/structure/ratings/hooks/useRatingForStructureAndProfessional';
+import { useUpdateRating } from '@/features/structure/ratings/hooks/useUpdateRating';
 
 import type {
   ConversationWithDetails,
@@ -12,10 +15,11 @@ import type {
   ViewRole,
 } from '../types/chat.types';
 
-import { useScrollToBottom } from '@/features/chat/hooks/useScrollToBottom';
+import { useDeleteMessage } from '../hooks/useDeleteMessage';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useUpdateAppointmentLink } from '../hooks/useUpdateAppointmentLink';
 import { useUpdateAppointmentStatus } from '../hooks/useUpdateAppointmentStatus';
+import { useUpdateMessageContent } from '../hooks/useUpdateMessageContent';
 import { ChatInput } from './ChatInput';
 import { ChatMessageList } from './ChatMessageList';
 import { ChatPanelHeader } from './ChatPanelHeader';
@@ -43,6 +47,10 @@ export function ChatPanel({
     content: string;
     id: string;
   } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<{
+    content: string;
+    id: string;
+  } | null>(null);
   const [proposeAppointmentOpen, setProposeAppointmentOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
@@ -50,6 +58,10 @@ export function ChatPanel({
     useScrollToBottom(conversation?.id, isLoadingMessages, messages.length);
 
   const sendMessage = useSendMessage(conversation?.id ?? null);
+  const updateMessageContent = useUpdateMessageContent(
+    conversation?.id ?? null
+  );
+  const deleteMessage = useDeleteMessage(conversation?.id ?? null);
   const updateAppointmentLink = useUpdateAppointmentLink(
     conversation?.id ?? null
   );
@@ -59,11 +71,13 @@ export function ChatPanel({
 
   const structureId = conversation?.structure_id;
   const professionalId = conversation?.professional_id;
-  const { data: membershipId } = useGetMembershipId(
-    structureId,
-    professionalId
-  );
   const createRating = useCreateRating();
+  const updateRating = useUpdateRating();
+  const deleteRating = useDeleteRating();
+  const { data: existingRating } = useRatingForStructureAndProfessional(
+    viewRole === 'structure' ? structureId : undefined,
+    viewRole === 'structure' ? professionalId : undefined
+  );
 
   const otherPartyName = useMemo(
     () =>
@@ -100,19 +114,38 @@ export function ChatPanel({
 
   const handleReviewSubmit = useCallback(
     (rating: number, comment: string) => {
-      if (!structureId || !professionalId || !membershipId) return;
-      createRating.mutate(
-        {
-          comment: comment.trim() || null,
-          membershipId,
-          professionalId,
-          rating,
-          structureId,
-        },
-        { onSuccess: () => setReviewModalOpen(false) }
-      );
+      if (!structureId || !professionalId) return;
+      if (existingRating) {
+        updateRating.mutate(
+          {
+            comment: comment.trim() || null,
+            rating,
+            ratingId: existingRating.id,
+          },
+          { onSuccess: () => setReviewModalOpen(false) }
+        );
+      } else {
+        createRating.mutate(
+          {
+            comment: comment.trim() || null,
+            professionalId,
+            rating,
+            structureId,
+          },
+          { onSuccess: () => setReviewModalOpen(false) }
+        );
+      }
     },
-    [createRating, membershipId, professionalId, structureId]
+    [createRating, existingRating, professionalId, structureId, updateRating]
+  );
+
+  const handleRemoveReview = useCallback(
+    (ratingId: string) => {
+      deleteRating.mutate(ratingId, {
+        onSuccess: () => setReviewModalOpen(false),
+      });
+    },
+    [deleteRating]
   );
 
   const handleProposeAppointmentSubmit = useCallback(
@@ -158,6 +191,31 @@ export function ChatPanel({
     [updateAppointmentStatus]
   );
 
+  const handleUpdateMessageContent = useCallback(
+    (messageId: string, content: string) => {
+      if (!conversation?.id) return;
+      if (!content.trim()) return;
+      updateMessageContent.mutate({ content, messageId });
+      setEditingMessage(null);
+    },
+    [conversation?.id, updateMessageContent]
+  );
+
+  const handleDeleteMessage = useCallback(
+    (messageId: string) => {
+      if (!conversation?.id) return;
+      deleteMessage.mutate({ messageId });
+    },
+    [conversation?.id, deleteMessage]
+  );
+
+  const handleStartEditMessage = useCallback(
+    (messageId: string, content: string) => {
+      setEditingMessage({ content, id: messageId });
+    },
+    []
+  );
+
   if (!conversation) {
     return (
       <div className='flex flex-1 items-center justify-center bg-muted/20'>
@@ -171,17 +229,35 @@ export function ChatPanel({
   return (
     <div className='flex flex-1 flex-col bg-background'>
       <ChatPanelHeader
-        membershipId={membershipId}
+        existingRating={
+          viewRole === 'structure' ? (existingRating ?? null) : null
+        }
         onOpenReview={() => setReviewModalOpen(true)}
         otherPartyAddress={otherPartyAddress}
+        otherPartyAvatarUrl={
+          viewRole === 'structure'
+            ? (conversation.professional?.profile?.avatar_url ?? null)
+            : null
+        }
+        otherPartyId={
+          viewRole === 'structure' ? conversation.professional_id : undefined
+        }
         otherPartyName={otherPartyName}
         viewRole={viewRole}
       />
 
       <LeaveReviewModal
+        existingRating={
+          viewRole === 'structure' ? (existingRating ?? null) : null
+        }
         isOpen={reviewModalOpen}
-        isSubmitting={createRating.isPending}
+        isSubmitting={
+          createRating.isPending ||
+          updateRating.isPending ||
+          deleteRating.isPending
+        }
         onClose={() => setReviewModalOpen(false)}
+        onRemove={existingRating ? handleRemoveReview : undefined}
         onSubmit={handleReviewSubmit}
         revieweeName={otherPartyName}
       />
@@ -201,7 +277,11 @@ export function ChatPanel({
 
       {mission && (
         <div className='border-b bg-[#f8fafc] px-4 py-3'>
-          <MissionCard conversationId={conversation.id} mission={mission} />
+          <MissionCard
+            conversationId={conversation.id}
+            mission={mission}
+            viewRole={viewRole}
+          />
         </div>
       )}
 
@@ -211,15 +291,20 @@ export function ChatPanel({
         messages={messages}
         messagesContainerRef={messagesContainerRef}
         messagesEndRef={messagesEndRef}
+        onDeleteMessage={handleDeleteMessage}
         onEditAppointmentLink={handleEditAppointmentLink}
+        onStartEditMessage={handleStartEditMessage}
         onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
         viewRole={viewRole}
       />
 
       <ChatInput
+        editingMessage={editingMessage}
         isSending={sendMessage.isPending}
+        onCancelEdit={() => setEditingMessage(null)}
         onProposeAppointment={() => setProposeAppointmentOpen(true)}
         onSend={handleSendText}
+        onUpdateMessage={handleUpdateMessageContent}
         scrollToEndRef={messagesEndRef}
         viewRole={viewRole}
       />

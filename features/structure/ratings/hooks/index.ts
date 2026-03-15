@@ -1,7 +1,7 @@
 export { useCreateRating } from './useCreateRating';
 export type { CreateRatingParams } from './useCreateRating';
 export { useDeleteRating } from './useDeleteRating';
-export { useRatingForMembership } from './useRatingForMembership';
+export { useRatingForStructureAndProfessional } from './useRatingForStructureAndProfessional';
 export { useRatingsForProfessional } from './useRatingsForProfessional';
 export { useRatingsForStructure } from './useRatingsForStructure';
 

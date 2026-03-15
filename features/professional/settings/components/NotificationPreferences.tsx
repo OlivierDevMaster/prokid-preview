@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,12 +19,18 @@ interface NotificationPreference {
   label: string;
 }
 
-export function NotificationPreferences() {
+type NotificationPreferencesProps = {
+  minimalDialog?: boolean;
+};
+
+export function NotificationPreferences({
+  minimalDialog = false,
+}: NotificationPreferencesProps) {
   const t = useTranslations('common');
   const tAdmin = useTranslations('admin');
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(minimalDialog);
   const [localPreferences, setLocalPreferences] = useState<{
     appointment_reminders: boolean;
     email_notifications: boolean;
@@ -38,9 +44,32 @@ export function NotificationPreferences() {
   } = useProfessionalNotificationPreferences(userId);
   const updateMutation = useUpdateProfessionalNotificationPreferences(userId);
 
+  const defaultPrefs = useMemo(
+    () => ({
+      appointment_reminders: preferences?.appointment_reminders ?? true,
+      email_notifications: preferences?.email_notifications ?? true,
+      newsletter: preferences?.newsletter ?? false,
+    }),
+    [preferences]
+  );
+
+  useLayoutEffect(() => {
+    if (!minimalDialog || !preferences) {
+      return;
+    }
+    setLocalPreferences({
+      appointment_reminders: preferences.appointment_reminders ?? true,
+      email_notifications: preferences.email_notifications ?? true,
+      newsletter: preferences.newsletter ?? false,
+    });
+    setIsEditing(true);
+  }, [minimalDialog, preferences]);
+
   const preferenceItems: NotificationPreference[] = useMemo(() => {
     const currentPrefs =
-      isEditing && localPreferences ? localPreferences : preferences;
+      (minimalDialog || isEditing) && localPreferences
+        ? localPreferences
+        : preferences;
     return [
       {
         checked: currentPrefs?.email_notifications ?? true,
@@ -61,7 +90,7 @@ export function NotificationPreferences() {
         label: tAdmin('setting.notificationPreferences.newsletter'),
       },
     ];
-  }, [preferences, localPreferences, isEditing, tAdmin]);
+  }, [preferences, localPreferences, isEditing, minimalDialog, tAdmin]);
 
   const handleEditClick = () => {
     if (preferences) {
@@ -81,37 +110,70 @@ export function NotificationPreferences() {
   };
 
   const handleCancel = () => {
+    if (minimalDialog) {
+      setLocalPreferences({ ...defaultPrefs });
+      return;
+    }
     setLocalPreferences(null);
     setIsEditing(false);
   };
 
   const handleSave = async () => {
-    if (!localPreferences) return;
+    if (!localPreferences) {
+      return;
+    }
 
     try {
       await updateMutation.mutateAsync(localPreferences);
-      setIsEditing(false);
-      setLocalPreferences(null);
-    } catch (error) {
-      console.error('Error updating preferences:', error);
+      if (!minimalDialog) {
+        setIsEditing(false);
+        setLocalPreferences(null);
+      }
+    } catch (err) {
+      console.error('Error updating preferences:', err);
     }
   };
 
   const handleToggle = (field: NotificationPreference['field']) => {
-    if (!isEditing || !localPreferences) return;
-
+    const editing = minimalDialog || isEditing;
+    if (!editing) {
+      return;
+    }
+    const base =
+      localPreferences ??
+      (preferences
+        ? {
+            appointment_reminders: preferences.appointment_reminders ?? true,
+            email_notifications: preferences.email_notifications ?? true,
+            newsletter: preferences.newsletter ?? false,
+          }
+        : {
+            appointment_reminders: true,
+            email_notifications: true,
+            newsletter: false,
+          });
     setLocalPreferences({
-      ...localPreferences,
-      [field]: !localPreferences[field],
+      ...base,
+      [field]: !base[field],
     });
+    if (!isEditing) {
+      setIsEditing(true);
+    }
   };
+
+  const canEdit = minimalDialog || isEditing;
+  const showActions = minimalDialog
+    ? Boolean(localPreferences ?? preferences)
+    : isEditing;
 
   if (isLoading) {
     return (
       <div className='space-y-4'>
-        <h2 className='text-lg font-bold text-blue-900'>
-          {tAdmin('setting.notificationPreferences.title')}
-        </h2>
+        {!minimalDialog && (
+          <h2 className='text-lg font-bold text-blue-900'>
+            {tAdmin('setting.notificationPreferences.title')}
+          </h2>
+        )}
         <div className='text-sm text-gray-600'>{t('messages.loading')}</div>
       </div>
     );
@@ -120,9 +182,11 @@ export function NotificationPreferences() {
   if (error) {
     return (
       <div className='space-y-4'>
-        <h2 className='text-lg font-bold text-blue-900'>
-          {tAdmin('setting.notificationPreferences.title')}
-        </h2>
+        {!minimalDialog && (
+          <h2 className='text-lg font-bold text-blue-900'>
+            {tAdmin('setting.notificationPreferences.title')}
+          </h2>
+        )}
         <div className='text-sm text-red-600'>
           Error loading preferences. Please try again.
         </div>
@@ -132,16 +196,18 @@ export function NotificationPreferences() {
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-lg font-bold text-blue-900'>
-          {tAdmin('setting.notificationPreferences.title')}
-        </h2>
-        {!isEditing && (
-          <Button onClick={handleEditClick} size='sm' variant='outline'>
-            {t('actions.edit')}
-          </Button>
-        )}
-      </div>
+      {!minimalDialog && (
+        <div className='flex items-center justify-between'>
+          <h2 className='text-lg font-bold text-blue-900'>
+            {tAdmin('setting.notificationPreferences.title')}
+          </h2>
+          {!isEditing && (
+            <Button onClick={handleEditClick} size='sm' variant='outline'>
+              {t('actions.edit')}
+            </Button>
+          )}
+        </div>
+      )}
 
       <div className='space-y-4'>
         {preferenceItems.map(preference => (
@@ -149,7 +215,9 @@ export function NotificationPreferences() {
             <Checkbox
               checked={preference.checked}
               className='mt-1'
-              disabled={!isEditing || updateMutation.isPending}
+              disabled={
+                (!canEdit && !minimalDialog) || updateMutation.isPending
+              }
               id={preference.id}
               onCheckedChange={() => handleToggle(preference.field)}
             />
@@ -163,14 +231,14 @@ export function NotificationPreferences() {
         ))}
       </div>
 
-      {isEditing && (
+      {showActions && (
         <div className='flex justify-end gap-2'>
           <Button onClick={handleCancel} size='sm' variant='outline'>
             {t('actions.cancel')}
           </Button>
           <Button
             className='bg-blue-500 text-white hover:bg-blue-600'
-            disabled={updateMutation.isPending}
+            disabled={updateMutation.isPending || !localPreferences}
             onClick={handleSave}
             size='sm'
           >

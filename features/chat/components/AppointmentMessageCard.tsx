@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar, Check, Link2, Pencil, Trash2, X } from 'lucide-react';
+import { ArrowUpRight, Calendar, Check, Pencil, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
@@ -60,9 +60,9 @@ export function AppointmentMessageCard({
   if (isPro) {
     return (
       <div className='min-w-[300px] max-w-[85%]'>
-        <div className='rounded-lg border border-blue-200 bg-white p-3 shadow-sm'>
+        <div className='rounded-2xl border border-blue-200 bg-white p-3 shadow-sm'>
           <h3 className='flex items-center gap-2 text-sm font-semibold text-foreground'>
-            <span className='flex size-10 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-600'>
+            <span className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600'>
               <Calendar className='size-5' />
             </span>
             <div className='flex w-full flex-col gap-1'>
@@ -106,55 +106,51 @@ export function AppointmentMessageCard({
   }
 
   return (
-    <div className='max-w-[85%] rounded-lg border border-blue-200 bg-white p-4 shadow-sm'>
-      <div className='flex items-start gap-3'>
-        <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded bg-sky-100 text-sky-600'>
-          <Calendar className='h-5 w-5' />
-        </div>
-        <div className='min-w-0 flex-1'>
-          <p className='text-sm font-medium text-foreground'>
-            {t('appointmentProposalTitle')}
-          </p>
-          <p className='mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground'>
-            {t('appointmentLinkLabel')}
-          </p>
-          <div className='mt-1 flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2'>
-            <Link2 className='h-4 w-4 shrink-0 text-muted-foreground' />
-            <span className='truncate text-sm text-muted-foreground'>
-              {message.content}
+    <div className='min-w-[300px] max-w-[85%]'>
+      <div className='rounded-2xl border border-blue-200 bg-white p-3 shadow-sm'>
+        <div className='flex items-start gap-3'>
+          <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600'>
+            <Calendar className='size-5' />
+          </div>
+          <div className='flex w-full flex-col gap-1'>
+            <span className='text-sm font-semibold text-foreground'>
+              {t('appointmentProposalTitle')}
+            </span>
+            <span className={`mt-1 inline-flex w-fit ${statusBadgeClass}`}>
+              {statusLabel}
             </span>
           </div>
-
-          {showStructureActions ? (
-            <div className='mt-3 flex gap-2'>
-              <Button onClick={onConfirm} size='sm'>
-                <Check className='mr-1.5 h-4 w-4' />
-                {t('appointmentConfirm')}
-              </Button>
-              <Button
-                className='border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800'
-                onClick={onRefuse}
-                size='sm'
-                variant='outline'
-              >
-                <X className='mr-1.5 h-4 w-4' />
-                {t('appointmentRefuse')}
-              </Button>
-            </div>
-          ) : (
-            <p className='mt-2'>
-              <span className={statusBadgeClass}>{statusLabel}</span>
-            </p>
-          )}
-
-          <p className='mt-3 text-xs text-muted-foreground'>
-            {t('sentOn', {
-              date: sentAt,
-              time: sentTime,
-            })}
-          </p>
         </div>
       </div>
+
+      {status === 'confirmed' && (
+        <div className='flex justify-end gap-2 pt-2'>
+          <Button asChild className='h-8 px-3 text-xs' size='sm'>
+            <a href={message.content} rel='noreferrer' target='_blank'>
+              {t('appointmentOpenLink')}
+
+              <ArrowUpRight className='size-10!' />
+            </a>
+          </Button>
+        </div>
+      )}
+      {showStructureActions && status === 'pending' && (
+        <div className='flex justify-start gap-2 pt-2'>
+          <Button
+            className='border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800'
+            onClick={onRefuse}
+            size='sm'
+            variant='outline'
+          >
+            <X className='mr-1.5 h-4 w-4' />
+            {t('appointmentRefuse')}
+          </Button>
+          <Button onClick={onConfirm} size='sm'>
+            <Check className='mr-1.5 h-4 w-4' />
+            {t('appointmentConfirm')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

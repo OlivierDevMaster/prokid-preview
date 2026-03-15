@@ -1,7 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useCallback, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { ViewRole } from '../types/chat.types';
 
@@ -19,9 +20,17 @@ interface ChatViewProps {
 
 export function ChatView({ viewRole }: ChatViewProps) {
   const { data: session } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const initialConversationId = searchParams.get('conversationId');
+
   const [selectedConversationId, setSelectedConversationId] = useState<
     null | string
-  >(null);
+  >(initialConversationId);
+
+  const lastSelectedIdRef = useRef<null | string>(null);
 
   const { data: conversations = [], isLoading: isLoadingConversations } =
     useConversations();
@@ -34,12 +43,51 @@ export function ChatView({ viewRole }: ChatViewProps) {
 
   useChatRealtime(selectedConversationId);
 
-  const handleSelectConversation = useCallback((id: string) => {
-    setSelectedConversationId(id);
-  }, []);
+  useEffect(() => {
+    const urlConversationId = searchParams.get('conversationId');
+    const hasConversations = conversations.length > 0;
+
+    if (
+      lastSelectedIdRef.current !== null &&
+      selectedConversationId === lastSelectedIdRef.current
+    ) {
+      if (urlConversationId === lastSelectedIdRef.current) {
+        lastSelectedIdRef.current = null;
+      }
+      return;
+    }
+
+    if (urlConversationId && urlConversationId !== selectedConversationId) {
+      setSelectedConversationId(urlConversationId);
+      return;
+    }
+
+    if (!urlConversationId && !selectedConversationId && hasConversations) {
+      const firstConversationId = conversations[0]?.id ?? null;
+      if (!firstConversationId) return;
+
+      setSelectedConversationId(firstConversationId);
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('conversationId', firstConversationId);
+      router.replace(`${pathname}?${params.toString()}`);
+    }
+  }, [conversations, pathname, router, searchParams, selectedConversationId]);
+
+  const handleSelectConversation = useCallback(
+    (id: string) => {
+      lastSelectedIdRef.current = id;
+      setSelectedConversationId(id);
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('conversationId', id);
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams]
+  );
 
   return (
-    <div className='flex-1 flex h-full w-full'>
+    <div className='flex h-full w-full flex-1'>
       <div className='w-80 flex-shrink-0'>
         <ConversationList
           conversations={conversations}

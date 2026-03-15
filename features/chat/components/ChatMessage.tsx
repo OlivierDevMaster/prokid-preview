@@ -9,12 +9,15 @@ import type { MessageWithSender, ViewRole } from '../types/chat.types';
 
 import { AppointmentMessageCard } from './AppointmentMessageCard';
 import { ChatMessageBubble } from './ChatMessageBubble';
+import { SystemMessageBadge } from './SystemMessageBadge';
 
 export interface ChatMessageProps {
   currentUserId: string | undefined;
   message: MessageWithSender;
   onCancel?: () => void;
   onConfirm?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
   onEditLink?: () => void;
   onRefuse?: () => void;
   viewRole: ViewRole;
@@ -25,6 +28,8 @@ export function ChatMessage({
   message,
   onCancel,
   onConfirm,
+  onDelete,
+  onEdit,
   onEditLink,
   onRefuse,
   viewRole,
@@ -36,6 +41,10 @@ export function ChatMessage({
           .filter(Boolean)
           .join(' ')
       : (message.sender?.email ?? '');
+
+  if (message.type === 'system') {
+    return <SystemMessageBadge message={message} viewRole={viewRole} />;
+  }
 
   if (message.type === 'appointment_link') {
     return (
@@ -76,6 +85,8 @@ export function ChatMessage({
     <ChatMessageBubble
       isOutgoing={isOutgoing}
       message={message}
+      onDelete={isOutgoing ? onDelete : undefined}
+      onEdit={isOutgoing ? onEdit : undefined}
       senderName={senderName}
     />
   );

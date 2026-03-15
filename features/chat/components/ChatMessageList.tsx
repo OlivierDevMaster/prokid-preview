@@ -14,7 +14,9 @@ export interface ChatMessageListProps {
   messages: MessageWithSender[];
   messagesContainerRef: RefObject<HTMLDivElement | null>;
   messagesEndRef: RefObject<HTMLDivElement | null>;
+  onDeleteMessage: (messageId: string) => void;
   onEditAppointmentLink: (messageId: string, content: string) => void;
+  onStartEditMessage: (messageId: string, content: string) => void;
   onUpdateAppointmentStatus: (
     messageId: string,
     status: 'cancelled' | 'confirmed' | 'rejected'
@@ -28,7 +30,9 @@ export function ChatMessageList({
   messages,
   messagesContainerRef,
   messagesEndRef,
+  onDeleteMessage,
   onEditAppointmentLink,
+  onStartEditMessage,
   onUpdateAppointmentStatus,
   viewRole,
 }: ChatMessageListProps) {
@@ -89,6 +93,8 @@ export function ChatMessageList({
                       ? () => onUpdateAppointmentStatus(msg.id, 'confirmed')
                       : undefined
                   }
+                  onDelete={() => onDeleteMessage(msg.id)}
+                  onEdit={() => onStartEditMessage(msg.id, msg.content)}
                   onEditLink={
                     viewRole === 'professional' && msg.status === 'pending'
                       ? () => onEditAppointmentLink(msg.id, msg.content)

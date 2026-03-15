@@ -4,6 +4,7 @@ import { SupabaseClient, User } from '@supabase/supabase-js';
 import { Mission } from '../../_shared/features/missions/index.ts';
 import { apiResponse } from '../../_shared/utils/responses.ts';
 import { Database } from '../../../../types/database/schema.ts';
+import { createMissionSystemMessage } from '../utils/createMissionSystemMessage.ts';
 
 type Variables = {
   supabaseAdminClient: SupabaseClient<Database>;
@@ -89,10 +90,17 @@ export const declineMissionHandler = factory.createHandlers(
           .select('*')
           .single();
 
-      if (updateError) {
+      if (updateError || !updatedMission) {
         console.error('Error updating mission:', updateError);
         return apiResponse.internalServerError('Failed to decline mission');
       }
+
+      await createMissionSystemMessage({
+        actor: 'professional',
+        mission: updatedMission,
+        status: 'declined',
+        supabaseAdminClient,
+      });
 
       return apiResponse.ok(updatedMission as Mission);
     } catch (error) {

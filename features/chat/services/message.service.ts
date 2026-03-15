@@ -17,6 +17,19 @@ const MESSAGES_SELECT = `
   sender:profiles(user_id, first_name, last_name, avatar_url, email)
 `;
 
+export async function deleteMessage(messageId: string): Promise<void> {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('messages')
+    .delete()
+    .eq('id', messageId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function getMessages(
   conversationId: string,
   options: GetMessagesOptions = {}
@@ -51,7 +64,7 @@ export async function sendMessage(
   params: SendMessageParams
 ): Promise<MessageWithSender> {
   const supabase = createClient();
-  const type = params.type ?? 'text';
+  const type = params.type === 'system' ? 'text' : (params.type ?? 'text');
   const payload: {
     content: string;
     conversation_id: string;
@@ -88,11 +101,6 @@ export async function updateMessageContent(
   content: string
 ): Promise<MessageWithSender> {
   const supabase = createClient();
-
-  const message = await supabase.from('messages').select(MESSAGES_SELECT).eq('id', messageId).maybeSingle();
-
-  console.log('message', message.data);
-  console.log('error', message.error);
 
   const { data, error } = await supabase
     .from('messages')

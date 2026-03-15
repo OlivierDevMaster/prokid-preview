@@ -5,9 +5,8 @@ import { fr } from 'date-fns/locale';
 import { ChevronRight, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
-
 import type { StructureMission } from '@/features/structure/missions/modeles/mission.modele';
-import { extractInitials } from '@/shared/utils/extract-initials';
+
 import {
   getMissionStatusConfig,
   type MissionStatus,
@@ -17,6 +16,7 @@ import {
   AVATAR_COLOR_VARIANTS,
   getAvatarColorVariantIndex,
 } from '@/shared/utils/avatar-colors';
+import { extractInitials } from '@/shared/utils/extract-initials';
 
 interface StructureMissionCardProps {
   mission: StructureMission;
@@ -41,7 +41,7 @@ export function StructureMissionCard({
       t('unknownProfessional')
     : t('unknownProfessional');
 
-  const initials = extractInitials( mission.title);
+  const initials = extractInitials(mission.title);
 
   const period =
     mission.mission_dtstart && mission.mission_until
@@ -59,7 +59,7 @@ export function StructureMissionCard({
 
   return (
     <button
-      className='flex w-full items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 text-left transition-colors hover:bg-blue-50/60'
+      className='flex w-full items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md'
       onClick={() => onClick?.(mission.id)}
       type='button'
     >
@@ -67,7 +67,7 @@ export function StructureMissionCard({
       <div
         className={cn(
           'relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full',
-           avatarColors.bg
+          avatarColors.bg
         )}
       >
         <span className={cn('text-sm font-semibold', avatarColors.text)}>
@@ -122,5 +122,3 @@ export function StructureMissionCard({
     </button>
   );
 }
-
-

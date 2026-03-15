@@ -21,6 +21,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       label: tProfessional('navigation.dashboard'),
     },
     {
+      href: '/professional/chat',
+      icon: MessageCircle,
+      label: tChat('chat'),
+    },
+    {
       href: '/professional/missions',
       icon: Target,
       label: tProfessional('navigation.missions'),
@@ -30,19 +35,9 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       icon: ClipboardMinus,
       label: tProfessional('navigation.reports'),
     },
+
     {
-      badgeCount: 1,
-      href: '/professional/invitations',
-      icon: Mail,
-      label: tProfessional('navigation.messaging'),
-    },
-    {
-      href: '/professional/chat',
-      icon: MessageCircle,
-      label: tChat('chat'),
-    },
-    {
-      href: '/professional/setting',
+      href: '/professional/settings',
       icon: User,
       label: tProfessional('navigation.profile'),
     },

@@ -59,7 +59,6 @@ describe('Professional Ratings RLS - SELECT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -94,7 +93,6 @@ describe('Professional Ratings RLS - SELECT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -131,7 +129,6 @@ describe('Professional Ratings RLS - SELECT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -168,7 +165,6 @@ describe('Professional Ratings RLS - SELECT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,
@@ -206,7 +202,6 @@ describe('Professional Ratings RLS - SELECT', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: membershipId,
         professional_id: professional.professionalId!,
         rating: 4.5,
         structure_id: structure.structureId!,

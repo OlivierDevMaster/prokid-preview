@@ -17,45 +17,50 @@ export function ProfessionalReportCard({
   report,
 }: ProfessionalReportCardProps) {
   const formattedDate = report.created_at
-    ? format(new Date(report.created_at), 'd MMM', { locale: fr })
+    ? format(new Date(report.created_at), "'Soumis le' d MMMM", {
+        locale: fr,
+      })
     : '';
 
   const isDraft = report.status === 'draft';
+  const missionShortId = report.mission_id
+    ? report.mission_id.slice(0, 8).toUpperCase()
+    : '';
 
   return (
-    <Link
-      className='flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50'
-      href={`/professional/reports/${report.id}`}
-    >
-      {/* Icon */}
-      <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100'>
-        <FileText className='h-6 w-6 text-green-600' />
-      </div>
-
-      {/* Report details */}
-      <div className='flex flex-1 flex-col gap-1'>
-        <h3 className='font-bold text-gray-900'>{report.title}</h3>
-        <p className='text-sm text-gray-600'>{formattedDate}</p>
-      </div>
-
-      {/* Status badge */}
-      <div
-        className={cn(
-          'flex items-center gap-1.5 rounded-lg px-3 py-1.5',
-          isDraft
-            ? 'border border-green-200 bg-green-50'
-            : 'border border-blue-200 bg-blue-50'
-        )}
-      >
+    <div className='p-4 transition-colors hover:bg-slate-50'>
+      <div className='mb-2 flex items-start justify-between'>
+        <span className='text-xs font-bold uppercase tracking-wide text-slate-400'>
+          {missionShortId ? `Mission #${missionShortId}` : ''}
+        </span>
         <span
           className={cn(
-            'text-xs font-medium',
-            isDraft ? 'text-green-700' : 'text-blue-700'
+            'rounded-full px-2 py-0.5 text-[10px] font-bold',
+            isDraft
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-green-100 text-green-700'
           )}
         >
-          {isDraft ? 'Rédigé' : 'Envoyé'}
+          {isDraft ? 'ATTENDU' : 'REÇU'}
         </span>
       </div>
-    </Link>
+      <h3 className='mb-1 text-sm font-bold text-slate-900'>{report.title}</h3>
+      <p className='mb-3 text-xs text-slate-500'>{formattedDate}</p>
+      {isDraft ? (
+        <span className='inline-block w-full rounded-lg bg-slate-100 py-2 text-center text-xs font-bold text-slate-400'>
+          Non disponible
+        </span>
+      ) : (
+        <Link
+          className='inline-block w-full rounded-lg border border-slate-200 py-2 text-center text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50'
+          href={`/professional/reports/${report.id}`}
+        >
+          <span className='flex items-center justify-center gap-1'>
+            <FileText className='h-3.5 w-3.5' />
+            Télécharger PDF
+          </span>
+        </Link>
+      )}
+    </div>
   );
 }
