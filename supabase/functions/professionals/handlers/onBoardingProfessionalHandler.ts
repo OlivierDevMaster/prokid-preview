@@ -3,7 +3,7 @@ import { SupabaseClient, User } from '@supabase/supabase-js';
 
 import { findProfessional } from '../../_shared/features/professionals/index.ts';
 import { ProfessionalOnboardingRequestBodySchema } from '../../_shared/features/professionals/professional.schemas.ts';
-import { createProfessional } from '../../_shared/features/professionals/professional.service.ts';
+import { updateProfessional } from '../../_shared/features/professionals/professional.service.ts';
 import { isProfileProfessional } from '../../_shared/features/profiles/index.ts';
 import {
   findProfile,
@@ -42,8 +42,12 @@ export const onBoardingProfessionalHandler = factory.createHandlers(
 
       const professional = await findProfessional(supabaseClient, user.id);
 
-      // Check if professional exists, it means he is already onboarded
-      if (professional) {
+      // Ensure a professional placeholder exists, and prevent re-onboarding
+      if (!professional) {
+        return apiResponse.unauthorized();
+      }
+
+      if (profile.is_onboarded) {
         return apiResponse.unauthorized();
       }
 
@@ -60,18 +64,21 @@ export const onBoardingProfessionalHandler = factory.createHandlers(
         is_onboarded: true,
       });
 
-      const updatedProfessional = await createProfessional(supabaseClient, {
-        city: validationResult.data.city,
-        current_job: validationResult.data.currentJob,
-        description: validationResult.data.description,
-        experience_years: validationResult.data.experienceYears,
-        hourly_rate: validationResult.data.hourlyRate,
-        intervention_radius_km: validationResult.data.interventionRadiusKm,
-        phone: validationResult.data.phone,
-        postal_code: validationResult.data.postalCode,
-        skills: validationResult.data.skills,
-        user_id: user.id,
-      });
+      const updatedProfessional = await updateProfessional(
+        supabaseClient,
+        user.id,
+        {
+          city: validationResult.data.city,
+          current_job: validationResult.data.currentJob,
+          description: validationResult.data.description,
+          experience_years: validationResult.data.experienceYears,
+          hourly_rate: validationResult.data.hourlyRate,
+          intervention_radius_km: validationResult.data.interventionRadiusKm,
+          phone: validationResult.data.phone,
+          postal_code: validationResult.data.postalCode,
+          skills: validationResult.data.skills,
+        }
+      );
 
       return apiResponse.ok(updatedProfessional);
     } catch (error) {

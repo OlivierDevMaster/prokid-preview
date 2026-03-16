@@ -28,7 +28,7 @@ export async function authenticateUser(req: HonoRequest): Promise<AuthResult> {
 export async function getUserAndClient(token: string): Promise<AuthResult> {
   const supabaseClient = createClient<Database>(
     Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    Deno.env.get('SB_PUBLISHABLE_KEY') ?? '',
     {
       global: {
         headers: { Authorization: `Bearer ${token}` },

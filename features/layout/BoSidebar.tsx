@@ -15,6 +15,7 @@ import { useRole } from '@/hooks/useRole';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from '@/modeles/navigation.modele';
+import { LogOutIcon } from 'lucide-react';
 
 type BoSidebarProps = {
   navItems: SidebarNavItem[];
@@ -143,8 +144,9 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='w-56'>
-            <DropdownMenuItem className='text-red-600' onClick={handleSignOut}>
+          <DropdownMenuContent align='start' alignOffset={10}>
+            <DropdownMenuItem variant='destructive' onClick={handleSignOut}>
+              <LogOutIcon className='text-destructive' />
               {tAdmin('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
