@@ -105,6 +105,7 @@ export const createMissionsHandler = factory.createHandlers(
         description: body.description,
         mission_dtstart: missionDtstart.toISOString(),
         mission_until: missionUntil.toISOString(),
+        modality: body.modality,
         professional_id,
         status: body.status || 'pending',
         structure_id: body.structure_id,

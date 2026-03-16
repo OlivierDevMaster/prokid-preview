@@ -43,7 +43,7 @@ export function Step2IdentityInfo({
 
   return (
     <div className='space-y-6'>
-      <ProgressBar currentStep={2} totalSteps={4} />
+      <ProgressBar currentStep={2} totalSteps={3} />
 
       <div className='space-y-2 text-center'>
         <h1 className='text-3xl font-bold text-gray-900'>

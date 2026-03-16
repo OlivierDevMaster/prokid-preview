@@ -94,7 +94,7 @@ export function LoginForm({
       if (role === 'professional') {
         // Check if onboarding is complete
         if (!isOnboarded) {
-          router.push('/auth/sign-up/professional/on-boarding');
+          router.push('/professional/on-boarding');
           return;
         }
         router.push('/professionals');

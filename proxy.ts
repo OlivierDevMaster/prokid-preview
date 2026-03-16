@@ -81,7 +81,7 @@ export async function proxy(request: NextRequest) {
         // Get user profile role from Supabase
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, is_onboarded')
           .eq('user_id', token.id as string)
           .maybeSingle();
 
@@ -309,12 +309,19 @@ export async function proxy(request: NextRequest) {
     }
 
     // Additional check: if accessing professional routes, verify subscription
-    // Skip subscription check for subscription-related pages to avoid redirect loops
+    // Skip subscription check for subscription and onboarding pages to avoid redirect loops
     const isSubscriptionPage = pathWithoutLocale.startsWith(
       '/professional/subscription'
     );
+    const isOnboardingPage = pathWithoutLocale.startsWith(
+      '/professional/on-boarding'
+    );
 
-    if (requiredRole === 'professional' && !isSubscriptionPage) {
+    if (
+      requiredRole === 'professional' &&
+      !isSubscriptionPage &&
+      !isOnboardingPage
+    ) {
       // Use service role client to bypass RLS (NextAuth has already verified identity)
       const subscriptionClient = supabaseServiceRole || supabase;
       const { data: isSubscribed, error: subscriptionError } =

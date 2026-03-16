@@ -117,6 +117,14 @@ export const updateMissionHandler = factory.createHandlers(
         missionUpdateData.status = body.status;
       }
 
+      if (body.address !== undefined) {
+        missionUpdateData.address = body.address;
+      }
+
+      if (body.modality !== undefined) {
+        missionUpdateData.modality = body.modality;
+      }
+
       // Parse and validate mission dates if provided
       let missionDtstart = existingMission.mission_dtstart
         ? new Date(existingMission.mission_dtstart)

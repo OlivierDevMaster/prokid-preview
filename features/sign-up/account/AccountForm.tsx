@@ -69,7 +69,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
 
       // If email is already verified (shouldn't happen with enable_confirmations = true, but handle it)
       if (role === 'professional') {
-        router.push('/auth/sign-up/professional/on-boarding');
+        router.push('/professional/on-boarding');
       } else if (role === 'structure') {
         router.push('/auth/login');
       }
