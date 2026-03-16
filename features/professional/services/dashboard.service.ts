@@ -187,14 +187,20 @@ export async function getProfessionalStructuresCount(
 ): Promise<number> {
   const supabase = createClient();
 
-  const { count, error } = await supabase
-    .from('structure_members')
-    .select('*', { count: 'exact', head: true })
+  const { data, error } = await supabase
+    .from('missions')
+    .select('structure_id')
     .eq('professional_id', professionalId);
 
   if (error) throw error;
 
-  return count ?? 0;
+  const uniqueStructureIds = new Set(
+    (data ?? [])
+      .map(mission => mission.structure_id as null | string)
+      .filter((id): id is string => !!id)
+  );
+
+  return uniqueStructureIds.size;
 }
 
 export async function getProfessionalUpcomingMissionsCount(

@@ -25,15 +25,10 @@ comment on column "public"."conversations"."mission_id" is 'Optional reference t
 comment on column "public"."conversations"."last_message_at" is 'Timestamp of the last message in this conversation';
 comment on column "public"."conversations"."last_message_preview" is 'Short preview of the last message for list display';
 
--- Unique: one general conversation per (structure, professional) when mission_id is null
-create unique index "idx_conversations_unique_pair_no_mission"
-  on "public"."conversations" ("structure_id", "professional_id")
-  where "mission_id" is null;
+-- Unique: one general conversation per (structure, professional)
+create unique index "idx_conversations_unique_pair"
+  on "public"."conversations" ("structure_id", "professional_id");
 
--- Unique: one conversation per (structure, professional, mission) when mission_id is set
-create unique index "idx_conversations_unique_pair_mission"
-  on "public"."conversations" ("structure_id", "professional_id", "mission_id")
-  where "mission_id" is not null;
 
 create index if not exists "idx_conversations_structure_id" on "public"."conversations" ("structure_id");
 create index if not exists "idx_conversations_professional_id" on "public"."conversations" ("professional_id");

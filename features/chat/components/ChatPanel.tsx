@@ -8,6 +8,7 @@ import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRat
 import { useDeleteRating } from '@/features/structure/ratings/hooks/useDeleteRating';
 import { useRatingForStructureAndProfessional } from '@/features/structure/ratings/hooks/useRatingForStructureAndProfessional';
 import { useUpdateRating } from '@/features/structure/ratings/hooks/useUpdateRating';
+import { useRouter } from '@/i18n/routing';
 
 import type {
   ConversationWithDetails,
@@ -69,9 +70,17 @@ export function ChatPanel({
     conversation?.id ?? null
   );
 
+  const router = useRouter();
   const structureId = conversation?.structure_id;
   const professionalId = conversation?.professional_id;
   const createRating = useCreateRating();
+
+  const handleWriteReport = useCallback(() => {
+    const missionId = conversation?.mission?.id;
+    const query = missionId ? `?mission=${missionId}` : '';
+    router.push(`/professional/reports/new${query}`);
+  }, [conversation?.mission?.id, router]);
+
   const updateRating = useUpdateRating();
   const deleteRating = useDeleteRating();
   const { data: existingRating } = useRatingForStructureAndProfessional(
@@ -305,6 +314,7 @@ export function ChatPanel({
         onProposeAppointment={() => setProposeAppointmentOpen(true)}
         onSend={handleSendText}
         onUpdateMessage={handleUpdateMessageContent}
+        onWriteReport={handleWriteReport}
         scrollToEndRef={messagesEndRef}
         viewRole={viewRole}
       />

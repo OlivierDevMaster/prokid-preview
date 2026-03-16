@@ -29,11 +29,14 @@ import type { MissionRow, MissionStatus, ViewRole } from '../types/chat.types';
 import { conversationQueryKey } from '../hooks/useConversation';
 import { MissionStatusBadge } from './MissionStatusBadge';
 
-const MOCK_DESCRIPTION =
-  "Migration d'une architecture monolithique vers des microservices avec React et Node.js. Optimisation SEO et performance.";
-const MOCK_MODALITY = 'Remote';
-const MOCK_START_DATE = '2023-10-12';
-const MOCK_DURATION_MONTHS = 3;
+const MODALITY_I18N_KEYS: Record<
+  'hybrid' | 'on_site' | 'remote',
+  'modalityHybrid' | 'modalityOnSite' | 'modalityRemote'
+> = {
+  hybrid: 'modalityHybrid',
+  on_site: 'modalityOnSite',
+  remote: 'modalityRemote',
+} as const;
 
 export interface MissionCardProps {
   conversationId?: null | string;
@@ -44,6 +47,7 @@ export interface MissionCardProps {
       | 'id'
       | 'mission_dtstart'
       | 'mission_until'
+      | 'modality'
       | 'status'
       | 'title'
     >
@@ -83,12 +87,12 @@ export function MissionCard({
     declineMission.mutate(missionId, { onSuccess: invalidateConversation });
   };
 
-  const title = mission?.title ?? 'Bloc Mission: Développement Web Fullstack';
-  const description = mission?.description ?? MOCK_DESCRIPTION;
-  const startDate = mission?.mission_dtstart ?? MOCK_START_DATE;
+  const title = mission?.title ?? '';
+  const description = mission?.description ?? '';
+  const startDate = mission?.mission_dtstart;
   const startDateFormatted = (() => {
-    const d = parseDate(startDate);
-    return d ? format(d, 'd MMM. yyyy', { locale: fr }) : '12 Oct. 2023';
+    const d = parseDate(startDate ?? null);
+    return d ? format(d, 'd MMM. yyyy', { locale: fr }) : '—';
   })();
 
   const durationStr = (() => {
@@ -100,10 +104,11 @@ export function MissionCard({
       const weeks = differenceInWeeks(until, start);
       return t('durationWeeks', { count: weeks });
     }
-    return t('durationMonths', { count: MOCK_DURATION_MONTHS });
+    return '—';
   })();
 
-  const modality = MOCK_MODALITY;
+  const modality =
+    mission?.modality != null ? t(MODALITY_I18N_KEYS[mission.modality]) : '—';
 
   return (
     <Card className='rounded-xl border bg-white px-4 py-3 shadow-sm'>
@@ -139,9 +144,11 @@ export function MissionCard({
       </CardHeader>
       {!isCollapsed && (
         <CardContent className='space-y-2 px-0 pb-2 pt-0'>
-          <p className='text-xs leading-snug text-muted-foreground'>
-            {description}
-          </p>
+          {description ? (
+            <p className='text-xs leading-snug text-muted-foreground'>
+              {description}
+            </p>
+          ) : null}
           <div className='flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-gray-100 pt-1.5 text-muted-foreground'>
             <span className='flex items-center gap-1.5'>
               <Timer className='h-3.5 w-3.5 shrink-0' />

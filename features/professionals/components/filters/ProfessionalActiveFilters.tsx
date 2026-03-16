@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 
 interface ProfessionalActiveFiltersProps {
   locationQuery: string;
+  hasResults: boolean;
   onClearAll: () => void;
   onClearAvailability: () => void;
   onClearLocation: () => void;
@@ -20,6 +21,7 @@ interface ProfessionalActiveFiltersProps {
 
 export function ProfessionalActiveFilters({
   locationQuery,
+  hasResults,
   onClearAll,
   onClearAvailability,
   onClearLocation,
@@ -121,14 +123,16 @@ export function ProfessionalActiveFilters({
         </Badge>
       )}
 
-      <Button
-        className='ml-auto h-7 px-0 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline'
-        onClick={onClearAll}
-        size='sm'
-        variant='link'
-      >
-        {t('search.reset')}
-      </Button>
+      {hasResults && (
+        <Button
+          className='ml-auto h-7 px-0 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline'
+          onClick={onClearAll}
+          size='sm'
+          variant='link'
+        >
+          {t('search.reset')}
+        </Button>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -23,6 +23,7 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const hasRedirectedToOnboarding = useRef(false);
 
   // Disable body scroll on this route
   useBodyScrollLock();
@@ -66,20 +67,21 @@ export default function ProtectedLayout({
     }
 
     // Check if professional is onboarded (but allow access to onboarding page)
-    const isOnboardingPage = pathname?.includes(
-      '/auth/sign-up/professional/on-boarding'
-    );
-    if (
+    const isOnboardingPage = pathname?.includes('/professional/on-boarding');
+
+    const shouldRedirectToOnboarding =
       status === 'authenticated' &&
       !isLoadingProfile &&
       userData &&
       userData.role === 'professional' &&
       !isOnboardingPage &&
-      !userData.isOnboarded
-    ) {
-      router.push('/auth/sign-up/professional/on-boarding');
+      !userData.isOnboarded;
+
+    if (shouldRedirectToOnboarding && !hasRedirectedToOnboarding.current) {
+      hasRedirectedToOnboarding.current = true;
+      router.replace('/professional/on-boarding');
     }
-  }, [status, userData, isLoadingProfile, router, pathname]);
+  }, [status, userData, isLoadingProfile, pathname, router]);
 
   if (status === 'loading' || isLoadingProfile) {
     return (
@@ -100,6 +102,12 @@ export default function ProtectedLayout({
         <main className='flex-1 overflow-y-auto'>{children}</main>
       </div>
     );
+  }
+
+  // Full-width onboarding (no sidebar, no logo) — fixed height so form column can scroll
+  const isOnboardingPath = pathname?.includes('/professional/on-boarding');
+  if (isOnboardingPath) {
+    return <main className='h-screen w-full overflow-hidden'>{children}</main>;
   }
 
   // If not onboarded, the useEffect will redirect, but we should still show loading

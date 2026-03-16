@@ -27,16 +27,11 @@ export const authMiddleware = createMiddleware(async (context, next) => {
       'supabaseAdminClient',
       createClient<Database>(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        Deno.env.get('SB_SECRET_KEY') ?? '',
         {
           auth: {
             autoRefreshToken: false,
             persistSession: false,
-          },
-          global: {
-            headers: {
-              Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
-            },
           },
         }
       )

@@ -7,8 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 
-import { ProgressBar } from '../ProgressBar';
-
 interface Step1ProfilePhotoProps {
   firstName?: string;
   lastName?: string;
@@ -26,8 +24,7 @@ export function Step1ProfilePhoto({
   const [preview, setPreview] = useState<null | string>(null);
   const [userEmail, setUserEmail] = useState<null | string>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const t = useTranslations('professional.label');
-  const tSignUp = useTranslations('auth.signUp');
+  const t = useTranslations('auth.signUp.professionalForm');
   const tCommon = useTranslations('common.label');
 
   useEffect(() => {
@@ -47,27 +44,12 @@ export function Step1ProfilePhoto({
   }, []);
 
   const getInitials = (): string => {
-    // If firstName and lastName are available, use them
     if (firstName && lastName) {
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     }
-
-    // If only firstName is available, use first letter
-    if (firstName) {
-      return firstName.charAt(0).toUpperCase();
-    }
-
-    // If only lastName is available, use first letter
-    if (lastName) {
-      return lastName.charAt(0).toUpperCase();
-    }
-
-    // Otherwise, use email
-    if (userEmail) {
-      return userEmail.charAt(0).toUpperCase();
-    }
-
-    // Fallback
+    if (firstName) return firstName.charAt(0).toUpperCase();
+    if (lastName) return lastName.charAt(0).toUpperCase();
+    if (userEmail) return userEmail.charAt(0).toUpperCase();
     return '?';
   };
 
@@ -76,36 +58,31 @@ export function Step1ProfilePhoto({
     if (file) {
       onPhotoChange(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
+      reader.onloadend = () => setPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleUseDefault = () => {
+  const handleSkip = () => {
     onPhotoChange(null);
     setPreview(null);
+    onNext();
   };
 
-  const handleCameraClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleCameraClick = () => fileInputRef.current?.click();
 
   return (
-    <div className='w-full max-w-3xl space-y-6'>
-      <ProgressBar currentStep={1} totalSteps={4} />
-
-      <div className='space-y-2 text-center'>
-        <h1 className='text-3xl font-bold text-gray-900'>
-          {t('profilePhoto')}
+    <div className='w-full space-y-6'>
+      <div className='space-y-2'>
+        <h1 className='text-[32px] font-bold tracking-tight text-gray-900'>
+          {t('welcomeTitle')}
         </h1>
-        <p className='text-gray-600'>{t('profilePhotoPlaceholder')}</p>
+        <p className='text-base text-gray-600'>{t('clientsTrustPhotos')}</p>
       </div>
 
-      <div className='flex justify-center'>
-        <div className='relative'>
-          <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-white'>
+      <div className='flex'>
+        <div className='group relative'>
+          <div className='relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-gray-100 ring-2 ring-gray-200'>
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -114,51 +91,49 @@ export function Step1ProfilePhoto({
                 src={preview}
               />
             ) : (
-              <span className='p-8 text-4xl font-semibold text-gray-500'>
+              <span className='text-4xl font-semibold text-gray-400'>
                 {getInitials()}
               </span>
             )}
           </div>
           <Button
-            className='absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 p-4 hover:bg-blue-500'
+            className='absolute bottom-0 right-0 h-10 w-10 rounded-full bg-blue-600 p-0 hover:bg-blue-700'
             onClick={handleCameraClick}
-            style={{ bottom: 0, position: 'absolute', right: 0 }}
-            variant='ghost'
+            type='button'
           >
-            <Camera className='text-white' />
+            <Camera className='h-5 w-5 text-white' />
           </Button>
           <input
             accept='image/*'
             className='hidden'
             onChange={handleFileChange}
             ref={fileInputRef}
-            style={{ display: 'none' }}
             type='file'
           />
         </div>
       </div>
 
-      <div className='space-y-4 text-center'>
-        <p className='text-sm text-gray-500'>
-          {tSignUp('professionalForm.recommendedFormat')}
-        </p>
+      <div className='flex flex-col items-start gap-3'>
         <Button
-          className='border-gray-300 text-gray-600 hover:bg-gray-50'
-          onClick={handleUseDefault}
+          className='min-h-12 border-gray-300 text-gray-700 hover:bg-gray-50'
+          onClick={handleCameraClick}
           type='button'
           variant='outline'
         >
-          {tSignUp('professionalForm.defaultProfilePicture')}
+          {t('uploadPhoto')}
         </Button>
       </div>
 
-      <div className='flex justify-end pt-4'>
+      <div className='flex justify-end gap-4 pt-4'>
+        <Button variant='outline' onClick={handleSkip} className='min-h-12'>
+          {t('skipForNow')}
+        </Button>
         <Button
-          className='bg-blue-500 text-white hover:bg-blue-600'
+          className='min-h-12 bg-blue-600 px-8 text-white hover:bg-blue-700'
           onClick={onNext}
           type='button'
         >
-          {tCommon('next')} →
+          {tCommon('next')}
         </Button>
       </div>
     </div>

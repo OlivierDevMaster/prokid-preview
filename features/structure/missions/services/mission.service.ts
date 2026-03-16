@@ -1,4 +1,4 @@
-import type { Mission, MissionFilters } from '@/features/missions/mission.model';
+import type { MissionFilters } from '@/features/missions/mission.model';
 
 import { updateMission } from '@/features/missions/mission.service';
 import {
@@ -8,8 +8,6 @@ import {
 import { createClient } from '@/lib/supabase/client';
 
 import type { StructureMission } from '../modeles/mission.modele';
-
-import type { CreateMissionRequestBody } from '@/features/missions/mission.model';
 
 export const getStructureMissions = async (
   structureId: string,
@@ -82,7 +80,6 @@ export const getStructureMission = async (
 };
 
 import type { UpdateMissionRequestBody } from '@/features/missions/mission.service';
-import { invokeEdgeFunction } from '@/lib/supabase/edge-functions';
 
 export const updateStructureMission = async (
   missionId: string,
@@ -101,5 +98,3 @@ export const deleteStructureMission = async (missionId: string) => {
 
   if (error) throw error;
 };
-
-

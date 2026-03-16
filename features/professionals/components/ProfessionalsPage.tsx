@@ -41,6 +41,7 @@ export default function ProfessionalsPage() {
   const totalCount = data?.count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   const resultsCount = totalCount;
+  const hasResults = totalCount > 0;
 
   return (
     <main className='min-h-screen bg-[#f5f7f5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8'>
@@ -52,7 +53,11 @@ export default function ProfessionalsPage() {
           <p className='text-base text-gray-600 sm:text-lg'>{t('subtitle')}</p>
         </div>
 
-        <ProfessionalFiltersSection actions={actions} state={state} />
+        <ProfessionalFiltersSection
+          actions={actions}
+          hasResults={hasResults}
+          state={state}
+        />
 
         <div className='mb-4 sm:mb-6'>
           <p className='text-sm text-gray-700 sm:text-base'>

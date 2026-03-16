@@ -8,8 +8,7 @@ import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-import { ProgressBar } from '../ProgressBar';
+import { Link } from '@/i18n/routing';
 
 interface Step4FinalizationProps {
   form: UseFormReturn<ProfessionalSignUpFormData>;
@@ -27,11 +26,10 @@ export function Step4Finalization({
   const t = useTranslations('auth.signUp.professionalForm');
   const tCommon = useTranslations('common');
   const tProfessional = useTranslations('professional');
-  const tAuthProfessional = useTranslations('auth.signUp.professionalForm');
   const { getValues, watch } = form;
 
   const {
-    availabilities,
+    city,
     firstName,
     interventionZone,
     lastName,
@@ -46,33 +44,28 @@ export function Step4Finalization({
   useEffect(() => {
     if (profilePhoto) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
+      reader.onloadend = () => setPreview(reader.result as string);
       reader.readAsDataURL(profilePhoto);
     } else {
       setPreview(null);
     }
   }, [profilePhoto]);
 
-  const initials = `${firstName.charAt(0) || ''}${
-    lastName.charAt(0) || ''
-  }`.toUpperCase();
+  const initials =
+    `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
 
   return (
     <div className='space-y-6'>
-      <ProgressBar currentStep={4} totalSteps={4} />
-
-      <div className='space-y-4 text-center'>
-        <h1 className='text-3xl font-bold text-gray-900'>
-          {t('finalization')}
+      <div className='space-y-2 text-center'>
+        <h1 className='text-[32px] font-bold tracking-tight text-gray-900'>
+          {t('yourProfessionalProfile')}
         </h1>
-        <p className='text-gray-600'>{t('validationInformation')}</p>
+        <p className='text-gray-600'>{t('profileReadySubtitle')}</p>
       </div>
 
-      <div className='space-y-2 rounded-lg border border-blue-200 p-4'>
-        <div className='flex items-start'>
-          <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-gray-100'>
+      <div className='space-y-4 rounded-xl border border-gray-200 bg-gray-50/50 p-6'>
+        <div className='flex items-start gap-4'>
+          <div className='relative flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-white'>
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -81,31 +74,35 @@ export function Step4Finalization({
                 src={preview}
               />
             ) : (
-              <span className='p-8 text-4xl font-semibold text-gray-500'>
-                {initials}
+              <span className='text-2xl font-semibold text-gray-500'>
+                {initials || '?'}
               </span>
             )}
           </div>
-          <div className='pl-8 text-lg text-gray-700'>
-            <div className='font-bold'>{firstName}</div>
-            <div>{lastName}</div>
+          <div className='min-w-0 flex-1'>
+            <div className='text-lg font-bold text-gray-900'>
+              {firstName} {lastName}
+            </div>
+            <p className='text-sm font-medium text-gray-600'>
+              {profession ? tProfessional(`jobs.${profession}`) : '—'}
+            </p>
+            {(city || interventionZone) && (
+              <p className='mt-1 text-sm text-gray-500'>
+                {city}
+                {interventionZone
+                  ? ` • ${interventionZone} ${tCommon('label.km')}`
+                  : ''}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className='space-2 pt-4'>
-          <h6 className='text-sm font-semibold text-gray-700'>
-            {tCommon('label.profession')}
-          </h6>
-          <p className='text-sm text-gray-700'>
-            {tProfessional(`jobs.${profession}`)}
-          </p>
-        </div>
         {skills && skills.length > 0 && (
-          <div className='space-2'>
+          <div>
             <h6 className='text-sm font-semibold text-gray-700'>
-              {tAuthProfessional('skills')}
+              {t('skills')}
             </h6>
-            <div className='flex flex-wrap gap-2'>
+            <div className='mt-1 flex flex-wrap gap-2'>
               {skills.map((skill, index) => (
                 <Badge key={index} variant='secondary'>
                   {skill}
@@ -114,46 +111,36 @@ export function Step4Finalization({
             </div>
           </div>
         )}
-        <div className='space-2'>
-          <h6 className='text-sm font-semibold text-gray-700'>
-            {tAuthProfessional('interventionZone')}
-          </h6>
-          <p className='text-sm text-gray-700'>
-            {interventionZone} {tCommon('label.km')}
-          </p>
-        </div>
-        <div className='space-2'>
-          <h6 className='text-sm font-semibold text-gray-700'>
-            {tCommon('label.contact')}
-          </h6>
-          <p className='text-sm text-gray-700'>{phone}</p>
-        </div>
 
-        <div className='space-2'>
-          <h6 className='pb-2 text-sm font-semibold text-gray-700'>
-            {tCommon('label.availability')}
-          </h6>
-          <div className='flex flex-wrap gap-2'>
-            {Object.entries(availabilities).map(([day, schedule]) => (
-              <div
-                className='flex rounded-full border border-blue-200 bg-blue-50 p-2 text-xs text-blue-700 hover:bg-blue-100'
-                key={day}
-              >
-                <p className='mr-2 text-sm'>{tCommon(`days.${day}`)} :</p>
-                {schedule.slots.map(slot => (
-                  <div className='pr-2 text-sm' key={slot.start}>
-                    {slot.start} - {slot.end} /
-                  </div>
-                ))}
-              </div>
-            ))}
+        {phone && (
+          <div>
+            <h6 className='text-sm font-semibold text-gray-700'>
+              {tCommon('label.contact')}
+            </h6>
+            <p className='text-sm text-gray-600'>{phone}</p>
           </div>
+        )}
+
+        <div className='flex flex-wrap gap-3 border-t border-gray-200 pt-4'>
+          <button
+            className='text-sm font-medium text-blue-600 underline hover:text-blue-700'
+            onClick={onPrevious}
+            type='button'
+          >
+            {t('editPhoto')}
+          </button>
+          <Link
+            className='text-sm font-medium text-blue-600 underline hover:text-blue-700'
+            href='/professional/dashboard'
+          >
+            {t('setAvailabilityFromDashboard')}
+          </Link>
         </div>
       </div>
 
-      <div className='flex justify-between pt-4'>
+      <div className='flex justify-between gap-3 pt-4'>
         <Button
-          className='border-gray-300 text-gray-700 hover:bg-gray-50'
+          className='min-h-12 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 md:flex-none'
           disabled={isPending}
           onClick={onPrevious}
           type='button'
@@ -162,12 +149,12 @@ export function Step4Finalization({
           ← {tCommon('label.previous')}
         </Button>
         <Button
-          className='bg-blue-500 text-white hover:bg-blue-600'
+          className='min-h-12 flex-1 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 md:flex-none'
           disabled={isPending}
           onClick={onSubmit}
           type='button'
         >
-          {tCommon('actions.submit')}
+          {t('createMyProfessionalProfile')}
         </Button>
       </div>
     </div>

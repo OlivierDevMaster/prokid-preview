@@ -334,41 +334,44 @@ export type Database = {
       }
       missions: {
         Row: {
+          address: string | null
           created_at: string
           description: string | null
           id: string
           mission_dtstart: string
           mission_until: string
+          modality: Database["public"]["Enums"]["mission_modality"]
           professional_id: string
           status: Database["public"]["Enums"]["mission_status"]
           structure_id: string
-          address: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           description?: string | null
           id?: string
           mission_dtstart: string
           mission_until: string
+          modality?: Database["public"]["Enums"]["mission_modality"]
           professional_id: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id: string
-          address?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           description?: string | null
           id?: string
           mission_dtstart?: string
           mission_until?: string
+          modality?: Database["public"]["Enums"]["mission_modality"]
           professional_id?: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id?: string
-          address?: string | null
           title?: string
           updated_at?: string
         }
@@ -1139,6 +1142,7 @@ export type Database = {
         | "left"
         | "removed_by_structure"
         | "removed_by_admin"
+      mission_modality: "remote" | "on_site" | "hybrid"
       mission_status:
         | "pending"
         | "accepted"
@@ -1309,6 +1313,7 @@ export const Constants = {
         "removed_by_structure",
         "removed_by_admin",
       ],
+      mission_modality: ["remote", "on_site", "hybrid"],
       mission_status: [
         "pending",
         "accepted",

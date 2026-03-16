@@ -3,13 +3,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import {
+  Building2,
   CalendarDays,
   Clock3,
   FileText,
+  Home,
   Info,
   MapPin,
+  RefreshCw,
   Type,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -26,6 +30,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { DatePickerInput } from '@/components/ui/input-date';
 import { Textarea } from '@/components/ui/textarea';
+import { getOrCreateConversation } from '@/features/chat/services/conversation.service';
+import { useRouter } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 import { useCreateMissionProposition } from '../hooks/useCreateMissionProposition';
@@ -37,6 +44,8 @@ import { RecapPropositionCard } from './RecapPropositionCard';
 
 export function MissionPropositionForm() {
   const t = useTranslations('structure.missions.proposition');
+  const router = useRouter();
+  const { data: session } = useSession();
   const missionPropositionSchema = useMemo(
     () => getMissionPropositionSchema(t),
     [t]
@@ -49,6 +58,7 @@ export function MissionPropositionForm() {
       description: '',
       durationDays: '',
       durationMode: 'duration',
+      modality: 'remote',
       periodEndDate: undefined,
       periodStartDate: undefined,
       professionalIds: [],
@@ -68,16 +78,35 @@ export function MissionPropositionForm() {
   }, [selectedProfessionalIds, form]);
 
   const handleSubmit = async (values: MissionPropositionFormValues) => {
-    await createMissionProposition.mutateAsync(values);
+    const missions = await createMissionProposition.mutateAsync(values);
+    const structureId = session?.user?.id;
+
+    if (missions.length > 1) {
+      router.push('/structure/chat');
+      return;
+    }
+
+    if (missions.length === 1 && structureId) {
+      const conversation = await getOrCreateConversation({
+        professional_id: missions[0].professional_id,
+        structure_id: structureId,
+      });
+      router.push(`/structure/chat?conversationId=${conversation.id}`);
+    } else if (missions.length === 1) {
+      router.push('/structure/chat');
+    }
   };
 
   const durationMode = form.watch('durationMode');
+  const modality = form.watch('modality');
   const title = form.watch('title');
   const durationDays = form.watch('durationDays') ?? '';
   const address = form.watch('address');
   const desiredStartDate = form.watch('desiredStartDate');
   const periodStartDate = form.watch('periodStartDate');
   const periodEndDate = form.watch('periodEndDate');
+
+  const showAddressInput = modality === 'on_site' || modality === 'hybrid';
 
   const selectDuration = () => {
     form.setValue('durationMode', 'duration');
@@ -96,7 +125,7 @@ export function MissionPropositionForm() {
   return (
     <Form {...form}>
       <form
-        className='p-4 sm:p-6 lg:p-8'
+        // className='p-4 sm:p-6 lg:p-8'
         onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className='mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row'>
@@ -109,7 +138,7 @@ export function MissionPropositionForm() {
             )}
             {/* 1. Titre de la mission */}
             <Card className='border-none bg-white shadow-sm'>
-              <div className='px-4 py-3 sm:px-6'>
+              <div className='px-4 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
                   <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
                     <Type className='h-4 w-4 text-blue-600' />
@@ -129,11 +158,12 @@ export function MissionPropositionForm() {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className={`rounded-xl border bg-blue-50/40 text-sm placeholder:text-gray-400 ${
+                          className={cn(
+                            'rounded-xl border bg-blue-50/40 text-sm placeholder:text-gray-400',
                             fieldState.error
                               ? 'border-destructive'
                               : 'border-blue-100'
-                          }`}
+                          )}
                           id='mission-title'
                           placeholder={t('missionSectionPlaceholder')}
                           {...field}
@@ -168,11 +198,12 @@ export function MissionPropositionForm() {
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          className={`min-h-[180px] resize-y rounded-2xl border bg-blue-50/40 text-sm placeholder:text-gray-400 ${
+                          className={cn(
+                            'min-h-[180px] resize-y rounded-2xl border bg-blue-50/40 text-sm placeholder:text-gray-400',
                             fieldState.error
                               ? 'border-destructive'
                               : 'border-blue-100'
-                          }`}
+                          )}
                           id='mission-description'
                           placeholder={t('descriptionPlaceholder')}
                           {...field}
@@ -187,7 +218,7 @@ export function MissionPropositionForm() {
 
             {/* 2. Durée / Période */}
             <Card className='border-none bg-white shadow-sm'>
-              <div className='px-4 py-3 sm:px-6'>
+              <div className='px-4 pb-3 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
                   <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
                     <Clock3 className='h-4 w-4 text-blue-600' />
@@ -203,22 +234,24 @@ export function MissionPropositionForm() {
                 <div className='flex flex-wrap items-center gap-3'>
                   <div className='inline-flex rounded-full bg-gray-100 p-1 text-sm font-medium text-gray-600'>
                     <button
-                      className={`rounded-full px-5 py-2 transition ${
+                      className={cn(
+                        'rounded-full px-5 py-2 transition',
                         durationMode === 'duration'
                           ? 'bg-white text-blue-700 shadow-sm'
                           : 'text-gray-600'
-                      }`}
+                      )}
                       onClick={selectDuration}
                       type='button'
                     >
                       {t('durationTab')}
                     </button>
                     <button
-                      className={`rounded-full px-5 py-2 transition ${
+                      className={cn(
+                        'rounded-full px-5 py-2 transition',
                         durationMode === 'period'
                           ? 'bg-white text-blue-700 shadow-sm'
                           : 'text-gray-600'
-                      }`}
+                      )}
                       onClick={selectPeriod}
                       type='button'
                     >
@@ -245,11 +278,12 @@ export function MissionPropositionForm() {
                               </FormLabel>
                               <FormControl>
                                 <Input
-                                  className={`w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400 ${
+                                  className={cn(
+                                    'w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400',
                                     fieldState.error
                                       ? 'border-destructive'
                                       : 'border-blue-100'
-                                  }`}
+                                  )}
                                   id='mission-duration'
                                   min={1}
                                   placeholder='10'
@@ -291,9 +325,10 @@ export function MissionPropositionForm() {
                                 <DatePickerInput
                                   hasError={Boolean(fieldState.error)}
                                   id='period-start'
-                                  inputGroupClassName={`rounded-xl bg-blue-50/40 ${
-                                    fieldState.error ? '' : 'border-blue-100'
-                                  }`}
+                                  inputGroupClassName={cn(
+                                    'rounded-xl bg-blue-50/40',
+                                    !fieldState.error && 'border-blue-100'
+                                  )}
                                   onChange={(date: Date | undefined) => {
                                     field.onChange(date ?? undefined);
                                     form.setValue(
@@ -325,9 +360,10 @@ export function MissionPropositionForm() {
                                 <DatePickerInput
                                   hasError={Boolean(fieldState.error)}
                                   id='period-end'
-                                  inputGroupClassName={`rounded-xl bg-blue-50/40 ${
-                                    fieldState.error ? '' : 'border-blue-100'
-                                  }`}
+                                  inputGroupClassName={cn(
+                                    'rounded-xl bg-blue-50/40',
+                                    !fieldState.error && 'border-blue-100'
+                                  )}
                                   onChange={(date: Date | undefined) => {
                                     field.onChange(date ?? undefined);
                                   }}
@@ -345,9 +381,9 @@ export function MissionPropositionForm() {
               </div>
             </Card>
 
-            {/* 3. Localisation / Modalités */}
+            {/* 4. Localisation / Modalités */}
             <Card className='border-none bg-white shadow-sm'>
-              <div className='px-4 py-3 sm:px-6'>
+              <div className='px-4 pb-3 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
                   <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
                     <MapPin className='h-4 w-4 text-blue-600' />
@@ -356,34 +392,93 @@ export function MissionPropositionForm() {
                 </h2>
               </div>
 
-              <div className='space-y-3 px-4 py-4'>
-                <p className='text-sm font-medium text-gray-500'>
-                  {t('locationHelper')}
-                </p>
-                <FormField
-                  control={form.control}
-                  name='address'
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className='sr-only'>
-                        {t('locationSectionTitle')}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className={`rounded-xl border bg-blue-50/40 text-sm placeholder:text-gray-400 ${
-                            fieldState.error
-                              ? 'border-destructive'
-                              : 'border-blue-100'
-                          }`}
-                          id='mission-address'
-                          placeholder={t('addressPlaceholder')}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FieldError errors={[fieldState.error]} />
-                    </FormItem>
-                  )}
-                />
+              <div className='space-y-4 px-4 py-4'>
+                <div className='flex flex-wrap items-center gap-3'>
+                  <FormField
+                    control={form.control}
+                    name='modality'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-wrap gap-3'>
+                        <FormControl>
+                          <div className='flex flex-wrap gap-3'>
+                            <button
+                              className={cn(
+                                'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
+                                field.value === 'remote'
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-200 bg-gray-50 text-gray-600'
+                              )}
+                              onClick={() => field.onChange('remote')}
+                              type='button'
+                            >
+                              <Home className='h-4 w-4' />
+                              {t('modalityRemote')}
+                            </button>
+                            <button
+                              className={cn(
+                                'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
+                                field.value === 'on_site'
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-200 bg-gray-50 text-gray-600'
+                              )}
+                              onClick={() => field.onChange('on_site')}
+                              type='button'
+                            >
+                              <Building2 className='h-4 w-4' />
+                              {t('modalityOnSite')}
+                            </button>
+                            <button
+                              className={cn(
+                                'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
+                                field.value === 'hybrid'
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-200 bg-gray-50 text-gray-600'
+                              )}
+                              onClick={() => field.onChange('hybrid')}
+                              type='button'
+                            >
+                              <RefreshCw className='h-4 w-4' />
+                              {t('modalityHybrid')}
+                            </button>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {showAddressInput && (
+                  <div className='space-y-2'>
+                    <FormLabel className='text-sm font-medium text-gray-700'>
+                      {t('missionAddressLabel')}
+                    </FormLabel>
+                    <FormField
+                      control={form.control}
+                      name='address'
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className='relative'>
+                              <MapPin className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                              <Input
+                                className={cn(
+                                  'rounded-xl border bg-blue-50/40 pl-10 text-sm placeholder:text-gray-400',
+                                  fieldState.error
+                                    ? 'border-destructive'
+                                    : 'border-blue-100'
+                                )}
+                                id='mission-address'
+                                placeholder={t('addressPlaceholder')}
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FieldError errors={[fieldState.error]} />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -392,7 +487,7 @@ export function MissionPropositionForm() {
           <div className='w-full max-w-sm space-y-4 lg:sticky lg:top-6 lg:self-start'>
             {/* 4. Début souhaité */}
             <Card className='border-none bg-white shadow-sm'>
-              <div className='px-4 py-3 sm:px-6'>
+              <div className='px-4 pb-3 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
                   <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
                     <CalendarDays className='h-4 w-4 text-blue-600' />
@@ -417,11 +512,12 @@ export function MissionPropositionForm() {
                           <div className='relative'>
                             {durationMode === 'period' ? (
                               <Input
-                                className={`w-full rounded-xl border bg-blue-50/40 pl-4 pr-9 text-sm placeholder:text-gray-400 ${
+                                className={cn(
+                                  'w-full rounded-xl border bg-blue-50/40 pl-4 pr-9 text-sm placeholder:text-gray-400',
                                   fieldState.error
                                     ? 'border-destructive'
                                     : 'border-blue-100'
-                                }`}
+                                )}
                                 id='desired-start-date'
                                 readOnly
                                 value={
@@ -435,9 +531,10 @@ export function MissionPropositionForm() {
                                 fullWidth
                                 hasError={Boolean(fieldState.error)}
                                 id='desired-start-date'
-                                inputGroupClassName={`rounded-xl bg-blue-50/40 ${
-                                  fieldState.error ? '' : 'border-blue-100'
-                                }`}
+                                inputGroupClassName={cn(
+                                  'rounded-xl bg-blue-50/40',
+                                  !fieldState.error && 'border-blue-100'
+                                )}
                                 onChange={(date: Date | undefined) => {
                                   field.onChange(date ?? undefined);
                                 }}
@@ -456,11 +553,19 @@ export function MissionPropositionForm() {
 
             {/* Recap card */}
             <RecapPropositionCard
-              address={address}
+              address={address ?? ''}
               desiredStartDate={desiredStartDate}
               durationDays={String(durationDays ?? '')}
+              errorMessage={
+                createMissionProposition.error instanceof Error
+                  ? createMissionProposition.error.message
+                  : createMissionProposition.error
+                    ? String(createMissionProposition.error)
+                    : null
+              }
               isPeriodMode={durationMode === 'period'}
               isSubmitting={createMissionProposition.isPending}
+              modality={modality}
               periodEndDate={periodEndDate}
               periodStartDate={periodStartDate}
               title={title}

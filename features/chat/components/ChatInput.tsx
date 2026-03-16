@@ -25,6 +25,7 @@ export interface ChatInputProps {
   onProposeAppointment: () => void;
   onSend: (content: string) => void;
   onUpdateMessage?: (messageId: string, content: string) => void;
+  onWriteReport?: () => void;
   scrollToEndRef: React.RefObject<HTMLDivElement | null>;
   viewRole: ViewRole;
 }
@@ -36,6 +37,7 @@ export function ChatInput({
   onProposeAppointment,
   onSend,
   onUpdateMessage,
+  onWriteReport,
   scrollToEndRef,
   viewRole,
 }: ChatInputProps) {
@@ -119,10 +121,12 @@ export function ChatInput({
                   {t('proposeMeeting')}
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem>
-                <FileText className='mr-2 h-4 w-4' />
-                {t('writeReport')}
-              </DropdownMenuItem>
+              {viewRole === 'professional' && onWriteReport && (
+                <DropdownMenuItem onClick={onWriteReport}>
+                  <FileText className='mr-2 h-4 w-4' />
+                  {t('writeReport')}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

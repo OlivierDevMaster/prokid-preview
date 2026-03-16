@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, startOfDay } from 'date-fns';
+import { startOfDay } from 'date-fns';
 import { useSession } from 'next-auth/react';
 
-import type { CreateMissionRequestBody } from '@/features/missions/mission.model';
+import type { CreateMissionsRequestBody } from '@/features/missions/mission.model';
 
-import { useCreateMission } from '@/features/missions/hooks/useCreateMission';
-import { getDurationInDays, getEndDate } from '@/shared/utils/date';
+import { conversationsQueryKey } from '@/features/chat/hooks/useConversations';
+import { createMissions } from '@/features/missions/mission.service';
+import { getEndDate } from '@/shared/utils/date';
 
 import type { MissionPropositionFormValues } from '../validation/mission.schema';
 
 export function useCreateMissionProposition() {
   const queryClient = useQueryClient();
-  const createMission = useCreateMission();
   const { data: session } = useSession();
   const structureId = session?.user?.id;
 
@@ -38,27 +38,21 @@ export function useCreateMissionProposition() {
         missionEnd = startOfDay(periodEnd);
       }
 
-      const missions = [];
+      const body: CreateMissionsRequestBody = {
+        address:
+          values.modality === 'remote'
+            ? undefined
+            : values.address?.trim() || undefined,
+        description: values.description,
+        mission_dtstart: missionStart.toISOString(),
+        mission_until: missionEnd.toISOString(),
+        modality: values.modality,
+        professional_ids: values.professionalIds,
+        structure_id: structureId,
+        title: values.title,
+      };
 
-      for (const professionalId of values.professionalIds) {
-        const body: CreateMissionRequestBody = {
-          address: values.address,
-          description: values.description,
-          mission_dtstart: missionStart.toISOString(),
-          mission_until: missionEnd.toISOString(),
-          professional_id: professionalId,
-
-          status: undefined,
-          structure_id: structureId,
-          title: values.title,
-        };
-
-        const mission = await createMission.mutateAsync(body);
-
-        missions.push(mission);
-      }
-
-      return missions;
+      return createMissions(body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['structure-missions'] });
@@ -68,6 +62,7 @@ export function useCreateMissionProposition() {
       queryClient.invalidateQueries({
         queryKey: ['dashboard', 'admin', 'missions'],
       });
+      queryClient.invalidateQueries({ queryKey: conversationsQueryKey });
     },
   });
 }
