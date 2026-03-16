@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
 export interface ProfessionalSearchActions {
+  applyFilters: () => void;
+  clearAvailabilityFilter: () => void;
+  clearLocationFilter: () => void;
+  clearRoleFilter: () => void;
   handleClearAllFilters: () => void;
   setIsAvailabilitySelectOpen: (value: boolean) => void;
   setIsRoleSelectOpen: (value: boolean) => void;
@@ -11,6 +15,9 @@ export interface ProfessionalSearchActions {
 }
 
 export interface ProfessionalSearchState {
+  appliedAvailability: string;
+  appliedLocationQuery: string;
+  appliedRole: string;
   isAvailabilitySelectOpen: boolean;
   isRoleSelectOpen: boolean;
   locationQuery: string;
@@ -28,9 +35,12 @@ export interface UseProfessionalSearchReturn {
 export function useProfessionalSearch(): UseProfessionalSearchReturn {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
+  const [appliedLocationQuery, setAppliedLocationQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [appliedRole, setAppliedRole] = useState<string>('all');
   const [selectedAvailability, setSelectedAvailability] =
     useState<string>('all');
+  const [appliedAvailability, setAppliedAvailability] = useState<string>('all');
   const [isRoleSelectOpen, setIsRoleSelectOpen] = useState(false);
   const [isAvailabilitySelectOpen, setIsAvailabilitySelectOpen] =
     useState(false);
@@ -41,13 +51,37 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     setLocationQuery('');
     setSelectedRole('all');
     setSelectedAvailability('all');
+    setAppliedLocationQuery('');
+    setAppliedRole('all');
+    setAppliedAvailability('all');
+  };
+
+  const applyFilters = () => {
+    setAppliedLocationQuery(locationQuery);
+    setAppliedRole(selectedRole);
+    setAppliedAvailability(selectedAvailability);
+  };
+
+  const clearAvailabilityFilter = () => {
+    setSelectedAvailability('all');
+    setAppliedAvailability('all');
+  };
+
+  const clearLocationFilter = () => {
+    setLocationQuery('');
+    setAppliedLocationQuery('');
+  };
+
+  const clearRoleFilter = () => {
+    setSelectedRole('all');
+    setAppliedRole('all');
   };
 
   const hasActiveFilters =
     searchQuery ||
-    locationQuery ||
-    selectedRole !== 'all' ||
-    selectedAvailability !== 'all';
+    appliedLocationQuery ||
+    appliedRole !== 'all' ||
+    appliedAvailability !== 'all';
 
   // Close all Selects on unmount to prevent portal cleanup errors
   useEffect(() => {
@@ -64,6 +98,10 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
 
   return {
     actions: {
+      applyFilters,
+      clearAvailabilityFilter,
+      clearLocationFilter,
+      clearRoleFilter,
       handleClearAllFilters,
       setIsAvailabilitySelectOpen,
       setIsRoleSelectOpen,
@@ -74,6 +112,9 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     },
     hasActiveFilters,
     state: {
+      appliedAvailability,
+      appliedLocationQuery,
+      appliedRole,
       isAvailabilitySelectOpen,
       isRoleSelectOpen,
       locationQuery,

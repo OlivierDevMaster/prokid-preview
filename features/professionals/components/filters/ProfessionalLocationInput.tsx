@@ -1,42 +1,84 @@
 'use client';
 
-import { MapPin, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+} from '@/components/ui/combobox';
 
 interface ProfessionalLocationInputProps {
   onChange: (value: string) => void;
-  onClear: () => void;
   value: string;
 }
 
 export function ProfessionalLocationInput({
   onChange,
-  onClear,
   value,
 }: ProfessionalLocationInputProps) {
   const t = useTranslations('professional');
+  const [query, setQuery] = useState('');
+  const [cities, setCities] = useState<{ code: string; name: string }[]>([]);
+  const [, setLoading] = useState(false);
+
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (!query) {
+      setCities([]);
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setLoading(true);
+      fetch(
+        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(
+          query
+        )}&fields=nom,code&boost=population&limit=10`
+      )
+        .then(res => res.json())
+        .then((data: { code: string; nom: string }[]) => {
+          const formatted = data.map(city => ({
+            code: city.code,
+            name: city.nom,
+          }));
+          setCities(formatted);
+          setLoading(false);
+        });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [query]);
 
   return (
-    <div className='relative focus-within:text-blue-500'>
-      <Input
-        className='h-9 rounded-xl bg-slate-100 pl-3 pr-12 text-xs font-medium text-slate-800 ring-0 placeholder:text-xs placeholder:text-black focus-visible:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:placeholder:text-blue-500'
-        onChange={e => onChange(e.target.value)}
+    <Combobox
+      onValueChange={newValue => {
+        const valueString = typeof newValue === 'string' ? newValue : '';
+        onChange(valueString);
+        if (valueString) {
+          setQuery(valueString);
+        }
+      }}
+    >
+      <ComboboxInput
+        className='rounded-xl bg-slate-100 font-medium has-[[data-slot=input-group-control]:focus-visible]:!border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:!ring-0 [&_[data-slot=input-group-control]]:placeholder:text-xs [&_[data-slot=input-group-control]]:placeholder:text-slate-800'
+        inputClassName='group-focus-within/input-group:placeholder:!text-blue-500'
+        onChange={e => setQuery(e.target.value)}
         placeholder={t('search.locationPlaceholder')}
-        value={value}
+        triggerIconClassName='group-focus-within/input-group:text-blue-500'
+        value={query || value}
       />
-      {value && (
-        <Button
-          className='absolute right-7 top-1/2 -translate-y-1/2 rounded-full px-1.5 text-slate-400 hover:bg-slate-100'
-          onClick={onClear}
-          variant='ghost'
-        >
-          <X className='h-4 w-4' />
-        </Button>
-      )}
-      <MapPin className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-current' />
-    </div>
+      <ComboboxContent>
+        {cities.map(city => (
+          <ComboboxItem key={city.code} value={city.name}>
+            {city.name}
+          </ComboboxItem>
+        ))}
+      </ComboboxContent>
+    </Combobox>
   );
 }
