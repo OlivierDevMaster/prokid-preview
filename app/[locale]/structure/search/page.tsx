@@ -7,9 +7,8 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Pagination } from '@/features/paginations/components/Pagination';
 import { ProfessionalFiltersSection } from '@/features/professionals/components/ProfessionalFiltersSection';
-import { ProfessionalSearchCard } from '@/features/professionals/components/ProfessionalSearchCard';
+import { ProfessionalSearchResultsSection } from '@/features/professionals/components/ProfessionalSearchResultsSection';
 import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
 import { useProfessionalSearch } from '@/features/professionals/hooks/useProfessionalSearch';
 import { ProfessionalConfig } from '@/features/professionals/professional.config';
@@ -20,7 +19,6 @@ import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional
 export default function StructureSearchPage() {
   const { handleToggleProfessional, selectedProfessionalIds } =
     useSelectedProfessional();
-  const t = useTranslations('professional');
   const tMissions = useTranslations('structure.missions');
   const router = useRouter();
   const { actions, state } = useProfessionalSearch();
@@ -36,10 +34,9 @@ export default function StructureSearchPage() {
 
   const { data } = useFindProfessionals(
     {
-      availability: state.selectedAvailability,
-      current_job:
-        state.selectedRole === 'all' ? undefined : state.selectedRole,
-      locationSearch: state.locationQuery,
+      availability: state.appliedAvailability,
+      current_job: state.appliedRole === 'all' ? undefined : state.appliedRole,
+      locationSearch: state.appliedLocationQuery,
       search: state.searchQuery,
     },
     { limit: pageSize, page }
@@ -60,6 +57,13 @@ export default function StructureSearchPage() {
   const remainingSelectedCount =
     selectedProfessionalIds.size > 3 ? selectedProfessionalIds.size - 3 : 0;
 
+  const hasResults = totalCount > 0;
+
+  const handleResetFilters = () => {
+    actions.handleClearAllFilters();
+    setPage(ProfessionalConfig.PAGE_DEFAULT);
+  };
+
   const handleSendMission = () => {
     if (selectedProfessionalIds.size === 0) {
       return;
@@ -73,44 +77,32 @@ export default function StructureSearchPage() {
   return (
     <main className='min-h-screen bg-gray-100 pb-4'>
       <div className='mx-auto max-w-7xl space-y-4 sm:space-y-6'>
-        <ProfessionalFiltersSection actions={actions} state={state} />
-        <div className='mx-4 mb-2 sm:mb-4'>
-          <h2 className='text-xl font-semibold text-gray-800'>
-            <span className='font-semibold'>{resultsCount}</span>{' '}
-            {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
-          </h2>
-          <p className='text-sm text-gray-400'>
-            {t('results.foundDescription')}
-          </p>
-        </div>
-        <div className='mx-4 mt-4 grid max-w-7xl grid-cols-1 gap-4 sm:mt-6 md:grid-cols-2 xl:grid-cols-3'>
-          {professionals.map((professional: Professional) => (
-            <ProfessionalSearchCard
-              key={professional.user_id}
-              onToggleSelect={professional =>
-                handleToggleProfessional(professional.user_id)
-              }
-              professional={professional}
-              selectable
-              selected={selectedProfessionalIds.has(professional.user_id)}
-            />
-          ))}
-        </div>
-        {totalCount > 0 && (
-          <div className='mt-8 flex justify-center'>
-            <Pagination
-              currentPage={page}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-              pageSize={pageSize}
-              totalItems={totalCount}
-              totalPages={totalPages}
-            />
-          </div>
-        )}
+        <ProfessionalFiltersSection
+          actions={actions}
+          hasResults={hasResults}
+          state={state}
+        />
+        <ProfessionalSearchResultsSection
+          hasResults={hasResults}
+          isSelected={professionalId =>
+            selectedProfessionalIds.has(professionalId)
+          }
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          onResetFilters={handleResetFilters}
+          onToggleSelect={professionalId =>
+            handleToggleProfessional(professionalId)
+          }
+          page={page}
+          pageSize={pageSize}
+          professionals={professionals}
+          resultsCount={resultsCount}
+          totalCount={totalCount}
+          totalPages={totalPages}
+        />
       </div>
 
-      {selectedProfessionalIds.size > 0 && (
+      {selectedProfessionalIds.size > 0 && hasResults && (
         <div className='fixed bottom-4 right-8 z-50 flex justify-end'>
           <div className='flex items-center gap-4 rounded-full border border-gray-200 bg-white py-3 pl-4 pr-3 shadow-lg'>
             <div className='flex items-center'>
