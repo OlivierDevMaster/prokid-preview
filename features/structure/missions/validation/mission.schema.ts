@@ -13,7 +13,7 @@ export function getMissionPropositionSchema(
 ) {
   return z
     .object({
-      address: z.string().min(1, t('validation.addressRequired')),
+      address: z.string(),
       description: z.string().min(1, t('validation.descriptionRequired')),
       desiredStartDate: z.date().optional(),
       durationDays: z
@@ -29,6 +29,7 @@ export function getMissionPropositionSchema(
           }
         ),
       durationMode: z.enum(['duration', 'period']),
+      modality: z.enum(['remote', 'on_site', 'hybrid']),
       periodEndDate: z.date().optional(),
       periodStartDate: z.date().optional(),
       professionalIds: z
@@ -37,6 +38,16 @@ export function getMissionPropositionSchema(
       title: z.string().min(1, t('validation.titleRequired')),
     })
     .superRefine((data, ctx) => {
+      if (data.modality === 'on_site' || data.modality === 'hybrid') {
+        if (!data.address || data.address.trim().length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t('validation.addressRequired'),
+            path: ['address'],
+          });
+        }
+      }
+
       if (data.durationMode === 'duration') {
         if (!data.durationDays) {
           ctx.addIssue({

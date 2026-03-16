@@ -39,10 +39,14 @@ export function useCreateMissionProposition() {
       }
 
       const body: CreateMissionsRequestBody = {
-        address: values.address,
+        address:
+          values.modality === 'remote'
+            ? undefined
+            : values.address?.trim() || undefined,
         description: values.description,
         mission_dtstart: missionStart.toISOString(),
         mission_until: missionEnd.toISOString(),
+        modality: values.modality,
         professional_ids: values.professionalIds,
         structure_id: structureId,
         title: values.title,

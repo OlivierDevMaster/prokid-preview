@@ -10,7 +10,7 @@
     "typecheck": "npx tsc --noEmit --pretty",
     "fn:serve": "supabase functions serve",
     "db:restart": "supabase stop && supabase start",
-    "db:reset:local": "supabase db reset --local",
+    "db:reset:local": "supabase db reset --local && npm run db:generate:local",
     "db:accept-pending-missions": "dotenvx run -- tsx scripts/accept-pending-missions.ts",
     "db:reset:remote": "supabase db reset --linked && npm run db:accept-pending-missions",
     "db:generate:local": "supabase gen types typescript --local > types/database/schema.ts",

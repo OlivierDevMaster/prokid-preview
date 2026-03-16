@@ -60,10 +60,12 @@ export interface MessageWithSender extends MessageRow {
 
 /** Mission fields used in conversation list / mission block */
 export interface MissionRow {
+  address: null | string;
   description: null | string;
   id: string;
   mission_dtstart: string;
   mission_until: string;
+  modality?: 'hybrid' | 'on_site' | 'remote';
   professional_id: string;
   status: MissionStatus;
   structure_id: string;

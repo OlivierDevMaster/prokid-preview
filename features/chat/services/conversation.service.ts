@@ -32,6 +32,8 @@ const CONVERSATIONS_SELECT = `
     status,
     mission_dtstart,
     mission_until,
+    address,
+    modality,
     structure_id,
     professional_id
   )
@@ -97,7 +99,7 @@ export async function getOrCreateConversation(
 ): Promise<ConversationWithDetails> {
   const supabase = createClient();
 
-  let query = supabase
+  const query = supabase
     .from('conversations')
     .select(CONVERSATIONS_SELECT)
     .eq('structure_id', params.structure_id)

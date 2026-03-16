@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 import { getDurationInDays } from '@/shared/utils/date';
 
+type MissionModality = 'hybrid' | 'on_site' | 'remote';
+
 type RecapPropositionCardProps = {
   address: string;
   desiredStartDate?: Date;
@@ -13,9 +15,16 @@ type RecapPropositionCardProps = {
   errorMessage?: null | string;
   isPeriodMode?: boolean;
   isSubmitting?: boolean;
+  modality: MissionModality;
   periodEndDate?: Date;
   periodStartDate?: Date;
   title: string;
+};
+
+const modalityLabelKey: Record<MissionModality, string> = {
+  hybrid: 'modalityHybrid',
+  on_site: 'modalityOnSite',
+  remote: 'modalityRemote',
 };
 
 export function RecapPropositionCard({
@@ -25,6 +34,7 @@ export function RecapPropositionCard({
   errorMessage,
   isPeriodMode,
   isSubmitting,
+  modality,
   periodEndDate,
   periodStartDate,
   title,
@@ -86,10 +96,17 @@ export function RecapPropositionCard({
                 : ''}
           </p>
         </div>
-        {/* Location */}
-        <div className='flex items-center justify-between border-t border-white/25 pt-4'>
-          <p className='text-sm text-blue-100'>{t('recapFieldLocation')}</p>
-          <p className='text-sm font-semibold'>{address || ''}</p>
+        {/* Location / Modality */}
+        <div className='flex flex-col gap-1 border-t border-white/25 pt-4'>
+          <div className='flex items-center justify-between'>
+            <p className='text-sm text-blue-100'>{t('recapFieldLocation')}</p>
+            <p className='text-sm font-semibold'>
+              {t(modalityLabelKey[modality])}
+            </p>
+          </div>
+          {(modality === 'on_site' || modality === 'hybrid') && address && (
+            <p className='text-right text-sm text-blue-100'>{address}</p>
+          )}
         </div>
 
         {/* Date / Period */}
