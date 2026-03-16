@@ -379,16 +379,22 @@
     "subtitle": "Découvrez des professionnels qualifiés près de votre structure",
     "search": {
       "placeholder": "Rechercher par nom, rôle ou compétence...",
-      "locationPlaceholder": "Ville ou code postal",
+      "locationPlaceholder": "Ville",
       "role": "Rôle",
       "availability": "Disponibilité",
       "activeFilters": "Filtres actifs :",
-      "reset": "Réinitialiser"
+      "reset": "Réinitialiser",
+      "clear": "Effacer",
+      "apply": "Appliquer",
+      "searchButton": "Rechercher"
     },
     "results": {
       "found": "professionnels trouvés",
       "foundOne": "professionnel trouvé",
-      "foundDescription": "Basé sur votre critère de recherche récents"
+      "foundDescription": "Basé sur votre critère de recherche récents",
+      "emptyTitle": "Nous n'avons pas trouvé de pro correspondant à votre recherche",
+      "emptyDescription": "Essayez de modifier vos critères de recherche, d'élargir votre zone géographique ou de réinitialiser vos filtres pour obtenir plus de résultats.",
+      "emptyResetButton": "Réinitialiser les filtres"
     },
     "card": {
       "viewProfile": "Voir le profil",
