@@ -386,7 +386,10 @@
       "reset": "Réinitialiser",
       "clear": "Effacer",
       "apply": "Appliquer",
-      "searchButton": "Rechercher"
+      "searchButton": "Rechercher",
+      "useMyPosition": "Activer ma position",
+      "useMyPositionInstruction": "Activez votre position actuelle pour trouver les professionnels les plus proches de vous",
+      "locating": "Localisation..."
     },
     "results": {
       "found": "professionnels trouvés",
