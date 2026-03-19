@@ -1,6 +1,6 @@
 'use client';
 
-import { FunnelX, Search, User } from 'lucide-react';
+import { FunnelX, UserSearch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
@@ -43,14 +43,7 @@ export function ProfessionalSearchResultsSection({
     return (
       <div className='mx-4 mt-8 flex flex-col items-center justify-center rounded-3xl px-4 py-16 text-center shadow-sm sm:mt-10 sm:px-8 sm:py-20'>
         <div className='mb-6 flex size-32 items-center justify-center rounded-full border-2 border-dashed border-gray-300 bg-slate-100'>
-          <div className='relative flex items-center justify-center'>
-            {/* Icône utilisateur au centre */}
-            <User className='size-16 fill-gray-300 stroke-none' />
-            {/* Icône loupe en bas à droite */}
-            <span className='absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-slate-100 shadow-sm'>
-              <Search className='size-6 text-gray-300' strokeWidth={3} />
-            </span>
-          </div>
+          <UserSearch className='size-16 text-gray-300' />
         </div>
         <h2 className='mb-2 text-xl font-semibold text-slate-900 sm:text-2xl'>
           {t('results.emptyTitle')}
