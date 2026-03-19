@@ -80,6 +80,37 @@ export const updateStructure = async (
   return data;
 };
 
+export const updateStructureLocation = async (
+  userId: string,
+  latitude: number,
+  longitude: number
+): Promise<Structure> => {
+  const supabase = createClient();
+
+  const locationWkt = `SRID=4326;POINT(${longitude} ${latitude})`;
+
+  const { data, error } = await supabase
+    .from('structures')
+    .update({
+      latitude,
+      location: locationWkt,
+      longitude,
+    } as unknown as StructureUpdate)
+    .eq('user_id', userId)
+    .select(
+      `
+      *,
+      profile:profiles(*)
+    `
+    )
+    .eq('user_id', userId)
+    .single();
+
+  if (error) throw error;
+
+  return data as Structure;
+};
+
 export const getStructures = async (
   filters: StructureFilters,
   paginationOptions: PaginationOptions
