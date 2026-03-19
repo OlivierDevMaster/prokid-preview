@@ -10,6 +10,8 @@ export type ProfessionalSignUpFormData = {
   hourlyRate: number;
   interventionZone: number;
   lastName: string;
+  latitude?: number;
+  longitude?: number;
   phone: string;
   postalCode?: string;
   profession: string;
@@ -45,6 +47,8 @@ export function useProfessionalSignUpSchema() {
         .min(5, t('validation.interventionZoneMin'))
         .max(100, t('validation.interventionZoneMax')),
       lastName: z.string().min(1, t('validation.lastNameRequired')),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
       phone: z.string().min(1, t('validation.phoneRequired')),
       postalCode: z.string().optional(),
       profession: z.string().min(1, t('validation.professionRequired')),
