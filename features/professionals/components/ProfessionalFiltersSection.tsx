@@ -9,21 +9,25 @@ import { ProfessionalAvailabilitySelect } from '@/features/professionals/compone
 import { ProfessionalLocationInput } from '@/features/professionals/components/filters/ProfessionalLocationInput';
 import { ProfessionalRoleSelect } from '@/features/professionals/components/filters/ProfessionalRoleSelect';
 import { ProfessionalSearchInput } from '@/features/professionals/components/filters/ProfessionalSearchInput';
+import { StructureLocationActivation } from '@/features/professionals/components/filters/StructureLocationActivation';
 
 import {
   ProfessionalSearchActions,
   ProfessionalSearchState,
 } from '../hooks/useProfessionalSearch';
+import { Separator } from '@/components/ui/separator';
 
 interface ProfessionalFiltersSectionProps {
   actions: ProfessionalSearchActions;
   hasResults: boolean;
+  showStructureLocationActivation?: boolean;
   state: ProfessionalSearchState;
 }
 
 export function ProfessionalFiltersSection({
   actions,
   hasResults,
+  showStructureLocationActivation = false,
   state,
 }: ProfessionalFiltersSectionProps) {
   const t = useTranslations('professional');
@@ -75,6 +79,8 @@ export function ProfessionalFiltersSection({
             </Button>
           </div>
         </div>
+
+        {showStructureLocationActivation && <StructureLocationActivation />}
 
         <ProfessionalActiveFilters
           hasResults={hasResults}

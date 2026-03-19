@@ -80,6 +80,7 @@ export default function StructureSearchPage() {
         <ProfessionalFiltersSection
           actions={actions}
           hasResults={hasResults}
+          showStructureLocationActivation
           state={state}
         />
         <ProfessionalSearchResultsSection
