@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 
 const DURATIONS = [7, 5, 3, 1] as const;
 type Duration = (typeof DURATIONS)[number];
+type DurationChoice = Duration | null;
 
 export function AvailabilityStatusPopover() {
   const t = useTranslations('professional.dashboard');
@@ -22,7 +23,7 @@ export function AvailabilityStatusPopover() {
   const [isAvailableChoice, setIsAvailableChoice] = useState<'no' | 'yes'>(
     'no'
   );
-  const [duration, setDuration] = useState<Duration>(7);
+  const [duration, setDuration] = useState<DurationChoice>(null);
 
   const {
     isAvailable: dbIsAvailable,
@@ -45,6 +46,7 @@ export function AvailabilityStatusPopover() {
 
     if (!nextOpen && !isLoading) {
       setIsAvailableChoice(dbIsAvailable ? 'yes' : 'no');
+      setDuration(null);
     }
   };
 
@@ -174,12 +176,28 @@ export function AvailabilityStatusPopover() {
                 </button>
               ))}
             </div>
+            <div className='space-y-2'>
+              <button
+                className={cn(
+                  'w-full rounded-xl border px-3 py-2 text-xs font-medium',
+                  duration === null
+                    ? 'border-blue-500 bg-blue-50 text-blue-600'
+                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                )}
+                onClick={() => setDuration(null)}
+                type='button'
+              >
+                {t('availabilityPopover.untilModification')}
+              </button>
+            </div>
           </div>
 
           {/* Info pill */}
           <div className='rounded-xl bg-blue-50 px-3 py-3 text-sm text-blue-700'>
             {isAvailableSelected
-              ? t('availabilityPopover.greenBadgeInfo', { count: duration })
+              ? duration === null
+                ? t('availabilityPopover.greenBadgeInfoUntilModification')
+                : t('availabilityPopover.greenBadgeInfo', { count: duration })
               : t('availabilityPopover.greenBadgeRemoved')}
           </div>
 
