@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
-import { useHasActiveMission } from '@/features/structure/professionals/hooks/useHasActiveMission';
 import { cn } from '@/lib/utils';
 
 import { translateProfessionalJob } from './professional-profile-job';
@@ -24,7 +23,6 @@ export function ProfessionalProfileHeroCard({
   const t = useTranslations('professional.profile');
   const tProfessional = useTranslations('professional');
   const { data: professional } = useFindProfessional(professionalId);
-  const { data: hasActiveMission } = useHasActiveMission(professionalId);
 
   if (!professional) {
     return null;
@@ -78,15 +76,15 @@ export function ProfessionalProfileHeroCard({
                 <span
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold',
-                    hasActiveMission
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-green-100 text-green-700'
+                    professional.is_available
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
                   )}
                 >
                   <CalendarCheck className='size-4 shrink-0' />
-                  {hasActiveMission
-                    ? t('unavailable')
-                    : t('availableImmediately')}
+                  {professional.is_available
+                    ? t('availableImmediately')
+                    : t('unavailable')}
                 </span>
                 {professional.is_certified ? (
                   <span className='flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm font-bold text-green-700'>
