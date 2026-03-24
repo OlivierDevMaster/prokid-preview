@@ -17,6 +17,7 @@ import {
   type ProfessionalsWithProfilesSearch,
   type ProfessionalUpdate,
 } from './professional.model';
+import { NearbyProfessionalRpcRow } from './types/nearby-professionals.types';
 
 /**
  * Extracts DTSTART from rrule string if dtstart is not present
@@ -65,6 +66,13 @@ const extractDtstartFromRrule = (
   }
 };
 
+type RpcClient = {
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>
+  ) => Promise<{ data: unknown; error: null | unknown }>;
+};
+
 export const createProfessional = async (
   insertData: ProfessionalInsert
 ): Promise<Professional> => {
@@ -105,6 +113,45 @@ export const findProfessional = async (
   if (error) throw error;
 
   return data;
+};
+
+export const getNearbyProfessionalsFromStructure = async (
+  structureId: string
+): Promise<NearbyProfessionalRpcRow[]> => {
+  const supabase = createClient() as unknown as RpcClient;
+  const { data, error } = await supabase.rpc(
+    'get_nearby_professionals_from_structure',
+    {
+      p_structure_id: structureId,
+    }
+  );
+
+  if (error) {
+    console.error('RPC error:', error);
+    throw error;
+  }
+
+  return (data ?? []) as unknown as NearbyProfessionalRpcRow[];
+};
+
+export const getProfessionalsByUserIdsRequest = async (
+  userIds: string[]
+): Promise<ProfessionalsWithProfilesSearch[]> => {
+  if (userIds.length === 0) {
+    return [];
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('professionals_with_profiles_search')
+    .select('*')
+    .in('user_id', userIds);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as ProfessionalsWithProfilesSearch[];
 };
 
 export const updateProfessional = async (
