@@ -1677,6 +1677,7 @@
     "missionCardExpand": "Développer la carte mission",
     "duration": "Durée",
     "durationMonths": "{count} mois",
+    "durationDays": "{count} jour(s)",
     "durationWeeks": "{count} semaine(s)",
     "modality": "Modalité",
     "modalityRemote": "À distance",
