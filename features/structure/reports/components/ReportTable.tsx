@@ -28,6 +28,7 @@ interface ReportTableProps {
   columns: ColumnDef<Report>[];
   data: Report[];
   locale?: string;
+  onRowClick?: (reportId: string) => void;
   translations: {
     contents: string;
     createdAt: string;
@@ -43,7 +44,7 @@ interface ReportTableProps {
   };
 }
 
-export function ReportTable({ columns, data, translations }: ReportTableProps) {
+export function ReportTable({ columns, data, onRowClick, translations }: ReportTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -64,80 +65,83 @@ export function ReportTable({ columns, data, translations }: ReportTableProps) {
   });
 
   return (
-    <div className='space-y-4'>
-      <div className='rounded-md border bg-white'>
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow
-                  data-state={row.getIsSelected() && 'selected'}
-                  key={row.id}
+    <div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map(headerGroup => (
+            <TableRow className='border-slate-100 hover:bg-transparent' key={headerGroup.id}>
+              {headerGroup.headers.map(header => (
+                <TableHead
+                  className='bg-slate-50/80 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500'
+                  key={header.id}
                 >
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  className='h-24 text-center'
-                  colSpan={columns.length}
-                >
-                  {translations.noResults || 'No results.'}
-                </TableCell>
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map(row => (
+              <TableRow
+                className='cursor-pointer border-slate-100 transition-colors hover:bg-slate-50/50'
+                data-state={row.getIsSelected() && 'selected'}
+                key={row.id}
+                onClick={() => onRowClick?.(row.original.id)}
+              >
+                {row.getVisibleCells().map(cell => (
+                  <TableCell className='px-4 py-3 text-sm text-slate-700' key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className='flex items-center justify-between'>
-        <div className='text-sm text-muted-foreground'>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                className='h-24 text-center text-slate-500'
+                colSpan={columns.length}
+              >
+                {translations.noResults || 'No results.'}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Pagination — dashboard style */}
+      <div className='flex items-center justify-between border-t border-slate-100 px-4 py-3'>
+        <p className='text-sm font-medium text-slate-500'>
           {translations.page} {table.getState().pagination.pageIndex + 1}{' '}
           {translations.of} {table.getPageCount()}
-        </div>
-        <div className='flex items-center space-x-2'>
+        </p>
+        <div className='flex items-center gap-2'>
           <Button
+            className='h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-40'
             disabled={!table.getCanPreviousPage()}
             onClick={() => table.previousPage()}
-            size='sm'
             variant='outline'
           >
-            <ChevronLeft className='h-4 w-4' />
+            <ChevronLeft className='mr-1 h-4 w-4' />
             {translations.previous}
           </Button>
           <Button
+            className='h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-40'
             disabled={!table.getCanNextPage()}
             onClick={() => table.nextPage()}
-            size='sm'
             variant='outline'
           >
             {translations.next}
-            <ChevronRight className='h-4 w-4' />
+            <ChevronRight className='ml-1 h-4 w-4' />
           </Button>
         </div>
       </div>
