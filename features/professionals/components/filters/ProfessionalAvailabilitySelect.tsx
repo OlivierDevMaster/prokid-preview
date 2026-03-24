@@ -77,7 +77,7 @@ export function ProfessionalAvailabilitySelect({
         <PopoverTrigger asChild>
           <Button
             className={cn(
-              'h-9 w-full justify-between rounded-xl border border-slate-200 bg-slate-100 px-4 text-xs font-medium text-slate-800 shadow-none hover:bg-slate-100',
+              'h-11 w-full justify-between rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50',
               open && 'border-blue-500 bg-blue-50 text-blue-600'
             )}
             type='button'

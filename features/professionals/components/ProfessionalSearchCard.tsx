@@ -110,7 +110,17 @@ export function ProfessionalSearchCard({
           />
         </div>
       )}
-      <Link className='flex h-full flex-col p-4 sm:p-6' href={profileUrl}>
+      <Link className='flex h-full flex-col p-4 sm:p-6' href={profileUrl} target='_blank'>
+        {/* Availability badge */}
+        {professional.is_available && (
+          <div className='mb-3 flex items-center gap-1.5'>
+            <span className='inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700'>
+              <span className='size-2 rounded-full bg-emerald-500' />
+              {t('availableNow')}
+            </span>
+          </div>
+        )}
+
         <div className='flex items-start justify-between gap-4 sm:gap-5'>
           <div className='flex flex-shrink-0 items-start gap-3'>
             <div className='relative flex h-14 w-14 items-center justify-center sm:h-16 sm:w-16'>

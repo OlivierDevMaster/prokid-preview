@@ -59,6 +59,7 @@ export const ProfessionalSortOption = {
 export interface ProfessionalFilters {
   availability?: string;
   current_job?: string;
+  locationCoords?: { latitude: number; longitude: number };
   locationSearch?: string;
   order?: Order;
   search?: string;

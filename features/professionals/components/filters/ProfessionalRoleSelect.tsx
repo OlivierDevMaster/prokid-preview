@@ -33,7 +33,7 @@ export function ProfessionalRoleSelect({
       open={open}
       value={value}
     >
-      <SelectTrigger className='h-9 rounded-xl bg-slate-100 px-4 text-xs font-medium text-slate-800 shadow-none hover:bg-slate-50 data-[state=open]:border-blue-500 data-[state=open]:text-blue-500'>
+      <SelectTrigger className='h-11 w-auto shrink-0 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 data-[state=open]:border-blue-500 data-[state=open]:text-blue-500'>
         <SelectValue placeholder={t('search.role')} />
       </SelectTrigger>
       <SelectContent className='min-w-[240px] rounded-2xl border border-slate-100 bg-white p-1.5 shadow-lg'>

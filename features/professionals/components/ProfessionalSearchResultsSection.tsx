@@ -11,6 +11,8 @@ import { ProfessionalWithDistance } from '@/features/professionals/types/nearby-
 interface ProfessionalSearchResultsSectionProps {
   hasResults: boolean;
   isSelected: (professionalId: string) => boolean;
+  locationFallback?: boolean;
+  locationQuery?: string;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onResetFilters: () => void;
@@ -26,6 +28,8 @@ interface ProfessionalSearchResultsSectionProps {
 export function ProfessionalSearchResultsSection({
   hasResults,
   isSelected,
+  locationFallback,
+  locationQuery,
   onPageChange,
   onPageSizeChange,
   onResetFilters,
@@ -65,12 +69,28 @@ export function ProfessionalSearchResultsSection({
 
   return (
     <>
-      <div className='mx-4 mb-2 sm:mb-4'>
-        <h2 className='text-xl font-semibold text-gray-800'>
-          <span className='font-semibold'>{resultsCount}</span>{' '}
-          {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
-        </h2>
-        <p className='text-sm text-gray-400'>{t('results.foundDescription')}</p>
+      <div className='mx-4 mb-2 mt-6 sm:mb-4 sm:mt-8'>
+        {locationFallback && locationQuery ? (
+          <>
+            <div className='mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3'>
+              <p className='text-sm font-medium text-amber-800'>
+                Aucun professionnel trouvé à <strong>{locationQuery}</strong>. Voici les professionnels les plus proches de votre structure.
+              </p>
+            </div>
+            <h2 className='text-xl font-semibold text-gray-800'>
+              <span className='font-semibold'>{resultsCount}</span>{' '}
+              {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
+            </h2>
+          </>
+        ) : (
+          <>
+            <h2 className='text-xl font-semibold text-gray-800'>
+              <span className='font-semibold'>{resultsCount}</span>{' '}
+              {resultsCount === 1 ? t('results.foundOne') : t('results.found')}
+            </h2>
+            <p className='text-sm text-gray-400'>{t('results.foundDescription')}</p>
+          </>
+        )}
       </div>
       <div className='mx-4 mt-4 grid max-w-7xl grid-cols-1 gap-4 sm:mt-6 md:grid-cols-2 xl:grid-cols-3'>
         {professionals.map(professional => (
