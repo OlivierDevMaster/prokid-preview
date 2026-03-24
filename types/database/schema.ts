@@ -566,6 +566,9 @@ export type Database = {
           intervention_radius_km: number
           is_available: boolean
           is_certified: boolean
+          latitude: number | null
+          location: unknown
+          longitude: number | null
           phone: string | null
           postal_code: string | null
           rating: number | null
@@ -589,6 +592,9 @@ export type Database = {
           intervention_radius_km: number
           is_available?: boolean
           is_certified?: boolean
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
           phone?: string | null
           postal_code?: string | null
           rating?: number | null
@@ -612,6 +618,9 @@ export type Database = {
           intervention_radius_km?: number
           is_available?: boolean
           is_certified?: boolean
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
           phone?: string | null
           postal_code?: string | null
           rating?: number | null
@@ -963,6 +972,9 @@ export type Database = {
       structures: {
         Row: {
           created_at: string
+          latitude: number | null
+          location: unknown
+          longitude: number | null
           name: string
           stripe_customer_id: string | null
           updated_at: string
@@ -970,6 +982,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
           name: string
           stripe_customer_id?: string | null
           updated_at?: string
@@ -977,6 +992,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
           name?: string
           stripe_customer_id?: string | null
           updated_at?: string
@@ -1108,6 +1126,18 @@ export type Database = {
       cleanup_ended_mission_reminders: { Args: never; Returns: number }
       end_accepted_missions: { Args: never; Returns: number }
       expire_pending_missions: { Args: never; Returns: number }
+      expire_professionals_availability: { Args: never; Returns: number }
+      get_nearby_professionals_from_structure: {
+        Args: { p_structure_id: string }
+        Returns: {
+          city: string
+          distance_km: number
+          hourly_rate: number
+          is_available: boolean
+          is_default_case: boolean
+          user_id: string
+        }[]
+      }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
