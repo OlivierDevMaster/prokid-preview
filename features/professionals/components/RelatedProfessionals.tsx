@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
-import { ProfessionalsCard } from '@/features/professionals/components/ProfessionalsCard';
+import { ProfessionalSearchCard } from '@/features/professionals/components/ProfessionalSearchCard';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 
 import { useFindProfessionals } from '../hooks/useFindProfessionals';
@@ -45,7 +45,7 @@ export function RelatedProfessionals({
       </h2>
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         {relatedProfessionals.slice(0, 4).map(professional => (
-          <ProfessionalsCard
+          <ProfessionalSearchCard
             key={professional.user_id}
             professional={professional}
           />
