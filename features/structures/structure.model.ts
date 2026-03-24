@@ -14,6 +14,9 @@ export type StructureColumn = keyof Tables<'structures'>;
 
 export const StructureColumn = {
   created_at: 'created_at',
+  latitude: 'latitude',
+  location: 'location',
+  longitude: 'longitude',
   name: 'name',
   stripe_customer_id: 'stripe_customer_id',
   updated_at: 'updated_at',

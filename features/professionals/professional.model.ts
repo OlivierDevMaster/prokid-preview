@@ -13,6 +13,8 @@ export type Professional = {
 export type ProfessionalColumn = keyof Tables<'professionals'>;
 
 export const ProfessionalColumn = {
+  availability_end: 'availability_end',
+  availability_start: 'availability_start',
   city: 'city',
   created_at: 'created_at',
   current_job: 'current_job',
@@ -23,6 +25,9 @@ export const ProfessionalColumn = {
   intervention_radius_km: 'intervention_radius_km',
   is_available: 'is_available',
   is_certified: 'is_certified',
+  latitude: 'latitude',
+  location: 'location',
+  longitude: 'longitude',
   phone: 'phone',
   postal_code: 'postal_code',
   rating: 'rating',
@@ -31,8 +36,6 @@ export const ProfessionalColumn = {
   stripe_customer_id: 'stripe_customer_id',
   updated_at: 'updated_at',
   user_id: 'user_id',
-  availability_start: 'availability_start',
-  availability_end: 'availability_end',
   verified_at: 'verified_at',
 } as const satisfies {
   [K in ProfessionalColumn]: K;
