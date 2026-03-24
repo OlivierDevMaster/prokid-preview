@@ -27,7 +27,7 @@ export function ProfessionalProfileBreadcrumb({
     >
       <Link
         className='font-medium text-[#4A90E2] underline-offset-2 hover:underline'
-        href='/professionals'
+        href='/structure/search'
       >
         {t('searchBreadcrumb')}
       </Link>
