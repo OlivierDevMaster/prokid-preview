@@ -2,6 +2,8 @@
 
 import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 import type { Professional } from '@/features/professionals/professional.model';
 
@@ -15,10 +17,19 @@ import { MissionRecipient } from './MissionRecipient';
 export function CreateMissionPage() {
   const t = useTranslations('structure');
   const tMissions = useTranslations('structure.missions');
-  const { selectedProfessionalIds } = useSelectedProfessional();
+  const searchParams = useSearchParams();
+  const { selectedProfessionalIds, setSelectedProfessionalIds } =
+    useSelectedProfessional();
   const { data } = useFindProfessionals({}, { limit: 1000, page: 1 });
+  const professionalIdFromQuery = searchParams.get('professional_id');
 
   const allProfessionals: Professional[] = data?.data ?? [];
+
+  useEffect(() => {
+    if (!professionalIdFromQuery) return;
+
+    setSelectedProfessionalIds(new Set([professionalIdFromQuery]));
+  }, [professionalIdFromQuery, setSelectedProfessionalIds]);
 
   const recipients = allProfessionals.filter(professional =>
     selectedProfessionalIds.has(professional.user_id)
