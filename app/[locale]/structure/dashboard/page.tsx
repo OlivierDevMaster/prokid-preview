@@ -14,6 +14,20 @@ import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
 import { Link } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
+type Profile = {
+  avatar_url: null | string;
+  city?: null | string;
+  created_at: string;
+  email: string;
+  first_name: null | string;
+  is_onboarded: boolean;
+  last_name: null | string;
+  postal_code?: null | string;
+  preferred_language: 'en' | 'fr';
+  role: 'admin' | 'professional' | 'structure';
+  user_id: string;
+};
+
 export default function DashboardPage() {
   const t = useTranslations('structure.dashboard');
   const { data: session } = useSession();
@@ -25,11 +39,9 @@ export default function DashboardPage() {
 
   const structureName = structure?.name || t('structureNameFallback');
 
-  // FIXME: Add location
+  const profile = structure?.profile as null | Profile | undefined;
   const structureCity =
-    structure?.profile?.city ||
-    structure?.profile?.postal_code ||
-    t('structureLocationFallback');
+    profile?.city || profile?.postal_code || t('structureLocationFallback');
 
   useEffect(() => {
     handleClearSelection();

@@ -31,6 +31,8 @@ export const ProfessionalColumn = {
   stripe_customer_id: 'stripe_customer_id',
   updated_at: 'updated_at',
   user_id: 'user_id',
+  availability_start: 'availability_start',
+  availability_end: 'availability_end',
   verified_at: 'verified_at',
 } as const satisfies {
   [K in ProfessionalColumn]: K;
