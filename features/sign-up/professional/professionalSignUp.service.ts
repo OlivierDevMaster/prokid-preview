@@ -7,6 +7,9 @@ export async function registerProfessionalProfile(
   formData: ProfessionalSignUpFormData
 ): Promise<void> {
   const supabase = createClient();
+  const hasCoordinates =
+    typeof formData.latitude === 'number' &&
+    typeof formData.longitude === 'number';
 
   let avatarUrl: null | string = null;
 
@@ -47,6 +50,11 @@ export async function registerProfessionalProfile(
         : 0,
       hourly_rate: formData.hourlyRate,
       intervention_radius_km: formData.interventionZone,
+      latitude: hasCoordinates ? formData.latitude : null,
+      location: hasCoordinates
+        ? `SRID=4326;POINT(${formData.longitude} ${formData.latitude})`
+        : null,
+      longitude: hasCoordinates ? formData.longitude : null,
       phone: formData.phone || null,
       postal_code: formData.postalCode || null,
       skills:

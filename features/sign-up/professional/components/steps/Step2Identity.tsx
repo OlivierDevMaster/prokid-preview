@@ -30,7 +30,10 @@ export function Step2Identity({
     control,
     formState: { errors },
     setValue,
+    watch,
   } = form;
+  const latitude = watch('latitude');
+  const longitude = watch('longitude');
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) return;
@@ -43,10 +46,12 @@ export function Step2Identity({
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
           const data = (await res.json()) as {
-            address?: { city?: string; postcode?: string };
+            address?: { city?: string; postcode?: string; town?: string };
           };
           const city = data.address?.city ?? data.address?.town ?? '';
           const postalCode = data.address?.postcode ?? '';
+          setValue('latitude', latitude, { shouldDirty: true });
+          setValue('longitude', longitude, { shouldDirty: true });
           if (city) setValue('city', city);
           if (postalCode) setValue('postalCode', postalCode);
         } catch {

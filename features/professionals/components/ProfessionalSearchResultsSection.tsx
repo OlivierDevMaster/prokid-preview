@@ -1,12 +1,12 @@
 'use client';
 
-import { FunnelX, Search, User } from 'lucide-react';
+import { FunnelX, UserSearch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/features/paginations/components/Pagination';
 import { ProfessionalSearchCard } from '@/features/professionals/components/ProfessionalSearchCard';
-import { Professional } from '@/features/professionals/professional.model';
+import { ProfessionalWithDistance } from '@/features/professionals/types/nearby-professionals.types';
 
 interface ProfessionalSearchResultsSectionProps {
   hasResults: boolean;
@@ -17,7 +17,7 @@ interface ProfessionalSearchResultsSectionProps {
   onToggleSelect: (professionalId: string) => void;
   page: number;
   pageSize: number;
-  professionals: Professional[];
+  professionals: ProfessionalWithDistance[];
   resultsCount: number;
   totalCount: number;
   totalPages: number;
@@ -43,14 +43,7 @@ export function ProfessionalSearchResultsSection({
     return (
       <div className='mx-4 mt-8 flex flex-col items-center justify-center rounded-3xl px-4 py-16 text-center shadow-sm sm:mt-10 sm:px-8 sm:py-20'>
         <div className='mb-6 flex size-32 items-center justify-center rounded-full border-2 border-dashed border-gray-300 bg-slate-100'>
-          <div className='relative flex items-center justify-center'>
-            {/* Icône utilisateur au centre */}
-            <User className='size-16 fill-gray-300 stroke-none' />
-            {/* Icône loupe en bas à droite */}
-            <span className='absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-slate-100 shadow-sm'>
-              <Search className='size-6 text-gray-300' strokeWidth={3} />
-            </span>
-          </div>
+          <UserSearch className='size-16 text-gray-300' />
         </div>
         <h2 className='mb-2 text-xl font-semibold text-slate-900 sm:text-2xl'>
           {t('results.emptyTitle')}
@@ -82,6 +75,8 @@ export function ProfessionalSearchResultsSection({
       <div className='mx-4 mt-4 grid max-w-7xl grid-cols-1 gap-4 sm:mt-6 md:grid-cols-2 xl:grid-cols-3'>
         {professionals.map(professional => (
           <ProfessionalSearchCard
+            distanceKm={professional.distance_km}
+            isDefaultCase={professional.is_default_case}
             key={professional.user_id}
             onToggleSelect={() => onToggleSelect(professional.user_id)}
             professional={professional}

@@ -11,6 +11,8 @@ export interface ProfessionalSearchActions {
   setLocationQuery: (value: string) => void;
   setSearchQuery: (value: string) => void;
   setSelectedAvailability: (value: string) => void;
+  setSelectedAvailabilityDate: (value: string) => void;
+  setSelectedAvailabilityDurationDays: (value: null | number) => void;
   setSelectedRole: (value: string) => void;
 }
 
@@ -23,6 +25,8 @@ export interface ProfessionalSearchState {
   locationQuery: string;
   searchQuery: string;
   selectedAvailability: string;
+  selectedAvailabilityDate: string;
+  selectedAvailabilityDurationDays: null | number;
   selectedRole: string;
 }
 
@@ -40,6 +44,12 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
   const [appliedRole, setAppliedRole] = useState<string>('all');
   const [selectedAvailability, setSelectedAvailability] =
     useState<string>('all');
+  const [selectedAvailabilityDate, setSelectedAvailabilityDate] =
+    useState<string>('');
+  const [
+    selectedAvailabilityDurationDays,
+    setSelectedAvailabilityDurationDays,
+  ] = useState<null | number>(null);
   const [appliedAvailability, setAppliedAvailability] = useState<string>('all');
   const [isRoleSelectOpen, setIsRoleSelectOpen] = useState(false);
   const [isAvailabilitySelectOpen, setIsAvailabilitySelectOpen] =
@@ -51,6 +61,8 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     setLocationQuery('');
     setSelectedRole('all');
     setSelectedAvailability('all');
+    setSelectedAvailabilityDate('');
+    setSelectedAvailabilityDurationDays(null);
     setAppliedLocationQuery('');
     setAppliedRole('all');
     setAppliedAvailability('all');
@@ -64,6 +76,8 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
 
   const clearAvailabilityFilter = () => {
     setSelectedAvailability('all');
+    setSelectedAvailabilityDate('');
+    setSelectedAvailabilityDurationDays(null);
     setAppliedAvailability('all');
   };
 
@@ -77,11 +91,12 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     setAppliedRole('all');
   };
 
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     searchQuery ||
     appliedLocationQuery ||
     appliedRole !== 'all' ||
-    appliedAvailability !== 'all';
+    appliedAvailability !== 'all'
+  );
 
   // Close all Selects on unmount to prevent portal cleanup errors
   useEffect(() => {
@@ -108,6 +123,8 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
       setLocationQuery,
       setSearchQuery,
       setSelectedAvailability,
+      setSelectedAvailabilityDate,
+      setSelectedAvailabilityDurationDays,
       setSelectedRole,
     },
     hasActiveFilters,
@@ -120,6 +137,8 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
       locationQuery,
       searchQuery,
       selectedAvailability,
+      selectedAvailabilityDate,
+      selectedAvailabilityDurationDays,
       selectedRole,
     },
   };

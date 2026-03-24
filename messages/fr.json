@@ -382,11 +382,21 @@
       "locationPlaceholder": "Ville",
       "role": "Rôle",
       "availability": "Disponibilité",
+      "date": "Disponible le",
+      "available": "Disponible",
+      "durationDays": "Pendant (nombre de jours)",
+      "daySingular": "jour",
+      "dayPlural": "jours",
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
       "activeFilters": "Filtres actifs :",
       "reset": "Réinitialiser",
       "clear": "Effacer",
       "apply": "Appliquer",
-      "searchButton": "Rechercher"
+      "searchButton": "Rechercher",
+      "useMyPosition": "Activer ma position",
+      "useMyPositionInstruction": "Activez votre position actuelle pour trouver les professionnels les plus proches de vous",
+      "locating": "Localisation..."
     },
     "results": {
       "found": "professionnels trouvés",
@@ -497,6 +507,7 @@
     },
     "availability": {
       "all": "Toutes les disponibilités",
+      "available": "Disponible",
       "morning": "Matin",
       "afternoon": "Après-midi",
       "fullDay": "Journée complète",
@@ -549,8 +560,10 @@
         "yes": "Oui",
         "no": "Non",
         "questionDuration": "Pour combien de temps ?",
-        "days": "{count} jours",
-        "greenBadgeInfo": "Pastille verte pendant {count} jours.",
+        "untilModification": "Jusqu'à modification",
+        "days": "{count, plural, one {# jour} other {# jours}}",
+        "greenBadgeInfo": "Pastille verte pendant {count, plural, one {# jour} other {# jours}}.",
+        "greenBadgeInfoUntilModification": "Pastille verte jusqu'à modification.",
         "greenBadgeRemoved": "Pastille verte retirée.",
         "confirm": "Confirmer"
       },
