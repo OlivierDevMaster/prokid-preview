@@ -1,7 +1,9 @@
 'use client';
 
+import { LogOutIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +17,6 @@ import { useRole } from '@/hooks/useRole';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from '@/modeles/navigation.modele';
-import { LogOutIcon } from 'lucide-react';
 
 type BoSidebarProps = {
   navItems: SidebarNavItem[];
@@ -64,7 +65,6 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
           : '';
 
   const projectName = tTitle('project');
-  const projectInitial = projectName?.charAt(0).toUpperCase() || 'P';
 
   return (
     <aside className='flex h-full w-[4.5rem] flex-col border-r border-blue-100 bg-gradient-to-b from-blue-50/80 to-white'>
@@ -74,8 +74,15 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
         href='/'
         title={projectName}
       >
-        <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm'>
-          {projectInitial}
+        <div className='relative h-9 w-9 overflow-hidden rounded-2xl shadow-sm'>
+          <Image
+            alt={projectName}
+            className='object-cover'
+            fill
+            priority
+            sizes='46px'
+            src='/icons/logo-bg-dark-blue-circle.svg'
+          />
         </div>
         {roleBadgeLabel && (
           <span
@@ -145,7 +152,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='start' alignOffset={10}>
-            <DropdownMenuItem variant='destructive' onClick={handleSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} variant='destructive'>
               <LogOutIcon className='text-destructive' />
               {tAdmin('logout')}
             </DropdownMenuItem>
