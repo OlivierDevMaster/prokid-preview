@@ -8,12 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 import { generateUsernameSlug } from '@/lib/utils';
 
 import { ProfessionalSkills } from '../professional.config';
 import { Professional } from '../professional.model';
 
 interface ProfessionalSearchCardProps {
+  distanceKm?: number;
+  isDefaultCase?: boolean;
   onToggleSelect?: (professional: Professional) => void;
   professional: Professional;
   selectable?: boolean;
@@ -21,6 +24,8 @@ interface ProfessionalSearchCardProps {
 }
 
 export function ProfessionalSearchCard({
+  distanceKm,
+  isDefaultCase,
   onToggleSelect,
   professional,
   selectable = false,
@@ -64,9 +69,32 @@ export function ProfessionalSearchCard({
     onToggleSelect(professional);
   };
 
+  const locationLabel = (() => {
+    if (isDefaultCase) {
+      return professional.city ?? '';
+    }
+
+    if (typeof distanceKm !== 'number') {
+      return professional.city ?? '';
+    }
+
+    if (distanceKm > 1000) {
+      return professional.city ?? '';
+    }
+
+    if (distanceKm < 1) {
+      return `${Math.round(distanceKm * 1000)} m`;
+    }
+
+    return `${Math.round(distanceKm)} ${t('km')}`;
+  })();
+
   return (
     <Card
-      className={`relative flex h-full flex-col justify-between rounded-2xl border bg-white transition-shadow ${selectableCardClasses}`}
+      className={cn(
+        'relative flex h-full flex-col justify-between rounded-2xl border transition-shadow',
+        selectableCardClasses
+      )}
     >
       {selectable && (
         <div
@@ -126,8 +154,8 @@ export function ProfessionalSearchCard({
           <div className='mt-3 flex flex-wrap items-start justify-start gap-2'>
             {(professional?.skills ?? []).slice(0, 3).map((skill, index) => (
               <Badge
-                key={index}
                 className='flex items-center rounded-full bg-gray-100 font-medium text-gray-700 hover:bg-gray-100 sm:text-xs'
+                key={index}
                 variant='secondary'
               >
                 {skill}
@@ -139,7 +167,7 @@ export function ProfessionalSearchCard({
           <div className='flex min-w-0 items-center gap-1.5 text-gray-600'>
             <MapPin className='h-4 w-4 flex-shrink-0 text-gray-400' />
             <span className='truncate'>
-              {t('to')} {professional.intervention_radius_km} {t('km')}
+              {t('to')} {locationLabel}
             </span>
           </div>
           <div className='mt-1 flex items-center gap-1.5 text-sm text-gray-600'>
@@ -150,7 +178,7 @@ export function ProfessionalSearchCard({
                 : '0.0'}
             </span>
             <span className='text-gray-500'>
-              ({professional.reviews_count ?? 0} {t('reviews')})
+              ({professional.reviews_count} {t('reviews')})
             </span>
           </div>
         </div>

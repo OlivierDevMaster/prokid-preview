@@ -1,6 +1,7 @@
 'use client';
 
 import { Send } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { parseAsInteger, useQueryState } from 'nuqs';
@@ -9,16 +10,17 @@ import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ProfessionalFiltersSection } from '@/features/professionals/components/ProfessionalFiltersSection';
 import { ProfessionalSearchResultsSection } from '@/features/professionals/components/ProfessionalSearchResultsSection';
-import { useFindProfessionals } from '@/features/professionals/hooks/useFindProfessionals';
+import { useFindNearbyProfessionalsFromStructure } from '@/features/professionals/hooks/useFindNearbyProfessionalsFromStructure';
 import { useProfessionalSearch } from '@/features/professionals/hooks/useProfessionalSearch';
 import { ProfessionalConfig } from '@/features/professionals/professional.config';
-import { Professional } from '@/features/professionals/professional.model';
+import { ProfessionalWithDistance } from '@/features/professionals/types/nearby-professionals.types';
 import { useRouter } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function StructureSearchPage() {
   const { handleToggleProfessional, selectedProfessionalIds } =
     useSelectedProfessional();
+  const { data: session } = useSession();
   const tMissions = useTranslations('structure.missions');
   const router = useRouter();
   const { actions, state } = useProfessionalSearch();
@@ -32,17 +34,23 @@ export default function StructureSearchPage() {
     parseAsInteger.withDefault(ProfessionalConfig.PAGE_SIZE_DEFAULT)
   );
 
-  const { data } = useFindProfessionals(
+  const structureId = session?.user?.id;
+
+  const { data } = useFindNearbyProfessionalsFromStructure(
+    structureId,
     {
       availability: state.appliedAvailability,
       current_job: state.appliedRole === 'all' ? undefined : state.appliedRole,
       locationSearch: state.appliedLocationQuery,
       search: state.searchQuery,
     },
-    { limit: pageSize, page }
+    { limit: pageSize, page, radiusKm: 10 }
   );
 
-  const professionals: Professional[] = useMemo(() => data?.data ?? [], [data]);
+  const professionals: ProfessionalWithDistance[] = useMemo(
+    () => data?.data ?? [],
+    [data]
+  );
   const totalCount = data?.count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   const resultsCount = totalCount;

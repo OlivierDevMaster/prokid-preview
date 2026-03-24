@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/features/paginations/components/Pagination';
 import { ProfessionalSearchCard } from '@/features/professionals/components/ProfessionalSearchCard';
-import { Professional } from '@/features/professionals/professional.model';
+import { ProfessionalWithDistance } from '@/features/professionals/types/nearby-professionals.types';
 
 interface ProfessionalSearchResultsSectionProps {
   hasResults: boolean;
@@ -17,7 +17,7 @@ interface ProfessionalSearchResultsSectionProps {
   onToggleSelect: (professionalId: string) => void;
   page: number;
   pageSize: number;
-  professionals: Professional[];
+  professionals: ProfessionalWithDistance[];
   resultsCount: number;
   totalCount: number;
   totalPages: number;
@@ -75,6 +75,8 @@ export function ProfessionalSearchResultsSection({
       <div className='mx-4 mt-4 grid max-w-7xl grid-cols-1 gap-4 sm:mt-6 md:grid-cols-2 xl:grid-cols-3'>
         {professionals.map(professional => (
           <ProfessionalSearchCard
+            distanceKm={professional.distance_km}
+            isDefaultCase={professional.is_default_case}
             key={professional.user_id}
             onToggleSelect={() => onToggleSelect(professional.user_id)}
             professional={professional}

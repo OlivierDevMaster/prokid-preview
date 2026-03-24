@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface ProfessionalActiveFiltersProps {
-  locationQuery: string;
   hasResults: boolean;
+  locationQuery: string;
   onClearAll: () => void;
   onClearAvailability: () => void;
   onClearLocation: () => void;
@@ -20,8 +20,8 @@ interface ProfessionalActiveFiltersProps {
 }
 
 export function ProfessionalActiveFilters({
-  locationQuery,
   hasResults,
+  locationQuery,
   onClearAll,
   onClearAvailability,
   onClearLocation,
@@ -32,6 +32,10 @@ export function ProfessionalActiveFilters({
   selectedRole,
 }: ProfessionalActiveFiltersProps) {
   const t = useTranslations('professional');
+  const availabilityLabel =
+    selectedAvailability === 'available'
+      ? t('availability.available')
+      : t(`availability.${selectedAvailability}`);
 
   const hasFilters =
     searchQuery ||
@@ -110,8 +114,7 @@ export function ProfessionalActiveFilters({
           variant='outline'
         >
           <span className='max-w-[150px] truncate sm:max-w-none'>
-            {t('search.availability')}:{' '}
-            {t(`availability.${selectedAvailability}`)}
+            {t('search.availability')}: {availabilityLabel}
           </span>
           <button
             className='ml-1 flex-shrink-0 rounded-full hover:bg-blue-300'

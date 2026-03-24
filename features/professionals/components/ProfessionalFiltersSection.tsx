@@ -1,5 +1,7 @@
 'use client';
 
+import { addDays, format, parseISO } from 'date-fns';
+import { X } from 'lucide-react';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -15,7 +17,6 @@ import {
   ProfessionalSearchActions,
   ProfessionalSearchState,
 } from '../hooks/useProfessionalSearch';
-import { Separator } from '@/components/ui/separator';
 
 interface ProfessionalFiltersSectionProps {
   actions: ProfessionalSearchActions;
@@ -31,6 +32,29 @@ export function ProfessionalFiltersSection({
   state,
 }: ProfessionalFiltersSectionProps) {
   const t = useTranslations('professional');
+  const hasAvailabilityDate = state.selectedAvailabilityDate.length > 0;
+  const hasAvailabilityFilter = state.selectedAvailability !== 'all';
+
+  const availabilityStartDate = hasAvailabilityDate
+    ? parseISO(state.selectedAvailabilityDate)
+    : null;
+  const availabilityEndDate =
+    availabilityStartDate &&
+    typeof state.selectedAvailabilityDurationDays === 'number' &&
+    state.selectedAvailabilityDurationDays > 0
+      ? addDays(
+          availabilityStartDate,
+          state.selectedAvailabilityDurationDays - 1
+        )
+      : null;
+
+  const availabilitySummary =
+    hasAvailabilityFilter && availabilityStartDate
+      ? typeof state.selectedAvailabilityDurationDays === 'number' &&
+        availabilityEndDate
+        ? `${format(availabilityStartDate, 'dd/MM/yyyy')} - ${format(availabilityEndDate, 'dd/MM/yyyy')} (${state.selectedAvailabilityDurationDays} ${state.selectedAvailabilityDurationDays > 1 ? t('search.dayPlural') : t('search.daySingular')})`
+        : `${format(availabilityStartDate, 'dd/MM/yyyy')}`
+      : null;
 
   return (
     <div className='mb-6 bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100 sm:px-6 sm:py-4'>
@@ -46,12 +70,33 @@ export function ProfessionalFiltersSection({
         <div className='grid grid-cols-1 gap-2 sm:grid-cols-4 sm:gap-3'>
           <div className='w-full'>
             <ProfessionalAvailabilitySelect
+              onDateChange={actions.setSelectedAvailabilityDate}
+              onDurationDaysChange={actions.setSelectedAvailabilityDurationDays}
               onOpenChange={actions.setIsAvailabilitySelectOpen}
               onValueChange={actions.setSelectedAvailability}
               open={state.isAvailabilitySelectOpen}
-              value={state.selectedAvailability}
+              selectedDate={state.selectedAvailabilityDate}
+              selectedDurationDays={state.selectedAvailabilityDurationDays}
             />
+
+            {availabilitySummary && (
+              <div className='mt-2 flex items-center justify-between rounded-xl bg-blue-50 px-3 py-2 text-xs text-blue-700'>
+                <span>
+                  {t('search.availability', { defaultValue: 'Availability' })}:{' '}
+                  {availabilitySummary}
+                </span>
+                <button
+                  aria-label={t('search.clear')}
+                  className='ml-2 rounded-full p-1 text-blue-700 hover:bg-blue-100'
+                  onClick={actions.clearAvailabilityFilter}
+                  type='button'
+                >
+                  <X className='h-3 w-3' />
+                </button>
+              </div>
+            )}
           </div>
+
           <div className='w-full'>
             <ProfessionalLocationInput
               onChange={actions.setLocationQuery}
