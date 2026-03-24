@@ -1,8 +1,10 @@
 'use client';
 
+import { Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { useScrollToBottom } from '@/features/chat/hooks/useScrollToBottom';
 import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRating';
 import { useDeleteRating } from '@/features/structure/ratings/hooks/useDeleteRating';
@@ -241,6 +243,7 @@ export function ChatPanel({
         existingRating={
           viewRole === 'structure' ? (existingRating ?? null) : null
         }
+        missionEnded={mission?.status === 'ended'}
         onOpenReview={() => setReviewModalOpen(true)}
         otherPartyAddress={otherPartyAddress}
         otherPartyAvatarUrl={
@@ -293,6 +296,29 @@ export function ChatPanel({
           />
         </div>
       )}
+
+      {/* Invite to rate after mission ended */}
+      {viewRole === 'structure' &&
+        mission?.status === 'ended' &&
+        !existingRating && (
+          <div className='flex items-center justify-between border-b border-amber-200 bg-amber-50 px-4 py-3'>
+            <div className='flex items-center gap-2'>
+              <Star className='h-4 w-4 fill-amber-400 text-amber-400' />
+              <p className='text-sm font-medium text-amber-800'>
+                La mission est terminée ! Comment s&apos;est passée la
+                collaboration avec {otherPartyName} ?
+              </p>
+            </div>
+            <Button
+              className='shrink-0 border-amber-300 bg-white text-amber-700 hover:bg-amber-50'
+              onClick={() => setReviewModalOpen(true)}
+              size='sm'
+              variant='outline'
+            >
+              Donner mon avis
+            </Button>
+          </div>
+        )}
 
       <ChatMessageList
         currentUserId={currentUserId}

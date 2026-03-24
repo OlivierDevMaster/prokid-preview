@@ -107,29 +107,29 @@ export function ChatInput({
         </div>
       )}
       <div className='flex items-end justify-center gap-2'>
-        <div className='flex h-full items-center justify-center'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button aria-label={t('attach')} size='icon' variant='ghost'>
-                <Plus className='h-5 w-5' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='start'>
-              {viewRole === 'professional' && (
+        {viewRole === 'professional' && (
+          <div className='flex h-full items-center justify-center'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button aria-label={t('attach')} size='icon' variant='ghost'>
+                  <Plus className='h-5 w-5' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='start'>
                 <DropdownMenuItem onClick={onProposeAppointment}>
                   <CalendarPlus className='mr-2 h-4 w-4' />
                   {t('proposeMeeting')}
                 </DropdownMenuItem>
-              )}
-              {viewRole === 'professional' && onWriteReport && (
-                <DropdownMenuItem onClick={onWriteReport}>
-                  <FileText className='mr-2 h-4 w-4' />
-                  {t('writeReport')}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                {onWriteReport && (
+                  <DropdownMenuItem onClick={onWriteReport}>
+                    <FileText className='mr-2 h-4 w-4' />
+                    {t('writeReport')}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
 
         <Textarea
           className='max-h-[18rem] min-h-[44px] resize-none rounded-md border-none bg-[#f1f5f9] px-4'

@@ -14,6 +14,7 @@ import type { ViewRole } from '../types/chat.types';
 
 export interface ChatPanelHeaderProps {
   existingRating: { id: string } | null;
+  missionEnded?: boolean;
   onOpenReview: () => void;
   otherPartyAddress: null | string;
   otherPartyAvatarUrl: null | string;
@@ -24,6 +25,7 @@ export interface ChatPanelHeaderProps {
 
 export function ChatPanelHeader({
   existingRating,
+  missionEnded,
   onOpenReview,
   otherPartyAddress,
   otherPartyAvatarUrl,
@@ -81,8 +83,19 @@ export function ChatPanelHeader({
       </div>
       <div className='flex flex-shrink-0 items-center gap-2'>
         {viewRole === 'structure' && (
-          <Button onClick={onOpenReview} size='sm' variant='outline'>
-            <Star className='mr-2 h-4 w-4' />
+          <Button
+            className={
+              missionEnded && !existingRating
+                ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                : ''
+            }
+            onClick={onOpenReview}
+            size='sm'
+            variant='outline'
+          >
+            <Star
+              className={`mr-2 h-4 w-4 ${missionEnded && !existingRating ? 'fill-amber-400 text-amber-400' : ''}`}
+            />
             {existingRating ? t('updateReview') : t('leaveReview')}
           </Button>
         )}
