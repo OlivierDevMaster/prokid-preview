@@ -62,7 +62,7 @@ export function RecapPropositionCard({
       : null;
 
   return (
-    <Card className='rounded-3xl border-none bg-blue-900 px-4 py-4 text-white shadow-lg'>
+    <Card className='rounded-3xl border-none bg-[#2C3E50] px-4 py-4 text-white shadow-lg'>
       {/* Header */}
       <div className='flex items-center gap-2 px-5 py-4'>
         <span className='flex h-6 w-6 items-center justify-center rounded-full bg-white/20'>
@@ -127,7 +127,7 @@ export function RecapPropositionCard({
             </p>
           )}
           <button
-            className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-70'
+            className='flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#2C3E50] shadow-sm transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-70'
             disabled={isSubmitting}
             type='submit'
           >
