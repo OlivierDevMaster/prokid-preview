@@ -148,7 +148,7 @@ export default function AvailabilitiesPage() {
   const handleStopRecurrenceClick = (slot: AvailabilitySlot) => {
     // Prevent stopping recurrence if slot is booked
     if (!slot.isAvailable && slot.mission) {
-      alert(t('cannotDeleteBooked'));
+      toast.error(t('cannotDeleteBooked'));
       return;
     }
 

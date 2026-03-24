@@ -293,6 +293,11 @@
         "profilePhotoDescription": "Télécharger une photo de profil (optionnel)",
         "removePhoto": "Supprimer"
       }
+    },
+    "errorPage": {
+      "title": "Désolé, une erreur est survenue.",
+      "codeError": "Code erreur : {error}",
+      "unspecifiedError": "Une erreur non spécifiée est survenue."
     }
   },
   "footer": {

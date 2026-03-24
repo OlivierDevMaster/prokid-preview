@@ -203,21 +203,6 @@ export function ProfessionalSettingsLayout() {
               </div>
             </section>
 
-            <section className='rounded-xl bg-red-50 p-6'>
-              <h2 className='mb-2 font-bold text-red-600'>
-                {t('psDangerZone')}
-              </h2>
-              <p className='mb-4 text-xs text-red-500/80'>
-                {t('psDangerZoneText')}
-              </p>
-              <Button
-                className='w-full border border-red-200 bg-white font-bold text-red-600 hover:bg-red-600 hover:text-white'
-                onClick={() => toast.message(t('psDeleteAccountSoon'))}
-                variant='outline'
-              >
-                {t('psDeleteAccount')}
-              </Button>
-            </section>
           </div>
         </div>
 

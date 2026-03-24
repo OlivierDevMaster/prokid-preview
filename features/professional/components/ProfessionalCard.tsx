@@ -84,10 +84,10 @@ export function ProfessionalCard({
                 </p>
 
                 <div className='mb-3 flex flex-wrap gap-2'>
-                  {skills.map((skill, index) => (
+                  {skills.map((skill) => (
                     <Badge
                       className='bg-green-500 text-white hover:bg-green-600'
-                      key={index}
+                      key={skill}
                     >
                       {skill}
                     </Badge>

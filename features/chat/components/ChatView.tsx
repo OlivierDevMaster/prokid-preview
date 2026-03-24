@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -86,9 +87,21 @@ export function ChatView({ viewRole }: ChatViewProps) {
     [pathname, router, searchParams]
   );
 
+  const handleBackToList = useCallback(() => {
+    setSelectedConversationId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('conversationId');
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [pathname, router, searchParams]);
+
   return (
     <div className='flex h-full w-full flex-1'>
-      <div className='w-80 flex-shrink-0'>
+      {/* Conversation list: always visible on lg+, hidden on mobile when a conversation is selected */}
+      <div
+        className={`w-full flex-shrink-0 lg:w-80 ${
+          selectedConversationId ? 'hidden lg:block' : 'block'
+        }`}
+      >
         <ConversationList
           conversations={conversations}
           isLoading={isLoadingConversations}
@@ -97,14 +110,30 @@ export function ChatView({ viewRole }: ChatViewProps) {
           viewRole={viewRole}
         />
       </div>
-      <div className='flex min-w-0 flex-1'>
-        <ChatPanel
-          conversation={selectedConversation ?? null}
-          currentUserId={session?.user?.id}
-          isLoadingMessages={isLoadingMessages}
-          messages={messages}
-          viewRole={viewRole}
-        />
+      {/* Chat panel: always visible on lg+, hidden on mobile when no conversation is selected */}
+      <div
+        className={`min-w-0 flex-1 ${
+          selectedConversationId ? 'flex' : 'hidden lg:flex'
+        }`}
+      >
+        <div className='flex min-w-0 flex-1 flex-col'>
+          {/* Back button: only visible on mobile when a conversation is selected */}
+          <button
+            className='flex items-center gap-2 border-b px-3 py-2 text-sm text-muted-foreground hover:text-foreground lg:hidden'
+            onClick={handleBackToList}
+            type='button'
+          >
+            <ArrowLeft className='h-4 w-4' />
+            Retour aux conversations
+          </button>
+          <ChatPanel
+            conversation={selectedConversation ?? null}
+            currentUserId={session?.user?.id}
+            isLoadingMessages={isLoadingMessages}
+            messages={messages}
+            viewRole={viewRole}
+          />
+        </div>
         <ParticipantPanel
           conversation={selectedConversation ?? null}
           viewRole={viewRole}

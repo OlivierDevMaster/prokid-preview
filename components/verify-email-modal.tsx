@@ -13,19 +13,17 @@ import {
 
 type VerifyEmailModalProps = {
   email: string;
+  onClose?: () => void;
   open: boolean;
 };
 
-export function VerifyEmailModal({ email, open }: VerifyEmailModalProps) {
+export function VerifyEmailModal({ email, onClose, open }: VerifyEmailModalProps) {
   const t = useTranslations('auth.signUp.verifyEmail');
 
   return (
-    <Dialog onOpenChange={() => {}} open={open}>
+    <Dialog onOpenChange={isOpen => { if (!isOpen && onClose) onClose(); }} open={open}>
       <DialogContent
         className='sm:max-w-md'
-        onEscapeKeyDown={e => e.preventDefault()}
-        onPointerDownOutside={e => e.preventDefault()}
-        showCloseButton={false}
       >
         <DialogHeader>
           <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100'>
