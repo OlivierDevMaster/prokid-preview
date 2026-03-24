@@ -560,8 +560,10 @@
         "yes": "Oui",
         "no": "Non",
         "questionDuration": "Pour combien de temps ?",
-        "days": "{count} jours",
-        "greenBadgeInfo": "Pastille verte pendant {count} jours.",
+        "untilModification": "Jusqu'à modification",
+        "days": "{count, plural, one {# jour} other {# jours}}",
+        "greenBadgeInfo": "Pastille verte pendant {count, plural, one {# jour} other {# jours}}.",
+        "greenBadgeInfoUntilModification": "Pastille verte jusqu'à modification.",
         "greenBadgeRemoved": "Pastille verte retirée.",
         "confirm": "Confirmer"
       },
