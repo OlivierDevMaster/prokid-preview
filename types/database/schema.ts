@@ -971,32 +971,47 @@ export type Database = {
       }
       structures: {
         Row: {
+          address: string | null
+          city: string | null
           created_at: string
           latitude: number | null
           location: unknown
           longitude: number | null
           name: string
+          phone: string | null
+          postal_code: string | null
           stripe_customer_id: string | null
+          structure_type: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           latitude?: number | null
           location?: unknown
           longitude?: number | null
           name: string
+          phone?: string | null
+          postal_code?: string | null
           stripe_customer_id?: string | null
+          structure_type?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           latitude?: number | null
           location?: unknown
           longitude?: number | null
           name?: string
+          phone?: string | null
+          postal_code?: string | null
           stripe_customer_id?: string | null
+          structure_type?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1077,6 +1092,8 @@ export type Database = {
     Views: {
       professionals_with_profiles_search: {
         Row: {
+          availability_end: string | null
+          availability_start: string | null
           avatar_url: string | null
           city: string | null
           created_at: string | null
@@ -1084,12 +1101,16 @@ export type Database = {
           description: string | null
           experience_years: number | null
           first_name: string | null
+          has_used_trial: boolean | null
           hourly_rate: number | null
           intervention_radius_km: number | null
           is_available: boolean | null
           is_certified: boolean | null
           is_onboarded: boolean | null
           last_name: string | null
+          latitude: number | null
+          location: unknown
+          longitude: number | null
           phone: string | null
           postal_code: string | null
           profile_created_at: string | null

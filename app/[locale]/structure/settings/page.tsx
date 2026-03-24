@@ -1,58 +1,50 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import { ProfileTabContent } from '@/features/structure/settings/components/ProfileTabContent';
-import { useRouter } from '@/i18n/routing';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function SettingsPage() {
-  const router = useRouter();
   const t = useTranslations('admin');
   const searchParams = useSearchParams();
   const { handleClearSelection } = useSelectedProfessional();
+
   useEffect(() => {
     const emailUpdated = searchParams.get('emailUpdated');
     if (emailUpdated === 'true') {
       toast.success(t('setting.emailUpdateSuccessMessage'));
-      // Clear the query parameter from URL
       const url = new URL(window.location.href);
       url.searchParams.delete('emailUpdated');
       window.history.replaceState({}, '', url.pathname + url.search);
     }
   }, [searchParams, t]);
 
-
   useEffect(() => {
     handleClearSelection();
   }, [handleClearSelection]);
 
   return (
-    <div className='space-y-6 bg-blue-50/30 p-8'>
-      {/* Header */}
-      <div className='flex items-center gap-4'>
-        <Button
-          className='h-9 w-9'
-          onClick={() => router.back()}
-          size='icon'
-          variant='ghost'
-        >
-          <ArrowLeft className='h-5 w-5' />
-        </Button>
-        <h1 className='text-2xl font-bold text-gray-900'>
-          {t('setting.profileSettings')}
-        </h1>
-      </div>
+    <div className='min-h-screen bg-[#f6f6f8] text-slate-900'>
+      <header className='border-b border-slate-200 bg-white px-6 py-6 md:px-10'>
+        <div className='mx-auto max-w-3xl'>
+          <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
+            Paramètres
+          </h1>
+          <p className='mt-0.5 text-sm font-medium text-slate-500'>
+            Gérez les informations de votre structure
+          </p>
+        </div>
+      </header>
 
-      {/* Content */}
-      <div>
-        <ProfileTabContent />
-      </div>
+      <main className='px-6 py-8 md:px-10'>
+        <div className='mx-auto max-w-3xl'>
+          <ProfileTabContent />
+        </div>
+      </main>
     </div>
   );
 }
