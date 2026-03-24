@@ -245,7 +245,23 @@ INSERT INTO public.professionals (
   ARRAY['Homework Support', 'Academic Reinforcement', 'Study Skills', 'School-Age Care'],
   TRUE,
   NULL
-) ON CONFLICT (user_id) DO NOTHING;
+) ON CONFLICT (user_id) DO UPDATE
+SET
+  city = EXCLUDED.city,
+  postal_code = EXCLUDED.postal_code,
+  intervention_radius_km = EXCLUDED.intervention_radius_km,
+  phone = EXCLUDED.phone,
+  description = EXCLUDED.description,
+  current_job = EXCLUDED.current_job,
+  experience_years = EXCLUDED.experience_years,
+  hourly_rate = EXCLUDED.hourly_rate,
+  verified_at = EXCLUDED.verified_at,
+  is_available = EXCLUDED.is_available,
+  rating = EXCLUDED.rating,
+  reviews_count = EXCLUDED.reviews_count,
+  skills = EXCLUDED.skills,
+  is_certified = EXCLUDED.is_certified,
+  stripe_customer_id = EXCLUDED.stripe_customer_id;
 
 -- Seed geolocation columns for proximity search (idempotent)
 -- Note: functions are qualified with `extensions` to avoid search_path issues.
