@@ -85,7 +85,7 @@
     "dashboard": "Tableau de bord",
     "signIn": "Connexion",
     "signUp": "Inscription",
-    "professionals": "Trouver un professionnel",
+    "professionals": "Annuaire des professionnels",
     "howItWorks": "Comment ça marche"
   },
   "auth": {
@@ -414,6 +414,7 @@
       "to": "À",
       "km": "km",
       "available": "Disponible",
+      "availableNow": "Disponibilité confirmée",
       "unavailable": "Indisponible",
       "select": "Sélectionner ce professionnel",
       "unselect": "Désélectionner ce professionnel"

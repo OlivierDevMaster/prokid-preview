@@ -123,7 +123,7 @@ export function LoginForm({
             </div>
 
             <div className='flex justify-center space-y-2 text-blue-500'>
-              <Link href='/'>{t('home')}</Link>
+              <Link href='/professionals'>{t('home')}</Link>
             </div>
             {success && successMessage && (
               <div className='rounded-md bg-green-50 p-3 text-sm text-green-800'>

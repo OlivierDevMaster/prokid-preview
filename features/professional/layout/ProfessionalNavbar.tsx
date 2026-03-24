@@ -64,7 +64,7 @@ export function ProfessionalNavbar({
     <nav className='sticky top-0 z-50 w-full border-b bg-white shadow-sm'>
       <div className='flex items-center justify-between px-3 py-2'>
         <div>
-          <Link href='/'>
+          <Link href='/professional/dashboard'>
             <ProkidLogo />
           </Link>
         </div>

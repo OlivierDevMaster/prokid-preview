@@ -107,7 +107,7 @@ export default async function NotFound({
         </Card>
 
         <div className='flex flex-col items-center gap-4 sm:flex-row sm:justify-center'>
-          <I18nLink href='/'>
+          <I18nLink href='/auth/login'>
             <Button className='gap-2' size='lg'>
               <ArrowLeft className='h-4 w-4' />
               {t('backToHome')}

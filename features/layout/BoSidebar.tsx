@@ -1,6 +1,7 @@
 'use client';
 
 import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useRole } from '@/hooks/useRole';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -71,12 +78,25 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
       {/* Brand */}
       <Link
         className='flex flex-col items-center gap-1 px-2 pb-3 pt-4 transition-colors hover:bg-blue-50/60'
-        href='/'
+        href={
+          isAdmin
+            ? '/admin/dashboard'
+            : isProfessional
+              ? '/professional/dashboard'
+              : isStructure
+                ? '/structure/dashboard'
+                : '/auth/login'
+        }
         title={projectName}
       >
-        <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm'>
-          {projectInitial}
-        </div>
+        <Image
+          alt='ProKid Logo'
+          className='h-9 w-9 rounded-2xl'
+          height={36}
+          src='/icons/logo-bg-dark-blue-circle.svg'
+          unoptimized
+          width={36}
+        />
         {roleBadgeLabel && (
           <span
             className={cn(
@@ -94,39 +114,46 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
         className='flex-1 space-y-1 overflow-y-auto px-2 pb-4 pt-1'
         suppressHydrationWarning
       >
-        {mounted &&
-          navItems.map(item => {
-            const active = isActive(item.href);
-            const badgeCount = item.badgeCount;
+        <TooltipProvider delayDuration={0}>
+          {mounted &&
+            navItems.map(item => {
+              const active = isActive(item.href);
+              const badgeCount = item.badgeCount;
 
-            return (
-              <Link
-                className={cn(
-                  'mx-auto flex size-12 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors',
-                  active
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-700 hover:bg-blue-50/60'
-                )}
-                href={item.href}
-                key={item.href}
-                title={item.label}
-              >
-                <span className='relative inline-flex'>
-                  <item.icon
-                    className={cn(
-                      'h-5 w-5',
-                      active ? 'text-blue-700' : 'text-gray-500'
-                    )}
-                  />
-                  {typeof badgeCount === 'number' && badgeCount > 0 && (
-                    <span className='absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-semibold text-white'>
-                      {badgeCount > 9 ? '9+' : badgeCount}
-                    </span>
-                  )}
-                </span>
-              </Link>
-            );
-          })}
+              return (
+                <Tooltip key={item.href}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      className={cn(
+                        'mx-auto flex size-12 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors',
+                        active
+                          ? 'bg-white text-blue-700 shadow-sm'
+                          : 'text-gray-700 hover:bg-blue-50/60'
+                      )}
+                      href={item.href}
+                    >
+                      <span className='relative inline-flex'>
+                        <item.icon
+                          className={cn(
+                            'h-5 w-5',
+                            active ? 'text-blue-700' : 'text-gray-500'
+                          )}
+                        />
+                        {typeof badgeCount === 'number' && badgeCount > 0 && (
+                          <span className='absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-semibold text-white'>
+                            {badgeCount > 9 ? '9+' : badgeCount}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side='right' sideOffset={8}>
+                    {item.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+        </TooltipProvider>
       </nav>
 
       {/* User Section */}
