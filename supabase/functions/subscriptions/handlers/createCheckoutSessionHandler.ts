@@ -27,8 +27,11 @@ export const createCheckoutSessionHandler = factory.createHandlers(
       const user = get('user');
       const supabaseClient = get('supabaseClient');
 
+      console.log('user id from the start', user.id);
+
       const profile = await findProfile(supabaseClient, user.id);
 
+      console.log('profile', profile);
       if (!profile) {
         return apiResponse.unauthorized();
       }

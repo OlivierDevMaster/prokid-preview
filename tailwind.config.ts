@@ -9,6 +9,7 @@ export default {
     './features/**/*.{js,ts,jsx,tsx,mdx}',
     './hooks/**/*.{js,ts,jsx,tsx,mdx}',
     './services/**/*.{js,ts,jsx,tsx,mdx}',
+    './shared/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: ['class'],
   // eslint-disable-next-line @typescript-eslint/no-require-imports

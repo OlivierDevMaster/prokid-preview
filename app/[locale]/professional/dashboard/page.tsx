@@ -1,148 +1,103 @@
 'use client';
-import {
-  Building2,
-  Calendar,
-  CheckCircle,
-  ClipboardList,
-  Clock,
-  FileCheck,
-  FileText,
-  MessageSquare,
-  Percent,
-  Send,
-  UserPlus,
-} from 'lucide-react';
+
+import { MessageCircle } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
-import { StatCard } from '@/features/admin/StatCard';
-import { useGetDashboardStats } from '@/features/professional/hooks/useGetDashboardStats';
+import { Button } from '@/components/ui/button';
+import { AvailabilityStatusPopover } from '@/features/professional/Availabilities/components/AvailabilityStatusPopover';
+import { ProfessionalDashboardConversationsSection } from '@/features/professional/dashboard/ProfessionalDashboardConversationsSection';
+import { ProfessionalDashboardMissionsSection } from '@/features/professional/dashboard/ProfessionalDashboardMissionsSection';
+import { ProfessionalDashboardReportsSection } from '@/features/professional/dashboard/ProfessionalDashboardReportsSection';
+import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { ProfessionalSkills } from '@/features/professionals/professional.config';
+import { Link } from '@/i18n/routing';
 
 export default function DashboardPage() {
   const t = useTranslations('professional.dashboard');
+  const tProfessional = useTranslations('professional');
+  const { data: session } = useSession();
+  const { data: professional } = useFindProfessional(session?.user?.id);
 
-  const {
-    acceptedMissionsCount,
-    activeAvailabilitiesCount,
-    completedMissionsCount,
-    draftReportsCount,
-    missionsCount,
-    pendingInvitationsCount,
-    pendingMissionsCount,
-    reportsCount,
-    responseRate,
-    sentReportsCount,
-    structuresCount,
-    upcomingMissionsCount,
-  } = useGetDashboardStats();
+  const displayName =
+    professional?.profile?.first_name || professional?.profile?.last_name
+      ? `${professional.profile.first_name || ''} ${professional.profile.last_name || ''}`.trim()
+      : (session?.user?.name ?? '');
+
+  const currentJob = professional?.current_job ?? '';
+  const roleLabel =
+    currentJob &&
+    ProfessionalSkills.includes(
+      currentJob as (typeof ProfessionalSkills)[number]
+    )
+      ? tProfessional(`jobs.${currentJob}`)
+      : currentJob;
 
   return (
-    <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
-      {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
-        <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
-      </div>
-
-      {/* Stats Cards - Main KPIs */}
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        <StatCard
-          icon={Building2}
-          title={t('totalStructures')}
-          value={structuresCount.toString()}
-        />
-        <StatCard
-          icon={MessageSquare}
-          title={t('totalMissions')}
-          value={missionsCount.toString()}
-        />
-        <StatCard
-          icon={ClipboardList}
-          title={t('totalReports')}
-          value={reportsCount.toString()}
-        />
-      </div>
-
-      {/* Mission Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('missionStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
-          <StatCard
-            icon={Clock}
-            title={t('pendingMissions')}
-            value={pendingMissionsCount.toString()}
-          />
-          <StatCard
-            icon={FileCheck}
-            title={t('acceptedMissions')}
-            value={acceptedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CheckCircle}
-            title={t('completedMissions')}
-            value={completedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={MessageSquare}
-            title={t('upcomingMissions')}
-            value={upcomingMissionsCount.toString()}
-          />
+    <div className='min-h-screen bg-[#f6f6f8] text-slate-900'>
+      <header className='border-b border-slate-200 bg-white px-6 py-6 md:px-10'>
+        <div className='mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 md:flex-row md:items-center'>
+          <div className='flex items-center gap-5'>
+            <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-amber-100 shadow-sm'>
+              {professional?.profile?.avatar_url ? (
+                <img
+                  alt={displayName || ''}
+                  className='h-full w-full object-cover'
+                  src={professional.profile.avatar_url}
+                />
+              ) : (
+                <div className='flex h-full w-full items-center justify-center text-2xl font-semibold text-amber-700'>
+                  {displayName.charAt(0).toUpperCase() || 'P'}
+                </div>
+              )}
+            </div>
+            <div>
+              <h1 className='text-3xl font-bold tracking-tight text-slate-900'>
+                {displayName || t('nameFallback')}
+              </h1>
+              {roleLabel && (
+                <p className='mt-1 text-sm font-medium text-slate-500'>
+                  {roleLabel}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className='flex w-full gap-3 md:w-auto'>
+            <Link className='flex-1 md:flex-none' href='/professional/chat'>
+              <Button className='flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#4A90E2] bg-white text-sm font-semibold text-[#4A90E2] shadow-sm transition-colors hover:bg-slate-50'>
+                <MessageCircle className='h-4 w-4' />
+                {t('messageCta')}
+              </Button>
+            </Link>
+            <AvailabilityStatusPopover />
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Reports Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('reportStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={FileText}
-            title={t('draftReports')}
-            value={draftReportsCount.toString()}
-          />
-          <StatCard
-            icon={Send}
-            title={t('sentReports')}
-            value={sentReportsCount.toString()}
-          />
+      <main className='px-6 py-6 md:px-10 md:py-10'>
+        <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12'>
+          <div className='space-y-8 lg:col-span-8'>
+            <ProfessionalDashboardConversationsSection />
+            <ProfessionalDashboardMissionsSection />
+          </div>
+          <div className='space-y-8 lg:col-span-4'>
+            <ProfessionalDashboardReportsSection />
+            <section className='relative overflow-hidden rounded-2xl bg-[#2C3E50] p-6 text-white shadow-lg shadow-slate-900/20'>
+              <div className='relative z-10'>
+                <h2 className='mb-2 text-lg font-bold'>{t('helpCardTitle')}</h2>
+                <p className='mb-4 text-sm text-slate-200'>
+                  {t('helpCardDescription')}
+                </p>
+                <Link href='/professional/settings'>
+                  <Button className='rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#2C3E50] shadow-sm hover:bg-slate-100'>
+                    {t('helpCardCta')}
+                  </Button>
+                </Link>
+              </div>
+            </section>
+          </div>
         </div>
-      </div>
-
-      {/* Performance Metrics */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('performanceMetrics')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={Percent}
-            subtitle={t('responseRateDescription')}
-            title={t('responseRate')}
-            value={`${responseRate}%`}
-          />
-          <StatCard
-            icon={Calendar}
-            title={t('activeAvailabilities')}
-            value={activeAvailabilitiesCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Invitations */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('invitations')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
-          <StatCard
-            icon={UserPlus}
-            title={t('pendingInvitations')}
-            value={pendingInvitationsCount.toString()}
-          />
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

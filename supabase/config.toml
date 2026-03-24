@@ -432,7 +432,7 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.professionals]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/professionals/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -443,7 +443,7 @@ entrypoint = "./functions/professionals/index.ts"
 
 [functions.hello-world]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/hello-world/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -454,7 +454,7 @@ entrypoint = "./functions/hello-world/index.ts"
 
 [functions.availabilities]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/availabilities/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -476,7 +476,7 @@ entrypoint = "./functions/newsletter-subscriptions/index.ts"
 
 [functions.missions]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/missions/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -487,7 +487,7 @@ entrypoint = "./functions/missions/index.ts"
 
 [functions.extract-rrule-dates]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/extract-rrule-dates/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -498,14 +498,9 @@ entrypoint = "./functions/extract-rrule-dates/index.ts"
 
 [functions.subscriptions]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/subscriptions/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/subscriptions/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/subscriptions/*.html" ]
 
 [functions.stripe-webhooks]
 enabled = true
@@ -520,7 +515,7 @@ entrypoint = "./functions/stripe-webhooks/index.ts"
 
 [functions.mission-durations]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/mission-durations/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -561,3 +556,10 @@ entrypoint = "./functions/send-notification-email/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/send-notification-email/*.html" ]
+
+
+[functions.reports]
+enabled = true
+verify_jwt = false
+import_map = "./functions/reports/deno.json"
+entrypoint = "./functions/reports/index.ts"

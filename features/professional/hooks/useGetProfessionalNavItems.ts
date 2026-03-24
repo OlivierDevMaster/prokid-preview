@@ -1,10 +1,10 @@
 import {
-  Building2,
-  Calendar,
   ClipboardMinus,
   LayoutDashboard,
   Mail,
+  MessageCircle,
   Target,
+  User,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -12,6 +12,7 @@ import { SidebarNavItem } from '@/modeles/navigation.modele';
 
 export default function useGetProfessionalNavItems(): SidebarNavItem[] {
   const tProfessional = useTranslations('admin');
+  const tChat = useTranslations('chat.navigation');
 
   const items: SidebarNavItem[] = [
     {
@@ -20,9 +21,9 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       label: tProfessional('navigation.dashboard'),
     },
     {
-      href: '/professional/availabilities',
-      icon: Calendar,
-      label: tProfessional('navigation.availabilities'),
+      href: '/professional/chat',
+      icon: MessageCircle,
+      label: tChat('chat'),
     },
     {
       href: '/professional/missions',
@@ -34,15 +35,11 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       icon: ClipboardMinus,
       label: tProfessional('navigation.reports'),
     },
+
     {
-      href: '/professional/structures',
-      icon: Building2,
-      label: tProfessional('navigation.structure'),
-    },
-    {
-      href: '/professional/invitations',
-      icon: Mail,
-      label: tProfessional('navigation.invitations'),
+      href: '/professional/settings',
+      icon: User,
+      label: tProfessional('navigation.profile'),
     },
   ];
 

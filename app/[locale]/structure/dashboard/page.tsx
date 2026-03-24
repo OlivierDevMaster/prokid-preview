@@ -1,139 +1,105 @@
 'use client';
-import {
-  CheckCircle,
-  CircleCheck,
-  Clock,
-  FileCheck,
-  MessageSquare,
-  Percent,
-  UserCheck,
-  UserPlus,
-  Users,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
-import { StatCard } from '@/features/admin/StatCard';
-import { useGetDashboardStats } from '@/features/structure/hooks/useGetDashboardStats';
+import { MapPin, MessageCircle, UserSearch } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { StructureDashboardConversationsSection } from '@/features/structure/dashboard/StructureDashboardConversationsSection';
+import { StructureDashboardMissionsSection } from '@/features/structure/dashboard/StructureDashboardMissionsSection';
+import { StructureDashboardReportsSection } from '@/features/structure/dashboard/StructureDashboardReportsSection';
+import { useGetMissions } from '@/features/structure/missions/hooks/useGetMissions';
+import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
+import { Link } from '@/i18n/routing';
+import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function DashboardPage() {
   const t = useTranslations('structure.dashboard');
+  const { data: session } = useSession();
+  const { handleClearSelection } = useSelectedProfessional();
+  const { data: structure } = useFindStructure(session?.user?.id);
 
-  const {
-    acceptedInvitationsCount,
-    activeMembersCount,
-    activeMissionsCount,
-    completedMissionsCount,
-    missionAcceptanceRate,
-    missionsCount,
-    pendingInvitationsCount,
-    pendingMissionsCount,
-    receivedReportsCount,
-    upcomingMissionsCount,
-  } = useGetDashboardStats();
+  const { data: missionsData } = useGetMissions({}, { limit: 1, page: 1 });
+  const missionsCount = missionsData?.count ?? 0;
+
+  const structureName = structure?.name || t('structureNameFallback');
+
+  // FIXME: Add location
+  const structureCity =
+    structure?.profile?.city ||
+    structure?.profile?.postal_code ||
+    t('structureLocationFallback');
+
+  useEffect(() => {
+    handleClearSelection();
+  }, [handleClearSelection]);
 
   return (
-    <div className='min-h-screen space-y-8 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
-      {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>{t('title')}</h1>
-        <p className='mt-2 text-gray-600'>{t('subtitle')}</p>
-      </div>
-
-      {/* Stats Cards - Main KPIs */}
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        <StatCard
-          icon={Users}
-          title={t('totalProfessionals')}
-          value={activeMembersCount.toString()}
-        />
-        <StatCard
-          icon={MessageSquare}
-          title={t('totalMissions')}
-          value={missionsCount.toString()}
-        />
-        <StatCard
-          icon={UserPlus}
-          title={t('totalInvitations')}
-          value={pendingInvitationsCount.toString()}
-        />
-      </div>
-
-      {/* Mission Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('missionStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
-          <StatCard
-            icon={Clock}
-            title={t('pendingMissions')}
-            value={pendingMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CheckCircle}
-            title={t('activeMissions')}
-            value={activeMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CircleCheck}
-            title={t('completedMissions')}
-            value={completedMissionsCount.toString()}
-          />
-          <StatCard
-            icon={MessageSquare}
-            title={t('upcomingMissions')}
-            value={upcomingMissionsCount.toString()}
-          />
+    <div className='min-h-screen bg-[#f6f6f8] text-slate-900'>
+      <header className='border-b border-slate-200 bg-white px-6 py-6 md:px-10'>
+        <div className='mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 md:flex-row md:items-center'>
+          <div className='flex items-center gap-5'>
+            <div className='h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 shadow-sm'>
+              <div className='flex h-full w-full items-center justify-center text-2xl font-semibold text-slate-500'>
+                {structureName.charAt(0).toUpperCase()}
+              </div>
+            </div>
+            <div>
+              <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
+                {structureName}
+              </h1>
+              <div className='mt-1 flex items-center gap-2 text-slate-500'>
+                <MapPin className='h-4 w-4' />
+                <span className='text-sm font-medium'>{structureCity}</span>
+                <span className='mx-1 text-slate-300'>•</span>
+                <span className='text-sm font-medium text-slate-600'>
+                  {t('missionsCount', { count: missionsCount })}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className='flex w-full gap-3 md:w-auto'>
+            <Link className='flex-1 md:flex-none' href='/structure/chat'>
+              <Button className='flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50'>
+                <MessageCircle className='h-4 w-4' />
+                {t('messageCta')}
+              </Button>
+            </Link>
+            <Link className='flex-1 md:flex-none' href='/structure/search'>
+              <Button className='flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#4A90E2] text-sm font-semibold text-white shadow-lg shadow-[#4A90E2]/20 transition-colors hover:opacity-90'>
+                <UserSearch className='h-4 w-4' />
+                {t('findProCta')}
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Reports Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('reportStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
-          <StatCard
-            icon={FileCheck}
-            title={t('receivedReports')}
-            value={receivedReportsCount.toString()}
-          />
+      <main className='px-6 py-6 md:px-10 md:py-10'>
+        <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12'>
+          <div className='space-y-8 lg:col-span-8'>
+            <StructureDashboardConversationsSection />
+            <StructureDashboardMissionsSection />
+          </div>
+          <div className='space-y-8 lg:col-span-4'>
+            <StructureDashboardReportsSection />
+            <section className='relative overflow-hidden rounded-2xl bg-[#2C3E50] p-6 text-white shadow-lg shadow-slate-900/20'>
+              <div className='relative z-10'>
+                <h2 className='mb-2 text-lg font-bold'>{t('helpCardTitle')}</h2>
+                <p className='mb-4 text-sm text-slate-200'>
+                  {t('helpCardDescription')}
+                </p>
+                <Link href='/structure/search'>
+                  <Button className='rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#2C3E50] shadow-sm hover:bg-slate-100'>
+                    {t('helpCardCta')}
+                  </Button>
+                </Link>
+              </div>
+            </section>
+          </div>
         </div>
-      </div>
-
-      {/* Performance Metrics */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('performanceMetrics')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
-          <StatCard
-            icon={Percent}
-            subtitle={t('missionAcceptanceRateDescription')}
-            title={t('missionAcceptanceRate')}
-            value={`${missionAcceptanceRate}%`}
-          />
-        </div>
-      </div>
-
-      {/* Invitations */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('invitations')}
-        </h2>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={UserPlus}
-            title={t('pendingInvitations')}
-            value={pendingInvitationsCount.toString()}
-          />
-          <StatCard
-            icon={UserCheck}
-            title={t('acceptedInvitations')}
-            value={acceptedInvitationsCount.toString()}
-          />
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

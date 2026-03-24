@@ -34,34 +34,25 @@ export async function getAdminActiveMissionsCount(): Promise<number> {
 export async function getAdminActiveProfessionalsCount(): Promise<number> {
   const supabase = createClient();
 
-  // Active professionals are those with at least one structure membership (not deleted)
-  // Get distinct professional IDs
-  const { data, error } = await supabase
-    .from('structure_members')
-    .select('professional_id')
-    .is('deleted_at', null);
+  const { count, error } = await supabase
+    .from('professionals')
+    .select('*', { count: 'exact', head: true });
 
   if (error) throw error;
 
-  const uniqueProfessionalIds = new Set(
-    data?.map(m => m.professional_id) ?? []
-  );
-  return uniqueProfessionalIds.size;
+  return count ?? 0;
 }
 
 export async function getAdminActiveStructuresCount(): Promise<number> {
   const supabase = createClient();
 
-  // Active structures are those with at least one professional member (not deleted)
-  const { data, error } = await supabase
-    .from('structure_members')
-    .select('structure_id')
-    .is('deleted_at', null);
+  const { count, error } = await supabase
+    .from('structures')
+    .select('*', { count: 'exact', head: true });
 
   if (error) throw error;
 
-  const uniqueStructureIds = new Set(data?.map(m => m.structure_id) ?? []);
-  return uniqueStructureIds.size;
+  return count ?? 0;
 }
 
 export async function getAdminAverageMissionsPerStructure(): Promise<number> {
@@ -91,29 +82,26 @@ export async function getAdminAverageMissionsPerStructure(): Promise<number> {
 export async function getAdminAverageProfessionalsPerStructure(): Promise<number> {
   const supabase = createClient();
 
-  // Get active professionals count (those with at least one structure membership)
-  const { data: members, error: membersError } = await supabase
-    .from('structure_members')
-    .select('professional_id, structure_id')
-    .is('deleted_at', null);
+  const { count: professionalsCount, error: professionalsError } =
+    await supabase.from('professionals').select('*', {
+      count: 'exact',
+      head: true,
+    });
 
-  if (membersError) throw membersError;
+  if (professionalsError) throw professionalsError;
 
-  const uniqueProfessionalIds = new Set(
-    members?.map(m => m.professional_id) ?? []
-  );
-  const activeProfessionalsCount = uniqueProfessionalIds.size;
+  const { count: structuresCount, error: structuresError } = await supabase
+    .from('structures')
+    .select('*', { count: 'exact', head: true });
 
-  // Get active structures count (those with at least one professional member)
-  const uniqueStructureIds = new Set(members?.map(m => m.structure_id) ?? []);
-  const activeStructuresCount = uniqueStructureIds.size;
+  if (structuresError) throw structuresError;
 
-  if (activeStructuresCount === 0) {
+  if ((structuresCount ?? 0) === 0) {
     return 0;
   }
 
   return (
-    Math.round((activeProfessionalsCount / activeStructuresCount) * 10) / 10
+    Math.round(((professionalsCount ?? 0) / (structuresCount ?? 0)) * 10) / 10
   );
 }
 

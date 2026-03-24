@@ -29,7 +29,7 @@ export const useRegisterProfessionalProfile = () => {
     onError: error => {
       console.error('Error registering professional profile:', error);
       toast.error(
-        error instanceof Error ? error.message : t('failedToCreateProfile')
+        error instanceof Error ? error.message : t('failedToUpdateProfile')
       );
     },
     onSuccess: async () => {
@@ -46,7 +46,7 @@ export const useRegisterProfessionalProfile = () => {
         queryKey: ['user-profile'],
       });
 
-      toast.success(t('profileCreatedSuccessfully'));
+      toast.success(t('profileUpdatedSuccessfully'));
       router.push('/professional/dashboard');
     },
   });

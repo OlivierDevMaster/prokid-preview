@@ -40,7 +40,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: TriggerTestData.ratings.high,
         structure_id: fixture.structureId,
@@ -74,7 +73,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: TriggerTestData.ratings.medium,
         structure_id: fixture.structureId,
@@ -115,7 +113,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: TriggerTestData.ratings.high,
         structure_id: fixture.structureId,
@@ -181,7 +178,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'First rating',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: 4.0,
         structure_id: fixture.structureId,
@@ -199,7 +195,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Second rating',
-        membership_id: membership2.id,
         professional_id: fixture.professionalId,
         rating: 5.0,
         structure_id: structure2Id,
@@ -269,7 +264,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'First rating',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: 3.0,
         structure_id: fixture.structureId,
@@ -284,7 +278,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Second rating',
-        membership_id: membership2.id,
         professional_id: fixture.professionalId,
         rating: 5.0,
         structure_id: structure2Id,
@@ -334,7 +327,6 @@ describe('Trigger: sync_professional_rating_on_change', () => {
       .from('professional_ratings')
       .insert({
         comment: 'Test comment',
-        membership_id: fixture.membershipId,
         professional_id: fixture.professionalId,
         rating: TriggerTestData.ratings.high,
         structure_id: fixture.structureId,

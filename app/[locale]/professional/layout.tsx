@@ -3,11 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { BoNavbar } from '@/features/layout/BoNavbar';
 import { ProfessionalSidebar } from '@/features/professional/layout/ProfessionalSidebar';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { usePathname } from '@/i18n/routing';
@@ -24,6 +23,7 @@ export default function ProtectedLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const hasRedirectedToOnboarding = useRef(false);
 
   // Disable body scroll on this route
   useBodyScrollLock();
@@ -67,20 +67,21 @@ export default function ProtectedLayout({
     }
 
     // Check if professional is onboarded (but allow access to onboarding page)
-    const isOnboardingPage = pathname?.includes(
-      '/auth/sign-up/professional/on-boarding'
-    );
-    if (
+    const isOnboardingPage = pathname?.includes('/professional/on-boarding');
+
+    const shouldRedirectToOnboarding =
       status === 'authenticated' &&
       !isLoadingProfile &&
       userData &&
       userData.role === 'professional' &&
       !isOnboardingPage &&
-      !userData.isOnboarded
-    ) {
-      router.push('/auth/sign-up/professional/on-boarding');
+      !userData.isOnboarded;
+
+    if (shouldRedirectToOnboarding && !hasRedirectedToOnboarding.current) {
+      hasRedirectedToOnboarding.current = true;
+      router.replace('/professional/on-boarding');
     }
-  }, [status, userData, isLoadingProfile, router, pathname]);
+  }, [status, userData, isLoadingProfile, pathname, router]);
 
   if (status === 'loading' || isLoadingProfile) {
     return (
@@ -103,6 +104,12 @@ export default function ProtectedLayout({
     );
   }
 
+  // Full-width onboarding (no sidebar, no logo) — fixed height so form column can scroll
+  const isOnboardingPath = pathname?.includes('/professional/on-boarding');
+  if (isOnboardingPath) {
+    return <main className='h-screen w-full overflow-hidden'>{children}</main>;
+  }
+
   // If not onboarded, the useEffect will redirect, but we should still show loading
   // to prevent flash of content
   if (!userData.isOnboarded) {
@@ -121,38 +128,38 @@ export default function ProtectedLayout({
       : userData.firstName || userData.email || 'Professionnel');
 
   return (
-    <div className='flex h-screen flex-col overflow-hidden'>
-      <div className='relative flex flex-col items-start border-b shadow-sm lg:flex-row lg:border-b-0 lg:shadow-none'>
-        <BoNavbar name={professionalName} userRole='Professional' />
-        {/* Mobile Menu Button */}
-        <div className='lg:hidden'>
-          <Button
-            className='h-9 w-9'
-            onClick={() => setIsSheetOpen(true)}
-            size='icon'
-            variant='ghost'
-          >
-            <Menu className='h-5 w-5' />
-          </Button>
-        </div>
+    <div className='flex h-screen overflow-hidden'>
+      {/* Desktop Sidebar */}
+      <div className='hidden h-full flex-shrink-0 lg:flex'>
+        <ProfessionalSidebar />
       </div>
-      <div className='flex flex-1 overflow-hidden'>
-        {/* Desktop Sidebar */}
-        <div className='hidden h-full flex-shrink-0 lg:flex'>
+
+      {/* Mobile/Tablet Sheet */}
+      <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
+        <SheetContent className='w-64 p-0' side='left'>
           <ProfessionalSidebar />
+        </SheetContent>
+      </Sheet>
+
+      <main className='flex-1 overflow-y-auto'>
+        {/* Mobile menu button */}
+        <div className='border-b bg-white px-4 py-2 shadow-sm lg:hidden'>
+          <div className='flex items-center justify-between'>
+            <div className='text-sm font-medium text-gray-900'>
+              {professionalName}
+            </div>
+            <Button
+              className='h-9 w-9'
+              onClick={() => setIsSheetOpen(true)}
+              size='icon'
+              variant='ghost'
+            >
+              <Menu className='h-5 w-5' />
+            </Button>
+          </div>
         </div>
-
-        {/* Mobile/Tablet Sheet */}
-        <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
-          <SheetContent className='w-64 p-0' side='left'>
-            <ProfessionalSidebar />
-          </SheetContent>
-        </Sheet>
-
-        <main className='flex-1 overflow-y-auto'>
-          <div>{children}</div>
-        </main>
-      </div>
+        <div className='h-full w-full'>{children}</div>
+      </main>
     </div>
   );
 }

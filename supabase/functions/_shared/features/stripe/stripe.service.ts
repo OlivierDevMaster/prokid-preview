@@ -15,6 +15,7 @@ export const getOrCreateProfessionalStripeCustomerId = async (
   professionalEmail?: string,
   professionalFullName?: string
 ): Promise<string> => {
+  console.log('usaerid', userId);
   // Check if professional already has a Stripe customer ID
   const { data: professional, error: professionalError } = await supabase
     .from('professionals')
@@ -26,6 +27,8 @@ export const getOrCreateProfessionalStripeCustomerId = async (
     )
     .eq('user_id', userId)
     .maybeSingle();
+
+  console.log('prof', professional);
 
   if (professionalError || !professional) {
     throw new Error(

@@ -6,7 +6,7 @@ import { apiResponse } from '../_shared/utils/responses.ts';
 import {
   acceptMissionHandler,
   cancelMissionHandler,
-  createMissionHandler,
+  createMissionsHandler,
   declineMissionHandler,
   updateMissionHandler,
 } from './handlers/index.ts';
@@ -19,8 +19,8 @@ app.options('*', () => apiResponse.options());
 // Protected routes (with auth middleware)
 app.use('*', authMiddleware);
 
-// POST /missions - Create a new mission invitation
-app.post('/', ...createMissionHandler);
+// POST /missions - Create mission invitation(s) (one or more professionals)
+app.post('/', ...createMissionsHandler);
 
 // PUT /missions/:id - Update a mission
 app.put('/:id', ...updateMissionHandler);

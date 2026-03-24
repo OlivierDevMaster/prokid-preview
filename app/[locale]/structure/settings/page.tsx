@@ -9,12 +9,13 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ProfileTabContent } from '@/features/structure/settings/components/ProfileTabContent';
 import { useRouter } from '@/i18n/routing';
+import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function SettingsPage() {
   const router = useRouter();
   const t = useTranslations('admin');
   const searchParams = useSearchParams();
-
+  const { handleClearSelection } = useSelectedProfessional();
   useEffect(() => {
     const emailUpdated = searchParams.get('emailUpdated');
     if (emailUpdated === 'true') {
@@ -25,6 +26,11 @@ export default function SettingsPage() {
       window.history.replaceState({}, '', url.pathname + url.search);
     }
   }, [searchParams, t]);
+
+
+  useEffect(() => {
+    handleClearSelection();
+  }, [handleClearSelection]);
 
   return (
     <div className='space-y-6 bg-blue-50/30 p-8'>

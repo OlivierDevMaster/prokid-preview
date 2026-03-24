@@ -4,23 +4,16 @@ import { MissionStatuses } from './mission.model.ts';
 
 export const MissionStatusSchema = z.enum(MissionStatuses);
 
+export const MissionModalitySchema = z.enum(['remote', 'on_site', 'hybrid']);
+
 export const CreateMissionRequestBodySchema = z
   .object({
+    address: z.string().optional(),
     description: z.string().optional(),
     mission_dtstart: z.iso.datetime('Invalid mission start date format'),
     mission_until: z.iso.datetime('Invalid mission end date format'),
+    modality: MissionModalitySchema,
     professional_id: z.uuid(),
-    schedules: z
-      .array(
-        z.object({
-          duration_mn: z
-            .number()
-            .int()
-            .positive('Duration must be a positive integer'),
-          rrule: z.string().min(1, 'RRULE cannot be empty'),
-        })
-      )
-      .min(1, 'At least one schedule is required'),
     status: MissionStatusSchema.optional(),
     structure_id: z.uuid(),
     title: z.string().min(1),
@@ -35,20 +28,71 @@ export const CreateMissionRequestBodySchema = z
       message: 'Mission end date must be after start date',
       path: ['mission_until'],
     }
+  )
+  .refine(
+    data => {
+      if (data.modality === 'on_site' || data.modality === 'hybrid') {
+        return (
+          typeof data.address === 'string' && data.address.trim().length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message: 'Address is required when modality is on_site or hybrid',
+      path: ['address'],
+    }
   );
 
 export type CreateMissionRequestBody = z.infer<
   typeof CreateMissionRequestBodySchema
 >;
 
-// Schedule update schema for mission updates
-export const MissionScheduleUpdateSchema = z.object({
-  duration_mn: z.number().int().positive('Duration must be a positive integer'),
-  rrule: z.string().min(1, 'RRULE cannot be empty'),
-});
+export const CreateMissionsRequestBodySchema = z
+  .object({
+    address: z.string().optional(),
+    description: z.string().optional(),
+    mission_dtstart: z.iso.datetime('Invalid mission start date format'),
+    mission_until: z.iso.datetime('Invalid mission end date format'),
+    modality: MissionModalitySchema,
+    professional_ids: z.array(z.uuid()).min(1),
+    status: MissionStatusSchema.optional(),
+    structure_id: z.uuid(),
+    title: z.string().min(1),
+  })
+  .refine(
+    data => {
+      const start = new Date(data.mission_dtstart);
+      const end = new Date(data.mission_until);
+      return end > start;
+    },
+    {
+      message: 'Mission end date must be after start date',
+      path: ['mission_until'],
+    }
+  )
+  .refine(
+    data => {
+      if (data.modality === 'on_site' || data.modality === 'hybrid') {
+        return (
+          typeof data.address === 'string' && data.address.trim().length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message: 'Address is required when modality is on_site or hybrid',
+      path: ['address'],
+    }
+  );
+
+export type CreateMissionsRequestBody = z.infer<
+  typeof CreateMissionsRequestBodySchema
+>;
 
 export const UpdateMissionRequestBodySchema = z
   .object({
+    address: z.string().optional(),
     description: z.string().nullable().optional(),
     mission_dtstart: z
       .string()
@@ -58,26 +102,7 @@ export const UpdateMissionRequestBodySchema = z
       .string()
       .datetime('Invalid mission end date format')
       .optional(),
-    schedules: z
-      .object({
-        create: z
-          .array(MissionScheduleUpdateSchema)
-          .min(0, 'Schedules array cannot be negative'),
-        delete: z.array(z.string().uuid()).min(0),
-        update: z
-          .array(
-            z.object({
-              duration_mn: z
-                .number()
-                .int()
-                .positive('Duration must be a positive integer'),
-              id: z.string().uuid('Schedule ID must be a valid UUID'),
-              rrule: z.string().min(1, 'RRULE cannot be empty'),
-            })
-          )
-          .min(0),
-      })
-      .optional(),
+    modality: MissionModalitySchema.optional(),
     status: MissionStatusSchema.optional(),
     title: z.string().min(1).optional(),
   })
@@ -91,19 +116,6 @@ export const UpdateMissionRequestBodySchema = z
     {
       message: 'Mission end date must be after start date',
       path: ['mission_until'],
-    }
-  )
-  .refine(
-    data => {
-      if (!data.schedules) return true;
-      const totalSchedules =
-        (data.schedules.create?.length ?? 0) +
-        (data.schedules.update?.length ?? 0);
-      return totalSchedules > 0;
-    },
-    {
-      message: 'At least one schedule must remain after update',
-      path: ['schedules'],
     }
   );
 

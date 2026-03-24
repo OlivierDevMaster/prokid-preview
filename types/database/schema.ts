@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -189,6 +184,113 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          last_message_preview: string | null
+          mission_id: string | null
+          professional_id: string
+          structure_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          mission_id?: string | null
+          professional_id: string
+          structure_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          mission_id?: string | null
+          professional_id?: string
+          structure_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "conversations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_with_profiles_search"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "conversations_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "structures"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+          status: string | null
+          type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          status?: string | null
+          type?: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       mission_schedules: {
         Row: {
           created_at: string
@@ -232,11 +334,13 @@ export type Database = {
       }
       missions: {
         Row: {
+          address: string | null
           created_at: string
           description: string | null
           id: string
           mission_dtstart: string
           mission_until: string
+          modality: Database["public"]["Enums"]["mission_modality"]
           professional_id: string
           status: Database["public"]["Enums"]["mission_status"]
           structure_id: string
@@ -244,11 +348,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           description?: string | null
           id?: string
           mission_dtstart: string
           mission_until: string
+          modality?: Database["public"]["Enums"]["mission_modality"]
           professional_id: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id: string
@@ -256,11 +362,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           description?: string | null
           id?: string
           mission_dtstart?: string
           mission_until?: string
+          modality?: Database["public"]["Enums"]["mission_modality"]
           professional_id?: string
           status?: Database["public"]["Enums"]["mission_status"]
           structure_id?: string
@@ -397,7 +505,6 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
-          membership_id: string
           professional_id: string
           rating: number
           structure_id: string
@@ -407,7 +514,6 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          membership_id: string
           professional_id: string
           rating: number
           structure_id: string
@@ -417,20 +523,12 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          membership_id?: string
           professional_id?: string
           rating?: number
           structure_id?: string
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "professional_ratings_membership_id_fkey"
-            columns: ["membership_id"]
-            isOneToOne: false
-            referencedRelation: "structure_members"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "professional_ratings_professional_id_fkey"
             columns: ["professional_id"]
@@ -456,6 +554,8 @@ export type Database = {
       }
       professionals: {
         Row: {
+          availability_end: string | null
+          availability_start: string | null
           city: string
           created_at: string
           current_job: string | null
@@ -477,6 +577,8 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          availability_end?: string | null
+          availability_start?: string | null
           city: string
           created_at?: string
           current_job?: string | null
@@ -498,6 +600,8 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          availability_end?: string | null
+          availability_start?: string | null
           city?: string
           created_at?: string
           current_job?: string | null
@@ -1038,6 +1142,7 @@ export type Database = {
         | "left"
         | "removed_by_structure"
         | "removed_by_admin"
+      mission_modality: "remote" | "on_site" | "hybrid"
       mission_status:
         | "pending"
         | "accepted"
@@ -1208,6 +1313,7 @@ export const Constants = {
         "removed_by_structure",
         "removed_by_admin",
       ],
+      mission_modality: ["remote", "on_site", "hybrid"],
       mission_status: [
         "pending",
         "accepted",
@@ -1246,3 +1352,4 @@ export const Constants = {
     },
   },
 } as const
+

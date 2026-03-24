@@ -169,9 +169,9 @@ export function ProfessionalMissionsPage() {
         </Select>
       </div>
 
-      {/* Missions Grid */}
+      {/* Missions List */}
       {missions.length > 0 ? (
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
+        <div className='space-y-3 sm:space-y-4'>
           {missions.map(mission => (
             <ProfessionalMissionCard
               key={mission.id}

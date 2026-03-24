@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { invokeEdgeFunction } from '@/lib/supabase/edge-functions';
 
 import type {
-  CreateMissionRequestBody,
+  CreateMissionsRequestBody,
   Mission,
   MissionFilters,
   MissionWithStructure,
@@ -14,28 +14,20 @@ import type {
 
 import { MissionConfig } from './mission.config';
 
-export const createMission = async (
-  body: CreateMissionRequestBody
-): Promise<Mission> => {
+export const createMissions = async (
+  body: CreateMissionsRequestBody
+): Promise<Mission[]> => {
   const supabase = createClient();
 
-  return invokeEdgeFunction<Mission, CreateMissionRequestBody>(
-    supabase,
-    'missions',
-    {
-      body: {
-        description: body.description,
-        mission_dtstart: body.mission_dtstart,
-        mission_until: body.mission_until,
-        professional_id: body.professional_id,
-        schedules: body.schedules,
-        status: body.status ?? 'pending',
-        structure_id: body.structure_id,
-        title: body.title,
-      },
-      method: 'POST',
-    }
-  );
+  const data = await invokeEdgeFunction<
+    { missions: Mission[] },
+    CreateMissionsRequestBody
+  >(supabase, 'missions', {
+    body,
+    method: 'POST',
+  });
+
+  return data.missions;
 };
 
 export const findMission = async (

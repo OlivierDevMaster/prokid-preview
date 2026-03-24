@@ -246,3 +246,43 @@ INSERT INTO public.professionals (
   TRUE,
   NULL
 ) ON CONFLICT (user_id) DO NOTHING;
+
+-- Seed geolocation columns for proximity search (idempotent)
+-- Note: functions are qualified with `extensions` to avoid search_path issues.
+WITH professional_geo AS (
+  SELECT *
+  FROM (
+    VALUES
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae2'::uuid, 'Paris'::text, '75001'::text, 45::numeric, 48.8566::numeric, 2.3522::numeric),
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae3'::uuid, 'Lyon'::text, '69001'::text, 45::numeric, 45.7640::numeric, 4.8357::numeric),
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae4'::uuid, 'Marseille'::text, '13001'::text, 45::numeric, 43.2965::numeric, 5.3698::numeric),
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae5'::uuid, 'Toulouse'::text, '31000'::text, 45::numeric, 43.6047::numeric, 1.4442::numeric),
+      -- Extra pros close to Bordeaux (structure: Butterfly Daycare)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae6'::uuid, 'Bordeaux'::text, '33000'::text, 45::numeric, 44.8370::numeric, -0.5800::numeric),
+      -- Extra pros close to Toulouse (structure: Rainbow Children Center)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae7'::uuid, 'Toulouse'::text, '31000'::text, 45::numeric, 43.6040::numeric, 1.4550::numeric),
+      -- Extra pros close to Marseille (structure: Little Stars Nursery)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae8'::uuid, 'Marseille'::text, '13001'::text, 45::numeric, 43.2960::numeric, 5.3810::numeric),
+      -- Pro close to Bordeaux (structure: Butterfly Daycare)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869ae9'::uuid, 'Bordeaux'::text, '33000'::text, 45::numeric, 44.8378::numeric, -0.5792::numeric),
+      -- Extra pros close to Paris (structure: Happy Kids Daycare Center)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869aea'::uuid, 'Paris'::text, '75001'::text, 45::numeric, 48.8570::numeric, 2.3490::numeric),
+      -- Extra pros close to Lyon (structure: Sunshine Childcare Services)
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869aeb'::uuid, 'Lyon'::text, '69001'::text, 45::numeric, 45.7630::numeric, 4.8400::numeric),
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869aec'::uuid, 'Montpellier'::text, '34000'::text, 45::numeric, 43.6119::numeric, 3.8772::numeric),
+      ('08fb0a72-ee9b-4771-bf24-7fe19c869aed'::uuid, 'Reims'::text, '51100'::text, 45::numeric, 49.2583::numeric, 4.0317::numeric)
+  ) AS t(user_id, city, postal_code, intervention_radius_km, latitude, longitude)
+)
+UPDATE public.professionals p
+SET
+  city = pg.city,
+  postal_code = pg.postal_code,
+  intervention_radius_km = pg.intervention_radius_km,
+  latitude = pg.latitude,
+  longitude = pg.longitude,
+  location = extensions.ST_SetSRID(
+    extensions.ST_MakePoint(pg.longitude::double precision, pg.latitude::double precision),
+    4326
+  )::extensions.geography
+FROM professional_geo pg
+WHERE p.user_id = pg.user_id;
