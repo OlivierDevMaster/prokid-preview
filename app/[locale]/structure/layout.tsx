@@ -44,8 +44,11 @@ export default function StructureLayout({
 
       {/* Mobile/Tablet Sheet */}
       <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
-        <SheetContent className='w-64 p-0' side='left'>
-          <StructureSidebar />
+        <SheetContent
+          className='flex w-full max-w-full flex-col p-0 sm:max-w-sm'
+          side='left'
+        >
+          <StructureSidebar expanded />
         </SheetContent>
       </Sheet>
 

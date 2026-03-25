@@ -51,6 +51,12 @@ export function ChatView({ viewRole }: ChatViewProps) {
     const urlConversationId = searchParams.get('conversationId');
     const hasConversations = conversations.length > 0;
 
+    // If the user intentionally went back to the list, we may briefly still see the
+    // previous `conversationId` in `searchParams` (URL update lag). Avoid re-selecting.
+    if (didUserGoBackToListRef.current && !selectedConversationId) {
+      return;
+    }
+
     if (
       lastSelectedIdRef.current !== null &&
       selectedConversationId === lastSelectedIdRef.current
@@ -97,7 +103,8 @@ export function ChatView({ viewRole }: ChatViewProps) {
     setSelectedConversationId(null);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('conversationId');
-    router.replace(`${pathname}?${params.toString()}`);
+    const nextParams = params.toString();
+    router.replace(nextParams ? `${pathname}?${nextParams}` : pathname);
   }, [pathname, router, searchParams]);
 
   return (

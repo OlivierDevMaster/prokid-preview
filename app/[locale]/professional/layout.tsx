@@ -137,8 +137,11 @@ export default function ProtectedLayout({
 
       {/* Mobile/Tablet Sheet */}
       <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
-        <SheetContent className='w-64 p-0' side='left'>
-          <ProfessionalSidebar />
+        <SheetContent
+          className='flex w-full max-w-full flex-col p-0 sm:max-w-sm'
+          side='left'
+        >
+          <ProfessionalSidebar expanded />
         </SheetContent>
       </Sheet>
 

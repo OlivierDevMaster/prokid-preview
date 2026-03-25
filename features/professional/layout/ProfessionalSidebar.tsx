@@ -4,8 +4,14 @@ import { BoSidebar } from '@/features/layout/BoSidebar';
 
 import useGetProfessionalNavItems from '../hooks/useGetProfessionalNavItems';
 
-export function ProfessionalSidebar() {
+type ProfessionalSidebarProps = {
+  expanded?: boolean;
+};
+
+export function ProfessionalSidebar({
+  expanded,
+}: ProfessionalSidebarProps = {}) {
   const navItems = useGetProfessionalNavItems();
 
-  return <BoSidebar navItems={navItems} />;
+  return <BoSidebar expanded={expanded} navItems={navItems} />;
 }
