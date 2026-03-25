@@ -32,6 +32,9 @@ export function ChatView({ viewRole }: ChatViewProps) {
   >(initialConversationId);
 
   const lastSelectedIdRef = useRef<null | string>(null);
+  // Prevent the "auto-select first conversation" effect from kicking in
+  // right after the user intentionally goes back to the conversation list.
+  const didUserGoBackToListRef = useRef(false);
 
   const { data: conversations = [], isLoading: isLoadingConversations } =
     useConversations();
@@ -64,6 +67,7 @@ export function ChatView({ viewRole }: ChatViewProps) {
     }
 
     if (!urlConversationId && !selectedConversationId && hasConversations) {
+      if (didUserGoBackToListRef.current) return;
       const firstConversationId = conversations[0]?.id ?? null;
       if (!firstConversationId) return;
 
@@ -78,6 +82,7 @@ export function ChatView({ viewRole }: ChatViewProps) {
   const handleSelectConversation = useCallback(
     (id: string) => {
       lastSelectedIdRef.current = id;
+      didUserGoBackToListRef.current = false;
       setSelectedConversationId(id);
 
       const params = new URLSearchParams(searchParams.toString());
@@ -88,6 +93,7 @@ export function ChatView({ viewRole }: ChatViewProps) {
   );
 
   const handleBackToList = useCallback(() => {
+    didUserGoBackToListRef.current = true;
     setSelectedConversationId(null);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('conversationId');
@@ -95,7 +101,7 @@ export function ChatView({ viewRole }: ChatViewProps) {
   }, [pathname, router, searchParams]);
 
   return (
-    <div className='flex h-full w-full flex-1'>
+    <div className='flex h-full min-h-0 w-full flex-1'>
       {/* Conversation list: always visible on lg+, hidden on mobile when a conversation is selected */}
       <div
         className={`w-full flex-shrink-0 lg:w-80 ${
@@ -112,11 +118,11 @@ export function ChatView({ viewRole }: ChatViewProps) {
       </div>
       {/* Chat panel: always visible on lg+, hidden on mobile when no conversation is selected */}
       <div
-        className={`min-w-0 flex-1 ${
+        className={`min-h-0 min-w-0 flex-1 ${
           selectedConversationId ? 'flex' : 'hidden lg:flex'
         }`}
       >
-        <div className='flex min-w-0 flex-1 flex-col'>
+        <div className='flex min-h-0 min-w-0 flex-1 flex-col'>
           {/* Back button: only visible on mobile when a conversation is selected */}
           <button
             className='flex items-center gap-2 border-b px-3 py-2 text-sm text-muted-foreground hover:text-foreground lg:hidden'

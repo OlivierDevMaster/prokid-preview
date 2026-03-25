@@ -238,7 +238,7 @@ export function ChatPanel({
   const mission = conversation.mission;
 
   return (
-    <div className='flex flex-1 flex-col bg-background'>
+    <div className='flex min-h-0 flex-1 flex-col bg-background'>
       <ChatPanelHeader
         existingRating={
           viewRole === 'structure' ? (existingRating ?? null) : null

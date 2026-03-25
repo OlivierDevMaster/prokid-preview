@@ -20,6 +20,7 @@ export default function ProtectedLayout({
 }) {
   const pathname = usePathname();
   const subscriptionPath = pathname?.split('/').slice(-2).join('/') || '';
+  const isChatRoute = pathname?.includes('/professional/chat') ?? false;
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -141,7 +142,13 @@ export default function ProtectedLayout({
         </SheetContent>
       </Sheet>
 
-      <main className='flex-1 overflow-y-auto'>
+      <main
+        className={
+          isChatRoute
+            ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
+            : 'flex-1 overflow-y-auto'
+        }
+      >
         {/* Mobile menu button */}
         <div className='border-b bg-white px-4 py-2 shadow-sm lg:hidden'>
           <div className='flex items-center justify-between'>
@@ -158,7 +165,11 @@ export default function ProtectedLayout({
             </Button>
           </div>
         </div>
-        <div className='h-full w-full'>{children}</div>
+        <div
+          className={isChatRoute ? 'min-h-0 w-full flex-1' : 'h-full w-full'}
+        >
+          {children}
+        </div>
       </main>
     </div>
   );

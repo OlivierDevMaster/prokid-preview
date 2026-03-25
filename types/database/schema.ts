@@ -552,27 +552,6 @@ export type Database = {
           },
         ]
       }
-      profile_views: {
-        Row: {
-          id: string
-          professional_id: string
-          viewer_id: string | null
-          viewed_at: string
-        }
-        Insert: {
-          id?: string
-          professional_id: string
-          viewer_id?: string | null
-          viewed_at?: string
-        }
-        Update: {
-          id?: string
-          professional_id?: string
-          viewer_id?: string | null
-          viewed_at?: string
-        }
-        Relationships: []
-      }
       professionals: {
         Row: {
           availability_end: string | null
@@ -661,6 +640,27 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      profile_views: {
+        Row: {
+          id: string
+          professional_id: string
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          professional_id: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          professional_id?: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1169,10 +1169,6 @@ export type Database = {
       end_accepted_missions: { Args: never; Returns: number }
       expire_pending_missions: { Args: never; Returns: number }
       expire_professionals_availability: { Args: never; Returns: number }
-      get_profile_view_stats: {
-        Args: { p_professional_id: string }
-        Returns: Json
-      }
       get_nearby_professionals_from_structure: {
         Args: { p_structure_id: string }
         Returns: {
@@ -1183,6 +1179,10 @@ export type Database = {
           is_default_case: boolean
           user_id: string
         }[]
+      }
+      get_profile_view_stats: {
+        Args: { p_professional_id: string }
+        Returns: Json
       }
       get_rrule_day: { Args: { day_offset: number }; Returns: string }
       get_vault_secret: { Args: { secret_name: string }; Returns: string }
