@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export interface ProfessionalSearchActions {
   applyFilters: () => void;
+  applyLocationFilter: (value: string, coords?: { latitude: number; longitude: number }) => void;
   clearAvailabilityFilter: () => void;
   clearLocationFilter: () => void;
   clearRoleFilter: () => void;
@@ -18,6 +19,7 @@ export interface ProfessionalSearchActions {
 
 export interface ProfessionalSearchState {
   appliedAvailability: string;
+  appliedLocationCoords: { latitude: number; longitude: number } | null;
   appliedLocationQuery: string;
   appliedRole: string;
   isAvailabilitySelectOpen: boolean;
@@ -40,6 +42,7 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [appliedLocationQuery, setAppliedLocationQuery] = useState('');
+  const [appliedLocationCoords, setAppliedLocationCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [appliedRole, setAppliedRole] = useState<string>('all');
   const [selectedAvailability, setSelectedAvailability] =
@@ -64,6 +67,7 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     setSelectedAvailabilityDate('');
     setSelectedAvailabilityDurationDays(null);
     setAppliedLocationQuery('');
+    setAppliedLocationCoords(null);
     setAppliedRole('all');
     setAppliedAvailability('all');
   };
@@ -72,6 +76,11 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     setAppliedLocationQuery(locationQuery);
     setAppliedRole(selectedRole);
     setAppliedAvailability(selectedAvailability);
+  };
+
+  const applyLocationFilter = (value: string, coords?: { latitude: number; longitude: number }) => {
+    setAppliedLocationQuery(value);
+    setAppliedLocationCoords(coords ?? null);
   };
 
   const clearAvailabilityFilter = () => {
@@ -84,6 +93,7 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
   const clearLocationFilter = () => {
     setLocationQuery('');
     setAppliedLocationQuery('');
+    setAppliedLocationCoords(null);
   };
 
   const clearRoleFilter = () => {
@@ -114,6 +124,7 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
   return {
     actions: {
       applyFilters,
+      applyLocationFilter,
       clearAvailabilityFilter,
       clearLocationFilter,
       clearRoleFilter,
@@ -130,6 +141,7 @@ export function useProfessionalSearch(): UseProfessionalSearchReturn {
     hasActiveFilters,
     state: {
       appliedAvailability,
+      appliedLocationCoords,
       appliedLocationQuery,
       appliedRole,
       isAvailabilitySelectOpen,

@@ -77,11 +77,12 @@ export function Footer() {
           <div className='mt-12 grid grid-cols-1 gap-8 md:grid-cols-5'>
             <div className='space-y-4'>
               <h4 className='text-sm font-semibold'>{t('forStructures')}</h4>
+              {/* Placeholder links — pages not yet created */}
               <ul className='space-y-2 text-sm text-slate-300'>
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/find-professional'
+                    href='#'
                   >
                     {t('findProfessional')}
                   </Link>
@@ -89,7 +90,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/how-it-works'
+                    href='#'
                   >
                     {t('howItWorks')}
                   </Link>
@@ -97,7 +98,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/pricing'
+                    href='#'
                   >
                     {t('pricing')}
                   </Link>
@@ -107,11 +108,12 @@ export function Footer() {
 
             <div className='space-y-4'>
               <h4 className='text-sm font-semibold'>{t('forProfessionals')}</h4>
+              {/* Placeholder links — pages not yet created */}
               <ul className='space-y-2 text-sm text-slate-300'>
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/become-visible'
+                    href='#'
                   >
                     {t('becomeVisible')}
                   </Link>
@@ -119,7 +121,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/referencing'
+                    href='#'
                   >
                     {t('referencing')}
                   </Link>
@@ -127,7 +129,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/free-trial'
+                    href='#'
                   >
                     {t('freeTrial')}
                   </Link>
@@ -137,11 +139,12 @@ export function Footer() {
 
             <div className='space-y-4'>
               <h4 className='text-sm font-semibold'>{t('resources')}</h4>
+              {/* Placeholder links — pages not yet created */}
               <ul className='space-y-2 text-sm text-slate-300'>
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/blog'
+                    href='#'
                   >
                     {t('blog')}
                   </Link>
@@ -149,7 +152,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/job-guides'
+                    href='#'
                   >
                     {t('jobGuides')}
                   </Link>
@@ -157,7 +160,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/help-center'
+                    href='#'
                   >
                     {t('helpCenter')}
                   </Link>
@@ -167,11 +170,12 @@ export function Footer() {
 
             <div className='space-y-4'>
               <h4 className='text-sm font-semibold'>{t('legal')}</h4>
+              {/* Placeholder links — pages not yet created */}
               <ul className='space-y-2 text-sm text-slate-300'>
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/terms'
+                    href='#'
                   >
                     {t('terms')}
                   </Link>
@@ -179,7 +183,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/privacy'
+                    href='#'
                   >
                     {t('privacy')}
                   </Link>
@@ -187,7 +191,7 @@ export function Footer() {
                 <li>
                   <Link
                     className='transition-colors hover:text-white'
-                    href='/legal-notices'
+                    href='#'
                   >
                     {t('legalNotices')}
                   </Link>

@@ -552,6 +552,27 @@ export type Database = {
           },
         ]
       }
+      profile_views: {
+        Row: {
+          id: string
+          professional_id: string
+          viewer_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          professional_id: string
+          viewer_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          professional_id?: string
+          viewer_id?: string | null
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       professionals: {
         Row: {
           availability_end: string | null
@@ -971,32 +992,47 @@ export type Database = {
       }
       structures: {
         Row: {
+          address: string | null
+          city: string | null
           created_at: string
           latitude: number | null
           location: unknown
           longitude: number | null
           name: string
+          phone: string | null
+          postal_code: string | null
           stripe_customer_id: string | null
+          structure_type: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           latitude?: number | null
           location?: unknown
           longitude?: number | null
           name: string
+          phone?: string | null
+          postal_code?: string | null
           stripe_customer_id?: string | null
+          structure_type?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           latitude?: number | null
           location?: unknown
           longitude?: number | null
           name?: string
+          phone?: string | null
+          postal_code?: string | null
           stripe_customer_id?: string | null
+          structure_type?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1077,6 +1113,8 @@ export type Database = {
     Views: {
       professionals_with_profiles_search: {
         Row: {
+          availability_end: string | null
+          availability_start: string | null
           avatar_url: string | null
           city: string | null
           created_at: string | null
@@ -1084,12 +1122,16 @@ export type Database = {
           description: string | null
           experience_years: number | null
           first_name: string | null
+          has_used_trial: boolean | null
           hourly_rate: number | null
           intervention_radius_km: number | null
           is_available: boolean | null
           is_certified: boolean | null
           is_onboarded: boolean | null
           last_name: string | null
+          latitude: number | null
+          location: unknown
+          longitude: number | null
           phone: string | null
           postal_code: string | null
           profile_created_at: string | null
@@ -1127,6 +1169,10 @@ export type Database = {
       end_accepted_missions: { Args: never; Returns: number }
       expire_pending_missions: { Args: never; Returns: number }
       expire_professionals_availability: { Args: never; Returns: number }
+      get_profile_view_stats: {
+        Args: { p_professional_id: string }
+        Returns: Json
+      }
       get_nearby_professionals_from_structure: {
         Args: { p_structure_id: string }
         Returns: {

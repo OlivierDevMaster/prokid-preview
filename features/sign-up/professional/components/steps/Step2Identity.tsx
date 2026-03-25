@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin } from 'lucide-react';
+import { MapPin, Phone, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
@@ -8,7 +8,6 @@ import { Controller, type UseFormReturn } from 'react-hook-form';
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface Step2IdentityProps {
@@ -30,10 +29,7 @@ export function Step2Identity({
     control,
     formState: { errors },
     setValue,
-    watch,
   } = form;
-  const latitude = watch('latitude');
-  const longitude = watch('longitude');
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) return;
@@ -66,14 +62,17 @@ export function Step2Identity({
 
   return (
     <div className='space-y-6'>
-      <h1 className='text-[32px] font-bold tracking-tight text-gray-900'>
-        {t('tellUsAboutYou')}
-      </h1>
+      <div className='space-y-2'>
+        <h1 className='text-[32px] font-bold tracking-tight text-slate-900'>
+          {t('tellUsAboutYou')}
+        </h1>
+      </div>
 
+      {/* First name / Last name side by side */}
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-2'>
+        <div className='space-y-1.5'>
           <Label
-            className='text-sm font-medium text-gray-700'
+            className='text-sm font-medium text-slate-700'
             htmlFor='firstName'
           >
             {tCommon('firstName')} *
@@ -82,15 +81,18 @@ export function Step2Identity({
             control={control}
             name='firstName'
             render={({ field }) => (
-              <Input
-                className='h-12 border-gray-300 text-base'
-                id='firstName'
-                onChange={field.onChange}
-                placeholder={t('firstNamePlaceholder')}
-                required
-                type='text'
-                value={field.value}
-              />
+              <div className='relative'>
+                <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+                <input
+                  className='flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                  id='firstName'
+                  onChange={field.onChange}
+                  placeholder={t('firstNamePlaceholder')}
+                  required
+                  type='text'
+                  value={field.value}
+                />
+              </div>
             )}
           />
           {errors.firstName && (
@@ -98,9 +100,9 @@ export function Step2Identity({
           )}
         </div>
 
-        <div className='space-y-2'>
+        <div className='space-y-1.5'>
           <Label
-            className='text-sm font-medium text-gray-700'
+            className='text-sm font-medium text-slate-700'
             htmlFor='lastName'
           >
             {tCommon('lastName')} *
@@ -109,15 +111,18 @@ export function Step2Identity({
             control={control}
             name='lastName'
             render={({ field }) => (
-              <Input
-                className='h-12 border-gray-300 text-base'
-                id='lastName'
-                onChange={field.onChange}
-                placeholder={t('lastNamePlaceholder')}
-                required
-                type='text'
-                value={field.value}
-              />
+              <div className='relative'>
+                <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+                <input
+                  className='flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                  id='lastName'
+                  onChange={field.onChange}
+                  placeholder={t('lastNamePlaceholder')}
+                  required
+                  type='text'
+                  value={field.value}
+                />
+              </div>
             )}
           />
           {errors.lastName && (
@@ -126,62 +131,69 @@ export function Step2Identity({
         </div>
       </div>
 
-      <div className='space-y-2'>
-        <Label className='text-sm font-medium text-gray-700' htmlFor='phone'>
+      {/* Phone - full width */}
+      <div className='space-y-1.5'>
+        <Label className='text-sm font-medium text-slate-700' htmlFor='phone'>
           {t('phone')} *
         </Label>
         <Controller
           control={control}
           name='phone'
           render={({ field }) => (
-            <Input
-              className='h-12 border-gray-300 text-base'
-              id='phone'
-              onChange={field.onChange}
-              placeholder={t('phonePlaceholder')}
-              required
-              type='tel'
-              value={field.value}
-            />
+            <div className='relative'>
+              <Phone className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+              <input
+                className='flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                id='phone'
+                onChange={field.onChange}
+                placeholder={t('phonePlaceholder')}
+                required
+                type='tel'
+                value={field.value}
+              />
+            </div>
           )}
         />
-        <p className='text-xs text-gray-500'>{t('phoneHelper')}</p>
+        <p className='text-xs text-slate-400'>{t('phoneHelper')}</p>
         {errors.phone && (
           <p className='text-sm text-red-500'>{errors.phone.message}</p>
         )}
       </div>
 
-      <div className='space-y-2'>
-        <Button
-          className='w-full border-gray-300 text-gray-700 hover:bg-gray-50'
-          disabled={isLocating}
-          onClick={handleUseMyLocation}
-          type='button'
-          variant='outline'
-        >
-          <MapPin className='mr-2 h-4 w-4' />
-          {isLocating ? t('locating') : t('useMyLocation')}
-        </Button>
-      </div>
+      {/* Geolocation button */}
+      <Button
+        className='h-11 w-full rounded-xl border-2 border-blue-200 bg-blue-50/50 font-medium text-blue-600 hover:border-blue-300 hover:bg-blue-50'
+        disabled={isLocating}
+        onClick={handleUseMyLocation}
+        type='button'
+        variant='outline'
+      >
+        <MapPin className='mr-2 h-4 w-4' />
+        {isLocating ? t('locating') : t('useMyLocation')}
+      </Button>
 
+      {/* City / Postal code side by side */}
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-2'>
-          <Label className='text-sm font-medium text-gray-700' htmlFor='city'>
+        <div className='space-y-1.5'>
+          <Label className='text-sm font-medium text-slate-700' htmlFor='city'>
             {t('city')} *
           </Label>
           <Controller
             control={control}
             name='city'
             render={({ field }) => (
-              <Input
-                className='h-12 border-gray-300 text-base'
-                id='city'
-                onChange={field.onChange}
-                placeholder={t('cityPlaceholder')}
-                required
-                type='text'
-                value={field.value}
-              />
+              <div className='relative'>
+                <MapPin className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+                <input
+                  className='flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                  id='city'
+                  onChange={field.onChange}
+                  placeholder={t('cityPlaceholder')}
+                  required
+                  type='text'
+                  value={field.value}
+                />
+              </div>
             )}
           />
           {errors.city && (
@@ -189,9 +201,9 @@ export function Step2Identity({
           )}
         </div>
 
-        <div className='space-y-2'>
+        <div className='space-y-1.5'>
           <Label
-            className='text-sm font-medium text-gray-700'
+            className='text-sm font-medium text-slate-700'
             htmlFor='postalCode'
           >
             {t('postalCode')}
@@ -200,8 +212,8 @@ export function Step2Identity({
             control={control}
             name='postalCode'
             render={({ field }) => (
-              <Input
-                className='h-12 border-gray-300 text-base'
+              <input
+                className='flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
                 id='postalCode'
                 onChange={field.onChange}
                 placeholder={t('postalCodePlaceholder')}
@@ -213,9 +225,10 @@ export function Step2Identity({
         </div>
       </div>
 
-      <div className='flex justify-end gap-4 pt-6'>
+      {/* Navigation */}
+      <div className='flex justify-end gap-3 pt-4'>
         <Button
-          className='min-h-12 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 md:flex-none'
+          className='h-11 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50'
           onClick={onPrevious}
           type='button'
           variant='outline'
@@ -223,7 +236,7 @@ export function Step2Identity({
           {tCommon('previous')}
         </Button>
         <Button
-          className='min-h-12 flex-1 bg-blue-600 text-white hover:bg-blue-700 md:flex-none'
+          className='h-11 rounded-xl bg-blue-600 px-8 text-white hover:bg-blue-700'
           onClick={onNext}
           type='button'
         >

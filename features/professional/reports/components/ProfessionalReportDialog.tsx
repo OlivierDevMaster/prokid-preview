@@ -16,33 +16,26 @@ import {
 } from '@/components/ui/dialog';
 import { getReportAttachmentDownloadUrl } from '@/features/report-attachments/report-attachment.service';
 
-import { useGetReport } from '../hooks/useGetReport';
+import { useGetProfessionalReport } from '../hooks/useGetProfessionalReport';
 
-interface ReportDetailsDialogProps {
-  isLoading: boolean;
+interface ProfessionalReportDialogProps {
   onClose: () => void;
   open: boolean;
   reportId: null | string;
 }
 
-export function ReportDetailsDialog({
-  isLoading,
+export function ProfessionalReportDialog({
   onClose,
   open,
   reportId,
-}: ReportDetailsDialogProps) {
+}: ProfessionalReportDialogProps) {
   const t = useTranslations('admin.report');
-  const tReports = useTranslations('admin.reports');
   const tCommon = useTranslations('common');
 
-  const { data: reportData, isLoading: isLoadingReport } =
-    useGetReport(reportId);
+  const { data: reportData, isLoading } = useGetProfessionalReport(reportId);
   const report = reportData?.report;
 
-  const isLoadingData = isLoading || isLoadingReport;
-  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<
-    null | string
-  >(null);
+  const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<null | string>(null);
 
   const professionalName = report?.author?.profile
     ? `${report.author.profile.first_name || ''} ${report.author.profile.last_name || ''}`.trim() ||
@@ -51,6 +44,7 @@ export function ReportDetailsDialog({
     : tCommon('messages.unknown');
 
   const missionTitle = report?.mission?.title;
+  const structureName = report?.mission?.structure?.name;
 
   const handleDownloadPdf = useCallback(() => {
     if (!report) return;
@@ -60,7 +54,7 @@ export function ReportDetailsDialog({
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 25;
     const contentWidth = pageWidth - margin * 2;
-    const blue = [74, 144, 226] as const; // #4A90E2
+    const blue = [74, 144, 226] as const;
 
     const checkPage = (needed: number, currentY: number) => {
       if (currentY + needed > pageHeight - 25) {
@@ -72,48 +66,38 @@ export function ReportDetailsDialog({
 
     let y = 0;
 
-    // ─── Header band ───
+    // Header band
     doc.setFillColor(blue[0], blue[1], blue[2]);
     doc.rect(0, 0, pageWidth, 45, 'F');
-
-    // ProKid branding
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(255, 255, 255);
     doc.text('PROKID', margin, 15);
-
-    // Report label
     doc.setFontSize(9);
     doc.setTextColor(200, 220, 255);
     doc.text('RAPPORT D\'INTERVENTION', margin, 22);
 
-    // Date top right
     if (report.created_at) {
       doc.setFontSize(9);
       doc.setTextColor(200, 220, 255);
       doc.text(
         format(new Date(report.created_at), 'dd MMMM yyyy', { locale: fr }),
-        pageWidth - margin,
-        15,
-        { align: 'right' }
+        pageWidth - margin, 15, { align: 'right' }
       );
     }
 
-    // Title in header
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 255, 255);
     const titleLines = doc.splitTextToSize(report.title || 'Rapport', contentWidth);
     doc.text(titleLines, margin, 35);
-
     y = 58;
 
-    // ─── Info cards row ───
+    // Info cards
     const cardHeight = 22;
     const cardGap = 6;
     const cardWidth = (contentWidth - cardGap) / 2;
 
-    // Professional card
     doc.setFillColor(245, 247, 250);
     doc.roundedRect(margin, y, cardWidth, cardHeight, 3, 3, 'F');
     doc.setFontSize(8);
@@ -125,7 +109,6 @@ export function ReportDetailsDialog({
     doc.setTextColor(30);
     doc.text(professionalName || '-', margin + 5, y + 15);
 
-    // Mission card
     const card2X = margin + cardWidth + cardGap;
     doc.setFillColor(245, 247, 250);
     doc.roundedRect(card2X, y, cardWidth, cardHeight, 3, 3, 'F');
@@ -136,17 +119,15 @@ export function ReportDetailsDialog({
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(30);
-    const missionText = doc.splitTextToSize(missionTitle || '-', cardWidth - 10);
-    doc.text(missionText[0], card2X + 5, y + 15);
-
+    const mText = doc.splitTextToSize(missionTitle || '-', cardWidth - 10);
+    doc.text(mText[0], card2X + 5, y + 15);
     y += cardHeight + 12;
 
-    // ─── Content section ───
+    // Content
     doc.setDrawColor(blue[0], blue[1], blue[2]);
     doc.setLineWidth(0.8);
     doc.line(margin, y, margin + 20, y);
     y += 6;
-
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(blue[0], blue[1], blue[2]);
@@ -163,16 +144,14 @@ export function ReportDetailsDialog({
       y += 5.5;
     }
 
-    // ─── Attachments ───
+    // Attachments
     if (report.attachments && report.attachments.length > 0) {
       y += 10;
       y = checkPage(20, y);
-
       doc.setDrawColor(blue[0], blue[1], blue[2]);
       doc.setLineWidth(0.8);
       doc.line(margin, y, margin + 20, y);
       y += 6;
-
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(blue[0], blue[1], blue[2]);
@@ -191,20 +170,17 @@ export function ReportDetailsDialog({
       });
     }
 
-    // ─── Footer on all pages ───
+    // Footer
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      // Thin line
       doc.setDrawColor(220);
       doc.setLineWidth(0.3);
       doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
-      // Left text
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(160);
       doc.text('ProKid — Rapport d\'intervention', margin, pageHeight - 10);
-      // Right page number
       doc.text(`Page ${i} / ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     }
 
@@ -212,10 +188,7 @@ export function ReportDetailsDialog({
     doc.save(fileName);
   }, [report, professionalName, missionTitle]);
 
-  const handleDownloadAttachment = async (
-    attachmentId: string,
-    fileName: string
-  ) => {
+  const handleDownloadAttachment = async (attachmentId: string, fileName: string) => {
     try {
       setDownloadingAttachmentId(attachmentId);
       const downloadUrl = await getReportAttachmentDownloadUrl(attachmentId);
@@ -227,7 +200,7 @@ export function ReportDetailsDialog({
       link.click();
       document.body?.removeChild?.(link);
     } catch {
-      // Silent fail — could add toast
+      // Silent fail
     } finally {
       setDownloadingAttachmentId(null);
     }
@@ -237,7 +210,7 @@ export function ReportDetailsDialog({
     <Dialog onOpenChange={onClose} open={open}>
       <DialogContent aria-describedby={undefined} className='flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl'>
         <DialogTitle className='sr-only'>Rapport</DialogTitle>
-        {isLoadingData ? (
+        {isLoading ? (
           <div className='space-y-4 p-8'>
             <div className='h-6 w-48 animate-pulse rounded bg-slate-200' />
             <div className='h-4 w-72 animate-pulse rounded bg-slate-100' />
@@ -251,14 +224,14 @@ export function ReportDetailsDialog({
           <>
             {/* Header */}
             <DialogHeader className='border-b border-slate-200 px-6 py-5'>
-              <h2 className='text-xl font-bold text-slate-900'>
-                {report.title}
-              </h2>
+              <h2 className='text-xl font-bold text-slate-900'>{report.title}</h2>
               <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500'>
-                <span className='flex items-center gap-1.5'>
-                  <User className='h-3.5 w-3.5' />
-                  {professionalName}
-                </span>
+                {structureName && (
+                  <span className='flex items-center gap-1.5'>
+                    <User className='h-3.5 w-3.5' />
+                    {structureName}
+                  </span>
+                )}
                 {missionTitle && (
                   <span className='flex items-center gap-1.5'>
                     <span className='text-slate-300'>|</span>
@@ -268,17 +241,14 @@ export function ReportDetailsDialog({
                 {report.created_at && (
                   <span className='flex items-center gap-1.5'>
                     <Calendar className='h-3.5 w-3.5' />
-                    {format(new Date(report.created_at), 'dd MMMM yyyy', {
-                      locale: fr,
-                    })}
+                    {format(new Date(report.created_at), 'dd MMMM yyyy', { locale: fr })}
                   </span>
                 )}
               </div>
             </DialogHeader>
 
-            {/* Body — scrollable */}
+            {/* Body */}
             <div className='flex-1 overflow-y-auto'>
-              {/* Report content */}
               <div className='px-6 py-6'>
                 <h3 className='mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400'>
                   {t('label.content')}
@@ -288,7 +258,6 @@ export function ReportDetailsDialog({
                 </div>
               </div>
 
-              {/* Attachments */}
               {report.attachments && report.attachments.length > 0 && (
                 <div className='border-t border-slate-100 px-6 py-5'>
                   <h3 className='mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400'>
@@ -301,10 +270,7 @@ export function ReportDetailsDialog({
                         disabled={downloadingAttachmentId === attachment.id}
                         key={attachment.id}
                         onClick={() =>
-                          handleDownloadAttachment(
-                            attachment.id,
-                            attachment.file_name || attachment.file_path
-                          )
+                          handleDownloadAttachment(attachment.id, attachment.file_name || attachment.file_path)
                         }
                         type='button'
                       >
@@ -313,9 +279,7 @@ export function ReportDetailsDialog({
                           {attachment.file_name || attachment.file_path}
                         </span>
                         {downloadingAttachmentId === attachment.id ? (
-                          <span className='text-xs text-slate-400'>
-                            {tCommon('messages.loading')}
-                          </span>
+                          <span className='text-xs text-slate-400'>{tCommon('messages.loading')}</span>
                         ) : (
                           <Download className='h-4 w-4 flex-shrink-0 text-slate-400' />
                         )}
@@ -329,13 +293,13 @@ export function ReportDetailsDialog({
             {/* Footer */}
             <div className='flex items-center justify-between border-t border-slate-200 px-6 py-4'>
               <Button
-                className='h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50'
+                className='h-10 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50'
                 onClick={onClose}
               >
                 Fermer
               </Button>
               <Button
-                className='flex h-11 items-center gap-2 rounded-xl bg-[#4A90E2] px-5 text-sm font-semibold text-white shadow-sm hover:opacity-90'
+                className='flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700'
                 onClick={handleDownloadPdf}
               >
                 <FileDown className='h-4 w-4' />

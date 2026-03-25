@@ -18,17 +18,13 @@ export function OnboardingStepPanel({
   const stepContent: Record<number, { headline: string; subtitle: string }> = {
     1: {
       headline: t('welcomeTitle'),
-      subtitle: t('clientsTrustPhotos'),
-    },
-    2: {
-      headline: t('tellUsAboutYou'),
       subtitle: t('step2PanelSubtitle'),
     },
-    3: {
+    2: {
       headline: t('yourProfessionalActivity'),
       subtitle: t('step3PanelSubtitle'),
     },
-    4: {
+    3: {
       headline: t('yourProfessionalProfile'),
       subtitle: t('profileReadySubtitle'),
     },

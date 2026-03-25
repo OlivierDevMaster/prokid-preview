@@ -49,7 +49,7 @@ export function AdminSidebar() {
     <aside className='flex min-h-screen w-64 flex-col border-r border-gray-200 bg-white'>
       {/* Logo Section */}
       <div className='border-b border-gray-200 p-6'>
-        <Link href='/'>
+        <Link href='/admin/dashboard'>
           <ProkidLogo />
         </Link>
       </div>

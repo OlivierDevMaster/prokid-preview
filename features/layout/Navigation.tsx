@@ -28,18 +28,15 @@ export function Navigation() {
   } = useRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Filter out professionals link for professionals
   const navItems = useMemo(() => {
-    const allNavItems = [
-      { href: '/professionals', label: t('professionals') },
-      { href: '/faq', label: t('howItWorks') },
-    ];
+    if (isProfessional) return [];
 
-    if (isProfessional) {
-      return allNavItems.filter(item => item.href !== '/professionals');
-    }
-    return allNavItems;
-  }, [isProfessional, t]);
+    const professionalsHref = isStructure
+      ? '/structure/search'
+      : '/professionals';
+
+    return [{ href: professionalsHref, label: t('professionals') }];
+  }, [isProfessional, isStructure, t]);
 
   // Close mobile menu when pathname changes
   useEffect(() => {
@@ -55,7 +52,7 @@ export function Navigation() {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
-    router.push('/');
+    router.push('/auth/login');
   };
 
   const handleDashboard = () => {
@@ -95,57 +92,61 @@ export function Navigation() {
   };
 
   return (
-    <nav className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-      <div className='w-full px-4 sm:px-6 lg:px-8'>
-        <div className='flex h-16 items-center justify-between'>
+    <nav className='sticky top-0 z-50 w-full border-b border-slate-200 bg-white'>
+      <div className='px-6 md:px-10'>
+        <div className='mx-auto flex h-16 max-w-7xl items-center justify-between'>
+          {/* Left: Logo + Nav links */}
           <div className='flex items-center gap-8'>
-            <Link className='flex items-center space-x-2' href='/'>
+            <Link className='flex items-center' href='/auth/login'>
               <ProkidLogo />
             </Link>
+            <div className='hidden items-center gap-1 md:flex'>
+              {navItems.map(item => (
+                <Link
+                  className={cn(
+                    'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive(item.href)
+                      ? 'bg-slate-100 text-slate-900'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  )}
+                  href={item.href}
+                  key={item.href}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className='hidden md:flex md:items-center md:gap-6'>
-            {navItems.map(item => (
-              <Link
-                className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
-                  isActive(item.href)
-                    ? 'text-foreground'
-                    : 'text-muted-foreground'
-                )}
-                href={item.href}
-                key={item.href}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className='flex items-center gap-4'>
-            {/* <ThemeSwitcher /> */}
-
+          {/* Right: Auth buttons */}
+          <div className='flex items-center gap-3'>
             {session ? (
-              <div className='hidden md:flex md:items-center md:gap-4'>
-                <span className='text-sm text-muted-foreground'>
-                  {session.user?.email}
-                </span>
+              <div className='hidden items-center gap-3 md:flex'>
                 <Button
-                  className='bg-blue-500 text-white hover:bg-blue-600'
+                  className='flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50'
                   onClick={handleDashboard}
-                  size='sm'
                 >
                   {tCommon('label.dashboard')}
                 </Button>
-                <Button onClick={handleSignOut} size='sm' variant='outline'>
+                <Button
+                  className='flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50'
+                  onClick={handleSignOut}
+                >
                   {tCommon('actions.signOut')}
                 </Button>
               </div>
             ) : (
-              <div className='hidden md:flex md:items-center md:gap-2'>
-                <Button asChild size='sm' variant='ghost'>
+              <div className='hidden items-center gap-3 md:flex'>
+                <Button
+                  asChild
+                  className='flex h-11 items-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50'
+                >
                   <Link href='/auth/login'>{t('signIn')}</Link>
                 </Button>
-                <Button asChild size='sm' variant='outline'>
+                <Button
+                  asChild
+                  className='flex h-11 items-center rounded-xl bg-[#4A90E2] px-5 text-sm font-semibold text-white shadow-sm hover:opacity-90'
+                >
                   <Link href='/auth/sign-up'>{t('signUp')}</Link>
                 </Button>
               </div>
@@ -166,16 +167,17 @@ export function Navigation() {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className='border-t md:hidden'>
-            <div className='space-y-1 pb-3 pt-2 lg:px-2'>
+          <div className='border-t border-slate-200 pb-4 pt-2 md:hidden'>
+            <div className='space-y-1'>
               {navItems.map(item => (
                 <Link
                   className={cn(
-                    'block rounded-md px-3 py-2 text-base font-medium transition-colors',
+                    'block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                     isActive(item.href)
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-slate-100 text-slate-900'
+                      : 'text-slate-600 hover:bg-slate-50'
                   )}
                   href={item.href}
                   key={item.href}
@@ -184,41 +186,37 @@ export function Navigation() {
                   {item.label}
                 </Link>
               ))}
-              {session ? (
-                <div className='space-y-1 pt-2 lg:px-2'>
-                  <div className='px-3 py-2 text-sm text-muted-foreground'>
-                    {session.user?.email}
+              <div className='border-t border-slate-100 pt-2'>
+                {session ? (
+                  <div className='flex flex-col gap-2 px-3'>
+                    <Button
+                      className='h-11 w-full justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm'
+                      onClick={handleDashboard}
+                    >
+                      {tCommon('label.dashboard')}
+                    </Button>
+                    <Button
+                      className='h-11 w-full justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm'
+                      onClick={handleSignOut}
+                    >
+                      {tCommon('actions.signOut')}
+                    </Button>
                   </div>
-                  <Button
-                    className='mr-2'
-                    onClick={handleDashboard}
-                    size='sm'
-                    variant='outline'
-                  >
-                    {tCommon('label.dashboard')}
-                  </Button>
-                  <Button onClick={handleSignOut} size='sm' variant='outline'>
-                    {tCommon('actions.signOut')}
-                  </Button>
-                </div>
-              ) : (
-                <div className='space-y-1 pt-2 lg:px-2'>
-                  <Link
-                    className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    href='/auth/login'
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('signIn')}
-                  </Link>
-                  <Link
-                    className='block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    href='/auth/sign-up'
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('signUp')}
-                  </Link>
-                </div>
-              )}
+                ) : (
+                  <div className='flex flex-col gap-2 px-3'>
+                    <Link href='/auth/login' onClick={() => setMobileMenuOpen(false)}>
+                      <Button className='h-11 w-full justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm'>
+                        {t('signIn')}
+                      </Button>
+                    </Link>
+                    <Link href='/auth/sign-up' onClick={() => setMobileMenuOpen(false)}>
+                      <Button className='h-11 w-full justify-center rounded-xl bg-[#4A90E2] text-sm font-semibold text-white shadow-sm'>
+                        {t('signUp')}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

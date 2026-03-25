@@ -3,6 +3,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { useRole } from '@/hooks/useRole';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { Link } from '@/i18n/routing';
 
@@ -14,11 +15,14 @@ export function ProfessionalProfileBreadcrumb({
   professionalId,
 }: ProfessionalProfileBreadcrumbProps) {
   const t = useTranslations('professional.profile');
+  const { isStructure } = useRole();
   const { data: professional } = useFindProfessional(professionalId);
 
   const firstName = professional?.profile.first_name ?? '';
   const lastName = professional?.profile.last_name ?? '';
   const fullName = `${firstName} ${lastName}`.trim() || '—';
+
+  const searchHref = isStructure ? '/structure/search' : '/professionals';
 
   return (
     <nav
@@ -27,7 +31,7 @@ export function ProfessionalProfileBreadcrumb({
     >
       <Link
         className='font-medium text-[#4A90E2] underline-offset-2 hover:underline'
-        href='/structure/search'
+        href={searchHref}
       >
         {t('searchBreadcrumb')}
       </Link>

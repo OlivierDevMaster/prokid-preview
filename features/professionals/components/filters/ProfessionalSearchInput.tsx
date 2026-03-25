@@ -22,7 +22,7 @@ export function ProfessionalSearchInput({
   return (
     <div className='relative focus-within:text-blue-500'>
       <Input
-        className='h-12 rounded-full border-0 bg-slate-100 pl-11 pr-11 text-sm text-slate-900 shadow-none ring-0 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:placeholder:text-blue-500'
+        className='h-11 rounded-xl border border-slate-200 bg-white pl-11 pr-11 text-sm font-medium text-slate-900 shadow-sm placeholder:text-slate-400 focus-visible:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:placeholder:text-blue-500'
         onChange={e => onChange(e.target.value)}
         placeholder={t('search.placeholder')}
         value={value}

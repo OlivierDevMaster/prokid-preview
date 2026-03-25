@@ -159,7 +159,7 @@ export function PersonalInfoForm() {
             {t('actions.cancel')}
           </Button>
           <Button
-            className='bg-blue-500 text-white hover:bg-blue-600'
+            className='h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700'
             disabled={
               updateProfileMutation.isPending ||
               updateProfessionalMutation.isPending ||

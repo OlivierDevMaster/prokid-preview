@@ -1,8 +1,8 @@
 'use client';
 
-import { Camera } from 'lucide-react';
+import { Camera, ImagePlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
@@ -23,6 +23,7 @@ export function Step1ProfilePhoto({
 }: Step1ProfilePhotoProps) {
   const [preview, setPreview] = useState<null | string>(null);
   const [userEmail, setUserEmail] = useState<null | string>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('auth.signUp.professionalForm');
   const tCommon = useTranslations('common.label');
@@ -53,15 +54,42 @@ export function Step1ProfilePhoto({
     return '?';
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const processFile = useCallback(
+    (file: File) => {
       onPhotoChange(file);
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result as string);
       reader.readAsDataURL(file);
-    }
+    },
+    [onPhotoChange]
+  );
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
   };
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file && file.type.startsWith('image/')) {
+        processFile(file);
+      }
+    },
+    [processFile]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   const handleSkip = () => {
     onPhotoChange(null);
@@ -72,17 +100,35 @@ export function Step1ProfilePhoto({
   const handleCameraClick = () => fileInputRef.current?.click();
 
   return (
-    <div className='w-full space-y-6'>
+    <div className='flex w-full flex-col space-y-8'>
       <div className='space-y-2'>
-        <h1 className='text-[32px] font-bold tracking-tight text-gray-900'>
+        <h1 className='text-[32px] font-bold tracking-tight text-slate-900'>
           {t('welcomeTitle')}
         </h1>
-        <p className='text-base text-gray-600'>{t('clientsTrustPhotos')}</p>
+        <p className='text-base text-slate-500'>{t('clientsTrustPhotos')}</p>
       </div>
 
-      <div className='flex'>
-        <div className='group relative'>
-          <div className='relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-gray-100 ring-2 ring-gray-200'>
+      {/* Upload area */}
+      <div
+        className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 transition-colors ${
+          isDragging
+            ? 'border-blue-400 bg-blue-50/50'
+            : preview
+              ? 'border-slate-200 bg-white'
+              : 'border-slate-300 bg-slate-50/50 hover:border-blue-300 hover:bg-blue-50/30'
+        } cursor-pointer`}
+        onClick={handleCameraClick}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <div className='group relative mb-4'>
+          <div
+            className={`relative flex items-center justify-center overflow-hidden rounded-full ring-4 ring-white ${
+              preview ? 'bg-transparent' : 'bg-slate-100'
+            }`}
+            style={{ height: 180, width: 180 }}
+          >
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -91,45 +137,56 @@ export function Step1ProfilePhoto({
                 src={preview}
               />
             ) : (
-              <span className='text-4xl font-semibold text-gray-400'>
+              <span className='text-5xl font-semibold text-slate-300'>
                 {getInitials()}
               </span>
             )}
           </div>
           <Button
-            className='absolute bottom-0 right-0 h-10 w-10 rounded-full bg-blue-600 p-0 hover:bg-blue-700'
-            onClick={handleCameraClick}
+            className='absolute bottom-1 right-1 h-11 w-11 rounded-full bg-blue-600 p-0 shadow-lg hover:bg-blue-700'
+            onClick={e => {
+              e.stopPropagation();
+              handleCameraClick();
+            }}
             type='button'
           >
             <Camera className='h-5 w-5 text-white' />
           </Button>
-          <input
-            accept='image/*'
-            className='hidden'
-            onChange={handleFileChange}
-            ref={fileInputRef}
-            type='file'
-          />
         </div>
+
+        {!preview && (
+          <div className='flex flex-col items-center gap-1.5'>
+            <ImagePlus className='h-6 w-6 text-slate-400' />
+            <p className='text-sm font-medium text-slate-600'>
+              {t('uploadPhoto')}
+            </p>
+            <p className='text-xs text-slate-400'>
+              Format JPG ou PNG, max 5 Mo
+            </p>
+          </div>
+        )}
+
+        <input
+          accept='image/*'
+          className='hidden'
+          onChange={handleFileChange}
+          ref={fileInputRef}
+          type='file'
+        />
       </div>
 
-      <div className='flex flex-col items-start gap-3'>
+      {/* Navigation */}
+      <div className='flex justify-end gap-3 pt-2'>
         <Button
-          className='min-h-12 border-gray-300 text-gray-700 hover:bg-gray-50'
-          onClick={handleCameraClick}
+          className='h-11 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50'
+          onClick={handleSkip}
           type='button'
           variant='outline'
         >
-          {t('uploadPhoto')}
-        </Button>
-      </div>
-
-      <div className='flex justify-end gap-4 pt-4'>
-        <Button variant='outline' onClick={handleSkip} className='min-h-12'>
           {t('skipForNow')}
         </Button>
         <Button
-          className='min-h-12 bg-blue-600 px-8 text-white hover:bg-blue-700'
+          className='h-11 rounded-xl bg-blue-600 px-8 text-white hover:bg-blue-700'
           onClick={onNext}
           type='button'
         >

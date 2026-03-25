@@ -42,7 +42,7 @@ export function ProfessionalMissionCard({
       : '';
 
   return (
-    <div className='flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center'>
+    <div className='flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center'>
       <div className='flex-1'>
         <div className='mb-2 flex flex-wrap items-center gap-3'>
           <h3 className='text-lg font-bold text-slate-900'>{mission.title}</h3>
@@ -72,7 +72,7 @@ export function ProfessionalMissionCard({
       </div>
       <div className='flex gap-2'>
         <button
-          className='rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200'
+          className='h-10 rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200'
           onClick={() => onViewDetails?.(mission.id)}
           type='button'
         >
@@ -80,7 +80,7 @@ export function ProfessionalMissionCard({
         </button>
         <Link href='/professional/chat'>
           <button
-            className='rounded-lg bg-[#4A90E2]/10 p-2 text-[#4A90E2] transition-colors hover:bg-[#4A90E2] hover:text-white'
+            className='h-10 w-10 rounded-xl bg-blue-600/10 p-2 text-blue-600 transition-colors hover:bg-blue-600 hover:text-white'
             type='button'
           >
             <MessageCircle className='h-5 w-5' />

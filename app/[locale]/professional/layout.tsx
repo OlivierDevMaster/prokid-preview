@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Menu } from 'lucide-react';
+import { Loader2, Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -86,7 +86,7 @@ export default function ProtectedLayout({
   if (status === 'loading' || isLoadingProfile) {
     return (
       <main className='flex min-h-screen flex-col items-center justify-center'>
-        <div>Loading...</div>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </main>
     );
   }
@@ -115,7 +115,7 @@ export default function ProtectedLayout({
   if (!userData.isOnboarded) {
     return (
       <main className='flex min-h-screen flex-col items-center justify-center'>
-        <div>Loading...</div>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </main>
     );
   }

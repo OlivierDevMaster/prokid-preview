@@ -55,8 +55,6 @@ export function StructureMissionCard({
   );
   const avatarColors = AVATAR_COLOR_VARIANTS[colorIndex];
 
-  console.log(avatarColors.bg);
-
   return (
     <button
       className='flex w-full items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md'

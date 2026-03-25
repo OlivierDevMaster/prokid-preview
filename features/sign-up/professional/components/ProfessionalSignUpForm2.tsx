@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 
 import { Card } from '@/components/ui/card';
-import { Step1ProfilePhoto } from '@/features/sign-up/professional/components/steps/Step1ProfilePhoto';
+import { Step1ProfileAndIdentity } from '@/features/sign-up/professional/components/steps/Step1ProfileAndIdentity';
 import { Step4Finalization } from '@/features/sign-up/professional/components/steps/Step4Finalization';
 import { createClient } from '@/lib/supabase/client';
 
@@ -16,7 +16,6 @@ import {
 } from '../hooks/useProfessionalSignUpSchema';
 import { useRegisterProfessionalProfile } from '../hooks/useRegisterProfessionalProfile';
 import { OnboardingStepPanel } from './OnboardingStepPanel';
-import { Step2Identity } from './steps/Step2Identity';
 import { Step3ProfessionalInfo } from './steps/Step3ProfessionalInfo';
 
 export default function ProfessionalSignUpForm2() {
@@ -70,10 +69,10 @@ export default function ProfessionalSignUpForm2() {
     getUserId();
   }, [t]);
 
-  const TOTAL_STEPS = 4;
+  const TOTAL_STEPS = 3;
 
   const handleNext = async () => {
-    if (currentStep === 2) {
+    if (currentStep === 1) {
       const isValid = await form.trigger([
         'firstName',
         'lastName',
@@ -85,7 +84,7 @@ export default function ProfessionalSignUpForm2() {
         return;
       }
     }
-    if (currentStep === 3) {
+    if (currentStep === 2) {
       const isValid = await form.trigger(['profession', 'hourlyRate']);
       if (!isValid) {
         setShowErrorSummary(true);
@@ -162,9 +161,8 @@ export default function ProfessionalSignUpForm2() {
           )}
 
           {currentStep === 1 && (
-            <Step1ProfilePhoto
-              firstName={form.watch('firstName')}
-              lastName={form.watch('lastName')}
+            <Step1ProfileAndIdentity
+              form={form}
               onNext={handleNext}
               onPhotoChange={file => form.setValue('profilePhoto', file)}
               profilePhoto={form.watch('profilePhoto')}
@@ -172,14 +170,6 @@ export default function ProfessionalSignUpForm2() {
           )}
 
           {currentStep === 2 && (
-            <Step2Identity
-              form={form}
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-            />
-          )}
-
-          {currentStep === 3 && (
             <Step3ProfessionalInfo
               form={form}
               onNext={handleNext}
@@ -187,7 +177,7 @@ export default function ProfessionalSignUpForm2() {
             />
           )}
 
-          {currentStep === 4 && (
+          {currentStep === 3 && (
             <Step4Finalization
               form={form}
               isPending={isPending}

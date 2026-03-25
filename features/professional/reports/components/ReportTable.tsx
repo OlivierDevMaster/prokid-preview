@@ -23,7 +23,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { useGetProfessionalReport } from '../hooks/useGetProfessionalReport';
 import useReportColumnDefs from '../hooks/useReportColumnDefs';
+import { ProfessionalReportDialog } from './ProfessionalReportDialog';
 
 interface ReportTableProps {
   data: Report[];
@@ -48,6 +50,7 @@ export function ReportTable({
   translations,
 }: ReportTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [selectedReportId, setSelectedReportId] = useState<null | string>(null);
   const { columns, deleteDialog } = useReportColumnDefs({
     locale,
     translations,
@@ -73,7 +76,7 @@ export function ReportTable({
   return (
     <>
       <div className='space-y-4'>
-        <div className='rounded-md border bg-white'>
+        <div className='overflow-hidden rounded-xl border border-slate-200 bg-white'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map(headerGroup => (
@@ -97,8 +100,10 @@ export function ReportTable({
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map(row => (
                   <TableRow
+                    className='cursor-pointer hover:bg-slate-50'
                     data-state={row.getIsSelected() && 'selected'}
                     key={row.id}
+                    onClick={() => setSelectedReportId(row.original.id)}
                   >
                     {row.getVisibleCells().map(cell => (
                       <TableCell key={cell.id}>
@@ -130,6 +135,7 @@ export function ReportTable({
           </div>
           <div className='flex items-center space-x-2'>
             <Button
+              className='h-10 rounded-xl'
               disabled={!table.getCanPreviousPage()}
               onClick={() => table.previousPage()}
               size='sm'
@@ -139,6 +145,7 @@ export function ReportTable({
               {translations.previous}
             </Button>
             <Button
+              className='h-10 rounded-xl'
               disabled={!table.getCanNextPage()}
               onClick={() => table.nextPage()}
               size='sm'
@@ -151,6 +158,13 @@ export function ReportTable({
         </div>
       </div>
       {deleteDialog}
+
+      {/* Report detail dialog */}
+      <ProfessionalReportDialog
+        onClose={() => setSelectedReportId(null)}
+        open={!!selectedReportId}
+        reportId={selectedReportId}
+      />
     </>
   );
 }

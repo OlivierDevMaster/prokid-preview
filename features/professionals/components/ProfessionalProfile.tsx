@@ -15,6 +15,7 @@ import {
 } from '@/features/professionals/components/professional-profile';
 import { RelatedProfessionals } from '@/features/professionals/components/RelatedProfessionals';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
+import { useTrackProfileView } from '@/hooks/useTrackProfileView';
 
 export default function ProfessionalProfile() {
   const { id } = useParams();
@@ -23,6 +24,8 @@ export default function ProfessionalProfile() {
   const tCommon = useTranslations('common');
 
   const { data: professional, isLoading } = useFindProfessional(professionalId);
+
+  useTrackProfileView(professional?.user_id);
 
   if (isLoading) {
     return (

@@ -12,9 +12,27 @@ import {
   getProfessionalsByUserIdsRequest,
 } from '../professional.service';
 
+// Haversine distance in km between two lat/lng points
+function haversineKm(
+  lat1: number, lon1: number,
+  lat2: number, lon2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 type NearbyProfessionalsResult = {
   count: number;
   data: ProfessionalWithDistance[];
+  locationFallback?: boolean;
+  locationQuery?: string;
 };
 
 const toProfessionalWithDistance = (
@@ -128,7 +146,7 @@ export const useFindNearbyProfessionalsFromStructure = (
         profileRows.map(row => [row.user_id, toProfessionalWithDistance(row)])
       );
 
-      const merged = orderedUserIds
+      const allMerged = orderedUserIds
         .map(userId => {
           const professional = professionalByUserId.get(userId);
           const distance = distanceByUserId.get(userId);
@@ -143,15 +161,43 @@ export const useFindNearbyProfessionalsFromStructure = (
             is_default_case: defaultCaseByUserId.get(userId) ?? false,
           };
         })
-        .filter((row): row is ProfessionalWithDistance => row !== null)
-        .filter(row => matchesFilters(row, filters));
+        .filter((row): row is ProfessionalWithDistance => row !== null);
+
+      // If we have city coordinates, recalculate distances from that city
+      // and sort by proximity — no text filtering needed
+      const locationCoords = filters.locationCoords;
+      let results: ProfessionalWithDistance[];
+
+      if (locationCoords) {
+        // Apply all filters EXCEPT location text
+        const filtersWithoutLocation = { ...filters, locationSearch: undefined };
+        results = allMerged
+          .filter(row => matchesFilters(row, filtersWithoutLocation))
+          .map(row => {
+            const proLat = (row as unknown as { latitude?: number }).latitude;
+            const proLon = (row as unknown as { longitude?: number }).longitude;
+            const dist =
+              proLat != null && proLon != null
+                ? Math.round(haversineKm(locationCoords.latitude, locationCoords.longitude, proLat, proLon))
+                : row.distance_km;
+            return { ...row, distance_km: dist };
+          })
+          .sort((a, b) => a.distance_km - b.distance_km);
+      } else {
+        // No city coords — use standard text-based filtering
+        results = allMerged.filter(row => matchesFilters(row, filters));
+      }
+
+      const locationFallback = false;
 
       const from = (page - 1) * limit;
-      const paginated = merged.slice(from, from + limit);
+      const paginated = results.slice(from, from + limit);
 
       return {
-        count: merged.length,
+        count: results.length,
         data: paginated,
+        locationFallback,
+        locationQuery: filters.locationSearch,
       };
     },
     queryKey: [

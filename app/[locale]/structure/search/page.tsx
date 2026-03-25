@@ -41,6 +41,7 @@ export default function StructureSearchPage() {
     {
       availability: state.appliedAvailability,
       current_job: state.appliedRole === 'all' ? undefined : state.appliedRole,
+      locationCoords: state.appliedLocationCoords ?? undefined,
       locationSearch: state.appliedLocationQuery,
       search: state.searchQuery,
     },
@@ -84,18 +85,20 @@ export default function StructureSearchPage() {
 
   return (
     <main className='min-h-screen bg-gray-100 pb-4'>
-      <div className='mx-auto max-w-7xl space-y-4 sm:space-y-6'>
-        <ProfessionalFiltersSection
-          actions={actions}
-          hasResults={hasResults}
-          showStructureLocationActivation
-          state={state}
-        />
+      <ProfessionalFiltersSection
+        actions={actions}
+        hasResults={hasResults}
+        showStructureLocationActivation
+        state={state}
+      />
+      <div className='mx-auto max-w-7xl space-y-4 px-4 sm:space-y-6 sm:px-6 lg:px-8'>
         <ProfessionalSearchResultsSection
           hasResults={hasResults}
           isSelected={professionalId =>
             selectedProfessionalIds.has(professionalId)
           }
+          locationFallback={data?.locationFallback}
+          locationQuery={data?.locationQuery}
           onPageChange={setPage}
           onPageSizeChange={setPageSize}
           onResetFilters={handleResetFilters}
