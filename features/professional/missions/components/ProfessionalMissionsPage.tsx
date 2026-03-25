@@ -21,6 +21,8 @@ import {
 import { Pagination } from '@/features/paginations/components/Pagination';
 import { useStructuresForProfessional } from '@/features/structure-members/hooks/useStructuresForProfessional';
 
+import { Loader2 } from 'lucide-react';
+
 import { useGetProfessionalMission } from '../hooks/useGetProfessionalMission';
 import { ProfessionalMissionCard } from './ProfessionalMissionCard';
 import { ProfessionalMissionDetailsDialog } from './ProfessionalMissionDetailsDialog';
@@ -101,20 +103,20 @@ export function ProfessionalMissionsPage() {
 
   if (isLoading) {
     return (
-      <div className='-m-4 flex min-h-screen items-center justify-center bg-blue-50/30 p-4 sm:-m-6 sm:p-6 lg:-m-8 lg:p-8'>
-        <p className='text-sm text-gray-600 sm:text-base'>{t('loading')}</p>
+      <div className='flex items-center justify-center py-12'>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:p-8'>
+    <div className='min-h-screen space-y-4 bg-white p-4 sm:space-y-6 sm:p-6 lg:p-8'>
       {/* Header */}
       <div className='mb-4 sm:mb-6'>
-        <h1 className='text-2xl font-bold text-gray-800 sm:text-3xl'>
+        <h1 className='text-2xl font-bold text-slate-800 sm:text-3xl'>
           {t('title')}
         </h1>
-        <p className='mt-2 text-sm text-gray-600 sm:text-base'>
+        <p className='mt-2 text-sm text-slate-600 sm:text-base'>
           {t('description')}
         </p>
       </div>
@@ -181,8 +183,8 @@ export function ProfessionalMissionsPage() {
           ))}
         </div>
       ) : (
-        <div className='py-8 text-center text-gray-500 sm:py-12'>
-          <p className='text-sm sm:text-base'>{t('noMissions')}</p>
+        <div className='flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 py-12 shadow-sm'>
+          <p className='text-sm text-slate-500 sm:text-base'>{t('noMissions')}</p>
         </div>
       )}
 

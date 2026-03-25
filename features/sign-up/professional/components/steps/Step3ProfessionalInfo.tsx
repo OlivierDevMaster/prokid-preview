@@ -7,15 +7,12 @@ import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import useGetProfessionalJobs from '@/features/professionals/hooks/useGetProfessionalJobs';
 import { cn } from '@/lib/utils';
 
-const SECTION_TITLE_CLASS =
-  'text-sm font-semibold uppercase tracking-wide text-gray-500';
+const DESCRIPTION_MAX_LENGTH = 500;
 
 interface Step3ProfessionalInfoProps {
   form: UseFormReturn<ProfessionalSignUpFormData>;
@@ -57,18 +54,22 @@ export function Step3ProfessionalInfo({
   const INTERVENTION_TICKS = [5, 20, 40, 60, 80, 100];
 
   return (
-    <div className='space-y-8'>
-      <h1 className='text-3xl font-bold tracking-tight text-gray-900'>
-        {t('yourProfessionalActivity')}
-      </h1>
+    <div className='space-y-5'>
+      <div>
+        <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
+          {t('yourProfessionalActivity')}
+        </h1>
+      </div>
 
       {/* PROFESSIONAL ACTIVITY */}
-      <section className='space-y-6 pb-2'>
-        <h2 className={SECTION_TITLE_CLASS}>{t('professionalDetails')}</h2>
+      <section className='space-y-3'>
+        <h2 className='text-lg font-semibold text-slate-800'>
+          {t('professionalDetails')}
+        </h2>
 
-        <div className='space-y-2'>
+        <div className='space-y-1.5'>
           <Label
-            className='text-sm font-medium text-gray-700'
+            className='text-xs font-medium text-slate-600'
             htmlFor='profession'
           >
             {t('job')} *
@@ -78,9 +79,9 @@ export function Step3ProfessionalInfo({
             name='profession'
             render={({ field }) => (
               <div className='relative'>
-                <Briefcase className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+                <Briefcase className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
                 <select
-                  className='h-12 w-full appearance-none rounded-md border border-gray-300 bg-white pl-10 pr-10 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+                  className='flex h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-9 pr-10 text-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
                   id='profession'
                   onChange={field.onChange}
                   required
@@ -95,7 +96,7 @@ export function Step3ProfessionalInfo({
                     )
                   )}
                 </select>
-                <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+                <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
               </div>
             )}
           />
@@ -105,9 +106,9 @@ export function Step3ProfessionalInfo({
         </div>
 
         <div className='grid gap-4 md:grid-cols-2'>
-          <div className='space-y-2'>
+          <div className='space-y-1.5'>
             <Label
-              className='text-sm font-medium text-gray-700'
+              className='text-xs font-medium text-slate-600'
               htmlFor='yearsExperience'
             >
               {t('yearsExperience')}
@@ -116,8 +117,8 @@ export function Step3ProfessionalInfo({
               control={control}
               name='yearsExperience'
               render={({ field }) => (
-                <Input
-                  className='h-12 border-gray-300 text-base'
+                <input
+                  className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
                   id='yearsExperience'
                   max={50}
                   min={0}
@@ -129,9 +130,9 @@ export function Step3ProfessionalInfo({
             />
           </div>
 
-          <div className='space-y-2'>
+          <div className='space-y-1.5'>
             <Label
-              className='text-sm font-medium text-gray-700'
+              className='text-xs font-medium text-slate-600'
               htmlFor='hourlyRate'
             >
               {t('hourlyRate')} *
@@ -140,9 +141,9 @@ export function Step3ProfessionalInfo({
               control={control}
               name='hourlyRate'
               render={({ field }) => (
-                <div className='flex items-center gap-2'>
-                  <Input
-                    className='h-12 flex-1 border-gray-300 text-base'
+                <div className='relative'>
+                  <input
+                    className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 pr-14 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
                     id='hourlyRate'
                     min={1}
                     onChange={e => {
@@ -159,7 +160,9 @@ export function Step3ProfessionalInfo({
                     type='number'
                     value={field.value ?? ''}
                   />
-                  <span className='text-base font-medium text-gray-600'>€</span>
+                  <span className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500'>
+                    EUR/h
+                  </span>
                 </div>
               )}
             />
@@ -173,104 +176,95 @@ export function Step3ProfessionalInfo({
       </section>
 
       {/* SKILLS */}
-      <section className='space-y-4 pb-2'>
+      <section className='space-y-3'>
         <div>
-          <h2 className={SECTION_TITLE_CLASS}>
+          <h2 className='text-lg font-semibold text-slate-800'>
             {t('skillsCountLabel', { current: skills.length })}
           </h2>
-          <p className='mt-0.5 text-sm text-gray-500'>{t('skillsHelper')}</p>
+          <p className='mt-0.5 text-sm text-slate-400'>{t('skillsHelper')}</p>
         </div>
 
-        <div>
-          <div className='flex gap-2'>
-            <Input
-              className='h-12 flex-1 border-gray-300 text-base'
-              disabled={isSkillsMax}
-              onChange={e => setSkillInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const trimmed = skillInput.trim();
-                  if (
-                    trimmed &&
-                    !skills.includes(trimmed) &&
-                    skills.length < 5
-                  ) {
-                    setValue('skills', [...skills, trimmed]);
-                    setSkillInput('');
-                  }
-                }
-              }}
-              placeholder={t('addSkillPlaceholder')}
-              type='text'
-              value={skillInput}
-            />
-            <Button
-              disabled={!skillInput.trim() || isSkillsMax}
-              onClick={() => {
+        <div className='flex gap-2'>
+          <input
+            className='flex h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50'
+            disabled={isSkillsMax}
+            onChange={e => setSkillInput(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
                 const trimmed = skillInput.trim();
                 if (trimmed && !skills.includes(trimmed) && skills.length < 5) {
                   setValue('skills', [...skills, trimmed]);
                   setSkillInput('');
                 }
-              }}
-              type='button'
-              variant='outline'
-              className='h-12'
-            >
-              {tCommon('add')}
-            </Button>
-          </div>
+              }
+            }}
+            placeholder={t('addSkillPlaceholder')}
+            type='text'
+            value={skillInput}
+          />
+          <Button
+            className='h-10 rounded-xl border-slate-200'
+            disabled={!skillInput.trim() || isSkillsMax}
+            onClick={() => {
+              const trimmed = skillInput.trim();
+              if (trimmed && !skills.includes(trimmed) && skills.length < 5) {
+                setValue('skills', [...skills, trimmed]);
+                setSkillInput('');
+              }
+            }}
+            type='button'
+            variant='outline'
+          >
+            {tCommon('add')}
+          </Button>
         </div>
 
         <div className='flex flex-wrap gap-2'>
           {professionalJobs
             .slice(0, 6)
             .map((job: { label: string; value: string }) => (
-              <Badge
+              <button
                 className={cn(
-                  'cursor-pointer rounded-full px-4 py-2 text-sm transition-opacity',
+                  'inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                  skills.includes(job.label)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
                   isSkillsMax &&
                     !skills.includes(job.label) &&
-                    'cursor-not-allowed opacity-50'
+                    'cursor-not-allowed opacity-40'
                 )}
                 key={job.value}
                 onClick={() => toggleSkill(job.label)}
-                variant={skills.includes(job.label) ? 'default' : 'outline'}
+                type='button'
               >
                 {job.label}
-              </Badge>
+              </button>
             ))}
         </div>
 
         {skills.length > 0 && (
-          <div className='pt-2'>
-            <p className='mb-2 text-xs font-medium text-gray-500'>
-              {t('selectedSkillsLabel')}
-            </p>
-            <div className='flex flex-wrap gap-2'>
-              {skills.map((skill, index) => (
-                <Badge
-                  className='flex items-center gap-1 rounded-full px-4 py-2 pr-1'
-                  key={`${skill}-${index}`}
-                  variant='secondary'
+          <div className='flex flex-wrap gap-2 pt-1'>
+            {skills.map((skill, index) => (
+              <span
+                className='inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600'
+                key={`${skill}-${index}`}
+              >
+                {skill}
+                <button
+                  className='rounded-full p-0.5 transition-colors hover:bg-blue-100'
+                  onClick={() =>
+                    setValue(
+                      'skills',
+                      skills.filter((_, i) => i !== index)
+                    )
+                  }
+                  type='button'
                 >
-                  <span>{skill}</span>
-                  <button
-                    className='mx-1 rounded-full hover:bg-gray-300 focus:outline-none'
-                    onClick={() =>
-                      setValue(
-                        'skills',
-                        skills.filter((_, i) => i !== index)
-                      )
-                    }
-                    type='button'
-                  >
-                    <X className='h-3 w-3' />
-                  </button>
-                </Badge>
-              ))}
-            </div>
+                  <X className='h-3 w-3' />
+                </button>
+              </span>
+            ))}
           </div>
         )}
         {errors.skills && (
@@ -279,32 +273,36 @@ export function Step3ProfessionalInfo({
       </section>
 
       {/* WORK AREA */}
-      <section className='space-y-4 pb-2'>
-        <h2 className={SECTION_TITLE_CLASS}>{t('workArea')}</h2>
-        <div className='space-y-2'>
+      <section className='space-y-3'>
+        <h2 className='text-lg font-semibold text-slate-800'>
+          {t('workArea')}
+        </h2>
+        <div className='space-y-3'>
           <Controller
             control={control}
             name='interventionZone'
             render={({ field }) => (
               <>
                 <div className='flex items-center justify-between'>
-                  <Label className='text-sm font-medium text-gray-700'>
+                  <Label className='text-xs font-medium text-slate-600'>
                     {t('interventionZone')}
                   </Label>
-                  <span className='text-sm font-medium text-gray-600'>
+                  <span className='rounded-lg bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-600'>
                     {field.value} {t('km')}
                   </span>
                 </div>
-                <input
-                  className='h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600'
-                  max={100}
-                  min={5}
-                  onChange={e => field.onChange(parseInt(e.target.value, 10))}
-                  step={5}
-                  type='range'
-                  value={field.value}
-                />
-                <div className='flex justify-between text-xs text-gray-400'>
+                <div className='relative pt-1'>
+                  <input
+                    className='h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-600 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-600 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-600 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md'
+                    max={100}
+                    min={5}
+                    onChange={e => field.onChange(parseInt(e.target.value, 10))}
+                    step={5}
+                    type='range'
+                    value={field.value}
+                  />
+                </div>
+                <div className='flex justify-between text-xs text-slate-400'>
                   {INTERVENTION_TICKS.map(tick => (
                     <span key={tick}>{tick}</span>
                   ))}
@@ -316,36 +314,44 @@ export function Step3ProfessionalInfo({
       </section>
 
       {/* ABOUT YOU */}
-      <section className='space-y-4 pb-2'>
-        <h2 className={SECTION_TITLE_CLASS}>{t('aboutYou')}</h2>
-        <div className='space-y-2'>
+      <section className='space-y-3'>
+        <h2 className='text-lg font-semibold text-slate-800'>
+          {t('aboutYou')}
+        </h2>
+        <div className='space-y-1.5'>
           <Label
-            className='text-sm font-medium text-gray-700'
+            className='text-xs font-medium text-slate-600'
             htmlFor='description'
           >
             {t('descriptionOptional')}
           </Label>
-          <p className='text-xs text-gray-500'>{t('descriptionHelper')}</p>
+          <p className='text-xs text-slate-400'>{t('descriptionHelper')}</p>
           <Controller
             control={control}
             name='description'
             render={({ field }) => (
-              <textarea
-                className='min-h-[100px] w-full resize-y rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
-                id='description'
-                onChange={field.onChange}
-                placeholder={t('descriptionPlaceholder')}
-                value={field.value ?? ''}
-              />
+              <div className='relative'>
+                <textarea
+                  className='min-h-[120px] w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                  id='description'
+                  maxLength={DESCRIPTION_MAX_LENGTH}
+                  onChange={field.onChange}
+                  placeholder={t('descriptionPlaceholder')}
+                  value={field.value ?? ''}
+                />
+                <span className='absolute bottom-3 right-3 text-xs text-slate-400'>
+                  {(field.value ?? '').length}/{DESCRIPTION_MAX_LENGTH}
+                </span>
+              </div>
             )}
           />
         </div>
       </section>
 
       {/* NAVIGATION */}
-      <div className='flex justify-end gap-4 pt-6'>
+      <div className='flex justify-end gap-3 pt-2'>
         <Button
-          className='min-h-12 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 md:flex-none'
+          className='h-10 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50'
           onClick={onPrevious}
           type='button'
           variant='outline'
@@ -353,7 +359,7 @@ export function Step3ProfessionalInfo({
           {tCommon('previous')}
         </Button>
         <Button
-          className='min-h-12 min-w-40 flex-1 bg-blue-600 text-white hover:bg-blue-700 md:flex-none'
+          className='h-10 rounded-xl bg-blue-600 px-8 text-sm text-white hover:bg-blue-700'
           onClick={onNext}
           type='button'
         >

@@ -238,14 +238,14 @@ export default function AvailabilitiesPage() {
   }, [slots, professional?.hourly_rate]);
 
   return (
-    <div className='space-y-4 bg-blue-50/30 p-4 p-8 sm:space-y-6'>
+    <div className='space-y-4 bg-white p-4 p-8 sm:space-y-6'>
       {/* Header */}
       <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
         <h1 className='text-2xl font-bold text-blue-900 sm:text-3xl'>
           {t('title')}
         </h1>
         <Button
-          className='w-full border-blue-500 text-blue-700 hover:bg-blue-50 sm:w-auto'
+          className='h-10 w-full rounded-xl border-blue-500 text-blue-700 hover:bg-blue-50 sm:w-auto'
           onClick={() => setIsEditModalOpen(true)}
           variant='outline'
         >
@@ -257,7 +257,7 @@ export default function AvailabilitiesPage() {
       {/* Stats Cards */}
       <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
         {/* Taux de remplissage */}
-        <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
+        <Card className='rounded-xl border border-slate-200 bg-white shadow-sm'>
           <div className='p-4 sm:p-6'>
             <h3 className='mb-2 text-xs font-medium text-gray-600 sm:text-sm'>
               {t('fillRate')}
@@ -275,7 +275,7 @@ export default function AvailabilitiesPage() {
         </Card>
 
         {/* Heures réservées */}
-        <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
+        <Card className='rounded-xl border border-slate-200 bg-white shadow-sm'>
           <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
               <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
@@ -291,7 +291,7 @@ export default function AvailabilitiesPage() {
         </Card>
 
         {/* Créneaux disponibles */}
-        <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
+        <Card className='rounded-xl border border-slate-200 bg-white shadow-sm'>
           <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
               <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
@@ -307,7 +307,7 @@ export default function AvailabilitiesPage() {
         </Card>
 
         {/* Revenus estimés */}
-        <Card className='rounded-lg border border-gray-200 bg-white shadow-sm'>
+        <Card className='rounded-xl border border-slate-200 bg-white shadow-sm'>
           <div className='p-4 sm:p-6'>
             <div className='mb-2 flex items-center justify-between'>
               <h3 className='text-xs font-medium text-gray-600 sm:text-sm'>
@@ -324,7 +324,7 @@ export default function AvailabilitiesPage() {
       </div>
 
       {/* Weekly Navigation */}
-      <div className='rounded-lg border border-gray-200 bg-white p-3 sm:p-4'>
+      <div className='rounded-xl border border-slate-200 bg-white p-3 sm:p-4'>
         <div className='mb-3 flex items-center justify-between gap-2 sm:mb-4 sm:gap-4'>
           <Button
             className='text-gray-600 hover:text-gray-800'
@@ -365,8 +365,8 @@ export default function AvailabilitiesPage() {
 
             return (
               <Card
-                className={`min-h-[150px] rounded-lg border-2 bg-white shadow-sm sm:min-h-[180px] lg:min-h-[200px] ${
-                  isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                className={`min-h-[150px] rounded-xl border-2 bg-white shadow-sm sm:min-h-[180px] lg:min-h-[200px] ${
+                  isToday ? 'border-blue-500 bg-blue-50' : 'border-slate-200'
                 }`}
                 key={index}
               >
@@ -479,7 +479,7 @@ export default function AvailabilitiesPage() {
           </DialogHeader>
           <DialogFooter>
             <Button
-              className='bg-blue-500 text-white hover:bg-blue-600'
+              className='h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700'
               onClick={() => setInfoModal({ ...infoModal, open: false })}
               variant='default'
             >

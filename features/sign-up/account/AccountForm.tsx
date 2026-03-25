@@ -278,7 +278,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
         </CardContent>
       </Card>
 
-      <VerifyEmailModal email={email} open={showVerifyEmailModal} />
+      <VerifyEmailModal email={email} onClose={() => setShowVerifyEmailModal(false)} open={showVerifyEmailModal} />
     </div>
   );
 }

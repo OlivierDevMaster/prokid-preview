@@ -9,6 +9,7 @@ import { AvailabilityStatusPopover } from '@/features/professional/Availabilitie
 import { ProfessionalDashboardConversationsSection } from '@/features/professional/dashboard/ProfessionalDashboardConversationsSection';
 import { ProfessionalDashboardMissionsSection } from '@/features/professional/dashboard/ProfessionalDashboardMissionsSection';
 import { ProfessionalDashboardReportsSection } from '@/features/professional/dashboard/ProfessionalDashboardReportsSection';
+import { ProfileViewsStats } from '@/features/professional/stats/components/ProfileViewsStats';
 import { useFindProfessional } from '@/features/professionals/hooks/useFindProfessional';
 import { ProfessionalSkills } from '@/features/professionals/professional.config';
 import { Link } from '@/i18n/routing';
@@ -75,26 +76,17 @@ export default function DashboardPage() {
       </header>
 
       <main className='px-6 py-6 md:px-10 md:py-10'>
-        <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12'>
+        <div className='mx-auto max-w-7xl space-y-8'>
+          <ProfileViewsStats />
+        </div>
+        <div className='mx-auto mt-8 grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-12'>
           <div className='space-y-8 lg:col-span-8'>
             <ProfessionalDashboardConversationsSection />
             <ProfessionalDashboardMissionsSection />
           </div>
           <div className='space-y-8 lg:col-span-4'>
             <ProfessionalDashboardReportsSection />
-            <section className='relative overflow-hidden rounded-2xl bg-[#2C3E50] p-6 text-white shadow-lg shadow-slate-900/20'>
-              <div className='relative z-10'>
-                <h2 className='mb-2 text-lg font-bold'>{t('helpCardTitle')}</h2>
-                <p className='mb-4 text-sm text-slate-200'>
-                  {t('helpCardDescription')}
-                </p>
-                <Link href='/professional/settings'>
-                  <Button className='rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#2C3E50] shadow-sm hover:bg-slate-100'>
-                    {t('helpCardCta')}
-                  </Button>
-                </Link>
-              </div>
-            </section>
+            {/* Help card - disabled for now */}
           </div>
         </div>
       </main>

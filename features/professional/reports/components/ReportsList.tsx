@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { parseAsString, useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 
+import { Loader2 } from 'lucide-react';
+
 import {
   Select,
   SelectContent,
@@ -100,8 +102,8 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
 
   if (isLoading) {
     return (
-      <div className='-m-8 flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
-        <p className='text-gray-600'>{t('loading')}</p>
+      <div className='flex items-center justify-center py-12'>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </div>
     );
   }
@@ -116,7 +118,7 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
 
   return (
     <>
-      <div className='min-h-screen space-y-4 bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
+      <div className='min-h-screen space-y-4 bg-white p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
         {/* Header */}
         <div>
           <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
@@ -184,8 +186,8 @@ export function ReportsList({ locale = 'en' }: ReportsListProps) {
         </div>
 
         {reports.length === 0 && (
-          <div className='py-8 text-center text-sm text-gray-500 sm:text-base'>
-            {t('noReports')}
+          <div className='flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 py-12 shadow-sm'>
+            <p className='text-sm text-slate-500 sm:text-base'>{t('noReports')}</p>
           </div>
         )}
         {reports.length > 0 && (

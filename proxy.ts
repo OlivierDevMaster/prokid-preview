@@ -85,34 +85,46 @@ export async function proxy(request: NextRequest) {
           .eq('user_id', token.id as string)
           .maybeSingle();
 
+        // If no profile found, let them stay on auth page
+        if (!profile?.role) {
+          const supabaseResponse = await updateSession(request);
+          return supabaseResponse;
+        }
+
         // Redirect based on role
-        let redirectPath = `/${locale}/`;
+        let redirectPath = `/${locale}/auth/login`;
 
         if (profile?.role === 'admin') {
           redirectPath = `/${locale}/admin/dashboard`;
         } else if (profile?.role === 'professional') {
-          // Check subscription for professionals
-          let supabaseServiceRole: null | ReturnType<
-            typeof createServiceRoleClient
-          > = null;
-          try {
-            supabaseServiceRole = createServiceRoleClient();
-          } catch {
-            // Continue with regular client
-          }
-
-          const subscriptionClient = supabaseServiceRole || supabase;
-          const { data: isSubscribed } = await subscriptionClient.rpc(
-            'is_professional_subscribed',
-            {
-              user_id_param: token.id as string,
-            }
-          );
-
-          if (isSubscribed) {
+          // In development, skip subscription check (webhooks don't work locally)
+          const isDev = process.env.NODE_ENV === 'development';
+          if (isDev) {
             redirectPath = `/${locale}/professional/dashboard`;
           } else {
-            redirectPath = `/${locale}/professional/subscription`;
+            // Check subscription for professionals
+            let supabaseServiceRole: null | ReturnType<
+              typeof createServiceRoleClient
+            > = null;
+            try {
+              supabaseServiceRole = createServiceRoleClient();
+            } catch {
+              // Continue with regular client
+            }
+
+            const subscriptionClient = supabaseServiceRole || supabase;
+            const { data: isSubscribed } = await subscriptionClient.rpc(
+              'is_professional_subscribed',
+              {
+                user_id_param: token.id as string,
+              }
+            );
+
+            if (isSubscribed) {
+              redirectPath = `/${locale}/professional/dashboard`;
+            } else {
+              redirectPath = `/${locale}/professional/subscription`;
+            }
           }
         } else if (profile?.role === 'structure') {
           redirectPath = `/${locale}/structure/dashboard`;
@@ -317,10 +329,13 @@ export async function proxy(request: NextRequest) {
       '/professional/on-boarding'
     );
 
+    // Skip subscription check in development (Stripe webhooks don't work locally without Stripe CLI)
+    const isDevelopment = process.env.NODE_ENV === 'development';
     if (
       requiredRole === 'professional' &&
       !isSubscriptionPage &&
-      !isOnboardingPage
+      !isOnboardingPage &&
+      !isDevelopment
     ) {
       // Use service role client to bypass RLS (NextAuth has already verified identity)
       const subscriptionClient = supabaseServiceRole || supabase;

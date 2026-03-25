@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, Search, Shield, Sparkles, X } from 'lucide-react';
+import { ChevronRight, Loader2, Search, Shield, Sparkles, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
@@ -94,16 +94,16 @@ export function ProfessionalSettingsLayout() {
 
   if (isLoading) {
     return (
-      <div className='flex min-h-[40vh] items-center justify-center bg-[#f6f6f8] p-8'>
-        <p className='text-slate-500'>{t('loading')}</p>
+      <div className='flex items-center justify-center py-12'>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </div>
     );
   }
 
   if (!professional || !userId) {
     return (
-      <div className='flex min-h-[40vh] items-center justify-center bg-[#f6f6f8] p-8'>
-        <p className='text-slate-500'>{t('loading')}</p>
+      <div className='flex items-center justify-center py-12'>
+        <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
       </div>
     );
   }
@@ -121,14 +121,14 @@ export function ProfessionalSettingsLayout() {
 
             <section className='rounded-xl bg-white p-6 shadow-sm'>
               <h2 className='mb-6 flex items-center gap-2 text-xl font-bold'>
-                <Sparkles className='size-6 text-[#4A90E2]' />
+                <Sparkles className='size-6 text-blue-600' />
                 {t('psSkillsTitle')}
               </h2>
               <div className='mb-8 flex flex-col gap-2 sm:flex-row'>
                 <div className='relative flex-1'>
                   <Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400' />
                   <Input
-                    className='border-slate-200 bg-slate-50 pl-10 focus-visible:ring-[#4A90E2]/20'
+                    className='h-10 rounded-xl border-slate-200 bg-slate-50 pl-10 focus-visible:ring-blue-600/20'
                     onChange={e => setSkillInput(e.target.value)}
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
@@ -141,7 +141,7 @@ export function ProfessionalSettingsLayout() {
                   />
                 </div>
                 <Button
-                  className='bg-[#4A90E2] font-semibold hover:opacity-90'
+                  className='h-10 rounded-xl bg-blue-600 font-semibold hover:bg-blue-700'
                   disabled={updateProfessional.isPending}
                   onClick={handleAddSkill}
                   type='button'
@@ -176,7 +176,7 @@ export function ProfessionalSettingsLayout() {
           <div className='space-y-8'>
             <section className='rounded-xl bg-white p-6 shadow-sm'>
               <h2 className='mb-4 flex items-center gap-2 text-lg font-bold'>
-                <Shield className='size-5 text-[#4A90E2]' />
+                <Shield className='size-5 text-blue-600' />
                 {t('psAccountSecurity')}
               </h2>
               <div className='space-y-3'>
@@ -190,7 +190,7 @@ export function ProfessionalSettingsLayout() {
                 ).map(([key, label]) => (
                   <button
                     className={cn(
-                      'flex w-full items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-slate-50'
+                      'flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-slate-50'
                     )}
                     key={key}
                     onClick={() => setDialog(key)}

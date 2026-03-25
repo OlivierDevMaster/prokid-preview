@@ -1,15 +1,10 @@
 'use client';
 
 import {
-  BarChart3,
   CheckCircle2,
   Loader2,
-  MessageSquare,
-  Star,
-  Users,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -28,17 +23,28 @@ export default function SubscriptionPage() {
   const createCheckout = useCreateCheckoutSession();
 
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
+  // Handle successful payment return from Stripe
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      setShowSuccess(true);
-      refetch();
-      // Clear the URL parameter
+      setPaymentSuccess(true);
+      toast.success(t('checkoutSuccess'));
       window.history.replaceState({}, '', window.location.pathname);
-      setTimeout(() => setShowSuccess(false), 5000);
+      const interval = setInterval(() => {
+        refetch();
+      }, 2000);
+      return () => clearInterval(interval);
     }
-  }, [searchParams, refetch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Once subscription is confirmed in DB, redirect to dashboard
+  useEffect(() => {
+    if (subscriptionData?.isSubscribed) {
+      window.location.href = `/${locale}/professional/dashboard`;
+    }
+  }, [subscriptionData?.isSubscribed, locale]);
 
   const handleActivateSubscription = async () => {
     setIsCreatingCheckout(true);
@@ -59,25 +65,67 @@ export default function SubscriptionPage() {
     }
   };
 
-  // If already subscribed, show a message
+  // Show manual continue button after timeout
+  const [showManualContinue, setShowManualContinue] = useState(false);
+  useEffect(() => {
+    if (paymentSuccess) {
+      const timer = setTimeout(() => setShowManualContinue(true), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [paymentSuccess]);
+
+  // Payment just completed, waiting for webhook
+  if (paymentSuccess && !subscriptionData?.isSubscribed) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-slate-50 p-8'>
+        <Card className='w-full max-w-md rounded-xl p-8'>
+          <div className='text-center'>
+            {showManualContinue ? (
+              <>
+                <CheckCircle2 className='mx-auto h-10 w-10 text-green-600' />
+                <h1 className='mt-4 text-xl font-bold text-slate-900'>
+                  Paiement confirmé
+                </h1>
+                <p className='mt-2 text-sm text-slate-500'>
+                  Votre abonnement est en cours d&apos;activation.
+                </p>
+                <Button
+                  className='mt-4 h-10 w-full rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700'
+                  onClick={() => { window.location.href = `/${locale}/professional/dashboard`; }}
+                >
+                  Continuer vers le dashboard
+                </Button>
+              </>
+            ) : (
+              <>
+                <Loader2 className='mx-auto h-10 w-10 animate-spin text-blue-600' />
+                <h1 className='mt-4 text-xl font-bold text-slate-900'>
+                  Activation en cours...
+                </h1>
+                <p className='mt-2 text-sm text-slate-500'>
+                  Votre paiement a été accepté. Redirection automatique.
+                </p>
+              </>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Already subscribed
   if (subscriptionData?.isSubscribed) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-blue-50/30 p-8'>
-        <Card className='w-full max-w-2xl p-8'>
+      <div className='flex min-h-screen items-center justify-center bg-slate-50 p-8'>
+        <Card className='w-full max-w-md rounded-xl p-8'>
           <div className='text-center'>
-            <CheckCircle2 className='mx-auto h-16 w-16 text-green-600' />
-            <h1 className='mt-4 text-2xl font-bold text-gray-900'>
-              {t('alreadySubscribed')}
+            <CheckCircle2 className='mx-auto h-10 w-10 text-green-600' />
+            <h1 className='mt-4 text-xl font-bold text-slate-900'>
+              Abonnement actif
             </h1>
-            <p className='mt-2 text-gray-600'>
-              {t('alreadySubscribedMessage')}
+            <p className='mt-2 text-sm text-slate-500'>
+              Redirection vers votre tableau de bord...
             </p>
-            <Link
-              className='mt-4 block text-blue-600'
-              href='/professional/dashboard'
-            >
-              📈 {t('goToDashboard')}
-            </Link>
           </div>
         </Card>
       </div>
@@ -85,71 +133,69 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className='min-h-full bg-blue-50/30'>
-      {/* Success Message */}
-      {showSuccess && (
-        <div className='bg-green-50 p-4'>
-          <div className='mx-auto flex max-w-4xl items-center gap-2'>
-            <CheckCircle2 className='h-5 w-5 text-green-600' />
-            <p className='text-sm font-medium text-green-800'>
-              {t('checkoutSuccess')}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className='mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8'>
-        {/* Launch Offer Badge */}
-        <div className='mb-6 flex justify-center'>
-          <div className='flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2'>
-            <Star className='h-4 w-4 fill-blue-600 text-blue-600' />
-            <span className='text-sm font-medium text-blue-700'>
-              {t('launchOffer')}
-            </span>
-          </div>
-        </div>
-
-        {/* Main Title */}
-        <div className='mb-8 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900'>{t('title')}</h1>
-          <p className='mt-2 text-lg text-gray-600'>{t('tagline')}</p>
+    <div className='min-h-full bg-white'>
+      {/* Hero Section */}
+      <div className='bg-slate-50 px-4 pb-16 pt-12 sm:px-6'>
+        <div className='mx-auto max-w-4xl text-center'>
+          <h1 className='text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl'>
+            {t('title')}
+          </h1>
+          <p className='mx-auto mt-3 max-w-lg text-base text-slate-500'>
+            {t('tagline')}
+          </p>
         </div>
 
         {/* Pricing Card */}
-        <Card className='mx-auto mb-12 max-w-2xl border-2 border-blue-200 shadow-lg'>
-          <div className='p-8'>
-            <div className='text-center'>
-              <div className='mb-4 text-5xl font-bold text-blue-600'>
-                {t('price')}
-              </div>
-              <p className='mb-6 text-gray-600'>{t('trialInfo')}</p>
-
-              {/* Benefits Checklist */}
-              <div className='mb-8 space-y-3 text-left'>
-                <div className='flex items-center gap-3'>
-                  <CheckCircle2 className='h-5 w-5 flex-shrink-0 text-blue-600' />
-                  <span className='text-gray-700'>{t('benefit1')}</span>
+        <div className='mx-auto mt-10 max-w-sm'>
+          <Card className='overflow-hidden rounded-2xl border border-slate-200 shadow-lg'>
+            <div className='p-6'>
+              {/* Plan header */}
+              <div className='mb-4 flex items-baseline justify-between'>
+                <div>
+                  <span className='mb-1 inline-block rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700'>
+                    Plan Premium
+                  </span>
+                  <h3 className='mt-1 text-lg font-bold text-slate-900'>
+                    Abonnement ProKid Pro
+                  </h3>
                 </div>
-                <div className='flex items-center gap-3'>
-                  <CheckCircle2 className='h-5 w-5 flex-shrink-0 text-blue-600' />
-                  <span className='text-gray-700'>{t('benefit2')}</span>
-                </div>
-                <div className='flex items-center gap-3'>
-                  <CheckCircle2 className='h-5 w-5 flex-shrink-0 text-blue-600' />
-                  <span className='text-gray-700'>{t('benefit3')}</span>
+                <div className='text-right'>
+                  <span className='text-3xl font-extrabold text-slate-900'>9,99€</span>
+                  <span className='text-sm text-slate-500'>/mois</span>
                 </div>
               </div>
 
-              {/* CTA Button */}
+              {/* Trial badge */}
+              <div className='mb-4 flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white'>
+                <CheckCircle2 className='h-4 w-4 shrink-0' />
+                {t('benefit1')}
+              </div>
+
+              {/* Benefits */}
+              <div className='mb-5 space-y-2.5'>
+                <div className='flex items-center gap-2.5'>
+                  <CheckCircle2 className='h-4 w-4 shrink-0 text-blue-600' />
+                  <span className='text-sm text-slate-700'>{t('benefit1')}</span>
+                </div>
+                <div className='flex items-center gap-2.5'>
+                  <CheckCircle2 className='h-4 w-4 shrink-0 text-blue-600' />
+                  <span className='text-sm text-slate-700'>{t('benefit2')}</span>
+                </div>
+                <div className='flex items-center gap-2.5'>
+                  <CheckCircle2 className='h-4 w-4 shrink-0 text-blue-600' />
+                  <span className='text-sm text-slate-700'>{t('benefit3')}</span>
+                </div>
+              </div>
+
+              {/* CTA */}
               <Button
-                className='mb-4 w-full bg-blue-600 text-lg font-semibold hover:bg-blue-700'
+                className='h-11 w-full rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700'
                 disabled={isCreatingCheckout}
                 onClick={handleActivateSubscription}
-                size='lg'
               >
                 {isCreatingCheckout ? (
                   <>
-                    <Loader2 className='mr-2 h-5 w-5 animate-spin' />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     {t('activating')}
                   </>
                 ) : (
@@ -157,79 +203,74 @@ export default function SubscriptionPage() {
                 )}
               </Button>
 
-              {/* Payment Disclaimer */}
-              <p className='text-xs text-gray-500'>{t('paymentDisclaimer')}</p>
+              <p className='mt-3 text-center text-[11px] text-slate-400'>
+                {t('paymentDisclaimer')}
+              </p>
             </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className='px-4 py-12 sm:px-6'>
+        <h2 className='mb-6 text-center text-xl font-bold text-slate-900'>
+          {t('featuresTitle')}
+        </h2>
+
+        <div className='mx-auto grid max-w-2xl gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2'>
+          <div className='bg-white p-5'>
+            <h3 className='mb-1 text-sm font-semibold text-slate-900'>
+              {t('feature1Title')}
+            </h3>
+            <p className='text-xs leading-relaxed text-slate-500'>
+              {t('feature1Description')}
+            </p>
           </div>
-        </Card>
-
-        {/* Features Section */}
-        <div className='mb-12 text-center'>
-          <h2 className='mb-8 text-3xl font-bold text-gray-900'>
-            {t('featuresTitle')}
-          </h2>
-
-          <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-            {/* Feature 1: Maximum Visibility */}
-            <Card className='p-6'>
-              <div className='mb-4 flex justify-center'>
-                <div className='rounded-full bg-blue-100 p-3'>
-                  <Star className='h-6 w-6 text-blue-600' />
-                </div>
-              </div>
-              <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                {t('feature1Title')}
-              </h3>
-              <p className='text-sm text-gray-600'>
-                {t('feature1Description')}
-              </p>
-            </Card>
-
-            {/* Feature 2: Qualified Requests */}
-            <Card className='p-6'>
-              <div className='mb-4 flex justify-center'>
-                <div className='rounded-full bg-blue-100 p-3'>
-                  <Users className='h-6 w-6 text-blue-600' />
-                </div>
-              </div>
-              <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                {t('feature2Title')}
-              </h3>
-              <p className='text-sm text-gray-600'>
-                {t('feature2Description')}
-              </p>
-            </Card>
-
-            {/* Feature 3: Integrated Messaging */}
-            <Card className='p-6'>
-              <div className='mb-4 flex justify-center'>
-                <div className='rounded-full bg-blue-100 p-3'>
-                  <MessageSquare className='h-6 w-6 text-blue-600' />
-                </div>
-              </div>
-              <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                {t('feature3Title')}
-              </h3>
-              <p className='text-sm text-gray-600'>
-                {t('feature3Description')}
-              </p>
-            </Card>
-
-            {/* Feature 4: Simple Analytics */}
-            <Card className='p-6'>
-              <div className='mb-4 flex justify-center'>
-                <div className='rounded-full bg-blue-100 p-3'>
-                  <BarChart3 className='h-6 w-6 text-blue-600' />
-                </div>
-              </div>
-              <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                {t('feature4Title')}
-              </h3>
-              <p className='text-sm text-gray-600'>
-                {t('feature4Description')}
-              </p>
-            </Card>
+          <div className='bg-white p-5'>
+            <h3 className='mb-1 text-sm font-semibold text-slate-900'>
+              {t('feature2Title')}
+            </h3>
+            <p className='text-xs leading-relaxed text-slate-500'>
+              {t('feature2Description')}
+            </p>
           </div>
+          <div className='bg-white p-5'>
+            <h3 className='mb-1 text-sm font-semibold text-slate-900'>
+              {t('feature3Title')}
+            </h3>
+            <p className='text-xs leading-relaxed text-slate-500'>
+              {t('feature3Description')}
+            </p>
+          </div>
+          <div className='bg-white p-5'>
+            <h3 className='mb-1 text-sm font-semibold text-slate-900'>
+              {t('feature4Title')}
+            </h3>
+            <p className='text-xs leading-relaxed text-slate-500'>
+              {t('feature4Description')}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className='mx-4 mb-8 rounded-2xl bg-blue-600 px-6 py-8 sm:mx-auto sm:max-w-2xl'>
+        <div className='flex flex-col items-center justify-between gap-4 sm:flex-row'>
+          <div>
+            <h3 className='text-lg font-bold text-white'>
+              Prêt à développer votre activité ?
+            </h3>
+            <p className='mt-1 text-sm text-blue-100'>
+              Rejoignez les professionnels qui font confiance à ProKid.
+            </p>
+          </div>
+          <Button
+            className='h-10 shrink-0 rounded-xl bg-white px-6 font-semibold text-blue-600 hover:bg-blue-50'
+            disabled={isCreatingCheckout}
+            onClick={handleActivateSubscription}
+          >
+            {t('activateButton')}
+          </Button>
         </div>
       </div>
     </div>
