@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import {
+  differenceInDays,
   differenceInMonths,
   differenceInWeeks,
   format,
@@ -101,6 +102,8 @@ export function MissionCard({
     if (start && until && until > start) {
       const months = differenceInMonths(until, start);
       if (months > 0) return t('durationMonths', { count: months });
+      const days = differenceInDays(until, start);
+      if (days < 7) return t('durationDays', { count: days });
       const weeks = differenceInWeeks(until, start);
       return t('durationWeeks', { count: weeks });
     }

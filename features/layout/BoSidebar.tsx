@@ -1,5 +1,6 @@
 'use client';
 
+import { LogOutIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -22,7 +23,6 @@ import { useRole } from '@/hooks/useRole';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from '@/modeles/navigation.modele';
-import { LogOutIcon } from 'lucide-react';
 
 type BoSidebarProps = {
   navItems: SidebarNavItem[];
@@ -71,7 +71,6 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
           : '';
 
   const projectName = tTitle('project');
-  const projectInitial = projectName?.charAt(0).toUpperCase() || 'P';
 
   return (
     <aside className='flex h-full w-[4.5rem] flex-col border-r border-blue-100 bg-gradient-to-b from-blue-50/80 to-white'>
@@ -172,7 +171,7 @@ export function BoSidebar({ navItems }: BoSidebarProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='start' alignOffset={10}>
-            <DropdownMenuItem variant='destructive' onClick={handleSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} variant='destructive'>
               <LogOutIcon className='text-destructive' />
               {tAdmin('logout')}
             </DropdownMenuItem>

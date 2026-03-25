@@ -91,9 +91,24 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
           <div className='flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm'>
             <Calendar className='h-3 w-3 text-gray-400 sm:h-4 sm:w-4' />
             <span>
-              {professional.is_available
-                ? t('available')
-                : t('unavailable')}
+              {professional.is_available ? t('available') : t('unavailable')}
+            </span>
+          </div>
+        </div>
+
+        <div className='mb-2 space-y-1.5 sm:mb-3 sm:space-y-2'>
+          <div className='flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm'>
+            <MapPin className='h-3 w-3 text-gray-400 sm:h-4 sm:w-4' />
+            <span className='truncate'>
+              {professional.city} • {t('to')}{' '}
+              {professional.intervention_radius_km} {t('km')}
+            </span>
+          </div>
+
+          <div className='flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm'>
+            <Calendar className='h-3 w-3 text-gray-400 sm:h-4 sm:w-4' />
+            <span>
+              {professional.is_available ? t('available') : t('unavailable')}
             </span>
           </div>
         </div>
@@ -104,7 +119,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
 
         {/* Skills */}
         <div className='mb-3 flex flex-wrap gap-1.5 sm:gap-2'>
-          {(professional?.skills ?? []).map((skill) => (
+          {(professional?.skills ?? []).map(skill => (
             <Badge
               className='bg-green-500 text-xs text-white hover:bg-green-600 sm:text-sm'
               key={skill}
@@ -122,9 +137,7 @@ export function ProfessionalsCard({ professional }: ProfessionalsCardProps) {
               size='sm'
             >
               <Eye className='mr-1.5 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4' />
-              <span className='text-xs sm:text-sm'>
-                {t('viewProfile')}
-              </span>
+              <span className='text-xs sm:text-sm'>{t('viewProfile')}</span>
             </Button>
           </Link>
         </div>

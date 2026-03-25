@@ -82,12 +82,25 @@ export function ProfessionalSearchCard({
       return professional.city ?? '';
     }
 
+    // Show a friendly label when the professional is less than 10 meters away.
+    if (distanceKm < 0.01) {
+      return t('veryCloseToHome');
+    }
+
+    // Show meters for distances below 1 kilometer.
     if (distanceKm < 1) {
       return `${Math.round(distanceKm * 1000)} m`;
     }
 
+    // Show kilometers for distances of 1 kilometer and more.
     return `${Math.round(distanceKm)} ${t('km')}`;
   })();
+
+  const shouldHideToPrefix =
+    !isDefaultCase &&
+    typeof distanceKm === 'number' &&
+    distanceKm <= 1000 &&
+    distanceKm < 0.01;
 
   return (
     <Card
@@ -177,7 +190,9 @@ export function ProfessionalSearchCard({
           <div className='flex min-w-0 items-center gap-1.5 text-gray-600'>
             <MapPin className='h-4 w-4 flex-shrink-0 text-gray-400' />
             <span className='truncate'>
-              {t('to')} {locationLabel}
+              {shouldHideToPrefix
+                ? locationLabel
+                : `${t('to')} ${locationLabel}`}
             </span>
           </div>
           <div className='mt-1 flex items-center gap-1.5 text-sm text-gray-600'>
