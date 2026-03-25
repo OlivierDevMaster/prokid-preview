@@ -123,17 +123,11 @@ export function ProfessionalSearchCard({
           />
         </div>
       )}
-      <Link className='flex h-full flex-col p-4 sm:p-6' href={profileUrl} target='_blank'>
-        {/* Availability badge */}
-        {professional.is_available && (
-          <div className='mb-3 flex items-center gap-1.5'>
-            <span className='inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700'>
-              <span className='size-2 rounded-full bg-emerald-500' />
-              {t('availableNow')}
-            </span>
-          </div>
-        )}
-
+      <Link
+        className='flex h-full flex-col p-4 sm:p-6'
+        href={profileUrl}
+        target='_blank'
+      >
         <div className='flex items-start justify-between gap-4 sm:gap-5'>
           <div className='flex flex-shrink-0 items-start gap-3'>
             <div className='relative flex h-14 w-14 items-center justify-center sm:h-16 sm:w-16'>
@@ -151,17 +145,6 @@ export function ProfessionalSearchCard({
                   {professional.profile.first_name?.charAt(0) ?? ''}
                 </span>
               )}
-              <span
-                aria-label={
-                  professional.is_available ? t('available') : t('unavailable')
-                }
-                className={`absolute -right-0.5 bottom-0 size-4 rounded-full border-2 border-white shadow-md ${
-                  professional.is_available ? 'bg-emerald-500' : 'bg-gray-300'
-                }`}
-                title={
-                  professional.is_available ? t('available') : t('unavailable')
-                }
-              />
             </div>
           </div>
           <div className='min-w-0 flex-1'>
@@ -170,6 +153,15 @@ export function ProfessionalSearchCard({
                 {fullName || professional.profile.first_name}
               </h3>
               <p className='text-sm text-gray-500'>{currentJobLabel}</p>
+              {/* Availability badge */}
+              {professional.is_available && (
+                <div className='mb-1 mt-1.5 flex items-center gap-1.5'>
+                  <span className='inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700'>
+                    <span className='size-2 rounded-full bg-emerald-500' />
+                    {t('availableNow')}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
