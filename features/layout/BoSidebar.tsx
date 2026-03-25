@@ -4,7 +4,6 @@ import { LogOutIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
