@@ -17,6 +17,7 @@ export default function StructureLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const isChatRoute = pathname?.includes('/structure/chat') ?? false;
   const { data: session } = useSession();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -43,12 +44,21 @@ export default function StructureLayout({
 
       {/* Mobile/Tablet Sheet */}
       <Sheet onOpenChange={setIsSheetOpen} open={isSheetOpen}>
-        <SheetContent className='w-64 p-0' side='left'>
-          <StructureSidebar />
+        <SheetContent
+          className='flex w-full max-w-full flex-col p-0 sm:max-w-sm'
+          side='left'
+        >
+          <StructureSidebar expanded />
         </SheetContent>
       </Sheet>
 
-      <main className='flex-1 overflow-y-auto'>
+      <main
+        className={
+          isChatRoute
+            ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
+            : 'flex-1 overflow-y-auto'
+        }
+      >
         {/* Mobile menu button */}
         <div className='border-b bg-white px-4 py-2 shadow-sm lg:hidden'>
           <div className='flex items-center justify-between'>
@@ -65,7 +75,11 @@ export default function StructureLayout({
             </Button>
           </div>
         </div>
-        <div className='h-full w-full'>{children}</div>
+        <div
+          className={isChatRoute ? 'min-h-0 w-full flex-1' : 'h-full w-full'}
+        >
+          {children}
+        </div>
       </main>
     </div>
   );

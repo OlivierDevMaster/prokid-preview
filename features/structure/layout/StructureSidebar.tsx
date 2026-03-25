@@ -4,7 +4,11 @@ import { BoSidebar } from '@/features/layout/BoSidebar';
 
 import { useGetStructureSidebarItems } from '../hooks/useGetStructureSidebarItems';
 
-export function StructureSidebar() {
+type StructureSidebarProps = {
+  expanded?: boolean;
+};
+
+export function StructureSidebar({ expanded }: StructureSidebarProps = {}) {
   const navItems = useGetStructureSidebarItems();
-  return <BoSidebar navItems={navItems} />;
+  return <BoSidebar expanded={expanded} navItems={navItems} />;
 }

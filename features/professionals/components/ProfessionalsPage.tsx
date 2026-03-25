@@ -56,6 +56,7 @@ export default function ProfessionalsPage() {
         <ProfessionalFiltersSection
           actions={actions}
           hasResults={hasResults}
+          resultsCount={resultsCount}
           state={state}
         />
 

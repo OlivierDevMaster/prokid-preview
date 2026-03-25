@@ -399,6 +399,12 @@
       "clear": "Effacer",
       "apply": "Appliquer",
       "searchButton": "Rechercher",
+      "activeFiltersToggle": "Filtres ({count})",
+      "searchProfessionLabel": "Métier ou service",
+      "whereLabel": "Où ?",
+      "filtersSheetReset": "Réinitialiser",
+      "filtersSheetApply": "Appliquer les filtres",
+      "showResultsCount": "Voir {count} résultats",
       "useMyPosition": "Activer ma position",
       "useMyPositionInstruction": "Activez votre position actuelle pour trouver les professionnels les plus proches de vous",
       "locating": "Localisation..."

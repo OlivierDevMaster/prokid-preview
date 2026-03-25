@@ -15,6 +15,7 @@ import { useProfessionalSearch } from '@/features/professionals/hooks/useProfess
 import { ProfessionalConfig } from '@/features/professionals/professional.config';
 import { ProfessionalWithDistance } from '@/features/professionals/types/nearby-professionals.types';
 import { useRouter } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 import { useSelectedProfessional } from '@/shared/stores/useSelectedProfessional';
 
 export default function StructureSearchPage() {
@@ -88,10 +89,11 @@ export default function StructureSearchPage() {
       <ProfessionalFiltersSection
         actions={actions}
         hasResults={hasResults}
+        resultsCount={resultsCount}
         showStructureLocationActivation
         state={state}
       />
-      <div className='mx-auto max-w-7xl space-y-4 px-4 sm:space-y-6 sm:px-6 lg:px-8'>
+      <div className='mx-auto max-w-7xl space-y-4 sm:space-y-6 sm:px-6 lg:px-8'>
         <ProfessionalSearchResultsSection
           hasResults={hasResults}
           isSelected={professionalId =>
@@ -115,62 +117,76 @@ export default function StructureSearchPage() {
       </div>
 
       {selectedProfessionalIds.size > 0 && hasResults && (
-        <div className='fixed bottom-4 right-8 z-50 flex justify-end'>
-          <div className='flex items-center gap-4 rounded-full border border-gray-200 bg-white py-3 pl-4 pr-3 shadow-lg'>
-            <div className='flex items-center'>
-              {selectedProfessionalsForAvatars.map((professional, index) => {
-                const fullName = [
-                  professional.profile.first_name,
-                  professional.profile.last_name,
-                ]
-                  .filter(Boolean)
-                  .join(' ');
-                return (
-                  <div
-                    className='-ml-2 first:ml-0'
-                    key={professional.user_id}
-                    style={{ zIndex: 3 - index }}
-                  >
-                    <div className='flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gray-200'>
-                      {professional.profile.avatar_url ? (
-                        <Image
-                          alt={fullName || 'Professional'}
-                          className='h-full w-full object-cover'
-                          height={36}
-                          src={professional.profile.avatar_url}
-                          unoptimized
-                          width={36}
-                        />
-                      ) : (
-                        <span className='text-sm font-semibold text-gray-500'>
-                          {professional.profile.first_name?.charAt(0) ?? '?'}
-                        </span>
-                      )}
+        <div className='fixed bottom-4 left-4 right-4 z-50 flex justify-end md:left-auto md:right-8'>
+          <div
+            className={cn(
+              'flex w-full min-w-0 max-w-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white py-3 pl-4 pr-3 shadow-lg',
+              'md:w-auto md:max-w-none md:flex-row md:items-center md:gap-4 md:rounded-full'
+            )}
+          >
+            <div className='flex min-w-0 flex-1 items-center gap-3 md:gap-4'>
+              <div className='flex min-w-0 flex-1 items-center overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
+                <div className='flex shrink-0 items-center'>
+                  {selectedProfessionalsForAvatars.map(
+                    (professional, index) => {
+                      const fullName = [
+                        professional.profile.first_name,
+                        professional.profile.last_name,
+                      ]
+                        .filter(Boolean)
+                        .join(' ');
+                      return (
+                        <div
+                          className='-ml-2 first:ml-0'
+                          key={professional.user_id}
+                          style={{ zIndex: 3 - index }}
+                        >
+                          <div className='flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gray-200'>
+                            {professional.profile.avatar_url ? (
+                              <Image
+                                alt={fullName || 'Professional'}
+                                className='h-full w-full object-cover'
+                                height={36}
+                                src={professional.profile.avatar_url}
+                                unoptimized
+                                width={36}
+                              />
+                            ) : (
+                              <span className='text-sm font-semibold text-gray-500'>
+                                {professional.profile.first_name?.charAt(0) ??
+                                  '?'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                  {remainingSelectedCount > 0 && (
+                    <div
+                      className='-ml-2 flex h-9 min-w-[2.25rem] shrink-0 items-center justify-center rounded-full border-2 border-white bg-gray-100 px-1.5 text-xs font-medium text-gray-600'
+                      style={{ zIndex: 0 }}
+                    >
+                      {tMissions('othersCount', {
+                        count: remainingSelectedCount,
+                      })}
                     </div>
-                  </div>
-                );
-              })}
-              {remainingSelectedCount > 0 && (
-                <div
-                  className='-ml-2 flex h-9 min-w-[2.25rem] items-center justify-center rounded-full border-2 border-white bg-gray-100 px-1.5 text-xs font-medium text-gray-600'
-                  style={{ zIndex: 0 }}
-                >
-                  {tMissions('othersCount', { count: remainingSelectedCount })}
+                  )}
                 </div>
-              )}
+              </div>
+              <p className='shrink-0 text-xs font-medium sm:text-base'>
+                {selectedProfessionalIds.size}{' '}
+                {selectedProfessionalIds.size === 1
+                  ? tMissions('selected')
+                  : tMissions('selectedPlural')}
+              </p>
             </div>
-            <p className='text-xs font-medium sm:text-base'>
-              {selectedProfessionalIds.size}{' '}
-              {selectedProfessionalIds.size === 1
-                ? tMissions('selected')
-                : tMissions('selectedPlural')}
-            </p>
             <Button
-              className='flex items-center gap-3 rounded-full px-6 py-6 text-sm font-semibold text-white shadow-md hover:bg-blue-700 sm:text-base'
+              className='flex w-full shrink-0 items-center justify-center gap-3 rounded-full px-6 py-6 text-sm font-semibold text-white shadow-md hover:bg-blue-700 sm:text-base md:w-auto'
               onClick={handleSendMission}
             >
-              <Send className='h-4 w-4' />
-              <span>{tMissions('sendMission')}</span>
+              <Send className='h-4 w-4 shrink-0' />
+              <span className='truncate'>{tMissions('sendMission')}</span>
             </Button>
           </div>
         </div>
