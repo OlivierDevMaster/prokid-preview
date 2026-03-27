@@ -3,11 +3,11 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { FileText } from 'lucide-react';
+import Image from 'next/image';
 
 import type { Report } from '@/features/reports/report.model';
 
 import { Link } from '@/i18n/routing';
-import { cn } from '@/lib/utils';
 
 interface StructureReportCardProps {
   report: Report;
@@ -15,54 +15,49 @@ interface StructureReportCardProps {
 
 export function StructureReportCard({ report }: StructureReportCardProps) {
   const formattedDate = report.created_at
-    ? format(new Date(report.created_at), 'd MMM', { locale: fr })
+    ? format(new Date(report.created_at), 'd MMM yyyy', { locale: fr })
     : '';
 
-  const isDraft = report.status === 'draft';
-
-  const professionalName =
-    report.author?.profile?.first_name || report.author?.profile?.last_name
-      ? `${report.author.profile.first_name || ''} ${report.author.profile.last_name || ''}`.trim()
-      : (report.author?.profile?.email ?? '');
+  const firstName = report.author?.profile?.first_name || '';
+  const lastName = report.author?.profile?.last_name || '';
+  const professionalName = `${firstName} ${lastName}`.trim() || report.author?.profile?.email || '';
+  const avatarUrl = report.author?.profile?.avatar_url;
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?';
 
   return (
     <Link
-      className='flex cursor-pointer items-start gap-4 p-4 transition-colors hover:bg-slate-50'
+      className='flex items-center gap-4 p-4 transition-colors hover:bg-slate-50'
       href={`/structure/reports?reportId=${report.id}`}
     >
-      <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100'>
-        <FileText className='h-5 w-5 text-emerald-600' />
-      </div>
-
-      <div className='flex flex-1 flex-col gap-1'>
-        <div className='flex items-center justify-between'>
-          <span className='text-xs font-bold uppercase tracking-wide text-slate-400'>
-            {report.mission_id
-              ? `Mission #${report.mission_id.slice(0, 4)}`
-              : ''}
-          </span>
-          <span
-            className={cn(
-              'rounded-full px-2 py-0.5 text-[10px] font-bold',
-              isDraft
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-emerald-100 text-emerald-700'
-            )}
-          >
-            {isDraft ? '🟡 Brouillon' : '🟢 Reçu'}
-          </span>
-        </div>
-        <h3 className='mt-1 line-clamp-1 text-sm font-semibold text-slate-900'>
-          {report.title}
-        </h3>
-        {(professionalName || formattedDate) && (
-          <p className='mt-1 text-xs text-slate-500'>
-            {professionalName && <span>{professionalName}</span>}
-            {professionalName && formattedDate && <span> • </span>}
-            {formattedDate && <span>{formattedDate}</span>}
-          </p>
+      {/* Author avatar */}
+      <div className='flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100'>
+        {avatarUrl ? (
+          <Image
+            alt={professionalName}
+            className='h-full w-full object-cover'
+            height={40}
+            src={avatarUrl}
+            unoptimized
+            width={40}
+          />
+        ) : (
+          <span className='text-sm font-semibold text-blue-600'>{initials}</span>
         )}
       </div>
+
+      {/* Content */}
+      <div className='min-w-0 flex-1'>
+        <h3 className='truncate text-sm font-semibold text-slate-900'>
+          {report.title}
+        </h3>
+        <p className='mt-0.5 text-xs text-slate-500'>
+          {professionalName}
+          {formattedDate && ` • ${formattedDate}`}
+        </p>
+      </div>
+
+      {/* Icon */}
+      <FileText className='h-4 w-4 shrink-0 text-slate-300' />
     </Link>
   );
 }

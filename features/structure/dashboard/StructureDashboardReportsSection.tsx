@@ -9,7 +9,6 @@ import { Link } from '@/i18n/routing';
 
 export function StructureDashboardReportsSection() {
   const tDashboard = useTranslations('structure.dashboard');
-  const tReports = useTranslations('admin.reports');
 
   const { data: reportsData, isLoading: isLoadingReports } = useReports();
   const reports = (reportsData ?? []).slice(0, 2);
@@ -24,28 +23,26 @@ export function StructureDashboardReportsSection() {
       </div>
       <div className='overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm'>
         {isLoadingReports ? (
-          <div className='p-4 text-sm text-slate-600'>
-            {tReports('loading')}
-          </div>
+          <div className='p-4 text-sm text-slate-600'>Chargement...</div>
         ) : reports.length > 0 ? (
-          <>
-            <div className='divide-y divide-slate-100'>
-              {reports.map(report => (
-                <StructureReportCard key={report.id} report={report} />
-              ))}
-            </div>
-            <div className='border-t border-slate-100 bg-slate-50 p-4 text-center'>
-              <Link
-                className='text-sm font-semibold text-[#4A90E2] hover:underline'
-                href='/structure/reports'
-              >
-                {tDashboard('viewAll')}
-              </Link>
-            </div>
-          </>
+          <div className='divide-y divide-slate-100'>
+            {reports.map(report => (
+              <StructureReportCard key={report.id} report={report} />
+            ))}
+          </div>
         ) : (
-          <div className='p-4 text-sm text-slate-600'>
-            {tReports('noReports') || tReports('noResults')}
+          <div className='p-4 text-sm text-slate-500'>
+            Aucun rapport reçu pour le moment.
+          </div>
+        )}
+        {reports.length > 0 && (
+          <div className='border-t border-slate-100 bg-slate-50 p-3 text-center'>
+            <Link
+              className='text-sm font-semibold text-[#4A90E2] hover:underline'
+              href='/structure/reports'
+            >
+              Voir tous les rapports
+            </Link>
           </div>
         )}
       </div>

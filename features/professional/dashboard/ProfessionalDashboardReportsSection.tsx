@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { ProfessionalReportCard } from '@/features/professional/reports/components/ProfessionalReportCard';
@@ -9,7 +9,6 @@ import { Link } from '@/i18n/routing';
 
 export function ProfessionalDashboardReportsSection() {
   const tDashboard = useTranslations('professional.dashboard');
-  const tReports = useTranslations('professional.dashboard');
 
   const { data: reportsData, isLoading: isLoadingReports } = useReports();
   const reports = (reportsData ?? []).slice(0, 2);
@@ -24,30 +23,33 @@ export function ProfessionalDashboardReportsSection() {
       </div>
       <div className='overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm'>
         {isLoadingReports ? (
-          <div className='p-4 text-sm text-slate-600'>
-            {tReports('loading')}
-          </div>
+          <div className='p-4 text-sm text-slate-600'>Chargement...</div>
         ) : reports.length > 0 ? (
-          <>
-            <div className='divide-y divide-slate-100'>
-              {reports.map(report => (
-                <ProfessionalReportCard key={report.id} report={report} />
-              ))}
-            </div>
-            <div className='border-t border-slate-100 bg-slate-50 p-4 text-center'>
-              <Link
-                className='text-sm font-semibold text-[#4A90E2] hover:underline'
-                href='/professional/reports'
-              >
-                {tDashboard('viewAllReports')}
-              </Link>
-            </div>
-          </>
+          <div className='divide-y divide-slate-100'>
+            {reports.map(report => (
+              <ProfessionalReportCard key={report.id} report={report} />
+            ))}
+          </div>
         ) : (
-          <div className='p-4 text-sm text-slate-600'>
-            {tReports('noReports')}
+          <div className='p-4 text-sm text-slate-500'>
+            Aucun rapport pour le moment.
           </div>
         )}
+        <div className='flex gap-2 border-t border-slate-100 bg-slate-50 p-3'>
+          <Link
+            className='flex-1 text-center text-sm font-semibold text-[#4A90E2] hover:underline'
+            href='/professional/reports'
+          >
+            Voir tous les rapports
+          </Link>
+          <Link
+            className='flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:underline'
+            href='/professional/chat'
+          >
+            <FileText className='h-3.5 w-3.5' />
+            Rédiger un rapport
+          </Link>
+        </div>
       </div>
     </section>
   );
