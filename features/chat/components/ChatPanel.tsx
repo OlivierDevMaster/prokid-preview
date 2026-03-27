@@ -91,7 +91,8 @@ export function ChatPanel({
   const deleteRating = useDeleteRating();
   const { data: existingRating } = useRatingForStructureAndProfessional(
     viewRole === 'structure' ? structureId : undefined,
-    viewRole === 'structure' ? professionalId : undefined
+    viewRole === 'structure' ? professionalId : undefined,
+    conversation?.mission?.id ?? undefined
   );
 
   const otherPartyName = useMemo(
@@ -143,6 +144,7 @@ export function ChatPanel({
         createRating.mutate(
           {
             comment: comment.trim() || null,
+            missionId: conversation?.mission?.id ?? null,
             professionalId,
             rating,
             structureId,

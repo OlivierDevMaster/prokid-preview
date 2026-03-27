@@ -593,6 +593,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          mission_id: string | null
           professional_id: string
           rating: number
           structure_id: string
@@ -602,6 +603,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          mission_id?: string | null
           professional_id: string
           rating: number
           structure_id: string
@@ -611,6 +613,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          mission_id?: string | null
           professional_id?: string
           rating?: number
           structure_id?: string

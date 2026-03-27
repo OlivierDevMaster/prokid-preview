@@ -17,12 +17,14 @@ export const createRating = async (
   structureId: string,
   professionalId: string,
   rating: number,
-  comment?: null | string
+  comment?: null | string,
+  missionId?: null | string
 ): Promise<ProfessionalRating> => {
   const supabase = createClient();
 
   const insertData: ProfessionalRatingInsert = {
     comment: comment || null,
+    mission_id: missionId || null,
     professional_id: professionalId,
     rating,
     structure_id: structureId,
@@ -76,11 +78,12 @@ export const deleteRating = async (ratingId: string): Promise<void> => {
 
 export const getRatingForStructureAndProfessional = async (
   structureId: string,
-  professionalId: string
+  professionalId: string,
+  missionId?: string
 ): Promise<null | ProfessionalRatingWithRelations> => {
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('professional_ratings')
     .select(
       `
@@ -96,8 +99,13 @@ export const getRatingForStructureAndProfessional = async (
     `
     )
     .eq('structure_id', structureId)
-    .eq('professional_id', professionalId)
-    .single();
+    .eq('professional_id', professionalId);
+
+  if (missionId) {
+    query = query.eq('mission_id', missionId);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     if (error.code === 'PGRST116') {

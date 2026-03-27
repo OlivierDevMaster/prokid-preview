@@ -6,6 +6,7 @@ import { createRating } from '../services/rating.service';
 
 export interface CreateRatingParams {
   comment?: null | string;
+  missionId?: null | string;
   professionalId: string;
   rating: number;
   structureId: string;
@@ -22,7 +23,8 @@ export const useCreateRating = () => {
         params.structureId,
         params.professionalId,
         params.rating,
-        params.comment
+        params.comment,
+        params.missionId
       );
     },
     onSuccess: () => {

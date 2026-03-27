@@ -6,7 +6,8 @@ import { getRatingForStructureAndProfessional } from '../services/rating.service
 
 export const useRatingForStructureAndProfessional = (
   structureId: string | undefined,
-  professionalId: string | undefined
+  professionalId: string | undefined,
+  missionId?: string | undefined
 ) => {
   return useQuery<null | ProfessionalRatingWithRelations, Error>({
     enabled: !!structureId && !!professionalId,
@@ -14,12 +15,13 @@ export const useRatingForStructureAndProfessional = (
       if (!structureId || !professionalId) {
         return null;
       }
-      return getRatingForStructureAndProfessional(structureId, professionalId);
+      return getRatingForStructureAndProfessional(structureId, professionalId, missionId);
     },
     queryKey: [
       'rating-for-structure-professional',
       structureId,
       professionalId,
+      missionId,
     ],
   });
 };
