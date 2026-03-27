@@ -65,3 +65,23 @@ export async function deleteSkillTag(id: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function getSkillTagUsageCounts(): Promise<Record<string, number>> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('professionals')
+    .select('skills');
+
+  if (error) throw error;
+
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const skills = row.skills as string[] | null;
+    if (!skills) continue;
+    for (const skill of skills) {
+      counts[skill] = (counts[skill] ?? 0) + 1;
+    }
+  }
+  return counts;
+}

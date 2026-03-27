@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createSkillTag,
   deleteSkillTag,
+  getSkillTagUsageCounts,
   getSkillTags,
   updateSkillTag,
 } from '../tags.service';
@@ -44,6 +45,13 @@ export function useUpdateSkillTag() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SKILL_TAGS_QUERY_KEY });
     },
+  });
+}
+
+export function useSkillTagUsageCounts() {
+  return useQuery({
+    queryFn: getSkillTagUsageCounts,
+    queryKey: ['admin', 'skill-tag-usage-counts'],
   });
 }
 

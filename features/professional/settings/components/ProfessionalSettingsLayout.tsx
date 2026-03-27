@@ -1,9 +1,9 @@
 'use client';
 
-import { ChevronRight, Loader2, Search, Shield, Sparkles, X } from 'lucide-react';
+import { ChevronRight, Loader2, Shield, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { SkillTagSelector } from '@/features/admin/tags/components/SkillTagSelector';
 import BillingTabContent from '@/features/professional/settings/components/BillingTabContent';
 import CertificationsSection from '@/features/professional/settings/components/CertificationsSection';
 import ExperiencesSection from '@/features/professional/settings/components/ExperiencesSection';
@@ -36,14 +36,6 @@ import { PersonalContactSection } from './PersonalContactSection';
 import PersonalInfoSection from './PersonalInfoSection';
 import { ProfileSummaryHeader } from './ProfileSummaryHeader';
 
-const MOCK_SKILLS_FALLBACK = [
-  'Développement moteur',
-  'Éveil sensoriel',
-  'Communication non-verbale',
-  'Accompagnement parental',
-  'Motricité libre',
-];
-
 export function ProfessionalSettingsLayout() {
   const t = useTranslations('admin.setting');
   const { data: session } = useSession();
@@ -51,46 +43,18 @@ export function ProfessionalSettingsLayout() {
   const { data: professional, isLoading } = useFindProfessional(userId);
   const updateProfessional = useUpdateProfessional();
 
-  const [skillInput, setSkillInput] = useState('');
   const [dialog, setDialog] = useState<
     'billing' | 'email' | 'notifications' | 'password' | null
   >(null);
 
-  const skillsList = useMemo(() => {
-    if (professional?.skills?.length) {
-      return professional.skills;
-    }
-    return MOCK_SKILLS_FALLBACK;
-  }, [professional?.skills]);
-
-  const handleAddSkill = async () => {
-    const s = skillInput.trim();
-    if (!s || !userId) {
-      return;
-    }
-    const next = [...new Set([s, ...skillsList])];
+  const handleSkillsChange = async (skills: string[]) => {
+    if (!userId) return;
     try {
       await updateProfessional.mutateAsync({
         professionalId: userId,
-        updateData: { skills: next },
+        updateData: { skills },
       });
-      setSkillInput('');
       toast.success(t('saveChanges'));
-    } catch {
-      toast.error(t('loading'));
-    }
-  };
-
-  const handleRemoveSkill = async (skill: string) => {
-    if (!userId) {
-      return;
-    }
-    const next = skillsList.filter(x => x !== skill);
-    try {
-      await updateProfessional.mutateAsync({
-        professionalId: userId,
-        updateData: { skills: next },
-      });
     } catch {
       toast.error(t('loading'));
     }
@@ -128,52 +92,11 @@ export function ProfessionalSettingsLayout() {
                 <Sparkles className='size-6 text-blue-600' />
                 {t('psSkillsTitle')}
               </h2>
-              <div className='mb-8 flex flex-col gap-2 sm:flex-row'>
-                <div className='relative flex-1'>
-                  <Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400' />
-                  <Input
-                    className='h-10 rounded-xl border-slate-200 bg-slate-50 pl-10 focus-visible:ring-blue-600/20'
-                    onChange={e => setSkillInput(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddSkill();
-                      }
-                    }}
-                    placeholder={t('psAddSkillPlaceholder')}
-                    value={skillInput}
-                  />
-                </div>
-                <Button
-                  className='h-10 rounded-xl bg-blue-600 font-semibold hover:bg-blue-700'
-                  disabled={updateProfessional.isPending}
-                  onClick={handleAddSkill}
-                  type='button'
-                >
-                  {t('psAdd')}
-                </Button>
-              </div>
-              <h3 className='mb-4 text-sm font-bold uppercase tracking-wider text-slate-400'>
-                {t('psVerifiedSkills')}
-              </h3>
-              <div className='flex flex-wrap gap-3'>
-                {skillsList.map(skill => (
-                  <span
-                    className='flex items-center gap-2 rounded-full border border-slate-200/50 bg-[#CDEAE1] px-3 py-1.5 text-sm font-medium text-slate-700'
-                    key={skill}
-                  >
-                    {skill}
-                    <button
-                      aria-label='Remove'
-                      className='text-slate-500 hover:text-slate-800'
-                      onClick={() => handleRemoveSkill(skill)}
-                      type='button'
-                    >
-                      <X className='size-4' />
-                    </button>
-                  </span>
-                ))}
-              </div>
+              <SkillTagSelector
+                maxTags={10}
+                onChange={handleSkillsChange}
+                value={professional?.skills ?? []}
+              />
             </section>
 
             <ExperiencesSection />

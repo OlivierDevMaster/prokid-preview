@@ -2,13 +2,15 @@
 
 import { Briefcase, ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import type { ProfessionalSignUpFormData } from '@/features/sign-up/professional/hooks/useProfessionalSignUpSchema';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { useSkillTags } from '@/features/admin/tags/hooks/useSkillTags';
+import type { SkillTag } from '@/features/admin/tags/tags.service';
 import useGetProfessionalJobs from '@/features/professionals/hooks/useGetProfessionalJobs';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +30,27 @@ export function Step3ProfessionalInfo({
   const t = useTranslations('auth.signUp.professionalForm');
   const tCommon = useTranslations('common.label');
   const professionalJobs = useGetProfessionalJobs();
+  const { data: skillTags = [] } = useSkillTags();
   const [skillInput, setSkillInput] = useState('');
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    competence: 'Compétences',
+    diplome: 'Diplômes',
+    specialite: 'Spécialités',
+  };
+
+  const groupedSkillTags = useMemo(() => {
+    const groups: Record<string, SkillTag[]> = {};
+    for (const tag of skillTags) {
+      const key = tag.category || 'other';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(tag);
+    }
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    }
+    return groups;
+  }, [skillTags]);
 
   const {
     control,
@@ -116,6 +138,44 @@ export function Step3ProfessionalInfo({
           <p className='mt-0.5 text-sm text-slate-400'>{t('skillsHelper')}</p>
         </div>
 
+        {/* Tag groups from DB */}
+        {(['competence', 'diplome', 'specialite'] as const).map((catKey) => {
+          const group = groupedSkillTags[catKey];
+          if (!group || group.length === 0) return null;
+          return (
+            <div key={catKey}>
+              <h3 className='mb-2 text-xs font-bold uppercase tracking-wider text-slate-400'>
+                {CATEGORY_LABELS[catKey]}
+              </h3>
+              <div className='flex flex-wrap gap-2'>
+                {group.map((tag) => {
+                  const selected = skills.includes(tag.name);
+                  return (
+                    <button
+                      className={cn(
+                        'inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                        selected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                        isSkillsMax &&
+                          !selected &&
+                          'cursor-not-allowed opacity-40'
+                      )}
+                      key={tag.id}
+                      onClick={() => toggleSkill(tag.name)}
+                      type='button'
+                    >
+                      {tag.name}
+                      {selected && <X className='ml-1.5 h-3 w-3' />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Custom skill input */}
         <div className='flex gap-2'>
           <input
             className='flex h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50'
@@ -152,29 +212,7 @@ export function Step3ProfessionalInfo({
           </Button>
         </div>
 
-        <div className='flex flex-wrap gap-2'>
-          {professionalJobs
-            .slice(0, 6)
-            .map((job: { label: string; value: string }) => (
-              <button
-                className={cn(
-                  'inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
-                  skills.includes(job.label)
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                  isSkillsMax &&
-                    !skills.includes(job.label) &&
-                    'cursor-not-allowed opacity-40'
-                )}
-                key={job.value}
-                onClick={() => toggleSkill(job.label)}
-                type='button'
-              >
-                {job.label}
-              </button>
-            ))}
-        </div>
-
+        {/* Selected skills display */}
         {skills.length > 0 && (
           <div className='flex flex-wrap gap-2 pt-1'>
             {skills.map((skill, index) => (
