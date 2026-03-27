@@ -9,7 +9,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { StructureSidebar } from '@/features/structure/layout/StructureSidebar';
 import { useFindStructure } from '@/features/structures/hooks/useFindStructure';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { usePathname } from '@/i18n/routing';
+import { useRole } from '@/hooks/useRole';
+import { usePathname, useRouter } from '@/i18n/routing';
 
 export default function StructureLayout({
   children,
@@ -17,12 +18,22 @@ export default function StructureLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isChatRoute = pathname?.includes('/structure/chat') ?? false;
+  const isOnboardingRoute = pathname?.includes('/structure/on-boarding') ?? false;
   const { data: session } = useSession();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { isOnboarded } = useRole();
 
   // Disable body scroll on this route
   useBodyScrollLock();
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (session?.user?.id && isOnboarded === false && !isOnboardingRoute) {
+      router.replace('/structure/on-boarding');
+    }
+  }, [session?.user?.id, isOnboarded, isOnboardingRoute, router]);
 
   // Fetch structure data to get name
   const { data: structure } = useFindStructure(session?.user?.id);
@@ -34,6 +45,11 @@ export default function StructureLayout({
 
   // Get structure name, fallback to 'Structure' if not available
   const structureName = structure?.name || 'Structure';
+
+  // Don't show sidebar/layout on onboarding page
+  if (isOnboardingRoute) {
+    return <>{children}</>;
+  }
 
   return (
     <div className='flex h-screen overflow-hidden'>

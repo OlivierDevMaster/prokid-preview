@@ -67,11 +67,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
         return;
       }
 
-      // If email is already verified (shouldn't happen with enable_confirmations = true, but handle it)
+      // If email is already verified, go to onboarding
       if (role === 'professional') {
         router.push('/professional/on-boarding');
       } else if (role === 'structure') {
-        router.push('/auth/login');
+        router.push('/structure/on-boarding');
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -102,119 +102,6 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
               <div className='rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800'>
                 {error}
               </div>
-            )}
-
-            {role === 'structure' && (
-              <>
-                <div className='flex flex-col items-center justify-center space-y-2'>
-                  <Label className='text-xs font-medium text-slate-600'>
-                    {t('structureForm.profilePhotoLabel')}
-                  </Label>
-                  <div className='flex items-center gap-4'>
-                    <div className='relative'>
-                      <div className='relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-2 ring-gray-300'>
-                        {photoPreview ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            alt='Profile preview'
-                            className='h-full w-full rounded-full object-cover'
-                            src={photoPreview}
-                          />
-                        ) : (
-                          <span className='text-2xl font-semibold text-gray-500'>
-                            {firstName && lastName
-                              ? `${firstName.charAt(0)}${lastName.charAt(0)}`
-                              : firstName
-                                ? firstName.charAt(0)
-                                : lastName
-                                  ? lastName.charAt(0)
-                                  : '?'}
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        className='absolute bottom-0 right-3 h-6 w-6 rounded-full bg-blue-500 p-3 hover:bg-blue-600'
-                        onClick={() => fileInputRef.current?.click()}
-                        size='sm'
-                        type='button'
-                        variant='ghost'
-                      >
-                        <Camera className='h-3 w-3 text-white' />
-                      </Button>
-                      <input
-                        accept='image/*'
-                        className='hidden'
-                        disabled={isLoading}
-                        onChange={e => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setProfilePhoto(file);
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setPhotoPreview(reader.result as string);
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        ref={fileInputRef}
-                        type='file'
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    {profilePhoto && (
-                      <Button
-                        className='mt-2 text-xs text-red-500'
-                        onClick={() => {
-                          setProfilePhoto(null);
-                          setPhotoPreview(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = '';
-                          }
-                        }}
-                        size='sm'
-                        type='button'
-                        variant='ghost'
-                      >
-                        <Trash className='h-3 w-3 text-red-500' />
-                        {t('structureForm.removePhoto')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
-                  <div>
-                    <Label className='text-xs font-medium text-slate-600' htmlFor='firstName'>
-                      {t('structureForm.firstNameLabel')}
-                    </Label>
-                    <Input
-                      className='h-10 rounded-xl border-slate-200'
-                      disabled={isLoading}
-                      id='firstName'
-                      onChange={e => setFirstName(e.target.value)}
-                      placeholder={t('structureForm.firstNamePlaceholder')}
-                      required
-                      type='text'
-                      value={firstName}
-                    />
-                  </div>
-                  <div>
-                    <Label className='text-xs font-medium text-slate-600' htmlFor='lastName'>
-                      {t('structureForm.lastNameLabel')}
-                    </Label>
-                    <Input
-                      className='h-10 rounded-xl border-slate-200'
-                      disabled={isLoading}
-                      id='lastName'
-                      onChange={e => setLastName(e.target.value)}
-                      placeholder={t('structureForm.lastNamePlaceholder')}
-                      required
-                      type='text'
-                      value={lastName}
-                    />
-                  </div>
-                </div>
-              </>
             )}
 
             <div className='space-y-2'>

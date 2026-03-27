@@ -14,6 +14,7 @@ type UseRoleReturn = {
   // Current user role checks
   isAdmin: boolean;
   isLoading: boolean;
+  isOnboarded: boolean | undefined;
   isProfessional: boolean;
   isStructure: boolean;
   // Functions to check other users' roles
@@ -37,7 +38,7 @@ export function useRole(): UseRoleReturn {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, is_onboarded')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -45,7 +46,7 @@ export function useRole(): UseRoleReturn {
         return null;
       }
 
-      return data.role;
+      return data;
     },
     queryKey: ['user-role', userId],
   });
@@ -67,10 +68,11 @@ export function useRole(): UseRoleReturn {
   };
 
   return {
-    isAdmin: role === 'admin',
+    isAdmin: role?.role === 'admin',
     isLoading,
-    isProfessional: role === 'professional',
-    isStructure: role === 'structure',
+    isOnboarded: role?.is_onboarded,
+    isProfessional: role?.role === 'professional',
+    isStructure: role?.role === 'structure',
     isUserAdmin,
     isUserProfessional,
     isUserStructure,
