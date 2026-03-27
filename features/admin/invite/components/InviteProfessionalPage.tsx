@@ -128,7 +128,7 @@ jean@example.com,Jean,Martin,0698765432,pediatric_nurse`;
 }
 
 function downloadCSV(content: string, filename: string) {
-  const blob = new Blob(['\uFEFF' + content], {
+  const blob = new Blob(['﻿' + content], {
     type: 'text/csv;charset=utf-8;',
   });
   const url = URL.createObjectURL(blob);
@@ -195,7 +195,7 @@ export function InviteProfessionalPage() {
       });
 
       setSuccessEmail(data.email);
-      toast.success(`Invitation envoy\u00e9e \u00e0 ${data.email}`);
+      toast.success(`Invitation envoyée à ${data.email}`);
       reset();
     } catch (error: unknown) {
       const errorMessage =
@@ -215,7 +215,7 @@ export function InviteProfessionalPage() {
   // CSV file handling
   const handleFileSelect = useCallback((file: File) => {
     if (!file.name.endsWith('.csv')) {
-      toast.error('Veuillez s\u00e9lectionner un fichier CSV');
+      toast.error('Veuillez sélectionner un fichier CSV');
       return;
     }
 
@@ -225,7 +225,7 @@ export function InviteProfessionalPage() {
       const rows = parseCSV(content);
       if (rows.length === 0) {
         toast.error(
-          'Aucune ligne valide trouv\u00e9e dans le fichier CSV. V\u00e9rifiez le format.'
+          'Aucune ligne valide trouvée dans le fichier CSV. Vérifiez le format.'
         );
         return;
       }
@@ -314,10 +314,10 @@ export function InviteProfessionalPage() {
     const errorCount = results.filter((r) => !r.success).length;
 
     if (errorCount === 0) {
-      toast.success(`${successCount} invitation(s) envoy\u00e9e(s) avec succ\u00e8s`);
+      toast.success(`${successCount} invitation(s) envoyée(s) avec succès`);
     } else {
       toast.warning(
-        `${successCount} succ\u00e8s, ${errorCount} erreur(s)`
+        `${successCount} succès, ${errorCount} erreur(s)`
       );
     }
   }, [userId, csvRows, inviteMutation]);
@@ -337,7 +337,7 @@ export function InviteProfessionalPage() {
           Inviter un professionnel
         </h1>
         <p className='mt-2 text-sm text-gray-600 sm:text-base'>
-          Cr\u00e9ez un compte professionnel et envoyez une invitation par email.
+          Créez un compte professionnel et envoyez une invitation par email.
         </p>
       </div>
 
@@ -384,10 +384,10 @@ export function InviteProfessionalPage() {
           {/* First name / Last name row */}
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <div className='space-y-2'>
-              <Label htmlFor='firstName'>Pr\u00e9nom</Label>
+              <Label htmlFor='firstName'>Prénom</Label>
               <Input
                 id='firstName'
-                placeholder='Pr\u00e9nom'
+                placeholder='Prénom'
                 {...register('firstName')}
               />
             </div>
@@ -403,7 +403,7 @@ export function InviteProfessionalPage() {
 
           {/* Phone */}
           <div className='space-y-2'>
-            <Label htmlFor='phone'>T\u00e9l\u00e9phone</Label>
+            <Label htmlFor='phone'>Téléphone</Label>
             <Input
               id='phone'
               placeholder='06 12 34 56 78'
@@ -414,13 +414,13 @@ export function InviteProfessionalPage() {
 
           {/* Job select */}
           <div className='space-y-2'>
-            <Label htmlFor='currentJob'>M\u00e9tier</Label>
+            <Label htmlFor='currentJob'>Métier</Label>
             <Select
               onValueChange={(value) => setValue('currentJob', value)}
               value={currentJobValue}
             >
               <SelectTrigger>
-                <SelectValue placeholder='S\u00e9lectionner un m\u00e9tier' />
+                <SelectValue placeholder='Sélectionner un métier' />
               </SelectTrigger>
               <SelectContent>
                 {professionalJobs.map((job) => (
@@ -457,7 +457,7 @@ export function InviteProfessionalPage() {
           <div className='mt-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4'>
             <CheckCircle className='h-5 w-5 flex-shrink-0 text-green-600' />
             <p className='text-sm text-green-800'>
-              Invitation envoy\u00e9e avec succ\u00e8s \u00e0{' '}
+              Invitation envoyée avec succès à{' '}
               <span className='font-semibold'>{successEmail}</span>
             </p>
           </div>
@@ -488,7 +488,7 @@ export function InviteProfessionalPage() {
             type='button'
           >
             <Download className='h-4 w-4' />
-            T\u00e9l\u00e9charger le mod\u00e8le CSV
+            Télécharger le modèle CSV
           </button>
         </div>
 
@@ -508,10 +508,10 @@ export function InviteProfessionalPage() {
           >
             <Upload className='mx-auto h-8 w-8 text-gray-400' />
             <p className='mt-2 text-sm font-medium text-gray-700'>
-              Glissez-d\u00e9posez un fichier CSV ici
+              Glissez-déposez un fichier CSV ici
             </p>
             <p className='mt-1 text-xs text-gray-500'>
-              ou cliquez pour s\u00e9lectionner un fichier
+              ou cliquez pour sélectionner un fichier
             </p>
             <p className='mt-2 text-xs text-gray-400'>
               Colonnes attendues : email, prenom, nom, telephone, metier
@@ -557,16 +557,16 @@ export function InviteProfessionalPage() {
                       Email
                     </th>
                     <th className='px-3 py-2 font-medium text-gray-500'>
-                      Pr\u00e9nom
+                      Prénom
                     </th>
                     <th className='px-3 py-2 font-medium text-gray-500'>
                       Nom
                     </th>
                     <th className='px-3 py-2 font-medium text-gray-500'>
-                      T\u00e9l\u00e9phone
+                      Téléphone
                     </th>
                     <th className='px-3 py-2 font-medium text-gray-500'>
-                      M\u00e9tier
+                      Métier
                     </th>
                   </tr>
                 </thead>
@@ -626,7 +626,7 @@ export function InviteProfessionalPage() {
                     <CheckCircle className='h-4 w-4 flex-shrink-0 text-green-600' />
                     <span className='text-sm text-green-800'>
                       {successCount} invitation{successCount > 1 ? 's' : ''}{' '}
-                      envoy\u00e9e{successCount > 1 ? 's' : ''} avec succ\u00e8s
+                      envoyée{successCount > 1 ? 's' : ''} avec succès
                     </span>
                   </div>
                 )}
@@ -692,10 +692,10 @@ export function InviteProfessionalPage() {
           </div>
           <div>
             <h2 className='text-lg font-semibold text-gray-900'>
-              Invitations r\u00e9centes
+              Invitations récentes
             </h2>
             <p className='text-sm text-gray-500'>
-              Professionnels invit\u00e9s en attente de confirmation.
+              Professionnels invités en attente de confirmation.
             </p>
           </div>
         </div>
