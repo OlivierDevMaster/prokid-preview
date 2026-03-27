@@ -23,6 +23,7 @@ import {
 import BillingTabContent from '@/features/professional/settings/components/BillingTabContent';
 import CertificationsSection from '@/features/professional/settings/components/CertificationsSection';
 import ExperiencesSection from '@/features/professional/settings/components/ExperiencesSection';
+import ReceivedReviewsSection from '@/features/professional/settings/components/ReceivedReviewsSection';
 import RecommendationsPlaceholder from '@/features/professional/settings/components/RecommendationsPlaceholder';
 import { IdentifiersForm } from '@/features/professional/settings/components/IdentifiersForm';
 import { NotificationPreferences } from '@/features/professional/settings/components/NotificationPreferences';
@@ -177,6 +178,7 @@ export function ProfessionalSettingsLayout() {
 
             <ExperiencesSection />
             <CertificationsSection />
+            <ReceivedReviewsSection />
             <RecommendationsPlaceholder />
           </div>
 
