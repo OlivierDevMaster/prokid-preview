@@ -15,12 +15,17 @@ import { useGetDashboardStats } from '@/features/admin/hooks/useGetDashboardStat
 export default function DashboardPage() {
   const {
     activeMissionsCount,
+    activeProfessionalsCount,
+    activeStructuresCount,
     completedMissionsCount,
+    missionCompletionRate,
     missionsCount,
+    pendingInvitationsCount,
     pendingMissionsCount,
     professionalsCount,
     structuresCount,
     systemGrowthRate,
+    totalInvitationsCount,
     totalReportsCount,
   } = useGetDashboardStats();
 
@@ -62,8 +67,9 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Mission breakdown + Growth */}
-        <div className='mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        {/* Detailed stats */}
+        <div className='mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3'>
+          {/* Missions breakdown */}
           <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
             <h2 className='mb-4 text-lg font-bold text-slate-900'>Missions</h2>
             <div className='space-y-3'>
@@ -71,17 +77,53 @@ export default function DashboardPage() {
               <StatRow color='bg-blue-500' label='En cours' value={activeMissionsCount} />
               <StatRow color='bg-emerald-500' label='Terminées' value={completedMissionsCount} />
             </div>
+            <div className='mt-4 border-t border-slate-100 pt-3'>
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-slate-500'>Taux de complétion</span>
+                <span className='font-bold text-slate-900'>{missionCompletionRate}%</span>
+              </div>
+            </div>
           </div>
 
+          {/* Users breakdown */}
           <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
-            <h2 className='mb-4 text-lg font-bold text-slate-900'>Croissance</h2>
-            <div className='flex items-center gap-4'>
-              <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100'>
-                <TrendingUp className='h-6 w-6 text-emerald-600' />
+            <h2 className='mb-4 text-lg font-bold text-slate-900'>Utilisateurs</h2>
+            <div className='space-y-3'>
+              <StatRow color='bg-blue-500' label='Pros inscrits' value={professionalsCount} />
+              <StatRow color='bg-blue-300' label='Pros actifs' value={activeProfessionalsCount} />
+              <StatRow color='bg-emerald-500' label='Structures inscrites' value={structuresCount} />
+              <StatRow color='bg-emerald-300' label='Structures actives' value={activeStructuresCount} />
+            </div>
+          </div>
+
+          {/* Growth & Invitations */}
+          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+            <h2 className='mb-4 text-lg font-bold text-slate-900'>Lancement</h2>
+            <div className='space-y-4'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100'>
+                  <TrendingUp className='h-5 w-5 text-emerald-600' />
+                </div>
+                <div>
+                  <p className='text-2xl font-bold text-slate-900'>+{systemGrowthRate}</p>
+                  <p className='text-xs text-slate-500'>Nouveaux pros ce mois</p>
+                </div>
               </div>
-              <div>
-                <p className='text-3xl font-bold text-slate-900'>+{systemGrowthRate}</p>
-                <p className='text-sm text-slate-500'>Nouveaux pros ce mois</p>
+              <div className='border-t border-slate-100 pt-3'>
+                <div className='space-y-2'>
+                  <div className='flex items-center justify-between text-sm'>
+                    <span className='text-slate-500'>Invitations envoyées</span>
+                    <span className='font-bold text-slate-900'>{totalInvitationsCount}</span>
+                  </div>
+                  <div className='flex items-center justify-between text-sm'>
+                    <span className='text-slate-500'>En attente de réponse</span>
+                    <span className='font-bold text-amber-600'>{pendingInvitationsCount}</span>
+                  </div>
+                  <div className='flex items-center justify-between text-sm'>
+                    <span className='text-slate-500'>Rapports reçus</span>
+                    <span className='font-bold text-slate-900'>{totalReportsCount}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
