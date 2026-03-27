@@ -130,55 +130,73 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Premium + Regions */}
-        <div className='mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2'>
-          {/* Premium */}
-          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
-            <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
-              <Crown className='h-5 w-5 text-amber-500' />
-              Premium
-            </h2>
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <span className='text-sm text-slate-500'>Pros abonnés</span>
-                <span className='text-lg font-bold text-slate-900'>{premiumProfessionalsCount}</span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <span className='text-sm text-slate-500'>Taux de conversion</span>
-                <span className='text-lg font-bold text-slate-900'>
-                  {professionalsCount > 0 ? Math.round((premiumProfessionalsCount / professionalsCount) * 100) : 0}%
-                </span>
+        {/* Premium */}
+        <div className='mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+          <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
+            <Crown className='h-5 w-5 text-amber-500' />
+            Abonnements Premium
+          </h2>
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+            <div>
+              <h3 className='mb-3 text-sm font-semibold text-blue-600'>Professionnels</h3>
+              <div className='space-y-2'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-500'>Abonnés</span>
+                  <span className='text-lg font-bold text-slate-900'>{premiumProfessionalsCount}</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-500'>Taux de conversion</span>
+                  <span className='text-lg font-bold text-slate-900'>
+                    {professionalsCount > 0 ? Math.round((premiumProfessionalsCount / professionalsCount) * 100) : 0}%
+                  </span>
+                </div>
               </div>
             </div>
-            <p className='mt-3 text-xs text-slate-400'>
-              Professionnels avec un abonnement Stripe actif.
-            </p>
-          </div>
-
-          {/* Regions */}
-          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
-            <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
-              <MapPin className='h-5 w-5 text-blue-600' />
-              Répartition géographique
-            </h2>
-            {regionBreakdown.length > 0 ? (
+            <div>
+              <h3 className='mb-3 text-sm font-semibold text-emerald-600'>Structures</h3>
               <div className='space-y-2'>
-                {regionBreakdown.map((region) => (
-                  <div className='flex items-center justify-between' key={region.city}>
-                    <span className='text-sm text-slate-600'>{region.city}</span>
-                    <span className='rounded-lg bg-blue-50 px-2 py-0.5 text-sm font-bold text-blue-600'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-500'>Abonnées</span>
+                  <span className='text-lg font-bold text-slate-900'>0</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-slate-500'>Taux de conversion</span>
+                  <span className='text-lg font-bold text-slate-900'>0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className='mt-4 text-xs text-slate-400'>
+            Comptes avec un abonnement Stripe actif. L'abonnement structure sera disponible prochainement.
+          </p>
+        </div>
+
+        {/* Regions */}
+        <div className='mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+          <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
+            <MapPin className='h-5 w-5 text-blue-600' />
+            Répartition géographique
+          </h2>
+          {regionBreakdown.length > 0 ? (
+            <div className='space-y-2'>
+              {regionBreakdown.map((region) => (
+                <div className='flex items-center justify-between' key={region.city}>
+                  <span className='text-sm text-slate-600'>{region.city}</span>
+                  <div className='flex items-center gap-2'>
+                    <div className='h-2 rounded-full bg-blue-500' style={{ width: `${Math.max(20, (region.count / (regionBreakdown[0]?.count || 1)) * 120)}px` }} />
+                    <span className='w-8 text-right text-sm font-bold text-slate-900'>
                       {region.count}
                     </span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className='text-sm text-slate-400'>Aucune donnée de localisation.</p>
-            )}
-            <p className='mt-3 text-xs text-slate-400'>
-              Top 10 des villes (professionnels + structures).
-            </p>
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className='text-sm text-slate-400'>Aucune donnée de localisation.</p>
+          )}
+          <p className='mt-4 text-xs text-slate-400'>
+            Top 10 des villes — professionnels et structures combinés. Utile pour suivre le déploiement régional.
+          </p>
         </div>
 
         {/* Quick actions */}
