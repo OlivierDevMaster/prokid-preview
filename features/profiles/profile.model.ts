@@ -9,6 +9,8 @@ export const ProfileColumn = {
   created_at: 'created_at',
   email: 'email',
   first_name: 'first_name',
+  invitation_status: 'invitation_status',
+  invited_by: 'invited_by',
   is_onboarded: 'is_onboarded',
   last_name: 'last_name',
   preferred_language: 'preferred_language',

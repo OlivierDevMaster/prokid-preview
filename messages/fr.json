@@ -966,6 +966,13 @@
     "admin": "Admin",
     "profile": "Mon profil",
     "logout": "Déconnexion",
+    "navigation": {
+      "dashboard": "Tableau de bord",
+      "professionals": "Professionnels",
+      "structures": "Structures",
+      "missions": "Missions",
+      "tags": "Tags"
+    },
     "dashboard": {
       "title": "Tableau de Bord",
       "subtitle": "Aperçu de vos données.",

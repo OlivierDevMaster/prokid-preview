@@ -801,6 +801,8 @@ export type Database = {
           created_at: string
           email: string
           first_name: string | null
+          invitation_status: string
+          invited_by: string | null
           is_onboarded: boolean
           last_name: string | null
           preferred_language: Database["public"]["Enums"]["locale"]
@@ -812,6 +814,8 @@ export type Database = {
           created_at?: string
           email: string
           first_name?: string | null
+          invitation_status?: string
+          invited_by?: string | null
           is_onboarded?: boolean
           last_name?: string | null
           preferred_language?: Database["public"]["Enums"]["locale"]
@@ -823,6 +827,8 @@ export type Database = {
           created_at?: string
           email?: string
           first_name?: string | null
+          invitation_status?: string
+          invited_by?: string | null
           is_onboarded?: boolean
           last_name?: string | null
           preferred_language?: Database["public"]["Enums"]["locale"]
@@ -926,6 +932,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skill_tags: {
+        Row: {
+          id: string
+          name: string
+          category: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          category?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          category?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       structure_invitations: {
         Row: {
