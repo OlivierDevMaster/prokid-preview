@@ -48,12 +48,13 @@ export interface MessageRow {
   conversation_id: string;
   created_at: string;
   id: string;
+  report_id?: null | string;
   sender_id: string;
   status?: AppointmentStatus | null;
   type?: MessageType;
 }
 
-export type MessageType = 'appointment_link' | 'system' | 'text';
+export type MessageType = 'appointment_link' | 'report' | 'system' | 'text';
 
 export interface MessageWithSender extends MessageRow {
   sender?: null | ProfileRow;

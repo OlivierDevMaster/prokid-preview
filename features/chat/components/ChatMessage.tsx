@@ -9,6 +9,7 @@ import type { MessageWithSender, ViewRole } from '../types/chat.types';
 
 import { AppointmentMessageCard } from './AppointmentMessageCard';
 import { ChatMessageBubble } from './ChatMessageBubble';
+import { ReportMessageCard } from './ReportMessageCard';
 import { SystemMessageBadge } from './SystemMessageBadge';
 
 export interface ChatMessageProps {
@@ -44,6 +45,10 @@ export function ChatMessage({
 
   if (message.type === 'system') {
     return <SystemMessageBadge message={message} viewRole={viewRole} />;
+  }
+
+  if (message.type === 'report') {
+    return <ReportMessageCard isOutgoing={isOutgoing} message={message} />;
   }
 
   if (message.type === 'appointment_link') {

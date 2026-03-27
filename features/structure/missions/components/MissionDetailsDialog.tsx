@@ -1,33 +1,34 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Calendar, FileText, Mail, MapPin, User } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { fr } from 'date-fns/locale';
+import {
+  Calendar,
+  MapPin,
+  MessageCircle,
+  Monitor,
+  User,
+} from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useMissionDuration } from '@/features/mission-durations';
 import { getMissionStatusConfig } from '@/features/missions/mission.model';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 import type { StructureMission } from '../modeles/mission.modele';
 
-import { useLastReportForMission } from '../hooks/useLastReportForMission';
-
-interface MissionDetailsContentProps {
-  locale: 'en' | 'fr';
-  mission: StructureMission;
-  onClose: () => void;
-  t: (key: string) => string;
-}
+const MODALITY_LABELS: Record<string, string> = {
+  hybrid: 'Hybride',
+  on_site: 'Sur site',
+  remote: 'À distance',
+};
 
 interface MissionDetailsDialogProps {
   isLoading: boolean;
@@ -42,198 +43,106 @@ export function MissionDetailsDialog({
   onClose,
   open,
 }: MissionDetailsDialogProps) {
-  const t = useTranslations('structure.missions');
   const locale = (useLocale() as 'en' | 'fr') || 'en';
+  const statusConfig = getMissionStatusConfig(locale);
 
   return (
     <Dialog onOpenChange={onClose} open={open}>
-      <DialogContent className='flex max-h-[90vh] max-w-2xl flex-col'>
+      <DialogContent className='max-w-lg overflow-y-auto'>
+        <DialogHeader>
+          <DialogTitle className='text-lg'>
+            {mission?.title || 'Détails de la mission'}
+          </DialogTitle>
+        </DialogHeader>
+
         {isLoading ? (
-          <div className='py-8 text-center text-gray-600'>{t('loading')}</div>
+          <div className='py-6 text-center text-sm text-slate-400'>Chargement...</div>
         ) : mission ? (
-          <MissionDetailsContent
-            locale={locale}
-            mission={mission}
-            onClose={onClose}
-            t={t}
-          />
-        ) : (
-          <div className='py-8 text-center text-gray-600'>
-            {t('noMissions')}
+          <div className='space-y-5'>
+            {/* Status */}
+            {(() => {
+              const status = statusConfig[mission.status] || statusConfig.pending;
+              return (
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
+                    status.bgColor,
+                    status.textColor
+                  )}
+                >
+                  <span className={cn('h-2 w-2 rounded-full', status.dotColor)} />
+                  {status.label}
+                </span>
+              );
+            })()}
+
+            {/* Info grid */}
+            <div className='grid grid-cols-2 gap-3'>
+              <InfoItem
+                label='Professionnel'
+                value={
+                  mission.professional?.profile
+                    ? `${mission.professional.profile.first_name || ''} ${mission.professional.profile.last_name || ''}`.trim() || 'Professionnel'
+                    : 'Professionnel'
+                }
+              />
+              <InfoItem
+                label='Période'
+                value={
+                  mission.mission_dtstart && mission.mission_until
+                    ? `${format(new Date(mission.mission_dtstart), 'd MMM yyyy', { locale: fr })} — ${format(new Date(mission.mission_until), 'd MMM yyyy', { locale: fr })}`
+                    : '—'
+                }
+              />
+              {mission.modality && (
+                <InfoItem
+                  label='Modalité'
+                  value={MODALITY_LABELS[mission.modality] || mission.modality}
+                />
+              )}
+              {mission.address && (mission.modality === 'on_site' || mission.modality === 'hybrid') && (
+                <InfoItem label='Adresse' value={mission.address} />
+              )}
+            </div>
+
+            {/* Description */}
+            {mission.description && (
+              <div>
+                <p className='mb-1 text-xs font-medium text-slate-400'>Description</p>
+                <p className='text-sm leading-relaxed text-slate-600'>{mission.description}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className='flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row'>
+              <Link className='flex-1' href='/structure/chat'>
+                <Button className='h-10 w-full rounded-xl bg-blue-600 text-sm text-white hover:bg-blue-700'>
+                  <MessageCircle className='mr-2 h-4 w-4' />
+                  Ouvrir la messagerie
+                </Button>
+              </Link>
+              <Button
+                className='h-10 rounded-xl text-sm'
+                onClick={onClose}
+                variant='outline'
+              >
+                Fermer
+              </Button>
+            </div>
           </div>
+        ) : (
+          <div className='py-6 text-center text-sm text-slate-400'>Mission introuvable.</div>
         )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function MissionDetailsContent({
-  locale,
-  mission,
-  onClose,
-  t,
-}: MissionDetailsContentProps) {
-  const { data: missionDuration, isLoading: isLoadingDuration } =
-    useMissionDuration(mission.id);
-
-  const { data: lastReport, isLoading: isLoadingLastReport } =
-    useLastReportForMission(mission.id);
-
-  const progressPercentage = missionDuration?.percentage ?? 0;
-  const pastDurationHours = missionDuration?.past_duration_mn
-    ? Math.round(missionDuration.past_duration_mn / 60)
-    : 0;
-  const totalDurationHours = missionDuration?.total_duration_mn
-    ? Math.round(missionDuration.total_duration_mn / 60)
-    : 0;
-
-  const statusConfig = getMissionStatusConfig(locale);
-  const status = statusConfig[mission.status] || statusConfig.pending;
-
-  const professionalName = mission.professional?.profile
-    ? `${mission.professional.profile.first_name || ''} ${mission.professional.profile.last_name || ''}`.trim() ||
-      mission.professional.profile.email ||
-      t('unknownProfessional')
-    : t('unknownProfessional');
-
-  const professionalEmail = mission.professional?.profile?.email;
-
+function InfoItem({ label, value }: { label: string; value: string }) {
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle className='flex items-center gap-3'>
-          <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-200'>
-            <User className='h-5 w-5 text-white' />
-          </div>
-          <span>{mission.title}</span>
-        </DialogTitle>
-        <DialogDescription>{mission.description || ''}</DialogDescription>
-        <div
-          className={cn(
-            'mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1',
-            status.bgColor,
-            status.textColor
-          )}
-        >
-          <div className={cn('h-2 w-2 rounded-full', status.dotColor)} />
-          <span className='text-xs font-medium'>{status.label}</span>
-        </div>
-      </DialogHeader>
-
-      <div className='my-4 max-h-[60vh] space-y-4 overflow-y-auto px-1'>
-        {/* Professional Information */}
-        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <h3 className='mb-3 text-sm font-semibold text-gray-700'>
-            Professional
-          </h3>
-          <div className='space-y-2'>
-            <div className='flex items-center gap-2 text-sm text-gray-600'>
-              <MapPin className='h-4 w-4 text-gray-400' />
-              <span>{professionalName}</span>
-            </div>
-            {professionalEmail && (
-              <div className='flex items-center gap-2 text-sm text-gray-600'>
-                <Mail className='h-4 w-4 text-gray-400' />
-                <span>{professionalEmail}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mission Description */}
-        {mission.description && (
-          <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-            <h3 className='mb-2 text-sm font-semibold text-gray-700'>
-              {t('descriptionLabel')}
-            </h3>
-            <p className='text-sm text-gray-600'>{mission.description}</p>
-          </div>
-        )}
-
-        {/* Duration Progress */}
-        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <h3 className='mb-3 text-sm font-semibold text-gray-700'>
-            {t('hoursCompleted')}
-          </h3>
-          <div className='space-y-2'>
-            <div className='flex items-center gap-3'>
-              <div className='h-2.5 flex-1 overflow-hidden rounded-full bg-gray-100'>
-                <div className='flex h-full'>
-                  <div
-                    className='h-full bg-blue-500'
-                    style={{ width: `${progressPercentage}%` }}
-                  />
-                  <div
-                    className='h-full bg-green-200'
-                    style={{ width: `${100 - progressPercentage}%` }}
-                  />
-                </div>
-              </div>
-              <span className='whitespace-nowrap text-sm font-medium text-gray-700'>
-                {isLoadingDuration
-                  ? 'xh / xh'
-                  : `${pastDurationHours}h / ${totalDurationHours}h`}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Period */}
-        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <div className='flex items-center gap-2 text-sm text-gray-600'>
-            <Calendar className='h-4 w-4 text-gray-400' />
-            <span>
-              {t('period')}:{' '}
-              {format(new Date(mission.mission_dtstart), 'dd/MM/yyyy')} -{' '}
-              {format(new Date(mission.mission_until), 'dd/MM/yyyy')}
-            </span>
-          </div>
-        </div>
-
-        {/* Last Report */}
-        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <h3 className='mb-2 text-sm font-semibold text-gray-700'>
-            {t('lastReport')}
-          </h3>
-          <div className='space-y-1'>
-            {isLoadingLastReport ? (
-              <div className='text-sm text-gray-600'>...</div>
-            ) : lastReport ? (
-              <>
-                <div className='flex items-center gap-2 text-sm text-gray-600'>
-                  <FileText className='h-4 w-4 text-gray-400' />
-                  <span className='font-medium'>{lastReport.title}</span>
-                </div>
-                <div className='flex items-center gap-2 text-sm text-gray-500'>
-                  <Calendar className='h-4 w-4 text-gray-400' />
-                  <span>
-                    {format(new Date(lastReport.created_at), 'dd/MM/yyyy')}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <div className='text-sm text-gray-500'>{t('noReport')}</div>
-            )}
-          </div>
-        </div>
-
-        {/* View Reports Link */}
-        <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
-          <Link
-            className='flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline'
-            href={`/structure/reports?mission=${mission.id}`}
-          >
-            <FileText className='h-4 w-4' />
-            <span>{t('viewReports')}</span>
-          </Link>
-        </div>
-      </div>
-
-      <DialogFooter>
-        <Button onClick={onClose} variant='outline'>
-          {t('close')}
-        </Button>
-      </DialogFooter>
-    </>
+    <div className='space-y-0.5'>
+      <p className='text-xs font-medium text-slate-400'>{label}</p>
+      <p className='text-sm font-medium text-slate-800'>{value}</p>
+    </div>
   );
 }

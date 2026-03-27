@@ -28,6 +28,7 @@ import { ChatMessageList } from './ChatMessageList';
 import { ChatPanelHeader } from './ChatPanelHeader';
 import { LeaveReviewModal } from './LeaveReviewModal';
 import { MissionCard } from './MissionCard';
+import { ReportFormDialog } from './ReportFormDialog';
 import { ProposeAppointmentModal } from './ProposeAppointmentModal';
 
 interface ChatPanelProps {
@@ -77,11 +78,14 @@ export function ChatPanel({
   const professionalId = conversation?.professional_id;
   const createRating = useCreateRating();
 
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+
   const handleWriteReport = useCallback(() => {
-    const missionId = conversation?.mission?.id;
-    const query = missionId ? `?mission=${missionId}` : '';
-    router.push(`/professional/reports/new${query}`);
-  }, [conversation?.mission?.id, router]);
+    if (!conversation?.mission?.id) {
+      return;
+    }
+    setIsReportDialogOpen(true);
+  }, [conversation?.mission?.id]);
 
   const updateRating = useUpdateRating();
   const deleteRating = useDeleteRating();
@@ -344,6 +348,20 @@ export function ChatPanel({
         scrollToEndRef={messagesEndRef}
         viewRole={viewRole}
       />
+
+      {conversation?.mission?.id && currentUserId && (
+        <ReportFormDialog
+          conversationId={conversation.id}
+          missionId={conversation.mission.id}
+          onClose={() => setIsReportDialogOpen(false)}
+          onSuccess={() => {
+            // Refresh messages to show the new report message
+            sendMessage.reset();
+          }}
+          open={isReportDialogOpen}
+          userId={currentUserId}
+        />
+      )}
     </div>
   );
 }

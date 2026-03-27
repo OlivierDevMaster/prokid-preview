@@ -45,12 +45,6 @@ export function StructureDashboardMissionsSection() {
           <CalendarDays className='h-5 w-5 text-[#4A90E2]' />
           {tDashboard('missionsCardTitle')}
         </h2>
-        <Link
-          className='text-sm font-semibold text-[#4A90E2] hover:underline'
-          href='/structure/missions'
-        >
-          {tDashboard('viewAll')}
-        </Link>
       </div>
       {isLoadingMissions ? (
         <p className='text-sm text-slate-600'>{tMissions('loading')}</p>

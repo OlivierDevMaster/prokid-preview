@@ -79,12 +79,11 @@ export function ProfessionalMissionCard({
           {tDashboard('viewMission')}
         </button>
         <Link href='/professional/chat'>
-          <button
-            className='h-10 w-10 rounded-xl bg-blue-600/10 p-2 text-blue-600 transition-colors hover:bg-blue-600 hover:text-white'
-            type='button'
+          <span
+            className='flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 transition-colors hover:bg-blue-600 hover:text-white'
           >
             <MessageCircle className='h-5 w-5' />
-          </button>
+          </span>
         </Link>
       </div>
     </div>
