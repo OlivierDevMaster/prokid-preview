@@ -27,7 +27,7 @@ export function BoNavbar({ name, settingsRoute, userRole }: BoNavbarProps) {
   return (
     <nav className='sticky top-0 z-50 w-full bg-white lg:border-b lg:shadow-sm'>
       <div className='flex items-center justify-between px-3 py-2'>
-        <div>
+        <div className='flex items-center gap-2'>
           <Link
             href={
               userRole === 'Admin'
@@ -39,6 +39,9 @@ export function BoNavbar({ name, settingsRoute, userRole }: BoNavbarProps) {
           >
             <ProkidLogo />
           </Link>
+          {userRole === 'Admin' && (
+            <span className='text-xs font-semibold text-slate-400'>Administration</span>
+          )}
         </div>
         <div className='flex items-center gap-2'>
           <div className='rounded-full bg-blue-50 px-3 py-1'>

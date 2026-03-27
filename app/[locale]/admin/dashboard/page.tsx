@@ -1,330 +1,186 @@
 'use client';
 
 import {
-  Award,
   Building2,
-  CheckCircle,
-  CircleCheck,
-  Clock,
-  FileCheck,
-  MessageSquare,
-  Percent,
+  CalendarCheck,
+  FileText,
   TrendingUp,
-  UserCheck,
   UserPlus,
   Users,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import Link from 'next/link';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetDashboardStats } from '@/features/admin/hooks/useGetDashboardStats';
-import { StatCard } from '@/features/admin/StatCard';
 
 export default function DashboardPage() {
-  const t = useTranslations('admin.dashboard');
-
   const {
     activeMissionsCount,
-    activeProfessionalsCount,
-    activeStructuresCount,
-    averageMissionsPerStructure,
-    averageProfessionalsPerStructure,
     completedMissionsCount,
-    missionCompletionRate,
     missionsCount,
-    mostActiveProfessional,
-    mostActiveStructure,
-    pendingInvitationsCount,
     pendingMissionsCount,
     professionalsCount,
     structuresCount,
     systemGrowthRate,
-    totalInvitationsCount,
     totalReportsCount,
   } = useGetDashboardStats();
 
   return (
-    <div className='min-h-screen space-y-4 overflow-hidden bg-blue-50/30 p-4 sm:space-y-6 sm:p-6 lg:space-y-8 lg:p-8'>
-      {/* Header */}
-      <div>
-        <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
-          {t('title')}
-        </h1>
-        <p className='mt-2 text-sm text-gray-600 sm:text-base'>
-          {t('subtitle')}
-        </p>
-      </div>
-
-      {/* Stats Cards - Main KPIs */}
-      <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3'>
-        <StatCard
-          icon={Users}
-          title={t('totalProfessionals')}
-          value={professionalsCount.toString()}
-        />
-        <StatCard
-          icon={Building2}
-          title={t('totalStructures')}
-          value={structuresCount.toString()}
-        />
-        <StatCard
-          icon={MessageSquare}
-          title={t('totalMissions')}
-          value={missionsCount.toString()}
-        />
-      </div>
-
-      {/* User Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('userStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
-          <StatCard
-            description={t('activeProfessionalsDescription')}
-            icon={UserCheck}
-            subtitle={
-              professionalsCount > 0
-                ? `${activeProfessionalsCount}/${professionalsCount} (${Math.round((activeProfessionalsCount / professionalsCount) * 100)}%)`
-                : undefined
-            }
-            title={t('activeProfessionals')}
-            value={activeProfessionalsCount.toString()}
-          />
-          <StatCard
-            description={t('activeStructuresDescription')}
-            icon={Building2}
-            subtitle={
-              structuresCount > 0
-                ? `${activeStructuresCount}/${structuresCount} (${Math.round((activeStructuresCount / structuresCount) * 100)}%)`
-                : undefined
-            }
-            title={t('activeStructures')}
-            value={activeStructuresCount.toString()}
-          />
+    <div className='min-h-screen bg-white p-6 lg:p-10'>
+      <div className='mx-auto max-w-6xl'>
+        {/* Header */}
+        <div className='mb-8'>
+          <h1 className='text-2xl font-bold text-slate-900'>Tableau de bord</h1>
+          <p className='mt-1 text-sm text-slate-500'>
+            Vue d'ensemble de la plateforme ProKid
+          </p>
         </div>
-      </div>
 
-      {/* Mission Status */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('missionStatus')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          <StatCard
-            icon={Clock}
-            title={t('pendingMissions')}
-            value={pendingMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CheckCircle}
-            title={t('activeMissions')}
-            value={activeMissionsCount.toString()}
-          />
-          <StatCard
-            icon={CircleCheck}
-            title={t('completedMissions')}
-            value={completedMissionsCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Invitations */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('invitations')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={UserPlus}
-            title={t('pendingInvitations')}
-            value={pendingInvitationsCount.toString()}
-          />
-          <StatCard
-            icon={UserCheck}
-            title={t('totalInvitations')}
-            value={totalInvitationsCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Reports */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('reports')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-1'>
-          <StatCard
-            icon={FileCheck}
-            title={t('totalReports')}
-            value={totalReportsCount.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Performance Metrics */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('performanceMetrics')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={Percent}
-            subtitle={t('missionCompletionRateDescription')}
-            title={t('missionCompletionRate')}
-            value={`${missionCompletionRate}%`}
-          />
-          <StatCard
-            icon={TrendingUp}
-            subtitle={t('systemGrowthRateDescription')}
-            title={t('systemGrowthRate')}
-            value={systemGrowthRate.toString()}
-          />
-        </div>
-      </div>
-
-      {/* Analytics */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('analytics')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
-          <StatCard
-            icon={MessageSquare}
-            subtitle={t('averageMissionsPerStructureDescription')}
-            title={t('averageMissionsPerStructure')}
-            value={averageMissionsPerStructure.toFixed(1)}
-          />
-          <StatCard
+        {/* Main KPIs */}
+        <div className='mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4'>
+          <KpiCard
+            href='/admin/professionals'
             icon={Users}
-            subtitle={t('averageProfessionalsPerStructureDescription')}
-            title={t('averageProfessionalsPerStructure')}
-            value={averageProfessionalsPerStructure.toFixed(1)}
+            label='Professionnels'
+            value={professionalsCount}
+          />
+          <KpiCard
+            href='/admin/structures'
+            icon={Building2}
+            label='Structures'
+            value={structuresCount}
+          />
+          <KpiCard
+            href='/admin/missions'
+            icon={CalendarCheck}
+            label='Missions'
+            value={missionsCount}
+          />
+          <KpiCard
+            icon={FileText}
+            label='Rapports'
+            value={totalReportsCount}
           />
         </div>
-      </div>
 
-      {/* Most Active */}
-      <div>
-        <h2 className='mb-4 text-xl font-semibold text-gray-900'>
-          {t('mostActive')}
-        </h2>
-        <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2'>
-          {/* Most Active Structure */}
-          <Card className='shadow-sm'>
-            <CardHeader className='flex flex-row items-center justify-between pb-2'>
-              <div className='flex-1'>
-                <CardTitle className='text-sm font-medium text-gray-600'>
-                  {t('mostActiveStructure')}
-                </CardTitle>
-                <p className='mt-1 text-xs text-gray-500'>
-                  {t('mostActiveStructureDescription')}
-                </p>
-              </div>
-              <Award className='h-5 w-5 text-green-600' />
-            </CardHeader>
-            <CardContent>
-              {mostActiveStructure ? (
-                <div className='flex items-center gap-4'>
-                  {/* Profile Image */}
-                  <div className='relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
-                    {mostActiveStructure.avatarUrl ? (
-                      <Image
-                        alt={mostActiveStructure.structureName}
-                        className='h-full w-full object-cover'
-                        height={64}
-                        src={mostActiveStructure.avatarUrl}
-                        unoptimized
-                        width={64}
-                      />
-                    ) : (
-                      <span className='text-lg font-semibold text-gray-600'>
-                        {mostActiveStructure.structureName
-                          .split(' ')
-                          .map(n => n.charAt(0))
-                          .join('')
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </span>
-                    )}
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-3xl font-bold text-gray-900'>
-                      {mostActiveStructure.missionCount}
-                    </div>
-                    <Link
-                      className='mt-1 block text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline'
-                      href={`/admin/structures/${mostActiveStructure.userId}`}
-                    >
-                      {mostActiveStructure.structureName}
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className='text-3xl font-bold text-gray-900'>0</div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Mission breakdown + Growth */}
+        <div className='mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+            <h2 className='mb-4 text-lg font-bold text-slate-900'>Missions</h2>
+            <div className='space-y-3'>
+              <StatRow color='bg-amber-500' label='En attente' value={pendingMissionsCount} />
+              <StatRow color='bg-blue-500' label='En cours' value={activeMissionsCount} />
+              <StatRow color='bg-emerald-500' label='Terminées' value={completedMissionsCount} />
+            </div>
+          </div>
 
-          {/* Most Active Professional */}
-          <Card className='shadow-sm'>
-            <CardHeader className='flex flex-row items-center justify-between pb-2'>
-              <div className='flex-1'>
-                <CardTitle className='text-sm font-medium text-gray-600'>
-                  {t('mostActiveProfessional')}
-                </CardTitle>
-                <p className='mt-1 text-xs text-gray-500'>
-                  {t('mostActiveProfessionalDescription')}
-                </p>
+          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+            <h2 className='mb-4 text-lg font-bold text-slate-900'>Croissance</h2>
+            <div className='flex items-center gap-4'>
+              <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100'>
+                <TrendingUp className='h-6 w-6 text-emerald-600' />
               </div>
-              <Award className='h-5 w-5 text-green-600' />
-            </CardHeader>
-            <CardContent>
-              {mostActiveProfessional ? (
-                <div className='flex items-center gap-4'>
-                  {/* Profile Image */}
-                  <div className='relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200'>
-                    {mostActiveProfessional.avatarUrl ? (
-                      <Image
-                        alt={mostActiveProfessional.professionalName}
-                        className='h-full w-full object-cover'
-                        height={64}
-                        src={mostActiveProfessional.avatarUrl}
-                        unoptimized
-                        width={64}
-                      />
-                    ) : (
-                      <span className='text-lg font-semibold text-gray-600'>
-                        {mostActiveProfessional.professionalName
-                          .split(' ')
-                          .map(n => n.charAt(0))
-                          .join('')
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </span>
-                    )}
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-3xl font-bold text-gray-900'>
-                      {mostActiveProfessional.missionCount}
-                    </div>
-                    <Link
-                      className='mt-1 block text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline'
-                      href={`/admin/professionals/${mostActiveProfessional.userId}`}
-                    >
-                      {mostActiveProfessional.professionalName}
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className='text-3xl font-bold text-gray-900'>0</div>
-              )}
-            </CardContent>
-          </Card>
+              <div>
+                <p className='text-3xl font-bold text-slate-900'>+{systemGrowthRate}</p>
+                <p className='text-sm text-slate-500'>Nouveaux pros ce mois</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick actions */}
+        <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+          <h2 className='mb-4 text-lg font-bold text-slate-900'>Actions rapides</h2>
+          <div className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
+            <Link
+              className='flex items-center gap-3 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50'
+              href='/admin/invite'
+            >
+              <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100'>
+                <UserPlus className='h-5 w-5 text-blue-600' />
+              </div>
+              <div>
+                <p className='text-sm font-semibold text-slate-900'>Inviter un pro</p>
+                <p className='text-xs text-slate-500'>Pré-inscrire un professionnel</p>
+              </div>
+            </Link>
+            <Link
+              className='flex items-center gap-3 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50'
+              href='/admin/tags'
+            >
+              <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100'>
+                <CalendarCheck className='h-5 w-5 text-purple-600' />
+              </div>
+              <div>
+                <p className='text-sm font-semibold text-slate-900'>Gérer les tags</p>
+                <p className='text-xs text-slate-500'>Compétences et diplômes</p>
+              </div>
+            </Link>
+            <Link
+              className='flex items-center gap-3 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50'
+              href='/admin/users'
+            >
+              <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100'>
+                <Users className='h-5 w-5 text-emerald-600' />
+              </div>
+              <div>
+                <p className='text-sm font-semibold text-slate-900'>Utilisateurs</p>
+                <p className='text-xs text-slate-500'>Gérer tous les comptes</p>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function KpiCard({
+  href,
+  icon: Icon,
+  label,
+  value,
+}: {
+  href?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: number;
+}) {
+  const content = (
+    <div className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <p className='text-sm font-medium text-slate-500'>{label}</p>
+          <p className='mt-1 text-3xl font-bold text-slate-900'>{value}</p>
+        </div>
+        <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50'>
+          <Icon className='h-6 w-6 text-blue-600' />
+        </div>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return <Link href={href}>{content}</Link>;
+  }
+  return content;
+}
+
+function StatRow({
+  color,
+  label,
+  value,
+}: {
+  color: string;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className='flex items-center justify-between'>
+      <div className='flex items-center gap-3'>
+        <div className={`h-3 w-3 rounded-full ${color}`} />
+        <span className='text-sm text-slate-600'>{label}</span>
+      </div>
+      <span className='text-lg font-bold text-slate-900'>{value}</span>
     </div>
   );
 }
