@@ -14,7 +14,7 @@ export default function ReceivedReviewsSection() {
   return (
     <section className='rounded-xl bg-white p-6 shadow-sm'>
       <h2 className='mb-4 flex items-center gap-2 text-xl font-bold'>
-        <Star className='size-6 text-amber-500' />
+        <Star className='size-6 text-blue-600' />
         Avis reçus
         {ratings.length > 0 && (
           <span className='text-base font-normal text-slate-400'>
