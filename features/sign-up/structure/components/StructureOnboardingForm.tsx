@@ -323,6 +323,7 @@ export default function StructureOnboardingForm() {
         {/* Right panel */}
         <div className='min-h-0 overflow-y-auto bg-white p-4 md:p-8 lg:p-12'>
           <div className='mx-auto max-w-xl'>
+          <div className='mx-auto max-w-xl'>
             {/* Logout button */}
             <div className='mb-6 flex justify-end'>
               <button
@@ -731,6 +732,7 @@ export default function StructureOnboardingForm() {
                 </div>
               </div>
             )}
+          </div>
           </div>
         </div>
       </div>
