@@ -134,6 +134,23 @@ export default function useGetProfessionalColumnDefs({
       header: translations.currentJob,
     },
     {
+      accessorKey: 'reviews_count',
+      cell: ({ row }) => {
+        const count = row.original.reviews_count ?? 0;
+        const rating = row.original.rating ? Number(row.original.rating).toFixed(1) : null;
+        return (
+          <div className='text-center text-sm'>
+            {rating ? (
+              <span className='font-medium text-amber-600'>{rating}★ ({count})</span>
+            ) : (
+              <span className='text-slate-400'>—</span>
+            )}
+          </div>
+        );
+      },
+      header: () => <div className='text-center'>Avis</div>,
+    },
+    {
       accessorKey: 'created_at',
       cell: ({ row }) => {
         const date = row.getValue('created_at') as string;
