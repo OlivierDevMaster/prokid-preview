@@ -124,6 +124,19 @@ export const createMissionsHandler = factory.createHandlers(
 
       const createdMissions = missions ?? [];
 
+      // Create a conversation for each mission (1 conversation = 1 mission)
+      await Promise.allSettled(
+        createdMissions.map(mission =>
+          supabaseAdminClient
+            .from('conversations')
+            .insert({
+              mission_id: mission.id,
+              professional_id: mission.professional_id,
+              structure_id: mission.structure_id,
+            })
+        )
+      );
+
       // Send mission_received email to each professional via Resend
       const { data: structureRow } = await supabaseAdminClient
         .from('structures')
