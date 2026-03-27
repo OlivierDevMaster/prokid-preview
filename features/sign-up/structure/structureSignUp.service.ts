@@ -58,7 +58,7 @@ export async function registerStructureProfile(
       postal_code: formData.postalCode || null,
       structure_type: formData.structureType,
     })
-    .eq('id', userId);
+    .eq('user_id', userId);
 
   if (structureUpdateError) {
     throw new Error(
