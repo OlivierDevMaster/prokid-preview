@@ -97,9 +97,9 @@ export async function proxy(request: NextRequest) {
         if (profile?.role === 'admin') {
           redirectPath = `/${locale}/admin/dashboard`;
         } else if (profile?.role === 'professional') {
-          // In development, skip subscription check (webhooks don't work locally)
-          const isDev = process.env.NODE_ENV === 'development';
-          if (isDev) {
+          // Skip subscription check for now (will be re-enabled after client validation)
+          const skipSubscription = true;
+          if (skipSubscription) {
             redirectPath = `/${locale}/professional/dashboard`;
           } else {
             // Check subscription for professionals
@@ -329,13 +329,13 @@ export async function proxy(request: NextRequest) {
       '/professional/on-boarding'
     );
 
-    // Skip subscription check in development (Stripe webhooks don't work locally without Stripe CLI)
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    // Skip subscription check for now (will be re-enabled after client validation)
+    const skipSubscription = true;
     if (
       requiredRole === 'professional' &&
       !isSubscriptionPage &&
       !isOnboardingPage &&
-      !isDevelopment
+      !skipSubscription
     ) {
       // Use service role client to bypass RLS (NextAuth has already verified identity)
       const subscriptionClient = supabaseServiceRole || supabase;
