@@ -291,6 +291,88 @@ export type Database = {
           },
         ]
       }
+      professional_certifications: {
+        Row: {
+          created_at: string
+          id: string
+          institution: string | null
+          name: string
+          updated_at: string
+          user_id: string
+          year_obtained: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          institution?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+          year_obtained: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          institution?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          year_obtained?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_certifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      professional_experiences: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          organization: string
+          start_date: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          organization: string
+          start_date: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          organization?: string
+          start_date?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_experiences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       mission_schedules: {
         Row: {
           created_at: string

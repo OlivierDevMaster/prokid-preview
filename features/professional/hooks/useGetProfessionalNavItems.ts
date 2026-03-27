@@ -1,5 +1,4 @@
 import {
-  Bell,
   ClipboardMinus,
   LayoutDashboard,
   MessageCircle,
@@ -12,7 +11,6 @@ import { SidebarNavItem } from '@/modeles/navigation.modele';
 
 export default function useGetProfessionalNavItems(): SidebarNavItem[] {
   const tProfessional = useTranslations('admin');
-  const tChat = useTranslations('chat.navigation');
 
   const items: SidebarNavItem[] = [
     {
@@ -23,17 +21,12 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
     {
       href: '/professional/chat',
       icon: MessageCircle,
-      label: tChat('chat'),
+      label: tProfessional('navigation.messaging'),
     },
     {
       href: '/professional/missions',
       icon: Target,
       label: tProfessional('navigation.missions'),
-    },
-    {
-      href: '/professional/notifications',
-      icon: Bell,
-      label: tProfessional('navigation.notifications'),
     },
     {
       href: '/professional/reports',

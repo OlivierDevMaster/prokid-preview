@@ -178,20 +178,6 @@ export default function PersonalInfoSection() {
           </div>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <div className='rounded-lg bg-[#f6f6f8] p-4'>
-              <Label
-                className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'
-                htmlFor='pro-lang'
-              >
-                {t('psLanguages')}
-              </Label>
-              <Input
-                className='mt-1 border-slate-200 bg-white'
-                id='pro-lang'
-                onChange={e => setEditLanguages(e.target.value)}
-                value={editLanguages}
-              />
-            </div>
-            <div className='rounded-lg bg-[#f6f6f8] p-4'>
               <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>
                 {t('psMainRole')}
               </span>
@@ -211,20 +197,12 @@ export default function PersonalInfoSection() {
           </div>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <div className='rounded-lg bg-[#f6f6f8] p-4'>
-              <Label
-                className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'
-                htmlFor='pro-exp'
-              >
+              <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>
                 {t('experienceYears')}
-              </Label>
-              <Input
-                className='mt-1 border-slate-200 bg-white'
-                id='pro-exp'
-                min={0}
-                onChange={e => setEditExperienceYears(e.target.value)}
-                type='number'
-                value={editExperienceYears}
-              />
+              </span>
+              <p className='mt-1 text-sm text-slate-500'>
+                Calculé automatiquement depuis vos expériences
+              </p>
             </div>
             <div className='rounded-lg bg-[#f6f6f8] p-4'>
               <Label
@@ -284,25 +262,9 @@ export default function PersonalInfoSection() {
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <div className='rounded-lg bg-[#f6f6f8] p-4'>
               <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>
-                {t('psLanguages')}
-              </span>
-              <p className='font-medium' key={languagesRefresh}>
-                {languagesDisplay}
-              </p>
-            </div>
-            <div className='rounded-lg bg-[#f6f6f8] p-4'>
-              <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>
                 {t('psMainRole')}
               </span>
               <p className='font-medium'>{roleDisplay}</p>
-            </div>
-            <div className='rounded-lg bg-[#f6f6f8] p-4'>
-              <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>
-                {t('experienceYears')}
-              </span>
-              <p className='font-medium'>
-                {professional.experience_years ?? 0}
-              </p>
             </div>
             <div className='rounded-lg bg-[#f6f6f8] p-4'>
               <span className='mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400'>

@@ -468,6 +468,10 @@
       "missionsLabel": "{count} missions",
       "viewMoreStructures": "Voir les {count} autres structures",
       "structureReviewsTitle": "Avis des structures",
+      "experiencesTitle": "Expériences professionnelles",
+      "certificationsTitle": "Diplômes et certifications",
+      "presentLabel": "Aujourd'hui",
+      "anonymousStructure": "Structure",
       "inBrief": "En bref",
       "experienceLabel": "Expérience",
       "missionsCompleted": "Missions réalisées",
@@ -697,8 +701,7 @@
       "reports": "Rapports",
       "invitations": "Invitations",
       "search": "Recherche",
-      "messaging": "Messagerie",
-      "notifications": "Notifications"
+      "messaging": "Messagerie"
     },
     "invitations": {
       "title": "Mes invitations",
@@ -1473,7 +1476,6 @@
       "professionals": "Professionnels",
       "structures": "Structures",
       "messaging": "Messagerie",
-      "notifications": "Notifications",
       "profile": "Mon profil"
     },
     "notifications": {

@@ -1,5 +1,7 @@
 export { ProfessionalProfileBreadcrumb } from './ProfessionalProfileBreadcrumb';
 export { ProfessionalProfileCalendarSection } from './ProfessionalProfileCalendarSection';
+export { ProfessionalProfileCertifications } from './ProfessionalProfileCertifications';
+export { ProfessionalProfileExperiences } from './ProfessionalProfileExperiences';
 export { ProfessionalProfileHeroCard } from './ProfessionalProfileHeroCard';
 export { ProfessionalProfileLoadingState } from './ProfessionalProfileLoadingState';
 export { ProfessionalProfileNotFound } from './ProfessionalProfileNotFound';

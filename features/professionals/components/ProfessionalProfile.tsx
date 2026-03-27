@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation';
 import {
   ProfessionalProfileBreadcrumb,
   ProfessionalProfileCalendarSection,
+  ProfessionalProfileCertifications,
+  ProfessionalProfileExperiences,
   ProfessionalProfileHeroCard,
   ProfessionalProfileLoadingState,
   ProfessionalProfileNotFound,
@@ -50,6 +52,8 @@ export default function ProfessionalProfile() {
         <div className='grid grid-cols-12 items-start gap-8'>
           <div className='col-span-12 flex flex-col gap-8 lg:col-span-8'>
             <ProfessionalProfileHeroCard professionalId={professionalId} />
+            <ProfessionalProfileExperiences professionalId={professionalId} />
+            <ProfessionalProfileCertifications professionalId={professionalId} />
             <ProfessionalProfileStructuresSection
               professionalId={professionalId}
             />

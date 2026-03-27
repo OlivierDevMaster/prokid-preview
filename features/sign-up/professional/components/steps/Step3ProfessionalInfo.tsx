@@ -105,30 +105,6 @@ export function Step3ProfessionalInfo({
           )}
         </div>
 
-        <div className='space-y-1.5'>
-          <Label
-            className='text-xs font-medium text-slate-600'
-            htmlFor='yearsExperience'
-          >
-            {t('yearsExperience')}
-          </Label>
-          <Controller
-            control={control}
-            name='yearsExperience'
-            render={({ field }) => (
-              <input
-                className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
-                id='yearsExperience'
-                max={50}
-                min={0}
-                onChange={field.onChange}
-                placeholder='Ex: 5'
-                type='number'
-                value={field.value}
-              />
-            )}
-          />
-        </div>
       </section>
 
       {/* SKILLS */}

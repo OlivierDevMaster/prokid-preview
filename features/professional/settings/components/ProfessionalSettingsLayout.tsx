@@ -21,6 +21,9 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import BillingTabContent from '@/features/professional/settings/components/BillingTabContent';
+import CertificationsSection from '@/features/professional/settings/components/CertificationsSection';
+import ExperiencesSection from '@/features/professional/settings/components/ExperiencesSection';
+import RecommendationsPlaceholder from '@/features/professional/settings/components/RecommendationsPlaceholder';
 import { IdentifiersForm } from '@/features/professional/settings/components/IdentifiersForm';
 import { NotificationPreferences } from '@/features/professional/settings/components/NotificationPreferences';
 import { PasswordChangeForm } from '@/features/professional/settings/components/PasswordChangeForm';
@@ -171,6 +174,10 @@ export function ProfessionalSettingsLayout() {
                 ))}
               </div>
             </section>
+
+            <ExperiencesSection />
+            <CertificationsSection />
+            <RecommendationsPlaceholder />
           </div>
 
           <div className='space-y-8'>

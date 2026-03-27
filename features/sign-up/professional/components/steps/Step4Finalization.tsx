@@ -161,16 +161,6 @@ export function Step4Finalization({
               </div>
             )}
 
-            {yearsExperience !== undefined &&
-              yearsExperience !== null &&
-              Number(yearsExperience) > 0 && (
-                <div className='flex flex-wrap gap-3'>
-                  <span className='inline-flex items-center rounded-lg bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700'>
-                    {yearsExperience} {t('yearsExperience')}
-                  </span>
-                </div>
-              )}
-
             {skills && skills.length > 0 && (
               <div className='flex flex-wrap gap-2'>
                 {skills.map((skill, index) => (
