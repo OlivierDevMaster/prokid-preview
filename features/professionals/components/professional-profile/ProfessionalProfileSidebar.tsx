@@ -3,7 +3,6 @@
 import {
   Briefcase,
   Building2,
-  Heart,
   ListChecks,
   MapPin,
   Plus,
@@ -20,11 +19,6 @@ import { useCreateRating } from '@/features/structure/ratings/hooks/useCreateRat
 import { useRatingForStructureAndProfessional } from '@/features/structure/ratings/hooks/useRatingForStructureAndProfessional';
 import { useRole } from '@/hooks/useRole';
 import { useRouter } from '@/i18n/routing';
-
-import {
-  MOCK_MISSIONS_COMPLETED,
-  MOCK_PARTNER_COUNT,
-} from './professional-profile-mock';
 
 type ProfessionalProfileSidebarProps = {
   professionalId: string;
@@ -50,19 +44,26 @@ export function ProfessionalProfileSidebar({
     return null;
   }
 
-  const city = professional.city ?? 'Lyon';
-  const postal = professional.postal_code ?? '69002';
+  const city = professional.city ?? '';
+  const postal = professional.postal_code ?? '';
   const radius = professional.intervention_radius_km ?? 10;
   const sectorValue = postal
     ? t('sectorValue', { city, postal, radius })
-    : t('sectorValueCityOnly', { city, radius });
-  const experienceValue = t('yearsAndMonthsExperience', {
-    months: 4,
-    years: professional.experience_years ?? 8,
-  });
+    : city
+      ? t('sectorValueCityOnly', { city, radius })
+      : '';
+
+  // Real experience calculation from experience_years (stored in DB)
+  const expYears = professional.experience_years ?? 0;
+  const experienceValue = expYears > 0
+    ? t('yearsExperience', { years: expYears })
+    : t('noExperience');
+
+  // Real stats - these come from actual DB counts
+  const missionsCompleted = (professional as unknown as { missions_count?: number }).missions_count ?? 0;
+  const partnerStructures = (professional as unknown as { structures_count?: number }).structures_count ?? 0;
 
   const showStructureActions = Boolean(session && isStructure);
-  const canRate = Boolean(session && isStructure && !existingRating);
 
   const handleCreateMission = () => {
     router.push(`/structure/missions/new?professional_id=${professionalId}`);
@@ -94,50 +95,56 @@ export function ProfessionalProfileSidebar({
       <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
         <h3 className='mb-6 text-lg font-bold'>{t('inBrief')}</h3>
         <div className='space-y-6'>
-          <div className='flex items-center gap-4'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
-              <Briefcase className='size-6' />
+          {expYears > 0 && (
+            <div className='flex items-center gap-4'>
+              <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
+                <Briefcase className='size-6' />
+              </div>
+              <div>
+                <p className='text-sm text-slate-500'>{t('experienceLabel')}</p>
+                <p className='font-bold text-slate-900'>{experienceValue}</p>
+              </div>
             </div>
-            <div>
-              <p className='text-sm text-slate-500'>{t('experienceLabel')}</p>
-              <p className='font-bold text-slate-900'>{experienceValue}</p>
+          )}
+          {missionsCompleted > 0 && (
+            <div className='flex items-center gap-4'>
+              <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
+                <ListChecks className='size-6' />
+              </div>
+              <div>
+                <p className='text-sm text-slate-500'>{t('missionsCompleted')}</p>
+                <p className='font-bold text-slate-900'>
+                  {t('missionsCompletedCount', { count: missionsCompleted })}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className='flex items-center gap-4'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
-              <ListChecks className='size-6' />
+          )}
+          {partnerStructures > 0 && (
+            <div className='flex items-center gap-4'>
+              <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
+                <Building2 className='size-6' />
+              </div>
+              <div>
+                <p className='text-sm text-slate-500'>
+                  {t('partnerStructuresSidebar')}
+                </p>
+                <p className='font-bold text-slate-900'>
+                  {t('establishmentsCount', { count: partnerStructures })}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className='text-sm text-slate-500'>{t('missionsCompleted')}</p>
-              <p className='font-bold text-slate-900'>
-                {t('missionsCompletedCount', {
-                  count: MOCK_MISSIONS_COMPLETED,
-                })}
-              </p>
+          )}
+          {(city || sectorValue) && (
+            <div className='flex items-center gap-4'>
+              <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
+                <MapPin className='size-6' />
+              </div>
+              <div>
+                <p className='text-sm text-slate-500'>{t('sectorLabel')}</p>
+                <p className='font-bold text-slate-900'>{sectorValue}</p>
+              </div>
             </div>
-          </div>
-          <div className='flex items-center gap-4'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
-              <Building2 className='size-6' />
-            </div>
-            <div>
-              <p className='text-sm text-slate-500'>
-                {t('partnerStructuresSidebar')}
-              </p>
-              <p className='font-bold text-slate-900'>
-                {t('establishmentsCount', { count: MOCK_PARTNER_COUNT })}
-              </p>
-            </div>
-          </div>
-          <div className='flex items-center gap-4'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#4A90E2]/10 text-[#4A90E2]'>
-              <MapPin className='size-6' />
-            </div>
-            <div>
-              <p className='text-sm text-slate-500'>{t('sectorLabel')}</p>
-              <p className='font-bold text-slate-900'>{sectorValue}</p>
-            </div>
-          </div>
+          )}
         </div>
 
         {showStructureActions ? (
@@ -149,16 +156,6 @@ export function ProfessionalProfileSidebar({
               <Plus className='mr-2 size-5' />
               {t('proposeMission')}
             </Button>
-            {/* {canRate ? (
-              <Button
-                className='w-full rounded-xl'
-                onClick={() => setIsRatingModalOpen(true)}
-                variant='outline'
-              >
-                <Heart className='mr-2 size-4' />
-                {tRating('rateProfessional')}
-              </Button>
-            ) : null} */}
           </div>
         ) : null}
       </div>

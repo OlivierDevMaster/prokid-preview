@@ -86,20 +86,20 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className='w-full'>
-        <CardContent className='p-6'>
-          <form className='space-y-6' onSubmit={handleSignUp}>
+      <Card className='w-full border-slate-200 shadow-sm'>
+        <CardContent className='p-6 md:p-8'>
+          <form className='space-y-5' onSubmit={handleSignUp}>
             <div className='space-y-2 text-center'>
-              <h1 className='text-2xl font-bold text-gray-800'>
+              <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
                 {t('professionalForm.title')}
               </h1>
-              <p className='text-sm text-gray-600'>
+              <p className='text-sm text-slate-500'>
                 {t('professionalForm.subtitle')}
               </p>
             </div>
 
             {error && (
-              <div className='rounded-md bg-destructive/15 p-3 text-sm text-destructive'>
+              <div className='rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800'>
                 {error}
               </div>
             )}
@@ -107,7 +107,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             {role === 'structure' && (
               <>
                 <div className='flex flex-col items-center justify-center space-y-2'>
-                  <Label className='text-gray-700'>
+                  <Label className='text-xs font-medium text-slate-600'>
                     {t('structureForm.profilePhotoLabel')}
                   </Label>
                   <div className='flex items-center gap-4'>
@@ -184,11 +184,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
                 </div>
                 <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
                   <div>
-                    <Label className='text-gray-700' htmlFor='firstName'>
+                    <Label className='text-xs font-medium text-slate-600' htmlFor='firstName'>
                       {t('structureForm.firstNameLabel')}
                     </Label>
                     <Input
-                      className='border-gray-300'
+                      className='h-10 rounded-xl border-slate-200'
                       disabled={isLoading}
                       id='firstName'
                       onChange={e => setFirstName(e.target.value)}
@@ -199,11 +199,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
                     />
                   </div>
                   <div>
-                    <Label className='text-gray-700' htmlFor='lastName'>
+                    <Label className='text-xs font-medium text-slate-600' htmlFor='lastName'>
                       {t('structureForm.lastNameLabel')}
                     </Label>
                     <Input
-                      className='border-gray-300'
+                      className='h-10 rounded-xl border-slate-200'
                       disabled={isLoading}
                       id='lastName'
                       onChange={e => setLastName(e.target.value)}
@@ -218,11 +218,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             )}
 
             <div className='space-y-2'>
-              <Label className='text-gray-700' htmlFor='email'>
+              <Label className='text-xs font-medium text-slate-600' htmlFor='email'>
                 {t('professionalForm.emailLabel')}
               </Label>
               <Input
-                className='border-gray-300'
+                className='h-10 rounded-xl border-slate-200'
                 disabled={isLoading}
                 id='email'
                 onChange={e => setEmail(e.target.value)}
@@ -234,11 +234,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label className='text-gray-700' htmlFor='password'>
+              <Label className='text-xs font-medium text-slate-600' htmlFor='password'>
                 {t('professionalForm.passwordLabel')}
               </Label>
               <Input
-                className='border-gray-300'
+                className='h-10 rounded-xl border-slate-200'
                 disabled={isLoading}
                 id='password'
                 onChange={e => setPassword(e.target.value)}
@@ -250,11 +250,11 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label className='text-gray-700' htmlFor='confirmPassword'>
+              <Label className='text-xs font-medium text-slate-600' htmlFor='confirmPassword'>
                 {t('professionalForm.confirmPasswordLabel')}
               </Label>
               <Input
-                className='border-gray-300'
+                className='h-10 rounded-xl border-slate-200'
                 disabled={isLoading}
                 id='confirmPassword'
                 onChange={e => setConfirmPassword(e.target.value)}
@@ -266,7 +266,7 @@ export function AccountForm({ className, role, ...props }: AccountFormProps) {
             </div>
 
             <Button
-              className='w-full bg-blue-500 text-white hover:bg-blue-600'
+              className='h-11 w-full rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700'
               disabled={isLoading}
               type='submit'
             >

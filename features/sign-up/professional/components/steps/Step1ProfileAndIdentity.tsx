@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, MapPin, Phone, User } from 'lucide-react';
+import { Camera, MapPin, Phone, User, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
@@ -25,8 +25,11 @@ export function Step1ProfileAndIdentity({
 }: Step1Props) {
   const [preview, setPreview] = useState<null | string>(null);
   const [userEmail, setUserEmail] = useState<null | string>(null);
-  const [isLocating, setIsLocating] = useState(false);
+  const [cityQuery, setCityQuery] = useState('');
+  const [citySuggestions, setCitySuggestions] = useState<Array<{ centre: { coordinates: number[] }; codesPostaux: string[]; nom: string }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cityDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const t = useTranslations('auth.signUp.professionalForm');
   const tCommon = useTranslations('common.label');
 
@@ -94,33 +97,37 @@ export function Step1ProfileAndIdentity({
     [processFile]
   );
 
-  const handleUseMyLocation = () => {
-    if (!navigator.geolocation) return;
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async position => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          const data = (await res.json()) as {
-            address?: { city?: string; postcode?: string; town?: string };
-          };
-          const city = data.address?.city ?? data.address?.town ?? '';
-          const postalCode = data.address?.postcode ?? '';
-          setValue('latitude', latitude, { shouldDirty: true });
-          setValue('longitude', longitude, { shouldDirty: true });
-          if (city) setValue('city', city);
-          if (postalCode) setValue('postalCode', postalCode);
-        } catch {
-          // ignore
-        } finally {
-          setIsLocating(false);
-        }
-      },
-      () => setIsLocating(false)
-    );
+  const handleCitySearch = useCallback((query: string) => {
+    setCityQuery(query);
+    if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current);
+    if (query.length < 2) {
+      setCitySuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    cityDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(query)}&fields=nom,codesPostaux,centre&limit=5`
+        );
+        const data = await res.json();
+        setCitySuggestions(data);
+        setShowSuggestions(data.length > 0);
+      } catch {
+        setCitySuggestions([]);
+      }
+    }, 300);
+  }, []);
+
+  const handleSelectCity = (city: { centre: { coordinates: number[] }; codesPostaux: string[]; nom: string }) => {
+    setValue('city', city.nom);
+    setValue('postalCode', city.codesPostaux?.[0] ?? '');
+    if (city.centre?.coordinates) {
+      setValue('longitude', city.centre.coordinates[0], { shouldDirty: true });
+      setValue('latitude', city.centre.coordinates[1], { shouldDirty: true });
+    }
+    setCityQuery(city.nom);
+    setShowSuggestions(false);
   };
 
   const INPUT_CLASS =
@@ -250,38 +257,58 @@ export function Step1ProfileAndIdentity({
 
       {/* Location */}
       <div className='space-y-3'>
-        <button
-          className='flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50/50 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 disabled:opacity-50'
-          disabled={isLocating}
-          onClick={handleUseMyLocation}
-          type='button'
-        >
-          <MapPin className='h-4 w-4' />
-          {isLocating ? t('locating') : t('useMyLocation')}
-        </button>
-
         <div className='grid grid-cols-3 gap-3'>
           <div className='col-span-2 space-y-1'>
             <Label className='text-xs font-medium text-slate-600' htmlFor='city'>
               {t('city')} *
             </Label>
-            <Controller
-              control={control}
-              name='city'
-              render={({ field }) => (
-                <div className='relative'>
-                  <MapPin className={ICON_CLASS} />
-                  <input
-                    className={INPUT_CLASS}
-                    id='city'
-                    onChange={field.onChange}
-                    placeholder={t('cityPlaceholder')}
-                    type='text'
-                    value={field.value}
-                  />
+            <div className='relative'>
+              <MapPin className={ICON_CLASS} />
+              <input
+                className={INPUT_CLASS}
+                id='city'
+                onChange={e => {
+                  handleCitySearch(e.target.value);
+                  setValue('city', e.target.value);
+                }}
+                onFocus={() => citySuggestions.length > 0 && setShowSuggestions(true)}
+                placeholder={t('cityPlaceholder')}
+                type='text'
+                value={cityQuery || watch('city')}
+              />
+              {watch('city') && (
+                <button
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600'
+                  onClick={() => {
+                    setValue('city', '');
+                    setValue('postalCode', '');
+                    setCityQuery('');
+                    setCitySuggestions([]);
+                  }}
+                  type='button'
+                >
+                  <X className='h-3.5 w-3.5' />
+                </button>
+              )}
+              {showSuggestions && citySuggestions.length > 0 && (
+                <div className='absolute z-20 mt-1 w-full rounded-xl border border-slate-200 bg-white py-1 shadow-lg'>
+                  {citySuggestions.map(city => (
+                    <button
+                      className='flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50'
+                      key={city.nom + city.codesPostaux?.[0]}
+                      onClick={() => handleSelectCity(city)}
+                      type='button'
+                    >
+                      <MapPin className='h-3.5 w-3.5 shrink-0 text-slate-400' />
+                      {city.nom}
+                      {city.codesPostaux?.[0] && (
+                        <span className='text-xs text-slate-400'>({city.codesPostaux[0]})</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               )}
-            />
+            </div>
             {errors.city && <p className='text-xs text-red-500'>{errors.city.message}</p>}
           </div>
 

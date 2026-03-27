@@ -10,8 +10,8 @@ export const CreateMissionRequestBodySchema = z
   .object({
     address: z.string().optional(),
     description: z.string().optional(),
-    mission_dtstart: z.iso.datetime('Invalid mission start date format'),
-    mission_until: z.iso.datetime('Invalid mission end date format'),
+    mission_dtstart: z.iso.datetime({ message: 'Invalid mission start date format' }),
+    mission_until: z.iso.datetime({ message: 'Invalid mission end date format' }),
     modality: MissionModalitySchema,
     professional_id: z.uuid(),
     status: MissionStatusSchema.optional(),
@@ -52,8 +52,8 @@ export const CreateMissionsRequestBodySchema = z
   .object({
     address: z.string().optional(),
     description: z.string().optional(),
-    mission_dtstart: z.iso.datetime('Invalid mission start date format'),
-    mission_until: z.iso.datetime('Invalid mission end date format'),
+    mission_dtstart: z.iso.datetime({ message: 'Invalid mission start date format' }),
+    mission_until: z.iso.datetime({ message: 'Invalid mission end date format' }),
     modality: MissionModalitySchema,
     professional_ids: z.array(z.uuid()).min(1),
     status: MissionStatusSchema.optional(),

@@ -32,7 +32,6 @@ export function Step4Finalization({
     city,
     description,
     firstName,
-    hourlyRate,
     interventionZone,
     lastName,
     phone,
@@ -162,22 +161,15 @@ export function Step4Finalization({
               </div>
             )}
 
-            {(hourlyRate || yearsExperience) && (
-              <div className='flex flex-wrap gap-3'>
-                {hourlyRate && (
+            {yearsExperience !== undefined &&
+              yearsExperience !== null &&
+              Number(yearsExperience) > 0 && (
+                <div className='flex flex-wrap gap-3'>
                   <span className='inline-flex items-center rounded-lg bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700'>
-                    {hourlyRate} EUR/h
+                    {yearsExperience} {t('yearsExperience')}
                   </span>
-                )}
-                {yearsExperience !== undefined &&
-                  yearsExperience !== null &&
-                  Number(yearsExperience) > 0 && (
-                    <span className='inline-flex items-center rounded-lg bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700'>
-                      {yearsExperience} {t('yearsExperience')}
-                    </span>
-                  )}
-              </div>
-            )}
+                </div>
+              )}
 
             {skills && skills.length > 0 && (
               <div className='flex flex-wrap gap-2'>

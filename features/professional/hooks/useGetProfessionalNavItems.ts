@@ -1,7 +1,7 @@
 import {
+  Bell,
   ClipboardMinus,
   LayoutDashboard,
-  Mail,
   MessageCircle,
   Target,
   User,
@@ -31,11 +31,15 @@ export default function useGetProfessionalNavItems(): SidebarNavItem[] {
       label: tProfessional('navigation.missions'),
     },
     {
+      href: '/professional/notifications',
+      icon: Bell,
+      label: tProfessional('navigation.notifications'),
+    },
+    {
       href: '/professional/reports',
       icon: ClipboardMinus,
       label: tProfessional('navigation.reports'),
     },
-
     {
       href: '/professional/settings',
       icon: User,

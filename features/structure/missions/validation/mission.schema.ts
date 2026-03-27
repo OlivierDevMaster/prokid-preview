@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export type DaySchedule = {
+  date: Date;
+  endTime: string;
+  startTime: string;
+};
+
 export type MissionPropositionFormValues = z.infer<
   ReturnType<typeof getMissionPropositionSchema>
 >;
@@ -14,30 +20,30 @@ export function getMissionPropositionSchema(
   return z
     .object({
       address: z.string(),
-      description: z.string().min(1, t('validation.descriptionRequired')),
-      desiredStartDate: z.date().optional(),
-      durationDays: z
-        .string()
+      dailyEndTime: z.string().default('17:00'),
+      dailyStartTime: z.string().default('08:00'),
+      daySchedules: z
+        .array(
+          z.object({
+            date: z.date(),
+            endTime: z.string(),
+            startTime: z.string(),
+          })
+        )
         .optional()
-        .refine(
-          value =>
-            value === undefined ||
-            value === '' ||
-            (!Number.isNaN(Number(value)) && Number(value) > 0),
-          {
-            message: t('validation.durationPositive'),
-          }
-        ),
-      durationMode: z.enum(['duration', 'period']),
+        .default([]),
+      description: z.string().min(1, t('validation.descriptionRequired')),
+      endDate: z.date().optional(),
       modality: z.enum(['remote', 'on_site', 'hybrid']),
-      periodEndDate: z.date().optional(),
-      periodStartDate: z.date().optional(),
       professionalIds: z
         .array(z.string())
         .min(1, t('validation.professionalRequired')),
+      sameHoursEveryDay: z.boolean().default(true),
+      startDate: z.date().optional(),
       title: z.string().min(1, t('validation.titleRequired')),
     })
     .superRefine((data, ctx) => {
+      // Address required for on_site/hybrid
       if (data.modality === 'on_site' || data.modality === 'hybrid') {
         if (!data.address || data.address.trim().length === 0) {
           ctx.addIssue({
@@ -48,47 +54,81 @@ export function getMissionPropositionSchema(
         }
       }
 
-      if (data.durationMode === 'duration') {
-        if (!data.durationDays) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: t('validation.durationRequired'),
-            path: ['durationDays'],
-          });
-        }
-        if (!data.desiredStartDate) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: t('validation.desiredStartRequired'),
-            path: ['desiredStartDate'],
-          });
-        }
+      // Dates required
+      if (!data.startDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('validation.startDateRequired'),
+          path: ['startDate'],
+        });
+      }
+      if (!data.endDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('validation.endDateRequired'),
+          path: ['endDate'],
+        });
       }
 
-      if (data.durationMode === 'period') {
-        if (!data.periodStartDate) {
+      // End date >= start date
+      if (data.startDate && data.endDate && data.endDate < data.startDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('validation.endDateNotBeforeStart'),
+          path: ['endDate'],
+        });
+      }
+
+      // Time validation
+      if (data.sameHoursEveryDay) {
+        if (!data.dailyStartTime) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t('validation.periodStartRequired'),
-            path: ['periodStartDate'],
+            message: t('validation.startTimeRequired'),
+            path: ['dailyStartTime'],
           });
         }
-        if (!data.periodEndDate) {
+        if (!data.dailyEndTime) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t('validation.periodEndRequired'),
-            path: ['periodEndDate'],
+            message: t('validation.endTimeRequired'),
+            path: ['dailyEndTime'],
           });
         }
-        if (data.periodStartDate && data.periodEndDate) {
-          if (data.periodEndDate < data.periodStartDate) {
+        if (
+          data.dailyStartTime &&
+          data.dailyEndTime &&
+          data.dailyEndTime <= data.dailyStartTime
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t('validation.endTimeAfterStart'),
+            path: ['dailyEndTime'],
+          });
+        }
+      } else {
+        // Per-day validation
+        const schedules = data.daySchedules || [];
+        schedules.forEach((schedule, index) => {
+          if (!schedule.startTime || !schedule.endTime) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: t('validation.periodEndAfterStart'),
-              path: ['periodEndDate'],
+              message: t('validation.startTimeRequired'),
+              path: ['daySchedules', index, 'startTime'],
             });
           }
-        }
+          if (
+            schedule.startTime &&
+            schedule.endTime &&
+            schedule.endTime <= schedule.startTime
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t('validation.endTimeAfterStart'),
+              path: ['daySchedules', index, 'endTime'],
+            });
+          }
+        });
       }
     });
 }

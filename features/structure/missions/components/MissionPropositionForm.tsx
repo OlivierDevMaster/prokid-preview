@@ -1,14 +1,14 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
+import { eachDayOfInterval, format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import {
   Building2,
   CalendarDays,
   Clock3,
   FileText,
   Home,
-  Info,
   MapPin,
   RefreshCw,
   Type,
@@ -16,9 +16,10 @@ import {
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { type Resolver, useForm } from 'react-hook-form';
 
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FieldError } from '@/components/ui/field';
 import {
   Form,
@@ -29,6 +30,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { DatePickerInput } from '@/components/ui/input-date';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getOrCreateConversation } from '@/features/chat/services/conversation.service';
 import { useRouter } from '@/i18n/routing';
@@ -55,20 +57,22 @@ export function MissionPropositionForm() {
   const form = useForm<MissionPropositionFormValues>({
     defaultValues: {
       address: '',
+      dailyEndTime: '17:00',
+      dailyStartTime: '08:00',
+      daySchedules: [],
       description: '',
-      durationDays: '',
-      durationMode: 'duration',
-      modality: 'remote',
-      periodEndDate: undefined,
-      periodStartDate: undefined,
+      endDate: undefined,
+      modality: 'on_site',
       professionalIds: [],
+      sameHoursEveryDay: true,
+      startDate: undefined,
       title: '',
     },
     mode: 'onChange',
-    resolver: zodResolver(missionPropositionSchema),
+    resolver: zodResolver(missionPropositionSchema) as unknown as Resolver<MissionPropositionFormValues>,
   });
 
-  // Sync selected professional IDs from store into form and revalidate when user has interacted
+  // Sync selected professional IDs from store
   React.useEffect(() => {
     const ids = Array.from(selectedProfessionalIds);
     form.setValue('professionalIds', ids);
@@ -97,37 +101,67 @@ export function MissionPropositionForm() {
     }
   };
 
-  const durationMode = form.watch('durationMode');
   const modality = form.watch('modality');
   const title = form.watch('title');
-  const durationDays = form.watch('durationDays') ?? '';
   const address = form.watch('address');
-  const desiredStartDate = form.watch('desiredStartDate');
-  const periodStartDate = form.watch('periodStartDate');
-  const periodEndDate = form.watch('periodEndDate');
+  const startDate = form.watch('startDate');
+  const endDate = form.watch('endDate');
+  const sameHoursEveryDay = form.watch('sameHoursEveryDay');
+  const dailyStartTime = form.watch('dailyStartTime');
+  const dailyEndTime = form.watch('dailyEndTime');
+  const daySchedules = form.watch('daySchedules') || [];
 
   const showAddressInput = modality === 'on_site' || modality === 'hybrid';
 
-  const selectDuration = () => {
-    form.setValue('durationMode', 'duration');
-    form.setValue('desiredStartDate', undefined);
-    form.setValue('periodStartDate', undefined);
-    form.setValue('periodEndDate', undefined);
+  // Generate day list when date range changes and user wants per-day schedules
+  const daysInRange = useMemo(() => {
+    if (!startDate || !endDate || endDate < startDate) return [];
+    try {
+      return eachDayOfInterval({ end: endDate, start: startDate }).slice(0, 31);
+    } catch {
+      return [];
+    }
+  }, [startDate, endDate]);
+
+  // Update daySchedules when toggling or when date range changes
+  const handleToggleSameHours = (checked: boolean) => {
+    form.setValue('sameHoursEveryDay', checked);
+    if (!checked && daysInRange.length > 0) {
+      // Pre-fill each day with the current uniform times
+      const schedules = daysInRange.map(date => ({
+        date,
+        endTime: dailyEndTime || '17:00',
+        startTime: dailyStartTime || '08:00',
+      }));
+      form.setValue('daySchedules', schedules);
+    }
   };
 
-  const selectPeriod = () => {
-    form.setValue('durationMode', 'period');
-    form.setValue('desiredStartDate', undefined);
-    form.setValue('periodStartDate', undefined);
-    form.setValue('periodEndDate', undefined);
-  };
+  // When date range changes and per-day mode is active, regenerate schedules
+  React.useEffect(() => {
+    if (!sameHoursEveryDay && daysInRange.length > 0) {
+      const existing = form.getValues('daySchedules') || [];
+      const schedules = daysInRange.map(date => {
+        const existingDay = existing.find(
+          d => d.date && format(d.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+        );
+        return {
+          date,
+          endTime: existingDay?.endTime || dailyEndTime || '17:00',
+          startTime: existingDay?.startTime || dailyStartTime || '08:00',
+        };
+      });
+      form.setValue('daySchedules', schedules);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daysInRange.length, sameHoursEveryDay]);
+
+  const TIME_INPUT_CLASS =
+    'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20';
 
   return (
     <Form {...form}>
-      <form
-        // className='p-4 sm:p-6 lg:p-8'
-        onSubmit={form.handleSubmit(handleSubmit)}
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row'>
           {/* Main form column */}
           <div className='flex-1 space-y-6'>
@@ -136,7 +170,8 @@ export function MissionPropositionForm() {
                 {form.formState.errors.professionalIds.message}
               </p>
             )}
-            {/* 1. Titre de la mission */}
+
+            {/* 1. Titre */}
             <Card className='border-none bg-white shadow-sm'>
               <div className='px-4 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
@@ -146,7 +181,6 @@ export function MissionPropositionForm() {
                   <span>1. {t('missionSectionTitle')}</span>
                 </h2>
               </div>
-
               <div className='space-y-2 px-4 py-5'>
                 <FormField
                   control={form.control}
@@ -164,7 +198,6 @@ export function MissionPropositionForm() {
                               ? 'border-destructive'
                               : 'border-blue-100'
                           )}
-                          id='mission-title'
                           placeholder={t('missionSectionPlaceholder')}
                           {...field}
                         />
@@ -176,7 +209,7 @@ export function MissionPropositionForm() {
               </div>
             </Card>
 
-            {/* 2. Description / Contexte */}
+            {/* 2. Description */}
             <Card className='border-none bg-white shadow-sm'>
               <div className='space-y-4 px-4 py-3 sm:px-6 sm:py-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
@@ -204,7 +237,6 @@ export function MissionPropositionForm() {
                               ? 'border-destructive'
                               : 'border-blue-100'
                           )}
-                          id='mission-description'
                           placeholder={t('descriptionPlaceholder')}
                           {...field}
                         />
@@ -216,172 +248,221 @@ export function MissionPropositionForm() {
               </div>
             </Card>
 
-            {/* 2. Durée / Période */}
+            {/* 3. Période et horaires */}
             <Card className='border-none bg-white shadow-sm'>
               <div className='px-4 pb-3 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
                   <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
-                    <Clock3 className='h-4 w-4 text-blue-600' />
+                    <CalendarDays className='h-4 w-4 text-blue-600' />
                   </span>
-                  <span>3. {t('durationSectionTitle')}</span>
+                  <span>3. {t('scheduleSectionTitle')}</span>
                 </h2>
-                <p className='mt-4 text-sm font-medium text-gray-500 sm:text-sm'>
-                  {t('durationHelper')}
+                <p className='mt-4 text-sm font-medium text-gray-500'>
+                  {t('scheduleHelper')}
                 </p>
               </div>
 
-              <div className='space-y-4 px-4 pb-4 pt-2 sm:px-6 sm:pb-6'>
-                <div className='flex flex-wrap items-center gap-3'>
-                  <div className='inline-flex rounded-full bg-gray-100 p-1 text-sm font-medium text-gray-600'>
-                    <button
-                      className={cn(
-                        'rounded-full px-5 py-2 transition',
-                        durationMode === 'duration'
-                          ? 'bg-white text-blue-700 shadow-sm'
-                          : 'text-gray-600'
+              <div className='space-y-5 px-4 pb-5 sm:px-6'>
+                {/* Date range */}
+                <div className='grid gap-3 sm:grid-cols-2'>
+                  <div className='space-y-1.5'>
+                    <Label className='text-xs font-medium text-gray-700'>
+                      {t('startDateLabel')}
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name='startDate'
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormControl>
+                            <DatePickerInput
+                              hasError={Boolean(fieldState.error)}
+                              inputGroupClassName={cn(
+                                'rounded-xl bg-blue-50/40',
+                                !fieldState.error && 'border-blue-100'
+                              )}
+                              onChange={(date: Date | undefined) => {
+                                field.onChange(date ?? undefined);
+                                // If end date not set or before new start, sync it
+                                const currentEnd = form.getValues('endDate');
+                                if (date && (!currentEnd || currentEnd < date)) {
+                                  form.setValue('endDate', date);
+                                }
+                              }}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FieldError errors={[fieldState.error]} />
+                        </FormItem>
                       )}
-                      onClick={selectDuration}
-                      type='button'
-                    >
-                      {t('durationTab')}
-                    </button>
-                    <button
-                      className={cn(
-                        'rounded-full px-5 py-2 transition',
-                        durationMode === 'period'
-                          ? 'bg-white text-blue-700 shadow-sm'
-                          : 'text-gray-600'
+                    />
+                  </div>
+                  <div className='space-y-1.5'>
+                    <Label className='text-xs font-medium text-gray-700'>
+                      {t('endDateLabel')}
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name='endDate'
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormControl>
+                            <DatePickerInput
+                              hasError={Boolean(fieldState.error)}
+                              inputGroupClassName={cn(
+                                'rounded-xl bg-blue-50/40',
+                                !fieldState.error && 'border-blue-100'
+                              )}
+                              onChange={(date: Date | undefined) => {
+                                field.onChange(date ?? undefined);
+                              }}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FieldError errors={[fieldState.error]} />
+                        </FormItem>
                       )}
-                      onClick={selectPeriod}
-                      type='button'
-                    >
-                      {t('periodTab')}
-                    </button>
+                    />
                   </div>
                 </div>
 
-                {durationMode === 'duration' ? (
-                  <div className='space-y-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 sm:p-4'>
-                    <div className='flex items-center gap-2 text-blue-600'>
-                      <Info className='h-3.5 w-3.5' />
-                      <p className='text-xs'>{t('durationInfo')}</p>
-                    </div>
-                    <div className='mt-2 grid grid-cols-[minmax(0,1fr),auto] items-end gap-3'>
-                      <div className='flex space-x-2'>
+                {/* Time slots section */}
+                <div className='space-y-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4'>
+                  <div className='flex items-center gap-3'>
+                    <Clock3 className='h-4 w-4 text-blue-600' />
+                    <h3 className='text-sm font-semibold text-slate-800'>
+                      {t('scheduleTimeTitle')}
+                    </h3>
+                  </div>
+
+                  {/* Same hours checkbox */}
+                  <div className='flex items-center gap-2'>
+                    <Checkbox
+                      checked={sameHoursEveryDay}
+                      id='sameHours'
+                      onCheckedChange={(checked) => handleToggleSameHours(!!checked)}
+                    />
+                    <Label
+                      className='cursor-pointer text-sm text-slate-700'
+                      htmlFor='sameHours'
+                    >
+                      {t('sameHoursEveryDay')}
+                    </Label>
+                  </div>
+
+                  {sameHoursEveryDay ? (
+                    /* Uniform times */
+                    <div className='grid grid-cols-2 gap-3'>
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-medium text-gray-600'>
+                          {t('startTimeLabel')}
+                        </Label>
                         <FormField
                           control={form.control}
-                          name='durationDays'
+                          name='dailyStartTime'
                           render={({ field, fieldState }) => (
-                            <FormItem className='w-full max-w-[140px]'>
-                              <FormLabel className='sr-only'>
-                                {t('recapFieldDuration')}
-                              </FormLabel>
+                            <FormItem>
                               <FormControl>
-                                <Input
+                                <input
                                   className={cn(
-                                    'w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400',
-                                    fieldState.error
-                                      ? 'border-destructive'
-                                      : 'border-blue-100'
+                                    TIME_INPUT_CLASS,
+                                    fieldState.error && 'border-destructive'
                                   )}
-                                  id='mission-duration'
-                                  min={1}
-                                  placeholder='10'
-                                  type='number'
-                                  {...field}
+                                  onChange={field.onChange}
+                                  type='time'
+                                  value={field.value}
                                 />
                               </FormControl>
                               <FieldError errors={[fieldState.error]} />
                             </FormItem>
                           )}
                         />
-                        <div className='rounded-xl bg-gray-100 px-4 py-3 text-xs font-medium text-gray-900'>
-                          {t('durationUnitDays')}
+                      </div>
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-medium text-gray-600'>
+                          {t('endTimeLabel')}
+                        </Label>
+                        <FormField
+                          control={form.control}
+                          name='dailyEndTime'
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormControl>
+                                <input
+                                  className={cn(
+                                    TIME_INPUT_CLASS,
+                                    fieldState.error && 'border-destructive'
+                                  )}
+                                  onChange={field.onChange}
+                                  type='time'
+                                  value={field.value}
+                                />
+                              </FormControl>
+                              <FieldError errors={[fieldState.error]} />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    /* Per-day schedules */
+                    <div className='space-y-2'>
+                      {daysInRange.length === 0 ? (
+                        <p className='py-3 text-center text-sm text-slate-400'>
+                          {t('selectDatesFirst')}
+                        </p>
+                      ) : (
+                        <div className='max-h-[300px] space-y-2 overflow-y-auto pr-1'>
+                          {daysInRange.map((day, index) => (
+                            <div
+                              className='flex items-center gap-3 rounded-lg bg-white p-2.5'
+                              key={format(day, 'yyyy-MM-dd')}
+                            >
+                              <span className='w-24 shrink-0 text-sm font-medium text-slate-700'>
+                                {format(day, 'EEE dd/MM', { locale: fr })}
+                              </span>
+                              <input
+                                className={TIME_INPUT_CLASS}
+                                onChange={e => {
+                                  const updated = [...daySchedules];
+                                  if (updated[index]) {
+                                    updated[index] = {
+                                      ...updated[index],
+                                      startTime: e.target.value,
+                                    };
+                                    form.setValue('daySchedules', updated);
+                                  }
+                                }}
+                                type='time'
+                                value={daySchedules[index]?.startTime || '08:00'}
+                              />
+                              <span className='text-sm text-slate-400'>→</span>
+                              <input
+                                className={TIME_INPUT_CLASS}
+                                onChange={e => {
+                                  const updated = [...daySchedules];
+                                  if (updated[index]) {
+                                    updated[index] = {
+                                      ...updated[index],
+                                      endTime: e.target.value,
+                                    };
+                                    form.setValue('daySchedules', updated);
+                                  }
+                                }}
+                                type='time'
+                                value={daySchedules[index]?.endTime || '17:00'}
+                              />
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                      <div className='space-y-1.5'></div>
+                      )}
                     </div>
-                  </div>
-                ) : (
-                  <div className='space-y-2 rounded-lg border border-dashed border-gray-200 p-3'>
-                    <div className='flex items-center gap-2 text-blue-600'>
-                      <Info className='h-3.5 w-3.5' />
-                      <p className='text-xs'>{t('periodInfo')}</p>
-                    </div>
-                    <div className='mt-3 grid gap-3 sm:grid-cols-2'>
-                      <div className='space-y-1.5'>
-                        <FormLabel
-                          className='text-xs font-medium text-gray-700'
-                          htmlFor='period-start'
-                        >
-                          {t('periodStartLabel')}
-                        </FormLabel>
-                        <FormField
-                          control={form.control}
-                          name='periodStartDate'
-                          render={({ field, fieldState }) => (
-                            <FormItem>
-                              <FormControl>
-                                <DatePickerInput
-                                  hasError={Boolean(fieldState.error)}
-                                  id='period-start'
-                                  inputGroupClassName={cn(
-                                    'rounded-xl bg-blue-50/40',
-                                    !fieldState.error && 'border-blue-100'
-                                  )}
-                                  onChange={(date: Date | undefined) => {
-                                    field.onChange(date ?? undefined);
-                                    form.setValue(
-                                      'desiredStartDate',
-                                      date ?? undefined
-                                    );
-                                  }}
-                                  value={field.value}
-                                />
-                              </FormControl>
-                              <FieldError errors={[fieldState.error]} />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className='space-y-1.5'>
-                        <FormLabel
-                          className='text-xs font-medium text-gray-700'
-                          htmlFor='period-end'
-                        >
-                          {t('periodEndLabel')}
-                        </FormLabel>
-                        <FormField
-                          control={form.control}
-                          name='periodEndDate'
-                          render={({ field, fieldState }) => (
-                            <FormItem>
-                              <FormControl>
-                                <DatePickerInput
-                                  hasError={Boolean(fieldState.error)}
-                                  id='period-end'
-                                  inputGroupClassName={cn(
-                                    'rounded-xl bg-blue-50/40',
-                                    !fieldState.error && 'border-blue-100'
-                                  )}
-                                  onChange={(date: Date | undefined) => {
-                                    field.onChange(date ?? undefined);
-                                  }}
-                                  value={field.value}
-                                />
-                              </FormControl>
-                              <FieldError errors={[fieldState.error]} />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </Card>
 
-            {/* 4. Localisation / Modalités */}
+            {/* 4. Modalité */}
             <Card className='border-none bg-white shadow-sm'>
               <div className='px-4 pb-3 pt-4 sm:px-6'>
                 <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
@@ -404,19 +485,6 @@ export function MissionPropositionForm() {
                             <button
                               className={cn(
                                 'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
-                                field.value === 'remote'
-                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                  : 'border-gray-200 bg-gray-50 text-gray-600'
-                              )}
-                              onClick={() => field.onChange('remote')}
-                              type='button'
-                            >
-                              <Home className='h-4 w-4' />
-                              {t('modalityRemote')}
-                            </button>
-                            <button
-                              className={cn(
-                                'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
                                 field.value === 'on_site'
                                   ? 'border-blue-500 bg-blue-50 text-blue-700'
                                   : 'border-gray-200 bg-gray-50 text-gray-600'
@@ -426,6 +494,19 @@ export function MissionPropositionForm() {
                             >
                               <Building2 className='h-4 w-4' />
                               {t('modalityOnSite')}
+                            </button>
+                            <button
+                              className={cn(
+                                'flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition',
+                                field.value === 'remote'
+                                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                  : 'border-gray-200 bg-gray-50 text-gray-600'
+                              )}
+                              onClick={() => field.onChange('remote')}
+                              type='button'
+                            >
+                              <Home className='h-4 w-4' />
+                              {t('modalityRemote')}
                             </button>
                             <button
                               className={cn(
@@ -467,7 +548,6 @@ export function MissionPropositionForm() {
                                     ? 'border-destructive'
                                     : 'border-blue-100'
                                 )}
-                                id='mission-address'
                                 placeholder={t('addressPlaceholder')}
                                 {...field}
                               />
@@ -483,79 +563,14 @@ export function MissionPropositionForm() {
             </Card>
           </div>
 
-          {/* Sidebar column */}
+          {/* Sidebar - Recap */}
           <div className='w-full max-w-sm space-y-4 lg:sticky lg:top-6 lg:self-start'>
-            {/* 4. Début souhaité */}
-            <Card className='border-none bg-white shadow-sm'>
-              <div className='px-4 pb-3 pt-4 sm:px-6'>
-                <h2 className='flex items-center gap-3 text-base font-semibold text-gray-900 sm:text-lg'>
-                  <span className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-50'>
-                    <CalendarDays className='h-4 w-4 text-blue-600' />
-                  </span>
-                  <span>5. {t('desiredStartSectionTitle')}</span>
-                </h2>
-              </div>
-              <div className='px-4 py-2 sm:px-6 sm:py-5'>
-                <div className='space-y-1.5'>
-                  <FormField
-                    control={form.control}
-                    name='desiredStartDate'
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel
-                          className='text-sm font-medium text-gray-500'
-                          htmlFor='desired-start-date'
-                        >
-                          {t('desiredStartLabel')}
-                        </FormLabel>
-                        <FormControl>
-                          <div className='relative'>
-                            {durationMode === 'period' ? (
-                              <Input
-                                className={cn(
-                                  'w-full rounded-xl border bg-blue-50/40 pl-4 pr-9 text-sm placeholder:text-gray-400',
-                                  fieldState.error
-                                    ? 'border-destructive'
-                                    : 'border-blue-100'
-                                )}
-                                id='desired-start-date'
-                                readOnly
-                                value={
-                                  field.value
-                                    ? format(field.value, 'dd/MM/yyyy')
-                                    : ''
-                                }
-                              />
-                            ) : (
-                              <DatePickerInput
-                                fullWidth
-                                hasError={Boolean(fieldState.error)}
-                                id='desired-start-date'
-                                inputGroupClassName={cn(
-                                  'rounded-xl bg-blue-50/40',
-                                  !fieldState.error && 'border-blue-100'
-                                )}
-                                onChange={(date: Date | undefined) => {
-                                  field.onChange(date ?? undefined);
-                                }}
-                                value={field.value}
-                              />
-                            )}
-                          </div>
-                        </FormControl>
-                        <FieldError errors={[fieldState.error]} />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Recap card */}
             <RecapPropositionCard
               address={address ?? ''}
-              desiredStartDate={desiredStartDate}
-              durationDays={String(durationDays ?? '')}
+              dailyEndTime={dailyEndTime}
+              dailyStartTime={dailyStartTime}
+              daySchedules={daySchedules}
+              endDate={endDate}
               errorMessage={
                 createMissionProposition.error instanceof Error
                   ? createMissionProposition.error.message
@@ -563,11 +578,10 @@ export function MissionPropositionForm() {
                     ? String(createMissionProposition.error)
                     : null
               }
-              isPeriodMode={durationMode === 'period'}
               isSubmitting={createMissionProposition.isPending}
               modality={modality}
-              periodEndDate={periodEndDate}
-              periodStartDate={periodStartDate}
+              sameHoursEveryDay={sameHoursEveryDay}
+              startDate={startDate}
               title={title}
             />
           </div>

@@ -3,7 +3,9 @@
 import {
   CheckCircle2,
   Loader2,
+  LogOut,
 } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -134,8 +136,19 @@ export default function SubscriptionPage() {
 
   return (
     <div className='min-h-full bg-white'>
+      {/* Logout button */}
+      <div className='flex justify-end px-4 pt-4 sm:px-6'>
+        <button
+          className='flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700'
+          onClick={() => signOut({ callbackUrl: `/${locale}/auth/login` })}
+          type='button'
+        >
+          <LogOut className='h-4 w-4' />
+          {t('logout') || 'Déconnexion'}
+        </button>
+      </div>
       {/* Hero Section */}
-      <div className='bg-slate-50 px-4 pb-16 pt-12 sm:px-6'>
+      <div className='bg-slate-50 px-4 pb-16 pt-8 sm:px-6'>
         <div className='mx-auto max-w-4xl text-center'>
           <h1 className='text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl'>
             {t('title')}

@@ -8,10 +8,6 @@ import { useFindProfessional } from '@/features/professionals/hooks/useFindProfe
 import { cn } from '@/lib/utils';
 
 import { translateProfessionalJob } from './professional-profile-job';
-import {
-  DEFAULT_SKILLS,
-  MOCK_DESCRIPTION_FALLBACK,
-} from './professional-profile-mock';
 
 type ProfessionalProfileHeroCardProps = {
   professionalId: string;
@@ -31,19 +27,13 @@ export function ProfessionalProfileHeroCard({
   const firstName = professional.profile.first_name ?? '';
   const lastName = professional.profile.last_name ?? '';
   const fullName = `${firstName} ${lastName}`.trim() || '—';
-  const skills =
-    (professional.skills ?? []).length > 0
-      ? (professional.skills ?? [])
-      : [...DEFAULT_SKILLS];
-  const description =
-    professional.description?.trim() || MOCK_DESCRIPTION_FALLBACK;
+  const skills = professional.skills ?? [];
+  const description = professional.description?.trim() || '';
   const ratingDisplay = professional.rating
     ? Number(professional.rating).toFixed(1)
-    : '4.9';
-  const reviewsCount = professional.reviews_count ?? 124;
-  const jobTitle =
-    translateProfessionalJob(professional.current_job, tProfessional) ||
-    'Éducatrice de Jeunes Enfants (EJE)';
+    : null;
+  const reviewsCount = professional.reviews_count ?? 0;
+  const jobTitle = translateProfessionalJob(professional.current_job, tProfessional) || '';
 
   return (
     <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8'>
@@ -94,6 +84,7 @@ export function ProfessionalProfileHeroCard({
                 ) : null}
               </div>
             </div>
+            {ratingDisplay && (
             <div className='flex shrink-0 items-center gap-1 text-amber-500'>
               <Star className='size-6 fill-amber-500 text-amber-500' />
               <span className='text-xl font-bold'>{ratingDisplay}</span>
@@ -101,21 +92,26 @@ export function ProfessionalProfileHeroCard({
                 ({reviewsCount} {t('reviews')})
               </span>
             </div>
+            )}
           </div>
         </div>
       </div>
       <div>
-        <p className='mt-4 leading-relaxed text-slate-600'>{description}</p>
-        <div className='mt-6 flex flex-wrap gap-3'>
-          {skills.map(skill => (
-            <span
-              className='rounded-lg bg-[#CDEAE1] px-3 py-1.5 text-sm font-medium text-slate-700'
-              key={skill}
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
+        {description && (
+          <p className='mt-4 leading-relaxed text-slate-600'>{description}</p>
+        )}
+        {skills.length > 0 && (
+          <div className='mt-6 flex flex-wrap gap-3'>
+            {skills.map(skill => (
+              <span
+                className='rounded-lg bg-[#CDEAE1] px-3 py-1.5 text-sm font-medium text-slate-700'
+                key={skill}
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

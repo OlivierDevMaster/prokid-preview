@@ -1,4 +1,4 @@
-import { FileText, LayoutDashboard, MessageCircle, Search, User } from 'lucide-react';
+import { Bell, FileText, LayoutDashboard, MessageCircle, Search, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { SidebarNavItem } from '@/modeles/navigation.modele';
@@ -24,11 +24,15 @@ export function useGetStructureSidebarItems(): SidebarNavItem[] {
       label: tChat('chat'),
     },
     {
+      href: '/structure/notifications',
+      icon: Bell,
+      label: tStructure('notifications'),
+    },
+    {
       href: '/structure/reports',
       icon: FileText,
       label: tStructure('reports'),
     },
-
     {
       href: '/structure/settings',
       icon: User,

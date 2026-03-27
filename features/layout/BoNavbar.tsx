@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button';
 import ProkidLogo from '@/features/layout/ProkidLogo';
 import { useRouter } from '@/i18n/routing';
 
-import NotificationsPanel from '../notifications/components/NotificationsPanel';
-
 type BoNavbarProps = {
   name?: string;
   settingsRoute?: string;
@@ -46,7 +44,6 @@ export function BoNavbar({ name, settingsRoute, userRole }: BoNavbarProps) {
           <div className='rounded-full bg-blue-50 px-3 py-1'>
             <span className='text-xs font-medium text-blue-700'>{name}</span>
           </div>
-          {userRole !== 'Admin' && <NotificationsPanel />}
           <Button
             className='h-8 w-8 hover:bg-gray-100'
             onClick={() => router.push(getSettingsRoute())}

@@ -7,9 +7,30 @@ export async function registerProfessionalProfile(
   formData: ProfessionalSignUpFormData
 ): Promise<void> {
   const supabase = createClient();
+
+  // Geocode city if coordinates are missing
+  let { latitude, longitude } = formData;
+  if (
+    (typeof latitude !== 'number' || typeof longitude !== 'number') &&
+    formData.city
+  ) {
+    try {
+      const res = await fetch(
+        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(formData.city)}&fields=nom,centre&limit=1`
+      );
+      const cities = await res.json();
+      if (cities?.[0]?.centre?.coordinates) {
+        longitude = cities[0].centre.coordinates[0];
+        latitude = cities[0].centre.coordinates[1];
+      }
+    } catch {
+      // Geocoding failed, continue without coordinates
+    }
+  }
+
   const hasCoordinates =
-    typeof formData.latitude === 'number' &&
-    typeof formData.longitude === 'number';
+    typeof latitude === 'number' &&
+    typeof longitude === 'number';
 
   let avatarUrl: null | string = null;
 
@@ -48,13 +69,12 @@ export async function registerProfessionalProfile(
       experience_years: formData.yearsExperience
         ? parseInt(formData.yearsExperience, 10)
         : 0,
-      hourly_rate: formData.hourlyRate,
       intervention_radius_km: formData.interventionZone,
-      latitude: hasCoordinates ? formData.latitude : null,
+      latitude: hasCoordinates ? latitude : null,
       location: hasCoordinates
-        ? `SRID=4326;POINT(${formData.longitude} ${formData.latitude})`
+        ? `SRID=4326;POINT(${longitude} ${latitude})`
         : null,
-      longitude: hasCoordinates ? formData.longitude : null,
+      longitude: hasCoordinates ? longitude : null,
       phone: formData.phone || null,
       postal_code: formData.postalCode || null,
       skills:

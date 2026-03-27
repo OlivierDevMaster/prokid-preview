@@ -105,73 +105,29 @@ export function Step3ProfessionalInfo({
           )}
         </div>
 
-        <div className='grid gap-4 md:grid-cols-2'>
-          <div className='space-y-1.5'>
-            <Label
-              className='text-xs font-medium text-slate-600'
-              htmlFor='yearsExperience'
-            >
-              {t('yearsExperience')}
-            </Label>
-            <Controller
-              control={control}
-              name='yearsExperience'
-              render={({ field }) => (
-                <input
-                  className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
-                  id='yearsExperience'
-                  max={50}
-                  min={0}
-                  onChange={field.onChange}
-                  type='number'
-                  value={field.value}
-                />
-              )}
-            />
-          </div>
-
-          <div className='space-y-1.5'>
-            <Label
-              className='text-xs font-medium text-slate-600'
-              htmlFor='hourlyRate'
-            >
-              {t('hourlyRate')} *
-            </Label>
-            <Controller
-              control={control}
-              name='hourlyRate'
-              render={({ field }) => (
-                <div className='relative'>
-                  <input
-                    className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 pr-14 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
-                    id='hourlyRate'
-                    min={1}
-                    onChange={e => {
-                      const value = e.target.value;
-                      if (value === '') {
-                        field.onChange(undefined as unknown as number);
-                      } else {
-                        const numValue = parseFloat(value);
-                        if (!isNaN(numValue)) field.onChange(numValue);
-                      }
-                    }}
-                    required
-                    step='0.01'
-                    type='number'
-                    value={field.value ?? ''}
-                  />
-                  <span className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500'>
-                    EUR/h
-                  </span>
-                </div>
-              )}
-            />
-            {errors.hourlyRate && (
-              <p className='text-sm text-red-500'>
-                {errors.hourlyRate.message}
-              </p>
+        <div className='space-y-1.5'>
+          <Label
+            className='text-xs font-medium text-slate-600'
+            htmlFor='yearsExperience'
+          >
+            {t('yearsExperience')}
+          </Label>
+          <Controller
+            control={control}
+            name='yearsExperience'
+            render={({ field }) => (
+              <input
+                className='flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
+                id='yearsExperience'
+                max={50}
+                min={0}
+                onChange={field.onChange}
+                placeholder='Ex: 5'
+                type='number'
+                value={field.value}
+              />
             )}
-          </div>
+          />
         </div>
       </section>
 

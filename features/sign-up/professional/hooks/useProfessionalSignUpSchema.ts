@@ -7,7 +7,6 @@ export type ProfessionalSignUpFormData = {
   city: string;
   description?: string;
   firstName: string;
-  hourlyRate: number;
   interventionZone: number;
   lastName: string;
   latitude?: number;
@@ -28,20 +27,6 @@ export function useProfessionalSignUpSchema() {
       city: z.string().min(1, t('validation.cityRequired')),
       description: z.string().optional(),
       firstName: z.string().min(1, t('validation.firstNameRequired')),
-      hourlyRate: z.preprocess(
-        val => {
-          if (val === '' || val === null || val === undefined) {
-            return undefined;
-          }
-          const num = Number(val);
-          return isNaN(num) ? undefined : num;
-        },
-        z
-          .number({
-            message: t('validation.hourlyRateRequired'),
-          })
-          .min(1, t('validation.hourlyRateMin'))
-      ),
       interventionZone: z
         .number()
         .min(5, t('validation.interventionZoneMin'))

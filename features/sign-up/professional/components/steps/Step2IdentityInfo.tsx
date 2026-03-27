@@ -388,40 +388,6 @@ export function Step2IdentityInfo({
           />
         </div>
 
-        <div className='space-y-2'>
-          <Label className='text-gray-700' htmlFor='hourlyRate'>
-            {tProfessional('hourlyRate')} (€) *
-          </Label>
-          <Controller
-            control={control}
-            name='hourlyRate'
-            render={({ field }) => (
-              <Input
-                className='border-gray-300'
-                id='hourlyRate'
-                min='1'
-                onChange={e => {
-                  const value = e.target.value;
-                  if (value === '') {
-                    field.onChange(undefined as unknown as number);
-                  } else {
-                    const numValue = parseFloat(value);
-                    if (!isNaN(numValue)) {
-                      field.onChange(numValue);
-                    }
-                  }
-                }}
-                required
-                step='0.01'
-                type='number'
-                value={field.value ?? ''}
-              />
-            )}
-          />
-          {errors.hourlyRate && (
-            <p className='text-sm text-red-500'>{errors.hourlyRate.message}</p>
-          )}
-        </div>
       </div>
 
       <div className='flex justify-between pt-4'>

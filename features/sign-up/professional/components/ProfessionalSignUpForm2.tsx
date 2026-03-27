@@ -5,6 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 
+import { LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+
 import { Card } from '@/components/ui/card';
 import { Step1ProfileAndIdentity } from '@/features/sign-up/professional/components/steps/Step1ProfileAndIdentity';
 import { Step4Finalization } from '@/features/sign-up/professional/components/steps/Step4Finalization';
@@ -31,7 +34,6 @@ export default function ProfessionalSignUpForm2() {
       city: '',
       description: '',
       firstName: '',
-      hourlyRate: undefined as unknown as number,
       interventionZone: 10,
       lastName: '',
       phone: '',
@@ -85,7 +87,7 @@ export default function ProfessionalSignUpForm2() {
       }
     }
     if (currentStep === 2) {
-      const isValid = await form.trigger(['profession', 'hourlyRate']);
+      const isValid = await form.trigger(['profession']);
       if (!isValid) {
         setShowErrorSummary(true);
         return;
@@ -148,7 +150,18 @@ export default function ProfessionalSignUpForm2() {
           currentStep={currentStep}
           totalSteps={TOTAL_STEPS}
         />
-        <div className='min-h-0 overflow-y-auto bg-white p-4 md:p-8'>
+        <div className='min-h-0 overflow-y-auto bg-white p-4 md:p-8 lg:p-12'>
+          <div className='mx-auto max-w-xl'>
+          <div className='mb-6 flex justify-end'>
+            <button
+              className='flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700'
+              onClick={() => signOut({ callbackUrl: '/fr/auth/login' })}
+              type='button'
+            >
+              <LogOut className='h-4 w-4' />
+              Déconnexion
+            </button>
+          </div>
           {hasErrors && (
             <div className='mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800'>
               <p className='font-semibold'>{t('pleaseCorrectTheFollowing')}</p>
@@ -185,6 +198,7 @@ export default function ProfessionalSignUpForm2() {
               onSubmit={handleSubmit}
             />
           )}
+          </div>
         </div>
       </div>
     </div>
