@@ -241,6 +241,25 @@ export const inviteProfessionalHandler = factory.createHandlers(
         );
       }
 
+      // Schedule follow-up reminders (J+3, J+7, J+14, J+30)
+      const now = new Date();
+      const reminders = [
+        { days: 3, type: 'j3' },
+        { days: 7, type: 'j7' },
+        { days: 14, type: 'j14' },
+        { days: 30, type: 'j30' },
+      ];
+
+      await supabaseAdminClient
+        .from('invitation_reminders')
+        .insert(
+          reminders.map(r => ({
+            profile_id: newUserId,
+            reminder_type: r.type,
+            scheduled_at: new Date(now.getTime() + r.days * 24 * 60 * 60 * 1000).toISOString(),
+          }))
+        );
+
       return apiResponse.created({
         email: body.email,
         firstName: body.firstName,

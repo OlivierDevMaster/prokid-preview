@@ -33,6 +33,7 @@ type InviteFormData = {
   email: string;
   firstName: string;
   lastName: string;
+  phone: string;
 };
 
 export function InviteProfessionalPage() {
@@ -55,6 +56,7 @@ export function InviteProfessionalPage() {
       email: '',
       firstName: '',
       lastName: '',
+      phone: '',
     },
   });
 
@@ -99,7 +101,7 @@ export function InviteProfessionalPage() {
   }, [successEmail]);
 
   return (
-    <div className='space-y-6 bg-blue-50/30 p-4 sm:space-y-8 sm:p-6 lg:p-8'>
+    <div className='min-h-screen space-y-6 bg-white p-6 lg:p-10'>
       {/* Header */}
       <div>
         <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
@@ -168,6 +170,17 @@ export function InviteProfessionalPage() {
                 {...register('lastName')}
               />
             </div>
+          </div>
+
+          {/* Phone */}
+          <div className='space-y-2'>
+            <Label htmlFor='phone'>Téléphone</Label>
+            <Input
+              id='phone'
+              placeholder='06 12 34 56 78'
+              type='tel'
+              {...register('phone')}
+            />
           </div>
 
           {/* Job select */}
