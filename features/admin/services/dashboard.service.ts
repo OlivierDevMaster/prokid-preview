@@ -356,7 +356,6 @@ export async function getAdminSystemGrowthRate(): Promise<number> {
 
   const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
 
-  // Count new professionals created this month
   const { count, error } = await supabase
     .from('professionals')
     .select('*', { count: 'exact', head: true })
@@ -365,6 +364,59 @@ export async function getAdminSystemGrowthRate(): Promise<number> {
   if (error) throw error;
 
   return count ?? 0;
+}
+
+export async function getAdminStructureGrowthRate(): Promise<number> {
+  const supabase = createClient();
+  const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
+
+  const { count, error } = await supabase
+    .from('structures')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', startOfCurrentMonth);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function getAdminPremiumProfessionalsCount(): Promise<number> {
+  const supabase = createClient();
+
+  const { count, error } = await supabase
+    .from('professionals')
+    .select('*', { count: 'exact', head: true })
+    .not('stripe_customer_id', 'is', null);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function getAdminRegionBreakdown(): Promise<Array<{ city: string; count: number }>> {
+  const supabase = createClient();
+
+  const { data: proCities } = await supabase
+    .from('professionals')
+    .select('city')
+    .not('city', 'is', null);
+
+  const { data: structCities } = await supabase
+    .from('structures')
+    .select('city')
+    .not('city', 'is', null);
+
+  const cityMap = new Map<string, number>();
+
+  for (const row of [...(proCities || []), ...(structCities || [])]) {
+    const city = (row.city || '').trim();
+    if (city) {
+      cityMap.set(city, (cityMap.get(city) || 0) + 1);
+    }
+  }
+
+  return Array.from(cityMap.entries())
+    .map(([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
 }
 
 export async function getAdminTotalInvitationsCount(): Promise<number> {

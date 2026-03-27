@@ -3,7 +3,9 @@
 import {
   Building2,
   CalendarCheck,
+  Crown,
   FileText,
+  MapPin,
   TrendingUp,
   UserPlus,
   Users,
@@ -19,7 +21,10 @@ export default function DashboardPage() {
     missionCompletionRate,
     missionsCount,
     pendingMissionsCount,
+    premiumProfessionalsCount,
     professionalsCount,
+    regionBreakdown,
+    structureGrowthRate,
     structuresCount,
     systemGrowthRate,
     totalReportsCount,
@@ -95,26 +100,84 @@ export default function DashboardPage() {
 
           {/* Growth */}
           <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
-            <h2 className='mb-4 text-lg font-bold text-slate-900'>Lancement</h2>
-            <div className='space-y-4'>
+            <h2 className='mb-4 text-lg font-bold text-slate-900'>Croissance ce mois</h2>
+            <div className='space-y-3'>
               <div className='flex items-center gap-3'>
-                <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100'>
-                  <TrendingUp className='h-5 w-5 text-emerald-600' />
+                <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100'>
+                  <Users className='h-5 w-5 text-blue-600' />
                 </div>
                 <div>
                   <p className='text-2xl font-bold text-slate-900'>+{systemGrowthRate}</p>
-                  <p className='text-xs text-slate-500'>Nouveaux pros inscrits ce mois</p>
+                  <p className='text-xs text-slate-500'>Nouveaux professionnels</p>
+                </div>
+              </div>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100'>
+                  <Building2 className='h-5 w-5 text-emerald-600' />
+                </div>
+                <div>
+                  <p className='text-2xl font-bold text-slate-900'>+{structureGrowthRate}</p>
+                  <p className='text-xs text-slate-500'>Nouvelles structures</p>
                 </div>
               </div>
               <div className='border-t border-slate-100 pt-3'>
-                <div className='space-y-2'>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-slate-500'>Rapports rédigés</span>
-                    <span className='font-bold text-slate-900'>{totalReportsCount}</span>
-                  </div>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-slate-500'>Rapports rédigés</span>
+                  <span className='font-bold text-slate-900'>{totalReportsCount}</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Premium + Regions */}
+        <div className='mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+          {/* Premium */}
+          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+            <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
+              <Crown className='h-5 w-5 text-amber-500' />
+              Premium
+            </h2>
+            <div className='space-y-3'>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm text-slate-500'>Pros abonnés</span>
+                <span className='text-lg font-bold text-slate-900'>{premiumProfessionalsCount}</span>
+              </div>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm text-slate-500'>Taux de conversion</span>
+                <span className='text-lg font-bold text-slate-900'>
+                  {professionalsCount > 0 ? Math.round((premiumProfessionalsCount / professionalsCount) * 100) : 0}%
+                </span>
+              </div>
+            </div>
+            <p className='mt-3 text-xs text-slate-400'>
+              Professionnels avec un abonnement Stripe actif.
+            </p>
+          </div>
+
+          {/* Regions */}
+          <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+            <h2 className='mb-4 flex items-center gap-2 text-lg font-bold text-slate-900'>
+              <MapPin className='h-5 w-5 text-blue-600' />
+              Répartition géographique
+            </h2>
+            {regionBreakdown.length > 0 ? (
+              <div className='space-y-2'>
+                {regionBreakdown.map((region) => (
+                  <div className='flex items-center justify-between' key={region.city}>
+                    <span className='text-sm text-slate-600'>{region.city}</span>
+                    <span className='rounded-lg bg-blue-50 px-2 py-0.5 text-sm font-bold text-blue-600'>
+                      {region.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className='text-sm text-slate-400'>Aucune donnée de localisation.</p>
+            )}
+            <p className='mt-3 text-xs text-slate-400'>
+              Top 10 des villes (professionnels + structures).
+            </p>
           </div>
         </div>
 

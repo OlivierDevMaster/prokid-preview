@@ -18,7 +18,10 @@ import {
   getAdminPendingMissionsCount,
   getAdminProfessionalsCount,
   getAdminStructuresCount,
+  getAdminStructureGrowthRate,
   getAdminSystemGrowthRate,
+  getAdminPremiumProfessionalsCount,
+  getAdminRegionBreakdown,
   getAdminTotalInvitationsCount,
   getAdminTotalReportsCount,
 } from '@/features/admin/services/dashboard.service';
@@ -110,6 +113,21 @@ export function useGetDashboardStats() {
     queryKey: ['dashboard', 'admin', 'professionals', 'most-active'],
   });
 
+  const { data: structureGrowthRate = 0 } = useQuery({
+    queryFn: getAdminStructureGrowthRate,
+    queryKey: ['dashboard', 'admin', 'structures', 'growth'],
+  });
+
+  const { data: premiumProfessionalsCount = 0 } = useQuery({
+    queryFn: getAdminPremiumProfessionalsCount,
+    queryKey: ['dashboard', 'admin', 'professionals', 'premium'],
+  });
+
+  const { data: regionBreakdown = [] } = useQuery({
+    queryFn: getAdminRegionBreakdown,
+    queryKey: ['dashboard', 'admin', 'regions'],
+  });
+
   return useMemo(
     () => ({
       activeMissionsCount,
@@ -124,7 +142,10 @@ export function useGetDashboardStats() {
       mostActiveStructure,
       pendingInvitationsCount,
       pendingMissionsCount,
+      premiumProfessionalsCount,
       professionalsCount,
+      regionBreakdown,
+      structureGrowthRate,
       structuresCount,
       systemGrowthRate,
       totalInvitationsCount,
@@ -143,7 +164,10 @@ export function useGetDashboardStats() {
       mostActiveStructure,
       pendingInvitationsCount,
       pendingMissionsCount,
+      premiumProfessionalsCount,
       professionalsCount,
+      regionBreakdown,
+      structureGrowthRate,
       structuresCount,
       systemGrowthRate,
       totalInvitationsCount,
