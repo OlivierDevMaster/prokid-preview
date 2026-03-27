@@ -102,11 +102,9 @@ export default function DashboardPage() {
                 <p className='mb-4 text-sm text-slate-200'>
                   {t('helpCardDescription')}
                 </p>
-                <Link href='/structure/search'>
-                  <Button className='rounded-xl bg-white px-4 py-2 text-sm font-bold text-[#2C3E50] shadow-sm hover:bg-slate-100'>
-                    {t('helpCardCta')}
-                  </Button>
-                </Link>
+                <span className='inline-block rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white'>
+                  support@prokid.com
+                </span>
               </div>
             </section>
           </div>

@@ -18,6 +18,7 @@ export interface ConversationRow {
   id: string;
   last_message_at: null | string;
   last_message_preview: null | string;
+  last_message_sender_id: null | string;
   mission_id: null | string;
   professional_id: string;
   structure_id: string;

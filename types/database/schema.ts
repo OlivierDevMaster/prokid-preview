@@ -190,6 +190,7 @@ export type Database = {
           id: string
           last_message_at: string | null
           last_message_preview: string | null
+          last_message_sender_id: string | null
           mission_id: string | null
           professional_id: string
           structure_id: string
@@ -200,6 +201,7 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           last_message_preview?: string | null
+          last_message_sender_id?: string | null
           mission_id?: string | null
           professional_id: string
           structure_id: string
@@ -210,6 +212,7 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           last_message_preview?: string | null
+          last_message_sender_id?: string | null
           mission_id?: string | null
           professional_id?: string
           structure_id?: string

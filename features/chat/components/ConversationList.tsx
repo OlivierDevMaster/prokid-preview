@@ -12,6 +12,7 @@ import { ConversationListItem } from './ConversationListItem';
 
 interface ConversationListProps {
   conversations: ConversationWithDetails[];
+  currentUserId?: string;
   isLoading?: boolean;
   onSelectConversation: (id: string) => void;
   selectedConversationId: null | string;
@@ -22,6 +23,7 @@ type ViewRole = 'professional' | 'structure';
 
 export function ConversationList({
   conversations,
+  currentUserId,
   isLoading = false,
   onSelectConversation,
   selectedConversationId,
@@ -67,6 +69,7 @@ export function ConversationList({
             {filtered.map(conv => (
               <ConversationListItem
                 conversation={conv}
+                currentUserId={currentUserId}
                 isSelected={conv.id === selectedConversationId}
                 key={conv.id}
                 onSelect={() => onSelectConversation(conv.id)}

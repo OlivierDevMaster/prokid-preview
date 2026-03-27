@@ -12,6 +12,7 @@ const CONVERSATIONS_SELECT = `
   mission_id,
   last_message_at,
   last_message_preview,
+  last_message_sender_id,
   created_at,
   updated_at,
   structure:structures(

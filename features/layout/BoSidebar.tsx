@@ -181,12 +181,10 @@ export function BoSidebar({ expanded = false, navItems }: BoSidebarProps) {
                     {typeof badgeCount === 'number' && badgeCount > 0 && (
                       <span
                         className={cn(
-                          'absolute flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-semibold text-white',
-                          expanded ? '-right-1 -top-1.5' : '-right-2 -top-2'
+                          'absolute h-2.5 w-2.5 rounded-full bg-red-500',
+                          expanded ? '-right-0.5 -top-0.5' : '-right-1 -top-1'
                         )}
-                      >
-                        {badgeCount > 9 ? '9+' : badgeCount}
-                      </span>
+                      />
                     )}
                   </span>
                   {expanded ? (

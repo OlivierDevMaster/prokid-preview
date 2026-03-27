@@ -117,6 +117,7 @@ export function ChatView({ viewRole }: ChatViewProps) {
       >
         <ConversationList
           conversations={conversations}
+          currentUserId={session?.user?.id}
           isLoading={isLoadingConversations}
           onSelectConversation={handleSelectConversation}
           selectedConversationId={selectedConversationId}

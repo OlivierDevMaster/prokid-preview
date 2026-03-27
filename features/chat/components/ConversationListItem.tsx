@@ -1,6 +1,6 @@
 'use client';
 
-import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
+import { differenceInDays, isToday, isYesterday } from 'date-fns';
 import { Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -16,6 +16,7 @@ import { MissionStatusBadge } from './MissionStatusBadge';
 
 export interface ConversationListItemProps {
   conversation: ConversationWithDetails;
+  currentUserId?: string;
   isSelected: boolean;
   onSelect: () => void;
   viewRole: ViewRole;
@@ -25,6 +26,7 @@ type ViewRole = 'professional' | 'structure';
 
 export function ConversationListItem({
   conversation: conv,
+  currentUserId,
   isSelected,
   onSelect,
   viewRole,
@@ -32,6 +34,11 @@ export function ConversationListItem({
   const t = useTranslations('chat');
   const name = getOtherPartyName(conv, viewRole);
   const isStructure = viewRole === 'professional';
+
+  // Determine conversation status
+  const lastSenderId = conv.last_message_sender_id;
+  const waitingForMyReply = lastSenderId && currentUserId && lastSenderId !== currentUserId;
+  const iSentLast = lastSenderId && currentUserId && lastSenderId === currentUserId;
 
   return (
     <li>
@@ -93,7 +100,11 @@ export function ConversationListItem({
           <p className='truncate text-xs text-muted-foreground'>
             {getConversationPreview(conv, k => t(k))}
           </p>
-          {conv.mission?.status ? (
+          {waitingForMyReply ? (
+            <span className='mt-1 inline-flex self-start rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700'>
+              En attente de votre réponse
+            </span>
+          ) : conv.mission?.status ? (
             <span className='mt-1 self-start'>
               <MissionStatusBadge compact status={conv.mission.status} />
             </span>
@@ -112,10 +123,9 @@ function formatLastMessageAt(
   const d = new Date(lastMessageAt);
   if (isToday(d)) return t('today');
   if (isYesterday(d)) return t('yesterday');
-  if (d.getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000) {
-    return format(d, 'EEE');
-  }
-  return formatDistanceToNow(d, { addSuffix: false });
+  const days = differenceInDays(new Date(), d);
+  if (days <= 30) return `${days} j`;
+  return '+30 j';
 }
 
 function getConversationPreview(
