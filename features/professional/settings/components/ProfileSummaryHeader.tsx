@@ -249,27 +249,6 @@ export function ProfileSummaryHeader() {
           </div>
         </div>
       </div>
-      <div className='mt-8 border-t border-slate-100 pt-8'>
-        <div className='mb-2 flex items-center justify-between'>
-          <span className='text-sm font-medium text-slate-700'>
-            {t('psProfileCompletion')}
-          </span>
-          <span className='text-sm font-bold text-[#4A90E2]'>
-            {completion}%
-          </span>
-        </div>
-        <div className='h-2.5 w-full rounded-full bg-slate-100'>
-          <div
-            className='h-2.5 rounded-full bg-[#4A90E2] transition-all'
-            style={{ width: `${completion}%` }}
-          />
-        </div>
-        <p className='mt-3 flex items-center gap-2 text-sm text-slate-500'>
-          <Info className='size-5 shrink-0 text-[#4A90E2]' />
-          {t('psProfileCompletionHint')}
-        </p>
-      </div>
-
       <Dialog
         onOpenChange={open => !open && setShowRemoveConfirm(false)}
         open={showRemoveConfirm}
