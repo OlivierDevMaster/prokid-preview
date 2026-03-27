@@ -86,25 +86,33 @@ export async function getConversations(): Promise<ConversationWithDetails[]> {
   const { data, error } = await supabase
     .from('conversations')
     .select(CONVERSATIONS_SELECT)
-    .order('last_message_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
+    .order('updated_at', { ascending: false });
 
   if (error) throw error;
 
   return (data ?? []) as ConversationWithDetails[];
 }
 
-/** Find or create a conversation for the given structure, professional, and optional mission */
+/** Find or create a conversation for the given mission (1 conversation = 1 mission) */
 export async function getOrCreateConversation(
   params: CreateConversationParams
 ): Promise<ConversationWithDetails> {
   const supabase = createClient();
 
-  const query = supabase
+  let query = supabase
     .from('conversations')
-    .select(CONVERSATIONS_SELECT)
-    .eq('structure_id', params.structure_id)
-    .eq('professional_id', params.professional_id);
+    .select(CONVERSATIONS_SELECT);
+
+  // If mission_id provided, find by mission (1 conversation per mission)
+  if (params.mission_id) {
+    query = query.eq('mission_id', params.mission_id);
+  } else {
+    // Fallback for legacy: find by structure + professional pair
+    query = query
+      .eq('structure_id', params.structure_id)
+      .eq('professional_id', params.professional_id)
+      .is('mission_id', null);
+  }
 
   const { data: existing, error: findError } = await query.maybeSingle();
 

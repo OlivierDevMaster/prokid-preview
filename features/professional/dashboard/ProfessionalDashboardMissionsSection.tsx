@@ -15,7 +15,7 @@ export function ProfessionalDashboardMissionsSection() {
   const tMissions = useTranslations('professional.missions');
 
   const { data: missionsData, isLoading: isLoadingMissions } =
-    useGetProfessionalMissions({}, { limit: 2, page: 1 });
+    useGetProfessionalMissions({}, { limit: 5, page: 1 });
 
   const missions = missionsData?.data ?? [];
 

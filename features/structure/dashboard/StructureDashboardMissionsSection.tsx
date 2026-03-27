@@ -16,7 +16,7 @@ export function StructureDashboardMissionsSection() {
 
   const { data: missionsData, isLoading: isLoadingMissions } = useGetMissions(
     {},
-    { limit: 2, page: 1 }
+    { limit: 5, page: 1 }
   );
   const missions = missionsData?.data ?? [];
 

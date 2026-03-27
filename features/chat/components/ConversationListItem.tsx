@@ -97,9 +97,11 @@ export function ConversationListItem({
               {formatLastMessageAt(conv.last_message_at, k => t(k))}
             </span>
           </div>
-          <p className='truncate text-xs text-muted-foreground'>
-            {getConversationPreview(conv, k => t(k))}
-          </p>
+          {conv.mission?.title && (
+            <p className='truncate text-xs font-medium text-blue-600'>
+              {conv.mission.title}
+            </p>
+          )}
           {waitingForMyReply ? (
             <span className='mt-1 inline-flex self-start rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700'>
               En attente de votre réponse
