@@ -301,8 +301,8 @@ export default function StructureOnboardingForm() {
   const { headline, subtitle } = STEP_CONTENT[currentStep] ?? STEP_CONTENT[1];
 
   return (
-    <div className='h-full min-h-0 w-full'>
-      <div className='mx-auto grid h-full min-h-0 grid-cols-1 md:grid-cols-[minmax(0,400px)_1fr] md:overflow-hidden'>
+    <div className='min-h-screen w-full'>
+      <div className='grid min-h-screen grid-cols-1 md:grid-cols-[minmax(0,400px)_1fr] md:overflow-hidden'>
         {/* Left panel */}
         <div className='flex flex-col justify-between bg-[#2C3E50] p-6 text-white md:p-8 lg:p-10'>
           <div className='space-y-6'>
