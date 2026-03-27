@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, FileText } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { ProfessionalReportCard } from '@/features/professional/reports/components/ProfessionalReportCard';
@@ -35,19 +35,12 @@ export function ProfessionalDashboardReportsSection() {
             Aucun rapport pour le moment.
           </div>
         )}
-        <div className='flex gap-2 border-t border-slate-100 bg-slate-50 p-3'>
+        <div className='border-t border-slate-100 bg-slate-50 p-3 text-center'>
           <Link
-            className='flex-1 text-center text-sm font-semibold text-[#4A90E2] hover:underline'
+            className='text-sm font-semibold text-[#4A90E2] hover:underline'
             href='/professional/reports'
           >
             Voir tous les rapports
-          </Link>
-          <Link
-            className='flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:underline'
-            href='/professional/chat'
-          >
-            <FileText className='h-3.5 w-3.5' />
-            Rédiger un rapport
           </Link>
         </div>
       </div>
