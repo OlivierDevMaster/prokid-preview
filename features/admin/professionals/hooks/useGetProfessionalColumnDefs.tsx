@@ -1,5 +1,6 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
@@ -10,6 +11,37 @@ import Image from 'next/image';
 import type { Professional } from '@/features/professionals/professional.model';
 
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
+
+function ProfileViewsCell({ userId }: { userId: string }) {
+  const { data: count = 0 } = useQuery({
+    queryFn: async () => {
+      const supabase = createClient();
+      const { count } = await supabase
+        .from('profile_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('professional_id', userId);
+      return count ?? 0;
+    },
+    queryKey: ['admin-profile-views', userId],
+  });
+  return <div className='text-center text-sm font-medium text-slate-700'>{count}</div>;
+}
+
+function MissionsCountCell({ userId }: { userId: string }) {
+  const { data: count = 0 } = useQuery({
+    queryFn: async () => {
+      const supabase = createClient();
+      const { count } = await supabase
+        .from('missions')
+        .select('*', { count: 'exact', head: true })
+        .eq('professional_id', userId);
+      return count ?? 0;
+    },
+    queryKey: ['admin-missions-count', userId],
+  });
+  return <div className='text-center text-sm font-medium text-slate-700'>{count}</div>;
+}
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -132,6 +164,16 @@ export default function useGetProfessionalColumnDefs({
         return <div>{currentJob ? getJobTranslation(currentJob) : 'N/A'}</div>;
       },
       header: translations.currentJob,
+    },
+    {
+      cell: ({ row }) => <ProfileViewsCell userId={row.original.user_id} />,
+      header: () => <div className='text-center'>Vues</div>,
+      id: 'profile_views',
+    },
+    {
+      cell: ({ row }) => <MissionsCountCell userId={row.original.user_id} />,
+      header: () => <div className='text-center'>Missions</div>,
+      id: 'missions_count',
     },
     {
       accessorKey: 'reviews_count',
