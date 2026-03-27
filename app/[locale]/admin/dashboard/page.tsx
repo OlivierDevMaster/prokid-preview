@@ -15,17 +15,13 @@ import { useGetDashboardStats } from '@/features/admin/hooks/useGetDashboardStat
 export default function DashboardPage() {
   const {
     activeMissionsCount,
-    activeProfessionalsCount,
-    activeStructuresCount,
     completedMissionsCount,
     missionCompletionRate,
     missionsCount,
-    pendingInvitationsCount,
     pendingMissionsCount,
     professionalsCount,
     structuresCount,
     systemGrowthRate,
-    totalInvitationsCount,
     totalReportsCount,
   } = useGetDashboardStats();
 
@@ -89,14 +85,15 @@ export default function DashboardPage() {
           <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
             <h2 className='mb-4 text-lg font-bold text-slate-900'>Utilisateurs</h2>
             <div className='space-y-3'>
-              <StatRow color='bg-blue-500' label='Pros inscrits' value={professionalsCount} />
-              <StatRow color='bg-blue-300' label='Pros actifs' value={activeProfessionalsCount} />
-              <StatRow color='bg-emerald-500' label='Structures inscrites' value={structuresCount} />
-              <StatRow color='bg-emerald-300' label='Structures actives' value={activeStructuresCount} />
+              <StatRow color='bg-blue-500' label='Professionnels' value={professionalsCount} />
+              <StatRow color='bg-emerald-500' label='Structures' value={structuresCount} />
             </div>
+            <p className='mt-4 text-xs text-slate-400'>
+              Tous les comptes créés sur la plateforme (onboarding complété ou non).
+            </p>
           </div>
 
-          {/* Growth & Invitations */}
+          {/* Growth */}
           <div className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
             <h2 className='mb-4 text-lg font-bold text-slate-900'>Lancement</h2>
             <div className='space-y-4'>
@@ -106,21 +103,13 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className='text-2xl font-bold text-slate-900'>+{systemGrowthRate}</p>
-                  <p className='text-xs text-slate-500'>Nouveaux pros ce mois</p>
+                  <p className='text-xs text-slate-500'>Nouveaux pros inscrits ce mois</p>
                 </div>
               </div>
               <div className='border-t border-slate-100 pt-3'>
                 <div className='space-y-2'>
                   <div className='flex items-center justify-between text-sm'>
-                    <span className='text-slate-500'>Invitations envoyées</span>
-                    <span className='font-bold text-slate-900'>{totalInvitationsCount}</span>
-                  </div>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-slate-500'>En attente de réponse</span>
-                    <span className='font-bold text-amber-600'>{pendingInvitationsCount}</span>
-                  </div>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-slate-500'>Rapports reçus</span>
+                    <span className='text-slate-500'>Rapports rédigés</span>
                     <span className='font-bold text-slate-900'>{totalReportsCount}</span>
                   </div>
                 </div>
