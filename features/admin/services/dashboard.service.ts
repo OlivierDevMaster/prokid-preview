@@ -391,7 +391,7 @@ export async function getAdminPremiumProfessionalsCount(): Promise<number> {
   return count ?? 0;
 }
 
-export async function getAdminRegionBreakdown(): Promise<Array<{ city: string; count: number }>> {
+export async function getAdminRegionBreakdown(): Promise<Array<{ city: string; proCount: number; structCount: number; total: number }>> {
   const supabase = createClient();
 
   const { data: proCities } = await supabase
@@ -404,18 +404,29 @@ export async function getAdminRegionBreakdown(): Promise<Array<{ city: string; c
     .select('city')
     .not('city', 'is', null);
 
-  const cityMap = new Map<string, number>();
+  const cityMap = new Map<string, { pro: number; struct: number }>();
 
-  for (const row of [...(proCities || []), ...(structCities || [])]) {
+  for (const row of (proCities || [])) {
     const city = (row.city || '').trim();
     if (city) {
-      cityMap.set(city, (cityMap.get(city) || 0) + 1);
+      const existing = cityMap.get(city) || { pro: 0, struct: 0 };
+      existing.pro++;
+      cityMap.set(city, existing);
+    }
+  }
+
+  for (const row of (structCities || [])) {
+    const city = (row.city || '').trim();
+    if (city) {
+      const existing = cityMap.get(city) || { pro: 0, struct: 0 };
+      existing.struct++;
+      cityMap.set(city, existing);
     }
   }
 
   return Array.from(cityMap.entries())
-    .map(([city, count]) => ({ city, count }))
-    .sort((a, b) => b.count - a.count)
+    .map(([city, counts]) => ({ city, proCount: counts.pro, structCount: counts.struct, total: counts.pro + counts.struct }))
+    .sort((a, b) => b.total - a.total)
     .slice(0, 10);
 }
 

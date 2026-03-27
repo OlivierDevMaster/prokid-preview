@@ -177,25 +177,49 @@ export default function DashboardPage() {
             <MapPin className='h-5 w-5 text-blue-600' />
             Répartition géographique
           </h2>
+          <div className='mb-3 flex items-center gap-4 text-xs'>
+            <span className='flex items-center gap-1.5'>
+              <span className='h-2.5 w-2.5 rounded-full bg-blue-500' /> Professionnels
+            </span>
+            <span className='flex items-center gap-1.5'>
+              <span className='h-2.5 w-2.5 rounded-full bg-emerald-500' /> Structures
+            </span>
+          </div>
           {regionBreakdown.length > 0 ? (
-            <div className='space-y-2'>
-              {regionBreakdown.map((region) => (
-                <div className='flex items-center justify-between' key={region.city}>
-                  <span className='text-sm text-slate-600'>{region.city}</span>
-                  <div className='flex items-center gap-2'>
-                    <div className='h-2 rounded-full bg-blue-500' style={{ width: `${Math.max(20, (region.count / (regionBreakdown[0]?.count || 1)) * 120)}px` }} />
-                    <span className='w-8 text-right text-sm font-bold text-slate-900'>
-                      {region.count}
-                    </span>
+            <div className='space-y-3'>
+              {regionBreakdown.map((region) => {
+                const maxTotal = regionBreakdown[0]?.total || 1;
+                return (
+                  <div key={region.city}>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <span className='text-sm font-medium text-slate-700'>{region.city}</span>
+                      <span className='text-xs text-slate-400'>
+                        {region.proCount} pro · {region.structCount} struct
+                      </span>
+                    </div>
+                    <div className='flex h-2.5 overflow-hidden rounded-full bg-slate-100'>
+                      {region.proCount > 0 && (
+                        <div
+                          className='h-full bg-blue-500'
+                          style={{ width: `${(region.proCount / maxTotal) * 100}%` }}
+                        />
+                      )}
+                      {region.structCount > 0 && (
+                        <div
+                          className='h-full bg-emerald-500'
+                          style={{ width: `${(region.structCount / maxTotal) * 100}%` }}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className='text-sm text-slate-400'>Aucune donnée de localisation.</p>
           )}
           <p className='mt-4 text-xs text-slate-400'>
-            Top 10 des villes — professionnels et structures combinés. Utile pour suivre le déploiement régional.
+            Top 10 des villes. Utile pour suivre le déploiement régional.
           </p>
         </div>
 
