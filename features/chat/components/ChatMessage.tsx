@@ -48,7 +48,7 @@ export function ChatMessage({
   }
 
   if (message.type === 'report') {
-    return <ReportMessageCard isOutgoing={isOutgoing} message={message} />;
+    return <ReportMessageCard isOutgoing={isOutgoing} message={message} viewRole={viewRole} />;
   }
 
   if (message.type === 'appointment_link') {

@@ -67,6 +67,7 @@ export function ReportFormDialog({
       return;
     }
 
+    if (isSubmitting) return; // Prevent double submission
     setIsSubmitting(true);
     try {
       const supabase = createClient();
@@ -84,7 +85,11 @@ export function ReportFormDialog({
         .select('id')
         .single();
 
-      if (reportError) throw reportError;
+      if (reportError) {
+        console.error('Report creation failed:', reportError);
+        toast.error(`Erreur rapport : ${reportError.message}`);
+        return;
+      }
 
       // 2. Upload attachments
       if (files.length > 0) {
@@ -99,14 +104,21 @@ export function ReportFormDialog({
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
-          content: `Rapport : ${title.trim()}`,
+          content: JSON.stringify({ reportId: report.id, title: title.trim() }),
           conversation_id: conversationId,
-          report_id: report.id,
           sender_id: userId,
           type: 'report',
         });
 
-      if (messageError) throw messageError;
+      if (messageError) {
+        console.error('Message creation failed:', messageError);
+        toast.error(`Erreur message : ${messageError.message}`);
+        // Report was created successfully even if message failed
+        toast.success('Rapport créé mais le message n\'a pas pu être envoyé');
+        onSuccess(report.id);
+        onClose();
+        return;
+      }
 
       toast.success('Rapport envoyé');
       setTitle('');
@@ -114,8 +126,9 @@ export function ReportFormDialog({
       setFiles([]);
       onSuccess(report.id);
       onClose();
-    } catch {
-      toast.error("Erreur lors de l'envoi du rapport");
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error("Erreur inattendue");
     } finally {
       setIsSubmitting(false);
     }
