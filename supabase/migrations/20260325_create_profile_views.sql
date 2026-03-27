@@ -20,6 +20,10 @@ CREATE POLICY "Anyone can insert profile views" ON public.profile_views
 CREATE POLICY "Professionals can read their own views" ON public.profile_views
   FOR SELECT USING (auth.uid() = professional_id);
 
+CREATE POLICY "Admins can read all profile views" ON public.profile_views
+  FOR SELECT TO authenticated
+  USING ((SELECT public.is_admin()));
+
 -- RPC to get profile view stats for a professional
 CREATE OR REPLACE FUNCTION get_profile_view_stats(p_professional_id UUID)
 RETURNS JSON
