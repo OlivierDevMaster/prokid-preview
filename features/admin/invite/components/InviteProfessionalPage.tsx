@@ -573,19 +573,57 @@ export function InviteProfessionalPage() {
                 <tbody className='divide-y divide-gray-100'>
                   {csvRows.map((row, index) => (
                     <tr key={index} className='hover:bg-gray-50'>
-                      <td className='px-3 py-2 text-gray-400'>{index + 1}</td>
-                      <td className='px-3 py-2 text-gray-900'>{row.email}</td>
-                      <td className='px-3 py-2 text-gray-700'>
-                        {row.firstName || '-'}
+                      <td className='px-3 py-2 text-gray-400'>
+                        <div className='flex items-center gap-1'>
+                          {index + 1}
+                          <button
+                            className='rounded p-0.5 text-gray-300 hover:bg-red-50 hover:text-red-500'
+                            onClick={() => setCsvRows(prev => prev.filter((_, i) => i !== index))}
+                            title='Supprimer cette ligne'
+                            type='button'
+                          >
+                            <X className='h-3 w-3' />
+                          </button>
+                        </div>
                       </td>
-                      <td className='px-3 py-2 text-gray-700'>
-                        {row.lastName || '-'}
+                      <td className='px-1 py-1'>
+                        <input
+                          className='h-8 w-full rounded border border-transparent bg-transparent px-2 text-sm text-gray-900 hover:border-gray-200 focus:border-blue-400 focus:outline-none'
+                          onChange={e => setCsvRows(prev => prev.map((r, i) => i === index ? { ...r, email: e.target.value } : r))}
+                          value={row.email}
+                        />
                       </td>
-                      <td className='px-3 py-2 text-gray-700'>
-                        {row.phone || '-'}
+                      <td className='px-1 py-1'>
+                        <input
+                          className='h-8 w-full rounded border border-transparent bg-transparent px-2 text-sm text-gray-700 hover:border-gray-200 focus:border-blue-400 focus:outline-none'
+                          onChange={e => setCsvRows(prev => prev.map((r, i) => i === index ? { ...r, firstName: e.target.value } : r))}
+                          placeholder='-'
+                          value={row.firstName}
+                        />
                       </td>
-                      <td className='px-3 py-2 text-gray-700'>
-                        {row.job || '-'}
+                      <td className='px-1 py-1'>
+                        <input
+                          className='h-8 w-full rounded border border-transparent bg-transparent px-2 text-sm text-gray-700 hover:border-gray-200 focus:border-blue-400 focus:outline-none'
+                          onChange={e => setCsvRows(prev => prev.map((r, i) => i === index ? { ...r, lastName: e.target.value } : r))}
+                          placeholder='-'
+                          value={row.lastName}
+                        />
+                      </td>
+                      <td className='px-1 py-1'>
+                        <input
+                          className='h-8 w-full rounded border border-transparent bg-transparent px-2 text-sm text-gray-700 hover:border-gray-200 focus:border-blue-400 focus:outline-none'
+                          onChange={e => setCsvRows(prev => prev.map((r, i) => i === index ? { ...r, phone: e.target.value } : r))}
+                          placeholder='-'
+                          value={row.phone}
+                        />
+                      </td>
+                      <td className='px-1 py-1'>
+                        <input
+                          className='h-8 w-full rounded border border-transparent bg-transparent px-2 text-sm text-gray-700 hover:border-gray-200 focus:border-blue-400 focus:outline-none'
+                          onChange={e => setCsvRows(prev => prev.map((r, i) => i === index ? { ...r, job: e.target.value } : r))}
+                          placeholder='-'
+                          value={row.job}
+                        />
                       </td>
                     </tr>
                   ))}
